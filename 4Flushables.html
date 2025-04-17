@@ -71,6 +71,30 @@
             color: #555;
         }
 
+        .badge {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            background-color: #e5c07b;
+            color: #5a3206;
+            padding: 0.5em 1em;
+            border: 3px solid #3a1f00;
+            border-radius: 50%;
+            font-size: 0.8em;
+            font-weight: bold;
+            animation: bounce 2s infinite, glow 1.5s infinite alternate;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 5px #5a3206; }
+            to { box-shadow: 0 0 20px #5a3206; }
+        }
+
         @media (max-width: 768px) {
             .champ {
                 width: 100%;
@@ -105,6 +129,7 @@
             <img src="" alt="Steven Vargas - 2024">
             <p><strong>Steven Vargas</strong><br/>2024 Season<br/><strong>3-11</strong></p>
             <p class="quote">"I never come in last place!"</p>
+            <div class="badge">💩</div>
         </div>
     </div>
 

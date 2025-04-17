@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFL Guess Who</title>
+    <style>
+        body {
+            font-family: Chalkduster;
+	    color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #game-container {
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        #start-button {
+            padding: 10px 20px;
+            background-color: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #question-area {
+            margin-top: 20px;
+        }
+
+        #timer {
+            margin-top: 10px;
+        }
+
+        #answer-input {
+            margin-top: 10px;
+            padding: 5px;
+        }
+
+        #score-area {
+            margin-top: 20px;
+        }
+
+        #high-scores {
+            margin-top: 20px;
+            text-align: left;
+            width: 100%;
+        }
+
+        #high-scores ul {
+            list-style-type: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body style="background-color: #1e3159;">
+
+
+
+
+<img src="XO.jpeg" alt="Kenny" class="center" style="width: 500px;"/ style="align: center;">
+
+    <div id="game-container">
+        <h1>NFL Guess Who</h1>
+        <input type="text" id="player-name" placeholder="Enter your name">
+        <button id="start-button">Start Game</button>
+        <div id="question-area" style="display: none;">
+            <p id="question"></p>
+            <input type="text" id="answer-input">
+            <button id="submit-answer">Submit</button>
+        </div>
+        <div id="timer" style="display: none;"></div>
+        <div id="score-area" style="display: none;">
+            <p id="score"></p>
+            <p id="errors"></p>
+        </div>
+        <div id="high-scores">
+            <h2>High Scores</h2>
+            <ul id="high-scores-list"></ul>
+        </div>
+    </div>
+    <audio id="tick-sound" src="tick.mp3" preload="auto"></audio>
+    <audio id="lose-sound" src="lose.mp3" preload="auto"></audio>
+    <script>
+        const questions = [
+            { clues: ["This player is known for their exceptional quarterbacking abilities.", "They have won multiple Super Bowl championships.", "They have broken many NFL passing records.", "They played for the patriots, and the Buccaneers."], answer: "Tom Brady" },
+            { clues: ["This player is known for their incredible receiving skills.", "They hold many NFL receiving records.", "They spent the majority of their career with the 49ers.", "They are a hall of fame wide receiver."], answer: "Jerry Rice" },
+            { clues: ["This player was a dominant running back.", "He spent his entire career with the Detroit Lions.", "Known for his elusive running style.", "He retired at a relatively young age."], answer: "Barry Sanders" },
+            { clues: ["This player is known for his defensive prowess.", "He played for the New York Giants.", "He was a dominant linebacker.", "He is considered by many to be one of the best defensive players in NFL history."], answer: "Lawrence Taylor" },
+            { clues: ["This player is known for his incredible kicking ability.", "He currently holds the record for the longest field goal in NFL history.", "He plays for the Baltimore Ravens.", "He is known for his accuracy."], answer: "Justin Tucker" },
+            { clues: ["This player is known for his powerful running style.", "He played for the Dallas Cowboys.", "He holds the record for most career rushing yards in the NFL.", "He is a hall of fame running back."], answer: "Emmitt Smith" },
+            { clues: ["This player is known for his ability to make amazing catches.", "He has played for multiple teams, including the Cincinnati Bengals.", "He is a very productive wide receiver.", "Known for his spectacular catches."], answer: "Ja'Marr Chase" },
+            { clues: ["This player is a very well known Quarterback.", "He plays for the Kansas City Chiefs.", "He has won multiple Super bowl MVP's.", "Known for his strong arm, and ability to make amazing throws."], answer: "Patrick Mahomes" },
+            { clues: ["This player is known for his defensive pass rushing abilities.", "He plays for the Cleveland Browns.", "He is known for getting many sacks.", "He is considered one of the best defensive ends in the NFL."], answer: "Myles Garrett" },
+            { clues: ["This player is known for his great receiving abilities.", "He plays for the Minnesota Vikings.", "he is known for catching many touchdown passes.", "He has had several seasons with over 1000 receiving yards."], answer: "Justin Jefferson" },
+            { clues: ["This quarterback is known for his strong arm and mobility.", "He led the Seattle Seahawks to a Super Bowl victory.", "He has a reputation for making clutch plays in big games.", "He is known for his ability to improvise and extend plays."], answer: "Russell Wilson" },
+            { clues: ["This wide receiver is known for his speed and agility.", "He has played for multiple teams, including the Kansas City Chiefs and Miami Dolphins.", "He is known for his ability to stretch the field and make big plays.", "He has been named to multiple Pro Bowls."], answer: "Tyreek Hill" },
+            { clues: ["This defensive end is known for his pass-rushing abilities.", "He played for the Houston Texans and Arizona Cardinals.", "He holds the record for most sacks in a single season.", "He is known for his relentless motor and ability to disrupt offenses."], answer: "J.J. Watt" },
+            { clues: ["This running back is known for his powerful running style.", "He played for the Seattle Seahawks.", "He is known for his ability to break tackles and gain yards after contact.", "He is known for his 'Beast Mode' persona."], answer: "Marshawn Lynch" },
+            { clues: ["This quarterback is known for his accuracy and decision-making.", "He played for the New Orleans Saints for the majority of his career.", "He holds multiple NFL passing records.", "He led the Saints to a Super Bowl victory."], answer: "Drew Brees" },
+            { clues: ["This linebacker is known for his leadership and toughness.", "He played for the Carolina Panthers.", "He is known for his hard-hitting style and ability to make tackles.", "He is considered one of the best linebackers of his generation."], answer: "Luke Kuechly" },
+            { clues: ["This wide receiver is known for his route-running and hands.", "He played for the Detroit Lions.", "He holds multiple NFL receiving records.", "He is known for his reliability and consistency."], answer: "Calvin Johnson" },
+            { clues: ["This tight end is known for his athleticism and versatility.", "He played for the New England Patriots and Tampa Bay Buccaneers.", "He is known for his ability to block and catch passes.", "He has won multiple Super Bowl championships."], answer: "Rob Gronkowski" },
+            { clues: ["This defensive tackle is known for his strength and power.", "He played for the Detroit Lions.", "He is known for his ability to disrupt running plays and pressure quarterbacks.", "He is considered one of the best defensive tackles of all time."], answer: "Ndamukong Suh" },
+            { clues: ["This quarterback is known for his leadership and toughness.", "He played for the Pittsburgh Steelers.", "He led the Steelers to multiple Super Bowl championships.", "He is a hall of fame quarterback."], answer: "Ben Roethlisberger" }
+        ];
+
+        let playerName = "";
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let errors = 0;
+        let timeLeft = 300; // 5 minutes in seconds
+        let timerInterval;
+        let currentClueIndex = 0;
+
+        const playerNameInput = document.getElementById("player-name");
+        const startButton = document.getElementById("start-button");
+        const questionArea = document.getElementById("question-area");
+        const questionElement = document.getElementById("question");
+        const answerInput = document.getElementById("answer-input");
+        const submitButton = document.getElementById("submit-answer");
+        const timerElement = document.getElementById("timer");
+        const scoreArea = document.getElementById("score-area");
+        const scoreElement = document.getElementById("score");
+        const errorsElement = document.getElementById("errors");
+        const highScoresList = document.getElementById("high-scores-list");
+        const tickSound = document.getElementById("tick-sound");
+        const loseSound = document.getElementById("lose-sound");
+
+        function startGame() {
+            playerName = playerNameInput.value || "Player";
+            playerNameInput.style.display = "none";
+            startButton.style.display = "none";
+            questionArea.style.display = "block";
+            timerElement.style.display = "block";
+            scoreArea.style.display = "block";
+
+            currentQuestionIndex = 0;
+            score = 0;
+            errors = 0;
+            timeLeft = 300;
+            currentClueIndex = 0;
+
+            showQuestion();
+            startTimer();
+            updateScore();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                questionElement.textContent = questions[currentQuestionIndex].clues[currentClueIndex];
+                answerInput.value = "";
+            } else {
+                endGame();
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                tickSound.play();
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateScore() {
+            scoreElement.textContent = `Score: ${score}`;
+            errorsElement.textContent = `Errors: ${errors}`;
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            questionArea.style.display = "none";
+            timerElement.style.display = "none";
+            scoreArea.style.display = "block";
+            scoreElement.textContent = `Game Over! Final Score: ${score}`;
+            saveHighScore(playerName, score);
+            displayHighScores();
+            loseSound.play();
+        }
+
+        function checkAnswer() {
+            const userAnswer = answerInput.value.trim().toLowerCase();
+            const correctAnswer = questions[currentQuestionIndex].answer.toLowerCase();
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                currentQuestionIndex++;
+                currentClueIndex = 0;
+            } else {
+                errors++;
+                if (currentClueIndex < questions[currentQuestionIndex].clues.length - 1) {
+                    currentClueIndex++;
+                }
+            }
+
+            if(errors >= 3){
+                endGame();
+                return;
+            }
+
+            updateScore();
+            showQuestion();
+        }
+
+        function saveHighScore(name, score) {
+            let highScores = JSON.parse(localStorage.getItem("highScores")) || [];
+            highScores.push({ name, score });
+            highScores.sort((a, b) => b.score - a.score);
+            highScores = highScores.slice(0, 10); // Keep top 10 scores
+            localStorage.setItem("highScores", JSON.stringify(highScores));
+        }
+
+        function displayHighScores() {
+            const highScores = JSON.parse(localStorage.getItem("highScores")) || [];
+            highScoresList.innerHTML = "";
+            highScores.forEach(score => {
+                const li = document.createElement("li");
+                li.textContent = `${score.name}: ${score.score}`;
+                highScoresList.appendChild(li);
+            });
+        }
+
+        startButton.addEventListener("click", startGame);
+
+        submitButton.addEventListener("click", checkAnswer);
+
+        answerInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+        });
+
+        displayHighScores();
+    </script>
+</body>
+</html>

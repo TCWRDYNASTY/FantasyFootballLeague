@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
+   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TCWR FANTASY FOOTBALL DY-NASTY</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="console.log('Supabase library loaded successfully!');"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-picker@2.12.1/dist/vanilla-picker.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-picker@2.12.1/dist/vanilla-picker.min.css">
 
 <style>
-  * {
-    box-sizing: border-box;
-  }
 
-  body {
+ body {
     margin: 0;
     padding: 1rem;
     font-family: 'Courier New', monospace;
@@ -21,7 +21,73 @@
     align-items: center;
   }
 
-  .nav-container {
+.main-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1400px;
+  gap: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* Left (NFL News) */
+.left-column {
+  flex: 1 1 300px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 1rem;
+  min-width: 250px;
+}
+
+/* Middle (Main Container) */
+.middle-column {
+  flex: 2 1 600px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 1rem;
+  min-width: 300px;
+}
+
+/* Right (Login) */
+.right-column {
+  flex: 1 1 250px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 1rem;
+  min-width: 200px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+  .main-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .left-column,
+  .middle-column,
+  .right-column {
+    width: 90%;
+    max-width: 600px;
+  }
+}
+
+/* (Optional) Improve form elements inside right column */
+.right-column input,
+.right-column select,
+.right-column button {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* Optional spacing inside news list */
+#nfl-news li {
+  margin-bottom: 10px;
+}
+
+ .nav-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -45,12 +111,6 @@
     background-color: #3e5a99;
   }
 
-  @media (max-width: 600px) {
-    .nav-container a {
-      font-size: 0.9rem;
-      padding: 8px 12px;
-    }
-  }
 .header {
   width: 100%;
   display: flex;
@@ -105,141 +165,172 @@
 }
 
 
-  /* Layout */
-  .container {
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-    max-width: 1300px;
-    gap: 1rem;
+  /* Align containers to the right */
+  #login-container, #chat-container {
+    border-left: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    margin-left: auto; /* Push the container to the right */
+    width: 250px;
   }
 
-  .left-column, .right-column {
-    background-color: #2a2a2a;
-    border-radius: 10px;
-    padding: 1rem;
+  #chat-container {
+    display: none;
+    height: 600px; /* Set a fixed height for the chat container */
+    width: 250px;
+   
   }
 
-  .left-column {
-    flex: 1 1 350px;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .right-column {
-    flex: 1 1 600px;
+  /* Style for the messages list */
+  #messages {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    direction: ltr; /* Override for message content */
     display: flex;
     flex-direction: column;
-    align-items: center;
+
+    height: 100%; /* Take up the full height of the chat container */
+    overflow-y: auto; /* Enable scrolling for messages within the fixed height */
   }
 
-  @media (max-width: 768px) {
-    .container {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .left-column, .right-column {
-      width: 100%;
-    }
-  }
-
-  /* Components */
-  .sleeper-box {
-    background-color: #fff;
-    color: #000;
-    border: 2px solid #333;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
-  }
-
-  .matchup {
-    background-color: #f1f1f1;
-    color: #333;
-    padding: 0.5rem;
-    margin-top: 1rem;
+  #messages li {
+    background-color: black;
+    padding: 8px;
+    margin-bottom: 10px;
     border-radius: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+    display: inline-block;
+    word-break: break-word;
+    max-width: 70%; /* Limit message width */
+    float: right;
+    clear: both;
   }
 
-  .news-box {
+  #messages li:last-child { border-bottom: none; }
+
+  /* Style for form elements in login container */
+  #login-container select,
+  #login-container span#error-message {
+    text-align: left;
+    display: block;
+    margin-left: auto;
+    margin-bottom: 10px;
+    width: auto;
+  }
+  #login-container {border-left: 1px solid #ccc; padding: 15px; margin-bottom: 15px; }
+
+  #login-container input[type="password"] {
+    text-align: left; /* Override container's text-align */
+    direction: ltr; /* Ensure left-to-right typing */
+    display: block;
+    margin-left: auto;
+    margin-bottom: 10px;
+    width: auto;
+    padding: 8px;
+  }
+
+  /* Style for all buttons */
+  button {
+    padding: 8px 15px;
+    cursor: pointer;
+    background-color: green; /* Set background color to green */
+    color: white; /* Make text color white for better contrast */
+    border: none; /* Remove default button border */
+    border-radius: 5px; /* Add a slight rounded border */
+  }
+
+  /* Style for the chat input area */
+  #chat-input-area {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    direction: rtl; /* Keep rtl for overall alignment */
+  }
+
+  #message-input {
+    flex-grow: 1;
+    margin-right: 5px;
+    padding: 8px;
+    text-align: left; /* Override container's text-align */
+    direction: ltr; /* Ensure left-to-right typing */
+  }
+
+  #emoji-button, #send-button {
+    margin-left: 5px;
+  }
+
+  /* Style for the emoji picker */
+  #emoji-picker {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 5px;
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
+    left: auto;
+    right: 20px;
+  }
+
+  #emoji-picker button {
+    border: none;
+    background: none; /* Keep emoji picker buttons transparent initially */
+    font-size: 1.2em;
+    padding: 2px 5px;
+    cursor: pointer;
+    float: right;
+    margin-left: 2px;
+  }
+
+  /* Style for the sign-off button */
+  #signoff-button {
+    display: none;
+    float: right;
+  }
+
+/NFL NEWS BOX/
+ .news-box {
     background-color: #1e1e1e;
     border: 1px solid #333;
-    padding: 1rem;
-    border-radius: 8px;
+   
+    
   }
 
   .news-box h2 {
     color: #ffcc00;
+    
   }
 
   .news-box a {
     color: #1e90ff;
   }
-
-  #chat-container {
+ .container {
+    display: flex;
+    flex-wrap: wrap;
     width: 100%;
-    height: 400px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    background-color: #f0f0f0;
-    color: #000;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-  }
+    max-width: 1300px;
+    gap: 1rem;
+border: 1px solid #ccc;
+ border-radius: 8px;
+padding: 1rem;
+width: 400px;
+}
 
-  .message {
-    margin-bottom: 10px;
-    padding: 8px;
-    background-color: #dcdcdc;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-
-  .timestamp {
-    font-size: 0.8em;
-    color: #555;
-  }
-
-  input, select, button {
-    margin: 5px 0;
-    padding: 8px;
-    width: 100%;
-    max-width: 500px;
-    border-radius: 5px;
-    border: none;
-  }
-
-  button {
-    background-color: #4caf50;
-    color: white;
-    cursor: pointer;
-  }
-
-  button:hover {
-    background-color: #45a049;
-  }
-
-  #signoff-button {
-    margin: 0 auto;
-    display: block;
-  }
 </style>
-
 </head>
-
 <body>
 
-  <div class="nav-container">
+ <div class="nav-container">
     <a href="3Hall of Champions.html">Hall of Champions</a>
     <a href="4Flushables.html">Flushables</a>  
     <a href="7Records.html">Records</a>
     <a href="6Fallen Comrads.html">Fallen Comrades</a>
     <a href="underconstruction.html">Draft Lottery</a>  
     <a href="10game.html">NFL Guess Who!</a> 
-    <a href="underconstruction.html">TCWR Memory</a> 
+    <a href="underconstruction.html">TWCR Memory</a> 
     <a href="8Bylaws.html">League Rules</a> 
     <a href="underconstruction.html">Contact Commish</a>
   </div>
@@ -254,258 +345,316 @@
       <p class="since">Since 2023</p>
     </div>
   </div>
-
- <div class="container">
-    <div class="left-column">
-      <!-- Sleeper League Embed -->
-      <div class="sleeper-box" id="league-profile" style="display: none;">
-        <img id="league-avatar" class="avatar" src="" alt="League Avatar" />
-        <div class="league-name" id="league-name"></div>
-        <div class="league-details" id="league-details"></div>
-      </div>
-      <div id="matchups-container"></div>
-
-      <!-- NFL News -->
-      <div class="news-box">
-        <h2>📰 Latest NFL News from ESPN</h2>
-        <ul id="nfl-news">Loading...</ul>
-      </div>
-    </div>
-
-    <!-- Chat App -->
-    <div class="right-column">
-      <div id="login-container">
-        <select id="username-select">
-          <option value="">Select User</option>
-          <option value="Commish">Your Commish</option>
-          <option value="Matt">Matt</option>
-          <option value="Sylvester">Sylvester</option>
-          <option value="User4">User 4</option>
-          <option value="User5">User 5</option>
-          <option value="User6">User 6</option>
-          <option value="User7">User 7</option>
-          <option value="User8">User 8</option>
-          <option value="User9">User 9</option>
-          <option value="User10">User 10</option>
-          <option value="User11">User 11</option>
-          <option value="User12">User 12</option>
-          <option value="User13">User 13</option>
-          <option value="User14">User 14</option>
-        </select>
-        <input type="password" id="password-input" placeholder="Password">
-        <button id="login-button">Login</button>
-        <span id="error-message" style="color: red; display: none;">Incorrect username or password.</span>
-      </div>
-
-      <div id="chat-container"></div>
-
-      <div style="text-align: center; width: 100%;">
-        <input type="text" id="message-input" placeholder="Type your message..."><br>
-        <button id="send-button">Send</button>
-        <input type="file" id="file-input">
-        <button id="emoji-button">😀</button>
-        <div id="emoji-list" style="margin-top: 5px;"></div>
-        <div style="margin-top: 10px;">
-          <button id="signoff-button" style="display: none;">Sign Off</button>
-        </div>
-      </div>
-    </div>
+ <!-- NFL News --> 
+<div class="main-content">
+  <div class="left-column news-box">
+    <h2>NFL News from ESPN</h2>
+    <ul id="nfl-news">Loading...</ul>
+  </div>
+  
+<div class="middle-column container">
+    <!-- Your middle container content -->
   </div>
 
-  <!-- Scripts for Sleeper, NFL News, and Chat -->
-  <script>
-    // Sleeper League
-    const leagueId = "1180908151502815232";
-    const week = 1;
+<div class="right-column" id="login-container">
+    <h2>Login</h2>
+    <select id="username-select"></select>
+    <input type="password" id="password-input" placeholder="Password">
+    <button id="login-button">Click</button>
+    <span id="error-message" style="color: red; display: none;"></span>
+  </div>
+</div>
 
-    fetch(`https://api.sleeper.app/v1/league/${leagueId}`)
-      .then(res => res.json())
-      .then(league => {
-        document.getElementById("league-profile").style.display = "block";
-        document.getElementById("league-avatar").src = league.avatar
-          ? `https://sleepercdn.com/avatars/thumbs/${league.avatar}`
-          : 'https://sleepercdn.com/images/v2/icons/avatar_default.png';
-        document.getElementById("league-name").textContent = league.name || 'League Name Not Available';
-        document.getElementById("league-details").innerHTML = `
-          <p><strong>League ID:</strong> ${league.league_id}</p>
-          <p><strong>Status:</strong> ${league.status}</p>
-          <p><strong>Sport:</strong> ${league.sport}</p>
-          <p><strong>Season:</strong> ${league.season}</p>
-          <p><strong>Season Type:</strong> ${league.season_type}</p>
-          <p><strong>Total Rosters:</strong> ${league.total_rosters}</p>
-        `;
-      });
+  <div id="chat-container">
+    
+    <ul id="messages"></ul>
+    <div id="chat-input-area">
+      <input type="text" id="message-input" placeholder="Enter your message" disabled>
+     </div>
+<div>
+<button id="send-button" disabled>Send</button>   
+<button id="emoji-button" disabled>😊</button>
+  <button id="upload-button" disabled>Image</button>
+  <input type="file" id="image-upload" accept="image/*" style="display: none;">
+     
+    </div>
+    <div id="emoji-picker" style="display: none;">
+      <button>😀</button> <button>😂</button> <button>😍</button> <button>👍</button> <button>🤔</button>
+      <button>🎉</button> <button>❤️</button> <button>☕</button> <button>🍕</button> <button>🚀</button>
+      <button>🌟</button> <button>😎</button> <button>😴</button> <button>😭</button> <button>😡</button>
+      <button>🙏</button> <button>👏</button> <button>👋</button> <button>🐶</button> <button>🐱</button>
+    </div>
+    <div><button id="signoff-button" style="display: none;">Sign Off</button>
+  </div>
 
-    fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`)
-      .then(res => res.json())
-      .then(matchups => {
-        const container = document.getElementById("matchups-container");
-        container.innerHTML = '';
-        matchups.forEach(matchup => {
-          const div = document.createElement("div");
-          div.classList.add("matchup");
-          div.innerHTML = `
-            <h4>Matchup ID: ${matchup.matchup_id}</h4>
-            <p><strong>Roster ID:</strong> ${matchup.roster_id}</p>
-            <p><strong>Starters:</strong> ${matchup.starters.join(', ')}</p>
-            <p><strong>Players:</strong> ${matchup.players.join(', ')}</p>
-            <p><strong>Total Points:</strong> ${matchup.points}</p>
-          `;
-          container.appendChild(div);
-        });
-      });
+  <script>
+  const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
+const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
-    // NFL News
-    const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
-    const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
-
-    fetch(proxyUrl)
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('nfl-news');
-        list.innerHTML = '';
-        data.items.slice(0, 5).forEach(item => {
-          const li = document.createElement('li');
-          li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a><br><small>${item.pubDate}</small>`;
-          list.appendChild(li);
-        });
-      });
-
-    // Chat App Logic
-    const chatContainer = document.getElementById('chat-container');
-    const messageInput = document.getElementById('message-input');
-    const sendButton = document.getElementById('send-button');
-    const usernameSelect = document.getElementById('username-select');
-    const passwordInput = document.getElementById('password-input');
-    const loginButton = document.getElementById('login-button');
-    const loginContainer = document.getElementById('login-container');
-    const signoffButton = document.getElementById('signoff-button');
-    const fileInput = document.getElementById('file-input');
-    const errorMessage = document.getElementById('error-message');
-
-    let username = localStorage.getItem('username');
-    let messages = JSON.parse(localStorage.getItem('messages')) || [];
-
-    const userPasswords = {
-      Commish: 'Asher',
-      Matt: 'Raja',
-      Sylvester: 'Zeus',
-      User4: 'pass4',
-      User5: 'pass5',
-      User6: 'pass6',
-      User7: 'pass7',
-      User8: 'pass8',
-      User9: 'pass9',
-      User10: 'pass10',
-      User11: 'pass11',
-      User12: 'pass12',
-      User13: 'pass13',
-      User14: 'pass14',
-    };
-
-    function displayMessages() {
-      chatContainer.innerHTML = '';
-      messages.forEach((msg, index) => {
-        const div = document.createElement('div');
-        div.className = 'message';
-        const date = new Date(msg.timestamp);
-        const formattedDate = date.toLocaleString(); // Format timestamp
-
-        div.innerHTML = `${msg.text} <span class="timestamp">- ${msg.sender} at ${formattedDate}</span>`;
-        
-        // Message click handler for Edit/Delete options
-        div.onclick = () => {
-          if (msg.sender === username) {
-            const action = prompt("Choose an action: \n1. Edit\n2. Delete");
-            if (action === "1") {
-              const newText = prompt("Edit your message:", msg.text);
-              if (newText !== null) {
-                msg.text = newText;
-                localStorage.setItem('messages', JSON.stringify(messages));
-                displayMessages();
-              }
-            } else if (action === "2") {
-              if (confirm("Are you sure you want to delete this message?")) {
-                messages.splice(index, 1);
-                localStorage.setItem('messages', JSON.stringify(messages));
-                displayMessages();
-              }
-            }
-          }
-        };
-
-        chatContainer.appendChild(div);
-      });
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+fetch(proxyUrl)
+  .then(res => {
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
-
-    sendButton.onclick = () => {
-      if (!username) return alert("Login first");
-      const msg = {
-        text: messageInput.value,
-        sender: username,
-        timestamp: new Date(), // Store the timestamp
-        image: fileInput.files[0] ? URL.createObjectURL(fileInput.files[0]) : null
-      };
-      messages.push(msg);
-      localStorage.setItem('messages', JSON.stringify(messages));
-      displayMessages();
-      messageInput.value = '';
-      fileInput.value = '';
-    };
-messageInput.addEventListener('keydown', function(event) {
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    sendButton.click();
-  }
-});
-    loginButton.onclick = () => {
-      const user = usernameSelect.value;
-      const pass = passwordInput.value;
-      if (userPasswords[user] === pass) {
-        username = user;
-        localStorage.setItem('username', user);
-        loginContainer.style.display = 'none';
-        signoffButton.style.display = 'block';
-        displayMessages();
-      } else {
-        errorMessage.style.display = 'block';
-      }
-    };
-
-    signoffButton.onclick = () => {
-      username = null;
-      localStorage.removeItem('username');
-      localStorage.removeItem('messages'); // Clear local storage when signing off
-      loginContainer.style.display = 'block';
-      signoffButton.style.display = 'none';
-    };
-
-    if (username) {
-      loginContainer.style.display = 'none';
-      signoffButton.style.display = 'block';
-      displayMessages();
-    }
-
-    // Emoji Picker Logic
-    const emojiButton = document.getElementById('emoji-button');
-    const emojiList = document.getElementById('emoji-list');
-    const emojis = '😀 😅 😂 😊 🙃 😍 😎 🤯 🥳 👑 🏈 🚨 🚽 ❤️'.split(' ');
-
-    emojiButton.onclick = () => {
-      emojiList.innerHTML = '';
-      emojis.forEach(emoji => {
-        const span = document.createElement('span');
-        span.textContent = emoji;
-        span.style.cursor = 'pointer';
-        span.style.margin = '5px';
-        span.style.fontSize = '20px';
-        span.onclick = () => {
-          messageInput.value += emoji;
-          emojiList.innerHTML = '';
-        };
-        emojiList.appendChild(span);
+    return res.json();
+  })
+  .then(data => {
+    const list = document.getElementById('nfl-news');
+    if (list) { // Ensure the element exists before manipulating it
+      list.innerHTML = '';
+      data.items.slice(0, 5).forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a><br><small>${new Date(item.pubDate).toLocaleDateString()}</small>`;
+        list.appendChild(li);
       });
-    };
-  </script>
+    } else {
+      console.error('Element with ID "nfl-news" not found.');
+    }
+  })
+  .catch(error => {
+    console.error('There was a problem fetching or processing the RSS feed:', error);
+    const list = document.getElementById('nfl-news');
+    if (list) {
+      list.innerHTML = '<p>Failed to load news feed.</p>';
+    }
+  });
+
+  const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    const loginContainer = document.getElementById('login-container');
+    const chatContainer = document.getElementById('chat-container');
+    const usernameSelect = document.getElementById('username-select');
+    const passwordInput = document.getElementById('password-input');
+    const loginButton = document.getElementById('login-button');
+    const signoffButton = document.getElementById('signoff-button');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const emojiButton = document.getElementById('emoji-button');
+    const emojiPicker = document.getElementById('emoji-picker');
+    const messagesContainer = document.getElementById('messages');
+    const errorMessageElement = document.getElementById('error-message');
+    const imageUpload = document.getElementById('image-upload'); // Get the file input element
+    const uploadButton = document.getElementById('upload-button'); // Get the upload button element
+
+    let username = null;
+    let currentUserId = null;
+
+    const predefinedUsers = [
+      { assigned_name: 'select username' },
+      { assigned_name: 'Matt' },
+      { assigned_name: 'Evelyn' },
+      { assigned_name: 'Trevor' },
+      { assigned_name: 'Bonnie' },
+      { assigned_name: 'Brian' },
+      { assigned_name: 'Jess' },
+      { assigned_name: 'Sylvester' },
+      { assigned_name: 'Nate' },
+      { assigned_name: 'Brad' },
+      { assigned_name: 'An' },
+      { assigned_name: 'Dianne' },
+      { assigned_name: 'Brittany' },
+      { assigned_name: 'Emily' },
+      { assigned_name: 'Commish' }
+    ];
+
+    function populateUsernames() {
+      const usernameSelect = document.getElementById('username-select');
+      predefinedUsers.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.assigned_name;
+        option.textContent = user.assigned_name;
+        usernameSelect.appendChild(option);
+      });
+    }
+
+    async function login() {
+      console.log("login function called");
+      const selectedUsername = usernameSelect.value;
+      const password = passwordInput.value;
+
+      if (!selectedUsername || !password) {
+        errorMessageElement.textContent = "Please select a username and enter a password.";
+        errorMessageElement.style.display = 'block';
+        return;
+      }
+
+      if (!supabase) {
+        console.error("Supabase client not initialized.");
+        errorMessageElement.textContent = "Error: Supabase client not initialized.";
+        errorMessageElement.style.display = 'block';
+        return;
+      }
+
+      console.log("Attempting login with:", { username: selectedUsername, password: password });
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('assigned_name', selectedUsername)
+        .eq('password_word', password)
+        .single();
+
+      console.log("Login result:", { data: data, error: error });
+
+      if (error) {
+        console.error("Login error:", error);
+        errorMessageElement.textContent = "Incorrect username or password.";
+        errorMessageElement.style.display = 'block';
+      } else if (data) {
+        console.log("Login successful:", data);
+        username = data.assigned_name;
+        currentUserId = data.id;
+        loginContainer.style.display = 'none';
+        chatContainer.style.display = 'block';
+        signoffButton.style.display = 'block';
+        messageInput.disabled = false;
+        sendButton.disabled = false;
+        emojiButton.disabled = false;
+        uploadButton.disabled = false; // Enable the upload button after login
+        errorMessageElement.style.display = 'none';
+        displayMessages();
+      } else {
+        errorMessageElement.textContent = "Incorrect username or password.";
+        errorMessageElement.style.display = 'block';
+      }
+    }
+
+    async function displayMessages() {
+      console.log("displayMessages function called");
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at');
+
+      if (error) {
+        console.error("Error fetching messages:", error);
+      } else if (data) {
+        messagesContainer.innerHTML = '';
+        data.forEach(message => {
+          const date = new Date(message.created_at);
+          const formattedTime = date.toLocaleString();
+          const li = document.createElement('li');
+          const messageContainer = document.createElement('div');
+          messageContainer.classList.add('message-container');
+          if (message.is_image && message.content.startsWith('https://')) {
+            const img = document.createElement('img');
+            img.src = message.content;
+            img.style.maxWidth = '200px'; // Adjust as needed
+            messageContainer.appendChild(img);
+          } else {
+            messageContainer.textContent = `${message.content} - ${message.sender} (${formattedTime})`;
+          }
+          li.appendChild(messageContainer);
+          messagesContainer.appendChild(li);
+        });
+      }
+    }
+
+  async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (message && username) {
+        const { error } = await supabase
+          .from('messages')
+          .insert([{ sender: username, content: message }]);
+
+        if (error) {
+          console.error("Error sending message:", error);
+        } else {
+          messageInput.value = '';
+          displayMessages();
+        }
+      }
+    }
+
+    async function uploadImage(file) {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `public/${fileName}`;
+
+        const { data, error: uploadError } = await supabase
+          .storage
+          .upload(filePath, file);
+
+        if (uploadError) {
+          console.error("Error uploading image:", uploadError);
+          return null;
+        }
+
+        const imageUrl = `${supabaseUrl}/storage/v1/object/public/${filePath}`;
+        return imageUrl;
+      } catch (error) {
+        console.error("Error during image upload:", error);
+        return null;
+      }
+    }
+
+    function signoff() {
+      username = null;
+      currentUserId = null;
+      loginContainer.style.display = 'block';
+      chatContainer.style.display = 'none';
+      signoffButton.style.display = 'none';
+      messageInput.disabled = true;
+      sendButton.disabled = true;
+      emojiButton.disabled = true;
+      uploadButton.disabled = true; // Disable upload button on sign off
+      messagesContainer.innerHTML = '';
+    }
+
+    uploadButton.addEventListener('click', () => {
+      imageUpload.click();
+    });
+
+    imageUpload.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const imageUrl = await uploadImage(file);
+        if (imageUrl) {
+          await sendMessage(imageUrl, true);
+        }
+        imageUpload.value = ''; // Reset the file input
+      }
+    });
+
+    emojiButton.addEventListener('click', () => {
+      emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+    });
+
+    emojiPicker.addEventListener('click', (event) => {
+      if (event.target.tagName === 'BUTTON') {
+        messageInput.value += event.target.textContent;
+        emojiPicker.style.display = 'none';
+      }
+    });
+
+    usernameSelect.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        login();
+      }
+    });
+
+    passwordInput.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        login();
+      }
+    });
+
+    loginButton.addEventListener('click', login);
+    signoffButton.addEventListener('click', signoff);
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    populateUsernames();
+    displayMessages();
+ 
+  </script>
+
 </body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TCWR Dy-Nasty Fantasty Football League</title>
+    <title>Password TCWR</title>
     <style>
         body {
             background-color: #008000;
@@ -52,13 +52,12 @@
 
     <script>
         function checkPassword() {
-            if (document.getElementById("passwordBox").value === "Brody") {
-                window.location.href = "2beta.html";
-
-            } else {
-                alert("AH ah ah! You didn’t say the magic word!");
-            }
-        }
+    if (document.getElementById("passwordBox").value === "Brody") {
+        window.location.href = "2beta.html";
+    } else {
+        window.location.href = "wrongpassword.html"; 
+    }
+}
 
         function handleKeyPress(event) {
             if (event.key === "Enter") {

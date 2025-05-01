@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TCWR Memory Match Game</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #FDDA0D;
+      color: black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      padding: 1rem;
+    }
+    h1 {
+      margin: 0.5rem 0;
+    }
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 15px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 1rem;
+    }
+    .card {
+      width: 100%;
+      padding-top: 100%;
+      position: relative;
+      perspective: 1000px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s;
+      transform-style: preserve-3d;
+      pointer-events: none;
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      pointer-events: none;
+    }
+
+    .card-front {
+      background: green;
+    }
+    .card-back {
+      transform: rotateY(180deg);
+      background-size: cover;
+      background-position: center;
+      background-color: #222; /* fallback for missing image */
+      border: 2px solid red;  /* show red border if image doesn't load */
+    }
+
+    #score-timer {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 500px;
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    #timer {
+      font-size: 2rem;
+      padding: 0.3rem 1rem;
+      border-radius: 8px;
+      background: green;
+      color: white;
+      transition: background 0.5s, transform 0.3s;
+    }
+
+    #timer.warning {
+      background: orange;
+    }
+
+    #timer.danger {
+      background: red;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 5px red; }
+      50% { transform: scale(1.1); box-shadow: 0 0 20px red; }
+      100% { transform: scale(1); box-shadow: 0 0 5px red; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🧠 TCWR Memory Match</h1>
+  <div id="score-timer">
+    <div>⏱ Time: <span id="timer">30</span>s</div>
+    <div>⭐ Score: <span id="score">0</span></div>
+  </div>
+  <div id="game-board"></div>
+
+  <script>
+    const imagePaths = [
+      '1.JPG', '2.JPG', '3.JPG', '5.JPG',
+      '6.JPG', '7.JPG', '9.jpg',
+      '11.JPG', '12.JPG', '13.jpg', '14.jpg', '15.jpg',
+      '16.JPG', '17.JPG', '18.jpg', '19.jpg', '20.jpg'
+    ];
+
+    const board = document.getElementById('game-board');
+    const timerDisplay = document.getElementById('timer');
+    const scoreDisplay = document.getElementById('score');
+
+    let flippedCards = [];
+    let matchedCards = 0;
+    let score = 0;
+    let timer = 30;
+    let interval;
+    let lastMatchTime = Date.now();
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function updateTimerDisplay() {
+      timerDisplay.textContent = Math.max(0, timer);
+      timerDisplay.classList.remove('warning', 'danger');
+
+      if (timer <= 10) {
+        timerDisplay.classList.add('danger');
+      } else if (timer <= 20) {
+        timerDisplay.classList.add('warning');
+      }
+    }
+
+    function startTimer() {
+      clearInterval(interval);
+      timer = 30;
+      updateTimerDisplay();
+      interval = setInterval(() => {
+        timer--;
+        updateTimerDisplay();
+        if (timer <= 0) {
+          clearInterval(interval);
+          setTimeout(() => alert(`⏱ Time's up! Final Score: ${score}`), 100);
+        }
+      }, 1000);
+    }
+
+    function handleCardClick(card) {
+      if (card.classList.contains('flipped') || flippedCards.length === 2) return;
+
+      card.classList.add('flipped');
+      flippedCards.push(card);
+
+      if (flippedCards.length === 2) {
+        const [first, second] = flippedCards;
+        if (first.dataset.image === second.dataset.image) {
+          matchedCards += 2;
+          const now = Date.now();
+          const timeDiff = Math.floor((now - lastMatchTime) / 1000);
+          const points = Math.max(10, 60 - timeDiff * 5);
+          score += points;
+          scoreDisplay.textContent = score;
+          lastMatchTime = now;
+          startTimer();
+          flippedCards = [];
+          if (matchedCards === board.childElementCount) {
+            clearInterval(interval);
+            setTimeout(() => alert(`🎉 You won! Final Score: ${score}`), 100);
+          }
+        } else {
+          setTimeout(() => {
+            flippedCards.forEach(c => c.classList.remove('flipped'));
+            flippedCards = [];
+          }, 800);
+        }
+      }
+    }
+
+    function preloadImage(path) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(path);
+        img.onerror = () => {
+          console.warn('Missing image:', path);
+          resolve(null);
+        };
+        img.src = path;
+      });
+    }
+
+    async function createBoard() {
+      const validPaths = (await Promise.all(imagePaths.map(preloadImage))).filter(Boolean);
+
+      // Ensure an even number of images
+      if (validPaths.length % 2 !== 0) validPaths.pop();
+
+      const doubledImages = shuffle([...validPaths, ...validPaths]);
+      board.innerHTML = '';
+      matchedCards = 0;
+      score = 0;
+      scoreDisplay.textContent = score;
+      lastMatchTime = Date.now();
+      startTimer();
+
+      doubledImages.forEach((imgPath) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.image = imgPath;
+
+        card.innerHTML = `
+          <div class="card-inner">
+            <div class="card-front"></div>
+            <div class="card-back" style="background-image: url('${imgPath}')"></div>
+          </div>
+        `;
+
+        card.addEventListener('click', () => handleCardClick(card));
+        board.appendChild(card);
+      });
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>

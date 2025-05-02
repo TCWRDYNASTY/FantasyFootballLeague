@@ -1,84 +1,123 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password TCWR</title>
-    <style>
-        body {
-            background-color: #008000;
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password TCWR</title>
 
-        img {
-            max-width: 50%;
-            height: auto;
-            margin: 20px auto;
-        }
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1e3159;
+        }
 
-        .password-container {
-            text-align: center;
-            border: 4px solid black;
-            background-color: white;
-            padding: 20px;
-            margin-top: 20px;
-        }
+        .content-columns {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+            font-family: "Courier New", monospace;
+        }
 
-        #passwordBox {
-            padding: 10px;
-            margin: 10px;
-            font-size: 1em;
-        }
+        .password-container,
+        .image-container {
+            flex: 1 1 300px;
+            box-sizing: border-box;
+            padding: 20px;
+            background-color: beige;
+            border-radius: 8px;
+            text-align: center;
+        }
 
-        #submitButton {
-            padding: 10px 20px;
-            font-size: 1em;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid black;
+            border-radius: 8px;
+        }
 
-        #submitButton:hover {
-            background-color: #0056b3;
-        }
-    </style>
+        #passwordBox {
+            padding: 10px;
+            margin: 10px auto;
+            font-size: 1em;
+            width: 80%;
+            max-width: 250px;
+        }
 
-    <script>
-        function checkPassword() {
-    if (document.getElementById("passwordBox").value === "Brody") {
-        window.location.href = "2beta.html";
-    } else {
-        window.location.href = "wrongpassword.html"; 
-    }
-}
+        #submitButton {
+            padding: 12px 24px;
+            font-size: 1.1em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease-in-out;
+        }
 
-        function handleKeyPress(event) {
-            if (event.key === "Enter") {
-                checkPassword();
-            }
-        }
-    </script>
+        #submitButton:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 768px) {
+            #passwordBox {
+                width: 100%;
+            }
+
+            .content-columns {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+        }
+    </style>
+
+    <script>
+        function checkPassword() {
+            if (document.getElementById("passwordBox").value === "Brody") {
+                window.location.href = "2beta.html";
+            } else {
+                window.location.href = "wrongpassword.html"; 
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                checkPassword();
+            }
+        }
+    </script>
 </head>
 
-<body style="background-color: orange;">
-    <div style="text-align: center; border: 4px solid black; background-color: white">
-        <p style="font-size: 45pt; font-family: Marker felt;">TCWR Dy-NASTY<br/>
-            <p style="font-size: 25pt; font-family: Marker felt; margin-top: -50px;"> Fantasy Football League</p>
-        </p>
-    </div>
+<body>
 
-    <img src="wildlifeentrance.jpeg" alt="barn;" style="float: center; height: 80%; width: 80%; margin-left: 7%; margin-top: 2%;"/>
+    <div class="content-columns">
+        <div class="password-container">
+            <p style="font-size: 3rem; margin: 0;">TCWR Dy-NASTY</p>
+            <p style="font-size: 1.5rem; margin: 0;">Fantasy Football League</p>
 
-    <div class="password-container">
-        <p>Password: <input id="passwordBox" type="password" onkeypress="handleKeyPress(event)"/></p>
-        <button id="submitButton" onclick="checkPassword()">Submit</button>
-    </div>
+            <p>Password: <input id="passwordBox" type="password" onkeypress="handleKeyPress(event)" /></p>
+            <button id="submitButton" onclick="checkPassword()">Submit</button>
+        </div>
+
+        <div class="image-container">
+            <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
+        </div>
+    </div>
 </body>
+
 </html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Me</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: courier new;
+      font-weight: bold;
+      background: #1e3159;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 400px;
+      background: beige;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-image {
+      max-width: 100%;
+      display: block;
+      margin: 0 auto 20px auto;
+      border-radius: 8px;
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 15px;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+
+    button {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+      width: 100%;
+      background-color: green;
+    }
+
+    button:hover {
+      background: #555;
+    }
+
+    @media (max-width: 480px) {
+      .wrapper {
+        padding: 15px;
+      }
+
+      button {
+        font-size: 0.95em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <img src="ainteasy.jpeg" alt="easy" class="form-image" />
+
+    <form action="https://formspree.io/f/mdkgeyod" method="POST">
+      <label>
+        Who This?
+        <select name="recipient" required>
+          <option value="" disabled selected>Select a person</option>
+          <option value="Matt">Matt</option>
+          <option value="Evelyn">Evelyn</option>
+          <option value="Trevor">Trevor</option>
+          <option value="Bonnie">Bonnie</option>
+          <option value="Brian">Brian</option>
+          <option value="Jess">Jess</option>
+          <option value="Sylvester">Sylvester</option>
+          <option value="Nate">Nate</option>
+          <option value="Brad">Brad</option>
+          <option value="An">An</option>
+          <option value="Dianne">Dianne</option>
+          <option value="Brittany">Brittany</option>
+          <option value="Emily">Emily</option>
+          <option value="ANONYMOUS">ANONYMOUS</option>
+        </select>
+      </label>
+
+      <label>
+        Your Message:
+        <textarea name="message" rows="6" required></textarea>
+      </label>
+
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+</body>
+</html>

@@ -1,343 +1,412 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TCWR FANTASY FOOTBALL DY-NASTY</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="console.log('Supabase library loaded successfully!');"></script>
   
-
-<title>TCWR FANTASY FOOTBALL DY-NASTY</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="console.log('Supabase library loaded successfully!');"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vanilla-picker@2.12.1/dist/vanilla-picker.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-picker@2.12.1/dist/vanilla-picker.min.css">
-
 <style>
-/* ====== Base Styles ====== */
-body {
-  margin: 0;
-  padding: 1rem;
-  font-family: 'Courier New', monospace;
-  background-color: #1e3159;
-  color: #f0f0f0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #1e3159;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
 
-.big-text {
-font-size: 30px;
-color: #ffcc00;
-font-weight: bold;
-font-family: 'Courier New', monospace; 
-word-break: break-word;
-text-align: center;
-}
+    .header {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 2px solid black;
+      background-color: beige;
+      color: black;
+      padding: 20px;
+      gap: 20px;
+      box-sizing: border-box;
+      font-family: 'Courier New', monospace;
+    }
 
-.small-text {
-font-size: 20px;
-font-family: 'Courier New', monospace; 
-word-break: break-word;
-}
-/* ====== Main Layout ====== */
-.main-content {
-min-height: 100vh;  
-display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  gap: 1rem;
-  padding: 1rem;
-  box-sizing: border-box;
-}
+    .logo-container img {
+      width: 100%;
+      max-width: 250px;
+      height: auto;
+    }
 
-/* Left (NFL News) */
-.left-column {
-  flex: 1 1 300px;
-  background-color: #2a2a2a;
-  border-radius: 8px;
-  padding: 1rem;
-  min-width: 250px;
-}
+    .header-text {
+      display: flex;
+      flex-direction: column;
+    }
 
+    .header-text p {
+      margin: 5px 0;
+    }
 
-/* Middle (Main Container) */
-.middle-column {
-  flex: 2 1 600px;
-  background-color: #2a2a2a;
-  border-radius: 8px;
-  padding: 1rem;
-  min-width: 300px;
-  height: 815px;
-  border: 1px solid #ffcc00;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
+    .header .title { font-size: 2rem; font-weight: bold; }
+    .header .subtitle { font-size: 1.5rem; }
+    .header .since { font-size: 1.2rem; }
 
+    .title-text {
+      font-size: 1.5rem;
+      font-weight: 590;
+      color: #facc15;
+      padding: 0.25rem;
+      text-align: center;   
+    }
 
-/* Right (Login/Chat) */
+    .main-content-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      margin-top: 1rem;
+      gap: 1rem;
+      
+    }
+
+    @media (min-width: 1024px) {
+      .main-content-wrapper {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+
+    .main-content {
+      flex: 1;
+      background-color: #1e3159;
+      border-radius: 0.375rem;
+      max-width: 700px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    #message-display {
+      height: 500px;
+      background-color: #2d3748;
+      overflow-y: auto;
+      border-radius: 0.5rem;
+      padding: 0.2rem;
+      border: 2px solid #4a5568;
+    }
+
+    .message-item {
+      margin-bottom: 8px;
+      padding: 1rem;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+      max-width: 800px;
+      color: #e2e8f0;
+      font-weight: 500;
+      font-size: 1rem;
+      background-color: #2d3748;
+      box-sizing: border-box;
+    }
+
+    .chat-image {
+      max-width: 150px;
+      height: auto;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+
+    .timestamp {
+      font-size: 0.7em;
+      color: #facc15;
+      margin-top: 4px;
+    }
+
 .right-column {
-  flex: 1 1 250px;
-  background-color: #2a2a2a;
-  border-radius: 8px;
-  padding: 1rem; /* You can adjust padding here */
-  min-width: 200px;
-  margin-right: -40px; /* Ensures no extra margin is pushing it */
-  color: #ffcc00;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .main-content {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .left-column, .middle-column, .right-column {
-    width: 90%;
-    max-width: 600px;
-
-  }
-}
-
-/* ====== Header Styles ====== */
-.header {
-  width: 100%;
+  width: 350px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  text-align: left;
-  border: 2px solid black;
-  background-color: beige;
-  color: black;
-  padding: 20px;
-  gap: 20px;
-  margin-bottom: 2rem;
 }
 
-.logo-container img {
+.right-column-container {
+font-size: 0.9rem;
+  border-radius: 0.5rem;
+  padding-top: 0.5rem;
   width: 100%;
-  max-width: 250px;
-  height: auto;
+  height: 505px;
+  overflow: hidden;
 }
 
-.header-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.header-text p {
-  margin: 5px 0;
-}
-
-.header .title { font-size: 45px; font-weight: bold; }
-.header .subtitle { font-size: 35px; }
-.header .since { font-size: 25px; }
-
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    text-align: center;
-  }
-  .logo-container img {
-    max-width: 200px;
-  }
-}
-
-/* ====== Navigation Styles ====== */
-.nav-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 20px;
-  gap: 10px;
-}
-
-.nav-container a {
-  color: white;
-  font-size: 1rem;
-  text-decoration: none;
-  padding: 10px 15px;
-  background-color: #2e4a80;
-  border-left: 2px solid black;
-  border-bottom: 2px solid black;
-  text-align: center;
-  transition: background-color 0.3s ease;
-}
-
-.nav-container a:hover {
-  background-color: #3e5a99;
-}
-
-/* ====== NFL News Box ====== */
-.news-box {
-  background-color: #1e1e1e;
-  border-right: 1px solid #ffcc00;
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.news-box h2 {
-  color: #ffcc00;
-}
-
-.news-box a {
-  color: #1e90ff;
-}
-
-#nfl-news li {
-  margin-bottom: 10px;
-}
-
-/* ====== Login and Chat Containers ====== */
-#login-container, #chat-container {
-  border-left: 1px solid #ffcc00;
-  padding: 15px;
-  margin-bottom: 15px;
-  margin-left: auto;
-  width: 250px;
-}
-
-#chat-container {
-  display: none;
-  height: 810px;
-}
-
-/* Login form elements */
-.right-column input,
-.right-column select,
-.right-column button {
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-/* Login specific overrides */
-#login-container select,
-#login-container span#error-message,
-#login-container input[type="password"] {
-  text-align: left;
-  display: block;
-  margin-left: auto;
-  margin-bottom: 10px;
-  width: auto;
-  padding: 8px;
-  direction: ltr;
-}
-
-/* ====== Messages Styles ====== */
-#messages {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  direction: ltr;
-  display: flex;
-  flex-direction: column;
+.standings-scroll-area {
+  overflow-y: auto;
   height: 100%;
-  overflow-y: auto;
+  width: 100%;
+border-radius: 0.5rem;
+border-left: 2px solid #4a5568;
+border-top: 2px solid #4a5568;
+border-bottom: 2px solid #4a5568;
 }
 
-#messages li {
-  background-color: #D3D3D3;
-  padding: 8px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  font-family: Arial, sans-serif;
-  font-size: 10pt;
-  display: inline-block;
-  word-break: break-word;
-  max-width: 70%;
-  float: right;
-  clear: both;
+#standings-table {
+  width: 100%;      
 }
 
-#messages li:last-child {
-  border-bottom: none;
-}
-
-/* ====== Chat Input Area ====== */
-#chat-input-area {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  direction: rtl;
-}
-
-#message-input {
-  flex-grow: 1;
-  margin-right: 5px;
-  padding: 8px;
+#standings-table th,
+#standings-table td {
+  padding: 0.33rem;
   text-align: left;
-  direction: ltr;
 }
 
-#emoji-button, #send-button {
-  margin-left: 5px;
+ table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #2d3748;
+    }
+    th, td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #333;
+      text-align: left;
+color: #f0f0f0;
+    }
+    th {
+      background: #1a202c;
+color: #f0f0f0;
+    }
+    tr.playoff-divider td {
+      border-bottom: 2px solid red;
+    }
+
+@media (max-width: 1024px) {
+  .right-column-container {
+    border-left: none;
+    max-width: none;
+    width: 100%;
+    height: auto; /* Let it expand naturally on smaller screens */
+  }
 }
 
-/* ====== Emoji Picker ====== */
-#emoji-picker {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  padding: 5px;
-  z-index: 10;
-  max-height: 200px;
-  overflow-y: auto;
-  right: 20px;
-}
+    .recent-transactions-container,
+    .trending-container {
+      overflow-y: auto;
+      border-bottom: 3px solid #4a5568;
+      padding-left: 1rem;
+      max-height: 290px;
+      color: #e2e8f0;
+    }
 
-#emoji-picker button {
-  border: none;
-  background: none;
-  font-size: 1.2em;
-  padding: 2px 5px;
-  cursor: pointer;
-  float: right;
-  margin-left: 2px;
-}
+  .transaction-list,
+    .trending-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
-/* ====== Button Styles ====== */
-button {
-  padding: 8px 15px;
-  cursor: pointer;
-  background-color: green;
-  color: white;
-  border: none;
-  border-radius: 5px;
-}
+    .trade-alert,
+    .free-agent-pickup,
+    .waiver-claim {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #facc15;
+      margin-bottom: 0.5rem;
+    }
 
-/* ====== Sign-off Button ====== */
-#signoff-button {
-  display: none;
-  float: right;
-}
+.transaction-team-name {
+            font-weight: 500; /* Tailwind's font-semibold */
+            color: #facc15;
+        }
 
-/* ====== Optional Container Class ====== */
-.container {
-  display: flex;
-  gap: 40px; /* Adds equal space between the columns */
-  padding: 0 40px; /* Adds space on the left and right of the container */
-}
-</style>
+        .added-players-title {
+            color: #48bb78; /* Tailwind's green-400 */
+            font-weight: 400; /* Tailwind's font-semibold */
+        }
+
+        .dropped-players-title {
+            color: #f56565; /* Tailwind's red-400 */
+            font-weight: 400; /* Tailwind's font-semibold */
+        }
+
+    .player-info,
+    .player-change-info,
+    .trending-list-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .player-image,
+    .player-change-image,
+    .trending-player-image {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .player-name,
+    .trending-player-name {
+      font-size: 0.875rem;
+      color: #e2e8f0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+
+    .recent-transactions-title,
+    .trending-title {
+      font-size: 1.5rem;
+      color: #facc15;
+      text-align: center;
+      recent-transactions-title
+
+    }
+
+    .trending-up-title {
+            font-weight: 400; 
+            color: #48bb78; 
+            margin-bottom: 0.5rem; 
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+        }
+
+        .trending-down-title {
+            font-weight: 400; 
+            color: #f56565; 
+            margin-bottom: 0.5rem; 
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+        }
+
+    .trending-count-up { color: #48bb78; }
+    .trending-count-down { color: #f56565; }
+
+    .left-column {
+      max-width: 300px;
+      border-right: 2px solid #4a5568;
+      border-top: 2px solid #4a5568;
+      border-bottom: 2px solid #4a5568;
+      border-radius: 0.375rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      background-color: #2d3748; 
+      margin-top: 0.5rem;
+      height: 500px;
+    }
+
+    #nfl-news li {
+      font-size: 0.95rem;
+      margin: 1rem 0;
+      padding: 0.60rem;
+      background-color: #2d3748;
+      border-left: 6px solid #facc15;
+      border-radius: 6px;
+      transition: background-color 0.3s, transform 0.2s;
+text-align: left;
+    }
+
+   .news-box {
+      border-radius: 0.375rem;
+      width: 100%;
+      max-width: 300px;
+      height: 500px;
+    }
+
+    #nfl-news li:hover {
+      background-color: #1e3159;
+      transform: scale(1.02);
+    }
+
+    #nfl-news a {
+      color: #e2e8f0;
+      padding: 1rem;
+    }
+
+    #nfl-news a:hover {
+      text-decoration: underline;
+    }
+
+    .sidebar-left {
+      position: fixed;
+      top: 0;
+      left: -450px;
+      width: 350px;
+      height: 100%;
+      background-color: #2d3748;
+      transition: left 0.3s ease;
+      z-index: 9999;
+      border-right: 2px solid #4a5568;
+    }
+
+    .sidebar-left:hover {
+      left: 0;
+    }
+
+    .sidebar-left::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 20px;
+      z-index: 9998;
+    }
+
+    .nav-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .nav-container a {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      color: white;
+      font-size: 0.9rem;
+      padding: 10px;
+      background-color: #2e4a80;
+      border-left: 2px solid black;
+      border-bottom: 2px solid black;
+      text-align: center;
+      transition: background-color 0.3s ease;
+    }
+
+    .nav-container a:hover {
+      background-color: #3e5a99;
+    }
+
+  </style>
 
 </head>
 
-  <body>
+<body class="body">
 
- <div class="nav-container">
-    <a href="3Hall of Champions.html">Hall of Champions</a>
-    <a href="4Flushables.html">Flushables</a>  
-    <a href="6Fallen Comrads.html">Fallen Comrades</a>
-    <a href="7Records.html">Records</a>
-    <a href="underconstruction.html">Draft Lottery</a>  
-    <a href="https://tcwrdynasty.github.io/games/">Games!</a> 
-    <a href="https://sleeper.com/login">Sleeper</a> 
-    <a href="contactcommish.html">Contact Commish</a>
+ <div class="sidebar-left">
+<h2 class="recent-transactions-title">Recent Transactions</h2>
+    <div class="recent-transactions-container">   
+      <div class="transaction-list">
+        <ul id="transaction-list" class="transaction-list"></ul>
+      </div>
+    </div>
+
+    <h2 class="trending-title">Trending Players</h2>
+    <div id="trending-container" class="trending-container">
+      <div id="trending-up"></div>
+      <div id="trending-down"></div>
+    </div>
   </div>
+</div>
 
-  <div class="header">
-    <div class="logo-container">
+<div class="header">
+ <div class="logo-container">
       <img src="DYNASTYLOGO.jpeg" alt="logo">
     </div>
     <div class="header-text">
@@ -345,315 +414,427 @@ button {
       <p class="subtitle">Fantasy Football League</p>
       <p class="since">Since 2023</p>
     </div>
+</div>
+
+ <div class="nav-container">
+    <a href="Fourth&Roaster.html">Fourth & Roasted</a>
+    <a href="3Hall of Champions.html">Hall of Champions</a>
+    <a href="4Flushables.html">Flushables</a>  
+    <a href="6Fallen Comrads.html">League Members</a>
+    <a href="7Records.html">Records</a>
+    <a href="underconstruction.html">Draft Lottery</a>  
+    <a href="https://tcwrdynasty.github.io/games/">Games!</a> 
+    <a href="https://sleeper.com/login">Sleeper</a> 
+    <a href="contactcommish.html">Contact Commish</a>
+<a href="8Bylaws.html">Constitution</a>
   </div>
 
-<div class="main-content">
-  <div class="left-column news-box">
+<div class="main-content-wrapper">
+<div class="title-text">
+NFL News from ESPN
+<div class="left-column">
 
-  <h2>League Info</h2>
-  <div id="league-profile" style="display: none;">
-    <img id="league-avatar" alt="League Avatar" style="width: 50px; height: 50px;">
-    <h3 id="league-name"></h3>
-    <div id="league-details"></div>
-  <br/>
-<h2>NFL News from ESPN</h2>
-  <ul id="nfl-news">Loading...</ul>
+<div class="news-box">
+    <ul id="nfl-news">Loading...</ul>
+  </div>
+ </div>
 </div>
+  
+<div class="main-content">
+    <h2 class="title-text" style="padding-bottom: 0.5rem;">League Updates!</h2>
+    <div id="message-display"></div>
+  </div>
+
+
+<div class="right-column">
+  <div class="title-text">
+    <h1>League Standings</h1>
+  </div>
+  <div class="right-column-container">
+    <div class="standings-scroll-area">
+      <table id="standings-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Team</th>
+          <th>Record</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
+
+
+    <script>
+
+
+        const leagueId = "1180908151502815232";
 
  
-<div class="middle-column">
-    <!-- Your middle container content -->
-<p class= "big-text"> Welcome to our DY-NASTY Website </p>  
-<p class= "small-text"> Check in frequently for league updates and weekly reviews. </p>
+    async function fetchStandings() {
+      const [rostersRes, usersRes] = await Promise.all([
+        fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+        fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
+      ]);
 
-</div>
+      const rosters = await rostersRes.json();
+      const users = await usersRes.json();
 
-<div class="right-column" id="login-container">
-    <h2>Login</h2>
-    <select id="username-select"></select>
-    <input type="password" id="password-input" placeholder="Password">
-    <button id="login-button">Submit</button>
-    <span id="error-message" style="color: red; display: none;"></span>
-  </div>
+      const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
 
-  <div id="chat-container">
-    
-    <ul id="messages"></ul>
-    <div id="chat-input-area">
-      <input type="text" id="message-input" placeholder="Enter your message" disabled>
-     </div>
-<div>
-<button id="send-button" disabled>Send</button>   
-<button id="emoji-button" disabled>😊</button>
-  
-    </div>
+      const teams = rosters.map(roster => {
+        const user = userMap[roster.owner_id] || {};
+        const settings = roster.settings || {};
 
-    <div id="emoji-picker" style="display: none;">
-      <button>😀</button> <button>😂</button> <button>😍</button> <button>👍</button> <button>🤔</button>
-      <button>🎉</button> <button>❤️</button> <button>☕</button> <button>🍕</button> <button>🚀</button>
-      <button>🌟</button> <button>😎</button> <button>😴</button> <button>😭</button> <button>😡</button>
-      <button>🙏</button> <button>👏</button> <button>👋</button> <button>🐶</button> <button>🐱</button>
-    </div>
-    <div><button id="signoff-button" style="display: none;">Sign Off</button>
-  </div>
+        const wins = settings.wins || 0;
+        const losses = settings.losses || 0;
+        const ties = settings.ties || 0;
+        const pf = (settings.fpts || 0) + ((settings.fpts_decimal || 0) / 100);
+        const totalGames = wins + losses + ties;
+        const winPct = totalGames ? (wins / totalGames) : 0;
 
-  <script>
-  const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
-const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
-
-fetch(proxyUrl)
-  .then(res => {
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-    return res.json();
-  })
-  .then(data => {
-    const list = document.getElementById('nfl-news');
-    if (list) { // Ensure the element exists before manipulating it
-      list.innerHTML = '';
-      data.items.slice(0, 5).forEach(item => {
-        const li = document.createElement('li');
-        li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a><br><small>${new Date(item.pubDate).toLocaleDateString()}</small>`;
-        list.appendChild(li);
+        return {
+          teamName: user.metadata?.team_name || user.display_name || "Unnamed Team",
+          record: `${wins}-${losses}-${ties}`,
+          winPct: winPct,
+          pointsFor: pf
+        };
       });
-    } else {
-      console.error('Element with ID "nfl-news" not found.');
+
+      teams.sort((a, b) =>
+        b.winPct - a.winPct || b.pointsFor - a.pointsFor
+      );
+
+      const tbody = document.querySelector('#standings-table tbody');
+      teams.forEach((team, index) => {
+        const row = document.createElement('tr');
+        if (index === 5) row.classList.add('playoff-divider');
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${team.teamName}</td>
+          <td>${team.record}</td>
+        `;
+        tbody.appendChild(row);
+      });
     }
-  })
-  .catch(error => {
-    console.error('There was a problem fetching or processing the RSS feed:', error);
-    const list = document.getElementById('nfl-news');
-    if (list) {
-      list.innerHTML = '<p>Failed to load news feed.</p>';
-    }
-  });
 
-  const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    fetchStandings();
 
-    const loginContainer = document.getElementById('login-container');
-    const chatContainer = document.getElementById('chat-container');
-    const usernameSelect = document.getElementById('username-select');
-    const passwordInput = document.getElementById('password-input');
-    const loginButton = document.getElementById('login-button');
-    const signoffButton = document.getElementById('signoff-button');
-    const messageInput = document.getElementById('message-input');
-    const sendButton = document.getElementById('send-button');
-    const emojiButton = document.getElementById('emoji-button');
-    const emojiPicker = document.getElementById('emoji-picker');
-    const messagesContainer = document.getElementById('messages');
-    const errorMessageElement = document.getElementById('error-message');
-   
+        const transactionListElement = document.getElementById('transaction-list');
+        const week = 1;
+        const allPlayersUrl = "https://api.sleeper.app/v1/players/nfl";
 
-    let username = null;
-    let currentUserId = null;
+        const fetchData = async (url) => {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        };
 
-    const predefinedUsers = [
-      { assigned_name: 'select username' },
-      { assigned_name: 'Matt' },
-      { assigned_name: 'Evelyn' },
-      { assigned_name: 'Trevor' },
-      { assigned_name: 'Bonnie' },
-      { assigned_name: 'Brian' },
-      { assigned_name: 'Jess' },
-      { assigned_name: 'Sylvester' },
-      { assigned_name: 'Nate' },
-      { assigned_name: 'Brad' },
-      { assigned_name: 'An' },
-      { assigned_name: 'Dianne' },
-      { assigned_name: 'Brittany' },
-      { assigned_name: 'Emily' },
-      { assigned_name: 'Commish' }
-    ];
+        const displayTransactions = async (transactions, playersData) => {
+            if (!transactions?.length) {
+                transactionListElement.innerHTML = '<li class="no-transactions">No recent transactions found.</li>';
+                return;
+            }
 
-   function populateUsernames() {
-  predefinedUsers.forEach(user => {
-    const option = document.createElement('option');
-    option.value = user.assigned_name;
-    option.textContent = user.assigned_name;
-    usernameSelect.appendChild(option);  // Just use usernameSelect directly
-  });
+            const seenTransactionIds = new Set();
+            const rosterIdToTeamNameMap = {};
+
+            const users = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/users`);
+            const userMap = Object.fromEntries(users.map(user => [user.user_id, user]));
+
+            const rosters = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/rosters`);
+            rosters.forEach(roster => {
+                const user = userMap[roster.owner_id];
+                rosterIdToTeamNameMap[roster.roster_id] = user?.metadata?.team_name || user?.display_name || "Orphan Team";
+            });
+
+            for (const transaction of transactions) {
+                if (seenTransactionIds.has(transaction.transaction_id)) continue;
+                seenTransactionIds.add(transaction.transaction_id);
+
+                const li = document.createElement('li');
+                li.className = "transaction-item";
+
+                if (transaction.type === "trade") {
+                    const tradeTeams = {};
+                    const processPlayerChange = (changes, key) => {
+                        for (const [playerId, rosterId] of Object.entries(changes)) {
+                            if (!tradeTeams[rosterId]) tradeTeams[rosterId] = { received: [], sent: [] };
+                            const player = playersData[playerId];
+                            const name = player ? `${player.first_name} ${player.last_name}` : "Unknown Player";
+                            const img = player ? `https://sleepercdn.com/content/nfl/players/${playerId}.jpg` : '';
+                            tradeTeams[rosterId][key].push({ name, img, isPick: false });
+                        }
+                    };
+                    if (transaction.adds) processPlayerChange(transaction.adds, 'received');
+                    if (transaction.drops) processPlayerChange(transaction.drops, 'sent');
+
+                    (transaction.draft_picks || []).forEach(pick => {
+                        const label = `${pick.season} Round ${pick.round} Pick`;
+                        if (!tradeTeams[pick.owner_id]) tradeTeams[pick.owner_id] = { received: [], sent: [] };
+                        tradeTeams[pick.owner_id].received.push({ name: label, img: null, isPick: true });
+
+                        if (!tradeTeams[pick.previous_owner_id]) tradeTeams[pick.previous_owner_id] = { received: [], sent: [] };
+                        tradeTeams[pick.previous_owner_id].sent.push({ name: label, img: null, isPick: true });
+                    });
+
+                    li.innerHTML = `<p class="trade-alert">🚨 Trade Alert 🚨</p>`;
+                    for (const [rosterId, data] of Object.entries(tradeTeams)) {
+                        const team = rosterIdToTeamNameMap[rosterId] || "Unknown Team";
+                        li.innerHTML += `
+                            <div class="trade-team-container">
+                                <p class="trade-team-name">${team}</p>
+                                <div class="trade-players-container">
+                                    <div>
+                                        <p class="received-players-title">Received</p>
+                                        ${data.received.map(p => `
+                                            <div class="player-info">
+                                                ${p.isPick ? `🎯` : p.img ? `<img src="${p.img}" alt="${p.name}" class="player-image" onerror="this.src='https://via.placeholder.com/32?text=+';">` : '👤'}
+                                                <span class="player-name">${p.name}</span>
+                                            </div>`).join('')}
+                                    </div>
+                                    <div>
+                                        <p class="sent-players-title">Sent</p>
+                                        ${data.sent.map(p => `
+                                            <div class="player-info">
+                                                ${p.isPick ? `🎯` : p.img ? `<img src="${p.img}" alt="${p.name}" class="player-image" onerror="this.src='https://via.placeholder.com/32?text=-';">` : '👤'}
+                                                <span class="player-name">${p.name}</span>
+                                            </div>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                } else if (["free_agent", "waiver"].includes(transaction.type)) {
+                    const teamMap = {};
+                    const handleChange = (obj, type) => {
+                        for (const playerId in obj) {
+                            const rosterId = obj[playerId];
+                            if (!teamMap[rosterId]) teamMap[rosterId] = { adds: [], drops: [] };
+                            const player = playersData[playerId];
+                            const name = player ? `${player.first_name} ${player.last_name}` : "Unknown Player";
+                            const img = player ? `https://sleepercdn.com/content/nfl/players/${playerId}.jpg` : '';
+                            teamMap[rosterId][type].push(`
+                                <div class="player-change-info">
+                                    <span class="${type === 'adds' ? 'trending-count-up' : 'trending-count-down'} player-change-icon">${type === 'adds' ? '+' : '-'}</span>
+                                    <img class="player-change-image" src="${img}" alt="${name}" onerror="this.src='https://via.placeholder.com/32?text=Player';" />
+                                    <span class="player-change-name">${name}</span>
+                                </div>`);
+                        }
+                    };
+                    if (transaction.adds) handleChange(transaction.adds, 'adds');
+                    if (transaction.drops) handleChange(transaction.drops, 'drops');
+
+                    li.innerHTML = `<p class="${transaction.type === 'free_agent' ? 'free-agent-pickup' : 'waiver-claim'}">${transaction.type === 'free_agent' ? 'Free Agent Pickup' : 'Waiver Claim'}</p>`;
+for (const [rosterId, data] of Object.entries(teamMap)) {
+    const team = rosterIdToTeamNameMap[rosterId] || "Unknown Team";
+    li.innerHTML += `
+        <p class="transaction-team-name">${team}</p>
+        ${data.adds.length ? `<div><p class="added-players-title">Added</p>${data.adds.join('')}</div>` : ''}
+        ${data.drops.length ? `<div><p class="dropped-players-title">Dropped</p>${data.drops.join('')}</div>` : ''}
+    `;
 }
 
-    async function login() {
-      console.log("login function called");
-      const selectedUsername = usernameSelect.value;
-      const password = passwordInput.value;
+                }
 
-      if (!selectedUsername || !password) {
-        errorMessageElement.textContent = "Please select a username and enter a password.";
-        errorMessageElement.style.display = 'block';
-        return;
-      }
+                transactionListElement.appendChild(li);
+            }
+        };
 
-      if (!supabase) {
-        console.error("Supabase client not initialized.");
-        errorMessageElement.textContent = "Error: Supabase client not initialized.";
-        errorMessageElement.style.display = 'block';
-        return;
-      }
+        (async () => {
+            try {
+                const transactions = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/transactions/${week}`);
 
-      console.log("Attempting login with:", { username: selectedUsername, password: password });
+                // Slice to get only the 10 most recent transactions
+                const recentTransactions = transactions.slice(0, 10);
 
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('assigned_name', selectedUsername)
-        .eq('password_word', password)
-        .single();
+                const playersData = await fetchData(allPlayersUrl);
+                displayTransactions(recentTransactions, playersData);
 
-      console.log("Login result:", { data: data, error: error });
+            } catch (error) {
+                transactionListElement.innerHTML = `<li class="text-red-500">Error loading transactions: ${error.message}</li>`;
+            }
+        })();
 
-      if (error) {
-        console.error("Login error:", error);
-        errorMessageElement.textContent = "Incorrect username or password.";
-        errorMessageElement.style.display = 'block';
-      } else if (data) {
-        console.log("Login successful:", data);
-        username = data.assigned_name;
-        currentUserId = data.id;
-        loginContainer.style.display = 'none';
-        chatContainer.style.display = 'block';
-        signoffButton.style.display = 'block';
-        messageInput.disabled = false;
-        sendButton.disabled = false;
-        emojiButton.disabled = false;
-        errorMessageElement.style.display = 'none';
-        displayMessages();
-      } 
+        async function fetchPlayerData() {
+            try {
+                const response = await fetch("https://api.sleeper.app/v1/players/nfl");
+                if (!response.ok) throw new Error("Failed to fetch player data");
+                return await response.json();
+            } catch (error) {
+                console.error("Error fetching player data:", error);
+                return {};
+            }
+        }
 
-else {
-        errorMessageElement.textContent = "Incorrect username or password.";
-        errorMessageElement.style.display = 'block';
-      }
-    }
+        async function fetchTrendingPlayers() {
+            const trendingUpElement = document.getElementById('trending-up');
+            const trendingDownElement = document.getElementById('trending-down');
 
-    async function displayMessages() {
-      console.log("displayMessages function called");
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .order('created_at');
+            try {
+                const [addRes, dropRes] = await Promise.all([
+                    fetch("https://api.sleeper.app/v1/players/nfl/trending/add?lookback_hours=24&limit=5"),
+                    fetch("https://api.sleeper.app/v1/players/nfl/trending/drop?lookback_hours=24&limit=5")
+                ]);
 
-      if (error) {
-        console.error("Error fetching messages:", error);
-      } else if (data) {
-        messagesContainer.innerHTML = '';
-        data.forEach(message => {
-          const date = new Date(message.created_at);
-          const formattedTime = date.toLocaleString();
-          const li = document.createElement('li');
-          const messageContainer = document.createElement('div');
-          messageContainer.classList.add('message-container');
-          if (message.is_image && message.content.startsWith('https://')) {
-            const img = document.createElement('img');
-            img.src = message.content;
-            img.style.maxWidth = '200px'; // Adjust as needed
-            messageContainer.appendChild(img);
-          } else {
-            messageContainer.textContent = `${message.content} - ${message.sender} (${formattedTime})`;
-          }
-          li.appendChild(messageContainer);
-          messagesContainer.appendChild(li);
-        });
-      }
-    }
+                if (!addRes.ok || !dropRes.ok) throw new Error("Failed to fetch trending players");
 
-  async function sendMessage() {
-      const message = messageInput.value.trim();
-      if (message && username) {
-        const { error } = await supabase
-          .from('messages')
-          .insert([{ sender: username, content: message }]);
+                const [trendingAddData, trendingDropData] = await Promise.all([
+                    addRes.json(),
+                    dropRes.json()
+                ]);
 
-        if (error) {
-          console.error("Error sending message:", error);
-        } else {
-          messageInput.value = '';
-          displayMessages();
-        }
-      }
-    }
+                const allPlayers = await fetchPlayerData();
 
-   function signoff() {
-      username = null;
-      currentUserId = null;
-      loginContainer.style.display = 'block';
-      chatContainer.style.display = 'none';
-      signoffButton.style.display = 'none';
-      messageInput.disabled = true;
-      sendButton.disabled = true;
-      emojiButton.disabled = true;
-      uploadButton.disabled = true; // Disable upload button on sign off
-      messagesContainer.innerHTML = '';
-    }
+                const formatList = (data, colorClass, sign) => {
+                    return `<ul>
+                        ${data.map(item => {
+                            const info = allPlayers[item.player_id];
+                            const name = info ? `${info.first_name} ${info.last_name}` : "Unknown Player";
+                            const img = info ? `https://sleepercdn.com/content/nfl/players/${item.player_id}.jpg` : "";
+                            return `
+                                <li class="trending-list-item">
+                                    ${img ? `<img src="${img}" alt="${name}" class="trending-player-image">` : ""}
+                                    <div>
+                                        <span class="trending-player-name">${name}</span>, <span class="${colorClass}">${sign}${item.count}</span>
+                                    </div>
+                                </li>`;
+                        }).join('')}
+                    </ul>`;
+                };
+
+                trendingUpElement.innerHTML = `
+                    <h3 class="trending-up-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="10" cy="10" r="9"/>
+                            <path d="M10 6v8"/>
+                            <path d="m14 10-4-4-4 4"/>
+                        </svg>
+                        Trending Up
+                    </h3>
+                    ${formatList(trendingAddData, "trending-count-up", "+")}
+                `;
+
+                trendingDownElement.innerHTML = `
+                    <h3 class="trending-down-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="10" cy="10" r="9"/>
+                            <path d="M10 14V6"/>
+                            <path d="m6 10 4 4 4-4"/>
+                        </svg>
+                        Trending Down
+                    </h3>
+                    ${formatList(trendingDropData, "trending-count-down", "-")}
+                `;
+
+            } catch (error) {
+                trendingUpElement.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+                trendingDownElement.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+            }
+        }
+
+        fetchTrendingPlayers();
 
 
-    emojiButton.addEventListener('click', () => {
-      emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
-    });
 
-    emojiPicker.addEventListener('click', (event) => {
-      if (event.target.tagName === 'BUTTON') {
-        messageInput.value += event.target.textContent;
-        emojiPicker.style.display = 'none';
-      }
-    });
+/* ====== Chat Box ====== */
+  const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    usernameSelect.addEventListener('keypress', function(event) {
-      if (event.key === 'Enter') {
-        login();
-      }
-    });
+    async function renderMessage(message) {
+      const messageContainer = document.createElement('div');
+      messageContainer.classList.add('message-item');
 
-    passwordInput.addEventListener('keypress', function(event) {
-      if (event.key === 'Enter') {
-        login();
-      }
-    });
+      const messageContent = document.createElement('div');
+      messageContent.classList.add('message-content');
 
-    loginButton.addEventListener('click', login);
-    signoffButton.addEventListener('click', signoff);
-    sendButton.addEventListener('click', sendMessage);
-    messageInput.addEventListener('keypress', function(event) {
-      if (event.key === 'Enter') {
-        sendMessage();
-      }
-    });
+      if (message.image_url) {
+        const imgEl = document.createElement('img');
+        imgEl.src = message.image_url;
+        imgEl.classList.add('chat-image');
+        messageContent.appendChild(imgEl);
+        if (message.content) {
+          const contentEl = document.createElement('div');
+          contentEl.textContent = message.content;
+          contentEl.classList.add('message-text');
+          messageContent.appendChild(contentEl);
+        }
+      } else if (message.content) {
+        const contentEl = document.createElement('div');
+        contentEl.textContent = message.content;
+        contentEl.classList.add('message-text');
+        messageContent.appendChild(contentEl);
+      }
 
-   
- 
-const leagueId = "1180908151502815232";
+      const timestampEl = document.createElement('small');
+      const createdAt = new Date(message.created_at);
+      const formattedDate = createdAt.toLocaleDateString();
+      const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      timestampEl.textContent = `${message.sender} - ${formattedDate} ${formattedTime}`;
+      timestampEl.classList.add('timestamp');
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Your fetch call for the Sleeper API
-  fetch(`https://api.sleeper.app/v1/league/${leagueId}`)
-    .then(res => res.json())
-    .then(league => {
-      document.getElementById("league-profile").style.display = "block";
-      document.getElementById("league-avatar").src = league.avatar
-        ? `https://sleepercdn.com/avatars/thumbs/${league.avatar}`
-        : 'https://sleepercdn.com/images/v2/icons/avatar_default.png';
-      document.getElementById("league-name").textContent = league.name || 'League Name Not Available';
-      document.getElementById("league-details").innerHTML = 
-        `<p><strong>League ID:</strong> ${league.league_id}</p>
-        <p><strong>Status:</strong> ${league.status}</p>
-        <p><strong>Sport:</strong> ${league.sport}</p>
-        <p><strong>Season:</strong> ${league.season}</p>
-        <p><strong>Season Type:</strong> ${league.season_type}</p>
-        <p><strong>Total Rosters:</strong> ${league.total_rosters}</p>`;
+      messageContainer.appendChild(messageContent);
+      messageContainer.appendChild(timestampEl);
+
+      return messageContainer;
+    }
+
+    async function displayMessages(messages) {
+      const messageDisplay = document.getElementById('message-display');
+      messageDisplay.innerHTML = '';
+      for (const msg of messages) {
+        const messageElement = await renderMessage(msg);
+        messageDisplay.appendChild(messageElement);
+      }
+      messageDisplay.scrollTop = messageDisplay.scrollHeight;
+    }
+
+    window.addEventListener('load', async () => {
+      const { data: messages, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at');
+      if (error) {
+        console.error("Error fetching messages:", error);
+        return;
+      }
+      displayMessages(messages);
     });
 
-  // Ensure the DOM is ready before executing these functions
-  populateUsernames();
-  displayMessages();
-});
+  const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
+    const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
+    fetch(proxyUrl)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        const list = document.getElementById('nfl-news');
+        if (list) {
+          list.innerHTML = '';
+          data.items.slice(0, 5).forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a><small>${new Date(item.pubDate).toLocaleDateString()}</small>`;
+            list.appendChild(li);
+          });
+        } else {
+          console.error('Element with ID "nfl-news" not found.');
+        }
+      })
+      .catch(error => {
+        console.error('There was a problem fetching or processing the RSS feed:', error);
+        const list = document.getElementById('nfl-news');
+        if (list) {
+          list.innerHTML = '<li>Failed to load news feed.</li>';
+        }
+      });
 
-  </script>
-
+    </script>
 </body>
 </html>

@@ -6,6 +6,9 @@
     <title>Password TCWR</title>
 
     <style>
+        /* =========================================
+           Base Layout Styles
+        ========================================= */
         body {
             display: flex;
             flex-direction: column;
@@ -14,31 +17,42 @@
             min-height: 100vh;
             margin: 0;
             background-color: #1e3159;
+            font-family: "Courier New", monospace;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
+        /* =========================================
+           Flex Container for Main Content
+        ========================================= */
         .content-columns {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             align-items: flex-start;
+            padding: 1rem;
             gap: 40px;
-            padding: 20px;
             width: 100%;
             max-width: 1200px;
             box-sizing: border-box;
-            font-family: "Courier New", monospace;
         }
 
+        /* =========================================
+           Shared Container Styles
+        ========================================= */
         .password-container,
         .image-container {
             flex: 1 1 300px;
-            box-sizing: border-box;
             padding: 20px;
             background-color: beige;
             border-radius: 8px;
             text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
+        /* =========================================
+           Image Styling
+        ========================================= */
         .image-container img {
             max-width: 100%;
             height: auto;
@@ -46,14 +60,23 @@
             border-radius: 8px;
         }
 
+        /* =========================================
+           Password Input Styling
+        ========================================= */
         #passwordBox {
             padding: 10px;
             margin: 10px auto;
-            font-size: 1em;
+            font-size: 1rem;
             width: 80%;
-            max-width: 250px;
+            max-width: 300px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
         }
 
+        /* =========================================
+           Submit Button Styling
+        ========================================= */
         #submitButton {
             padding: 12px 24px;
             font-size: 1.1em;
@@ -72,28 +95,86 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* Media Queries for Responsiveness */
-        @media (max-width: 768px) {
-            #passwordBox {
-                width: 100%;
-            }
+        /* =========================================
+           Typography (Headings, Paragraphs)
+        ========================================= */
+        .password-container p {
+            margin: 0.5em 0;
+        }
 
+        .password-container p:first-child {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .password-container p:nth-child(2) {
+            font-size: 1.4rem;
+        }
+
+        /* =========================================
+           Responsive Layout Adjustments
+        ========================================= */
+        @media (max-width: 768px) {
             .content-columns {
                 flex-direction: column;
                 align-items: center;
                 gap: 20px;
             }
-        }
-    </style>
 
-    <script>
-        function checkPassword() {
-            if (document.getElementById("passwordBox").value === "Brody") {
-                window.location.href = "main.html";
-            } else {
-                window.location.href = "wrongpassword.html"; 
+            #passwordBox {
+                width: 100%;
+                max-width: none;
             }
         }
+
+        @media (max-width: 480px) {
+            .password-container p:first-child {
+                font-size: 2rem;
+            }
+
+            .password-container p:nth-child(2) {
+                font-size: 1.2rem;
+            }
+
+            #submitButton {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="image-container">
+        <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
+    </div>
+
+    <div class="content-columns">
+        <div class="password-container">
+            <p>TCWR Dy-NASTY</p>
+            <p>Fantasy Football League</p>
+            <p><input id="passwordBox" type="password" placeholder="Enter Password" onkeypress="handleKeyPress(event)" /></p>
+            <button id="submitButton" onclick="checkPassword()">Submit</button>
+        </div>
+    </div>
+</body>
+
+  <script>
+        function checkPassword() {
+    const passwordInput = document.getElementById("passwordBox");
+
+    if (passwordInput.value === "Brody") {
+        window.location.href = "main.html"; // Redirect on correct password
+    } else {
+        const audio = new Audio('magicword.mp3');
+        audio.play(); // Start audio first
+
+        // Delay the alert slightly so the audio can begin
+        setTimeout(() => {
+            alert("Access Denied");
+            passwordInput.value = "";
+        }, 100); // 100ms delay gives audio time to start
+    }
+}
 
         function handleKeyPress(event) {
             if (event.key === "Enter") {
@@ -101,24 +182,5 @@
             }
         }
     </script>
-</head>
-
-<body>
-   <div class="image-container">
-            <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
-        </div>
-    </div>
-
-    <div class="content-columns">
-        <div class="password-container">
-            <p style="font-size: 3rem; margin: 0;">TCWR Dy-NASTY</p>
-            <p style="font-size: 1.5rem; margin: 0;">Fantasy Football League</p>
-
-            <p> <input id="passwordBox" type="password" onkeypress="handleKeyPress(event)" /></p>
-            <button id="submitButton" onclick="checkPassword()">Submit</button>
-        </div>
-
-     
-</body>
 
 </html>

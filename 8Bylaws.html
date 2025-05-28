@@ -1,230 +1,372 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>By Laws</title>
+    <title>Fantasy Football League By-Laws</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        .title-text {
-            padding: 3px;
-            font-size: 20px;
-            font-weight: bold;
-            text-indent: 15px;
-	    text-align: center;
-        }
-
-	.title-text2 {
-            padding: 3px;
-            font-size: 20px;
-            font-weight: bold;
-            text-indent: 15px;
-	    text-align: left;
-	    text-decoration: underline;
-	    
-        }
-        .main-text {
-            padding: 3px;
-            font-size: 15px;
-            margin-left: 2em;
-            margin-top: -1em;
+        :root {
+            --primary-color: #2c3e50; /* Dark blue/grey for text */
+            --secondary-color: #e74c3c; /* Red for accents */
+            --tertiary-color: #f39c12; /* Orange for highlights */
+            --background-transparency: 0.95;
+            --border-color: #34495e; /* Slightly darker than primary */
         }
 
         body {
-            background-image: url("bylawsbackground.jpeg");
-            background-color: white;
+            font-family: 'Roboto', sans-serif;
+            background-image: url("bylawsbackground.jpeg"); /* Ensure this image exists */
+            background-size: cover;
+            background-attachment: fixed;
             background-position: center;
-            margin: 30px;
+            margin: 0;
+            padding: 30px;
             min-height: 100vh;
-            font-family: sans-serif;
-        }
-
-        .container {
             display: flex;
-            gap: 20px;
-        }
-
-        .column {
-            border: 2px solid black;
-            flex: 1;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.9); /* Optional: readability boost */
+            flex-direction: column;
+            align-items: center;
+            color: var(--primary-color);
         }
 
         .header {
-	    border: 2px solid black;
-	    padding: 5px;
-	    margin: 10px;
-	    font-size: 50px;
-	    font-family: copperplate;
-	    text-align: center;
-	    background-color: rgba(255, 255, 255, 0.9); /* Optional: readability boost */
-}
+            background-color: rgba(255, 255, 255, var(--background-transparency));
+            border: 3px solid var(--border-color);
+            padding: 15px 30px;
+            /* margin-bottom adjusted to make space for subtitle */
+            margin-bottom: 10px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 60px;
+            text-align: center;
+            color: var(--secondary-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 1000px;
+        }
+
+        .subtitle {
+            background-color: rgba(255, 255, 255, var(--background-transparency));
+            border: 2px solid var(--border-color);
+            padding: 8px 15px;
+            margin-bottom: 30px; /* Space below the subtitle */
+            font-family: 'Roboto', sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            color: var(--primary-color);
+            border-radius: 8px;
+            width: 80%; /* Slightly narrower than header for visual hierarchy */
+            max-width: 800px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .container {
+            display: flex;
+            flex-wrap: wrap; /* Allows columns to wrap on smaller screens */
+            gap: 30px;
+            width: 90%;
+            max-width: 1200px;
+            justify-content: center;
+        }
+
+        .column {
+            background-color: rgba(255, 255, 255, var(--background-transparency));
+            border: 2px solid var(--border-color);
+            flex: 1;
+            padding: 20px 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            min-width: 300px; /* Ensures columns don't get too narrow */
+        }
+
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--tertiary-color);
+            padding-bottom: 5px;
+        }
+
+        .subsection-title {
+            font-family: 'Roboto', sans-serif;
+            font-size: 22px;
+            font-weight: bold;
+            text-indent: 0; /* Remove previous indent */
+            text-align: left;
+            text-decoration: underline;
+            color: var(--primary-color);
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .main-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-left: 1.5em; /* Adjusted for better spacing */
+            margin-top: 0.5em;
+            margin-bottom: 1em;
+            color: var(--primary-color);
+        }
+
+        .main-text ul {
+            list-style-type: none; /* Remove default bullet points */
+            padding: 0;
+            margin: 0;
+        }
+
+        .main-text ul li:before {
+            content: '🏈 '; /* Custom bullet point */
+            color: var(--tertiary-color);
+            display: inline-block;
+            width: 1.5em;
+            margin-left: -1.5em;
+        }
+
+        .odds-list {
+            list-style-type: none;
+            padding: 0;
+            margin-left: 60px;
+            font-size: 15px;
+        }
+
+        .odds-list li:before {
+            content: '• '; /* Simple bullet for odds */
+            color: var(--tertiary-color);
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header {
+                font-size: 40px;
+                padding: 10px 20px;
+                margin-bottom: 10px;
+            }
+            .subtitle {
+                font-size: 16px;
+                padding: 6px 10px;
+                margin-bottom: 20px;
+            }
+            .container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            .column {
+                width: 90%;
+                min-width: unset;
+                padding: 15px 20px;
+            }
+            .section-title {
+                font-size: 24px;
+            }
+            .subsection-title {
+                font-size: 20px;
+            }
+            .main-text {
+                font-size: 14px;
+                margin-left: 1em;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="header">
-Constitution
-</div>
-<div class="container">
-    <div class="column">
-        <p class="title-text">1 Entry and Fees:</p>
-        <p class="main-text">
-            a) $25 buy-in fee. <br/>
-            b) $25 buyout fee if they decide to leave. <br/>
-            c) Buyout money will be added to next year’s winning pot.
-        </p>
-
-        <p class="title-text">2 Winning Pot Breakdown:</p>
-        <p class="main-text">
-            a) First place receives $205.<br/>
-            b) Second place receives $50.<br/>
-            c) Third place receives $25.<br/>
-            d) $70 from the pot will go toward trophy maintenance. This covers engraving, shipping to the current winner, and nameplate updates. Any remaining funds will go to the previous year’s champion.<br/><br/>
-            *Buyout fee will be split evenly between first, second, and third.
-        </p>
-
-        <p class="title-text">3 League size:</p>
-        <p class="main-text">14 teams, no divisions.</p>
-
-        <p class="title-text">4 Playoffs:</p>
-        <p class="main-text">
-            a) 6-team playoff. <br/>
-            b) First and second get first-round byes. <br/>
-            c) Highest seed plays lowest seed.<br/>
-            d) Playoffs begin Week 15.
-        </p>
-
-        <p class="title-text">5 Trade Deadline:</p>
-        <p class="main-text">
-            a) Trade deadline is Week 11.<br/>
-            b) No trade vetoes — all accepted trades will be processed.<br/>
-            c) Trades will be reviewed and processed within 1 day.
-        </p>
-
-        <p class="title-text">6 Waivers:</p>
-        <p class="main-text">Rolling continuous waivers.</p>
-
-<p class="title-text">7 New League Year:</p>
-        <p class="main-text">
-            a) The trade window opens at the start of the NFL league year, usually in March.<br/>
-            b) The rookie draft will begin one day after the NFL Draft and will take place over the weekend, with adjustable pick times.<br/>
-	    c) Free agents can be added 1 week after the rookie draft.
-        </p>
-
-        <p class="title-text">9 Rookie Draft:</p>
-        <p class="main-text">
-            a) Three-round linear draft. <br/>
-            b) NBA-style weighted draft order: Teams ranked 7–14 will be entered into a lottery for the first overall pick, with the highest odds going to the team that finishes in last place. Teams ranked 1–6 will be placed at the back of the draft and out of the lottery, with the 1st place team receiving the 14th overall pick.<br/>
-            c) Draft order will be released Super Bowl weekend.<br/>
-
-d) Odds: </p>
-<p style="margin-left: 60px;">
-14 = 21%<br/>
-13 = 18%<br/>
-12 = 16%<br/>
-11 = 14%<br/>
-10 = 12%<br/>
-9 = 8%<br/>
-8 = 6%<br/>
-7 = 5%
-</p>
-
-        <p class="title-text">10 Roster:</p>
-        <p class="main-text">
-            1 Starting QB <br/>
-            2 Starting RB <br/>
-            2 Starting WR <br/>
-            1 Starting TE <br/>
-            1 Starting Flex (TE/WR/RB)<br/>
-            1 Starting Defense <br/>
-            1 Starting Kicker<br/>
-            10 Bench Spots<br/>
-            3 Taxi Spots<br/>
-            4 IR Spots
-        </p>
-
-        <p class="title-text">11 Taxi Squad:</p>
-        <p class="main-text">
-            Rookies with less than one year of experience are eligible. They can be placed in taxi squad spots at any point during the season.
-        </p>
+    <div class="header">
+        Official League Constitution
     </div>
-
-    <div class="column">
-
-
-         <p style="font-size: 25px; padding: 3px; text-align: center; font-weight: bold;">Scoring!</p>
-
-
-<p class="title-text2">Offense</p>
-<p class="main-text">
-Passing yard 0.04 <br/>
-Passing TD  4 <br/>
-2 pt conversion 2<br/>
-Pass intercepted -2<br/>
-Rushing yard 0.10<br/>
-Rushing TD 6<br/>
-Fumble Lost -2<br/>
-Receiving yard 0.10<br/>
-Reception 0.5<br/>
-Receiving TD 6</p>
-
-            
-<p class="title-text2">Defense</p>
-<p class="main-text">
-Defensive TD 6<br/>
-0 Points Allowed 5<br/>
-1-6 Points Allowed 4<br/>
-7-13 Points Allowed 3<br/>
-14-20 Points Allowed 1<br/>
-21-27 Points Allowed 0<br/>
-28-34 Points Allowed -1<br/>
-35+ Points Allowed -4<br/>
-Less Than 100 Yards Allowed 5<br/>
-100-199 Yards Allowed 3<br/>
-200-299 Yards Allowed 2<br/>
-300-349 Yards Allowed 0<br/>
-350-399 Yards Allowed -1<br/>
-400-449 Yards Allowed -3<br/>
-450-499 Yards Allowed -5<br/>
-500-549 Yards Allowed -6<br/>
-500+ Yards Allowed -7<br/>
-Sack 1<br/>
-Interception 2<br/>
-Fumble Forced 1<br/>
-Fumble Recovery 2<br/>
-Safety 2<br/>
-Blocked Kick 2
-7-13 Points Allowed 3<br/>
-14-20 Points Allowed 1<br/>
-21-27 Points Allowed 0<br/>
-28-34 Points Allowed -1<br/>
-35+ Points Allowed -4<br/>
-Less Than 100 Yards Allowed 5<br/>
-100-199 Yards Allowed 3<br/>
-200-299 Yards Allowed 2<br/>
-300-349 Yards Allowed 0<br/>
-350-399 Yards Allowed -1<br/>
-400-449 Yards Allowed -3<br/>
-450-499 Yards Allowed -5<br/>
-500-549 Yards Allowed -6<br/>
-500+ Yards Allowed -7</p>
-
-
-<p class="title-text2">Special Teams</p>
-<p class="main-text">
-Special Team TD	6 <br/>
-Special Team Forced Fumble 1<br/>
-Special Team Fumble Recovery 1<br/>
-40 yard big play 1<br/>
-40 yard big play + TD 1.5<br/>
-50 yard big play + TD 2<br/>
-FG 0-39	3<br/>
-FG 40-49 4<br/>
-FG 50+ 5<br/>
-FG Missed -1<br/>
-PAT 1<br/>
-PAT Missed -1</p>
-
+    <div class="subtitle">
+        Updated March 2025
     </div>
+    <div class="container">
+        <div class="column">
+            <h2 class="section-title">General Rules & Structure</h2>
 
+            <h3 class="subsection-title">1. Entry and Fees</h3>
+            <p class="main-text">
+                <ul>
+                    <li>$25 buy-in fee per season.</li>
+                    <li>$25 buyout fee if a manager decides to leave the league.</li>
+                    <li>All buyout money will be added to the following year’s winning pot, increasing the stakes!</li>
+                </ul>
+            </p>
 
+            <h3 class="subsection-title">2. Winning Pot Breakdown</h3>
+            <p class="main-text">
+                <ul>
+                    <li>First place: $205</li>
+                    <li>Second place: $50</li>
+                    <li>Third place: $25</li>
+                    <li>$70 from the pot is allocated for trophy maintenance, covering engraving, shipping to the current champion, and nameplate updates. Any remaining funds from this allocation will be awarded to the previous year’s champion.</li>
+                </ul>
+                <br/>
+                *Note: Any buyout fees collected will be split evenly among the first, second, and third-place winners.
+            </p>
+
+            <h3 class="subsection-title">3. League Size</h3>
+            <p class="main-text">
+                <ul>
+                    <li>14 teams, operating without divisions.</li>
+                </ul>
+            </p>
+
+            <h3 class="subsection-title">4. Playoffs</h3>
+            <p class="main-text">
+                <ul>
+                    <li>A 6-team playoff format will be used.</li>
+                    <li>The first and second-place teams will receive first-round byes.</li>
+                    <li>Playoff seeding follows a highest-seed vs. lowest-seed format.</li>
+                    <li>Playoffs officially kick off in Week 15 of the NFL season.</li>
+                </ul>
+            </p>
+
+            <h3 class="subsection-title">5. Trade Deadline</h3>
+            <p class="main-text">
+                <ul>
+                    <li>The trade deadline is set for Week 11.</li>
+                    <li>All accepted trades will be processed; there are no trade vetoes.</li>
+                    <li>Trades will be reviewed and processed within 1 day to ensure timely roster updates.</li>
+                </ul>
+            </p>
+
+            <h3 class="subsection-title">6. Waivers</h3>
+            <p class="main-text">
+                <ul>
+                    <li>The league utilizes rolling continuous waivers.</li>
+                </ul>
+            </p>
+
+            <h3 class="subsection-title">7. New League Year Timeline</h3>
+            <p class="main-text">
+                <ul>
+                    <li>The trade window opens at the start of the NFL league year (typically in March).</li>
+                    <li>The rookie draft commences one day after the actual NFL Draft and will run over the weekend, with adjustable pick times to accommodate all managers.</li>
+                    <li>Free agents can be added to rosters one week after the rookie draft concludes.</li>
+                </ul>
+            </p>
+
+            <h3 class="subsection-title">8. Rookie Draft</h3>
+            <p class="main-text">
+                <ul>
+                    <li>A three-round linear draft.</li>
+                    <li>Draft order follows an NBA-style weighted lottery:
+                        <ul class="odds-list">
+                            <li>Teams ranked 7–14 will be entered into a lottery for the first overall pick, with the highest odds going to the team that finishes in last place (14th).</li>
+                            <li>Teams ranked 1–6 will be placed at the back of the draft and are excluded from the lottery, with the 1st place team receiving the 14th overall pick.</li>
+                        </ul>
+                    </li>
+                    <li>The final draft order will be released during Super Bowl weekend.</li>
+                    <li>**Lottery Odds:**
+                        <ul class="odds-list">
+                            <li>14th place = 21% chance at 1st overall</li>
+                            <li>13th place = 18% chance at 1st overall</li>
+                            <li>12th place = 16% chance at 1st overall</li>
+                            <li>11th place = 14% chance at 1st overall</li>
+                            <li>10th place = 12% chance at 1st overall</li>
+                            <li>9th place = 8% chance at 1st overall</li>
+                            <li>8th place = 6% chance at 1st overall</li>
+                            <li>7th place = 5% chance at 1st overall</li>
+                        </ul>
+                    </li>
+                </ul>
+            </p>
+
+            <h3 class="subsection-title">9. Roster Composition</h3>
+            <p class="main-text">
+                <ul>
+                    <li>1 Starting QB</li>
+                    <li>2 Starting RB</li>
+                    <li>2 Starting WR</li>
+                    <li>1 Starting TE</li>
+                    <li>1 Starting Flex (TE/WR/RB)</li>
+                    <li>1 Starting Defense</li>
+                    <li>1 Starting Kicker</li>
+                    <li>10 Bench Spots</li>
+                    <li>3 Taxi Squad Spots</li>
+                    <li>4 IR Spots</li>
+                </ul>
+            </p>
+
+            <h3 class="subsection-title">10. Taxi Squad Eligibility</h3>
+            <p class="main-text">
+                <ul>
+                    <li>Only rookies with less than one year of NFL experience are eligible for the taxi squad.</li>
+                    <li>Eligible players can be moved to taxi squad spots at any point during the season.</li>
+                </ul>
+            </p>
+        </div>
+
+        <div class="column">
+            <h2 class="section-title">Scoring Settings</h2>
+
+            <h3 class="subsection-title">Offensive Scoring</h3>
+            <p class="main-text">
+                <ul>
+                    <li>Passing Yard: 0.04 points</li>
+                    <li>Passing TD: 4 points</li>
+                    <li>2-Point Conversion: 2 points</li>
+                    <li>Pass Intercepted: -2 points</li>
+                    <li>Rushing Yard: 0.10 points</li>
+                    <li>Rushing TD: 6 points</li>
+                    <li>Fumble Lost: -2 points</li>
+                    <li>Receiving Yard: 0.10 points</li>
+                    <li>Reception (PPR): 0.5 points</li>
+                    <li>Receiving TD: 6 points</li>
+                </ul>
+            </p>
+
+            <h3 class="subsection-title">Defensive Scoring (Team D/ST)</h3>
+            <p class="main-text">
+                <ul>
+                    <li>Defensive TD: 6 points</li>
+                    <li>0 Points Allowed: 5 points</li>
+                    <li>1-6 Points Allowed: 4 points</li>
+                    <li>7-13 Points Allowed: 3 points</li>
+                    <li>14-20 Points Allowed: 1 point</li>
+                    <li>21-27 Points Allowed: 0 points</li>
+                    <li>28-34 Points Allowed: -1 point</li>
+                    <li>35+ Points Allowed: -4 points</li>
+                    <li>Less Than 100 Yards Allowed: 5 points</li>
+                    <li>100-199 Yards Allowed: 3 points</li>
+                    <li>200-299 Yards Allowed: 2 points</li>
+                    <li>300-349 Yards Allowed: 0 points</li>
+                    <li>350-399 Yards Allowed: -1 point</li>
+                    <li>400-449 Yards Allowed: -3 points</li>
+                    <li>450-499 Yards Allowed: -5 points</li>
+                    <li>500-549 Yards Allowed: -6 points</li>
+                    <li>500+ Yards Allowed: -7 points</li>
+                    <li>Sack: 1 point</li>
+                    <li>Interception: 2 points</li>
+                    <li>Fumble Forced: 1 point</li>
+                    <li>Fumble Recovery: 2 points</li>
+                    <li>Safety: 2 points</li>
+                    <li>Blocked Kick: 2 points</li>
+                </ul>
+            </p>
+
+            <h3 class="subsection-title">Special Teams Scoring (Kicker)</h3>
+            <p class="main-text">
+                <ul>
+                    <li>Special Team TD: 6 points</li>
+                    <li>Special Team Forced Fumble: 1 point</li>
+                    <li>Special Team Fumble Recovery: 1 point</li>
+                    <li>40+ Yard Big Play (Return): 1 point</li>
+                    <li>40+ Yard Big Play + TD: 1.5 points</li>
+                    <li>50+ Yard Big Play + TD: 2 points</li>
+                    <li>Field Goal 0-39 Yards: 3 points</li>
+                    <li>Field Goal 40-49 Yards: 4 points</li>
+                    <li>Field Goal 50+ Yards: 5 points</li>
+                    <li>Field Goal Missed: -1 point</li>
+                    <li>Extra Point (PAT): 1 point</li>
+                    <li>Extra Point (PAT) Missed: -1 point</li>
+                </ul>
+            </p>
+        </div>
+    </div>
 </body>
 </html>

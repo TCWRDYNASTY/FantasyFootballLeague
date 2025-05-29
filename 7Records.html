@@ -1,167 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>League Records</title>
-  <style>
-    body {
-      background-color: #1e3159;
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite League Records</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Root Variables for Easy Color Management --- */
+        :root {
+            --dark-blue-bg: #1e3159;
+            --medium-blue-accent: #2e4a80;
+            --light-blue-hover: #3e5a99;
+            --white-content-bg: rgba(255, 255, 255, 0.95);
+            --red-accent: #990000;
+            --black-border: #000000;
+            --light-grey-table-header: #f2f2f2;
+        }
 
-    .header {
-      border: 2px solid black;
-      padding: 20px;
-      font-size: 3vw;
-      text-align: center;
-      background-color: rgba(255, 255, 255, 0.9);
-      font-family: Copperplate, serif;
-      margin-bottom: 20px;
-    }
+        /* --- Global Styles & Body --- */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--dark-blue-bg) 0%, #0f1a30 100%); /* Deep gradient background */
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333; /* Default text color for content */
+            overflow-x: hidden; /* Prevent horizontal scroll on animations */
+        }
 
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
+        /* --- Header Section --- */
+        .header {
+            background: var(--white-content-bg);
+            border: 3px solid var(--black-border);
+            padding: 25px 40px;
+            font-size: clamp(2rem, 5vw, 3.5rem); /* Responsive font size */
+            text-align: center;
+            font-family: 'Playfair Display', serif; /* Elegant, strong header font */
+            color: var(--dark-blue-bg);
+            margin: 40px auto 30px auto; /* More vertical margin, center horizontally */
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5); /* Stronger, more prominent shadow */
+            width: 90%;
+            max-width: 1000px;
+            border-radius: 15px; /* More rounded corners */
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 2px; /* Slightly spaced out letters */
+            text-transform: uppercase;
+        }
 
-    .column {
-      flex: 1 1 300px;
-      padding: 20px;
-      border: 2px solid black;
-      background-color: rgba(255, 255, 255, 0.9);
-      box-sizing: border-box;
-    }
+        /* Subtle glow effect for the header */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(30deg);
+            animation: pulse-glow 3s infinite alternate ease-in-out;
+            z-index: 0;
+        }
 
-    .column p {
-      font-size: 1.3em;
-      margin: 1.5em 0 0.3em 0;
-      font-weight: bold;
-    }
+        @keyframes pulse-glow {
+            from { opacity: 0.2; transform: scale(1) rotate(30deg); }
+            to { opacity: 0.4; transform: scale(1.05) rotate(30deg); }
+        }
 
-.record-text-style {
-  color: #990000;
-font-size: 1em !important;
-  font-family: courier new;
-}
+        /* --- Main Content Container --- */
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px; /* Increased gap between columns */
+            justify-content: center;
+            width: 95%;
+            max-width: 1200px;
+            margin-bottom: 40px;
+        }
 
-.underline-text {
-  
-  font-family: Copperplate, serif;
-  text-decoration: underline;
-}
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 1em;
-      font-family: 'Courier New', Courier, monospace;
-      margin-top: 10px;
-    }
+        /* --- Individual Column Styling --- */
+        .column {
+            flex: 1 1 calc(50% - 15px); /* Two columns on larger screens, adjust for gap */
+            background-color: var(--white-content-bg);
+            border: 2px solid var(--black-border);
+            padding: 30px;
+            box-sizing: border-box;
+            border-radius: 12px; /* Rounded corners */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Deeper shadow */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover */
+            position: relative;
+            overflow: hidden; /* For inner styling */
+        }
 
-    th, td {
-      border: 1px solid black;
-      padding: 8px;
-      text-align: center;
-    }
+        /* Inner border effect for columns */
+        .column::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 1px dashed rgba(0, 0, 0, 0.2); /* Subtle dashed inner border */
+            border-radius: 8px;
+            pointer-events: none; /* Don't interfere with clicks */
+        }
 
-    th {
-      background-color: #f2f2f2;
-    }
+        .column:hover {
+            transform: translateY(-8px) scale(1.01); /* Lift and slight scale on hover */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6); /* More intense shadow on hover */
+        }
 
-    .nav-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      padding: 20px 0;
-      gap: 10px;
-    }
+        /* --- Record Category Titles --- */
+        .column p:first-child {
+            margin-top: 0; /* Remove top margin for first paragraph */
+        }
 
-    .nav-container a {
-      color: white;
-      font-size: 1rem;
-      border-left: 2px solid black;
-      border-bottom: 2px solid black;
-      text-decoration: none;
-      padding: 10px 15px;
-      background-color: #2e4a80;
-      transition: background-color 0.3s ease;
-      text-align: center;
-    }
+        .column p {
+            font-size: 1.5em; /* Larger, more impactful titles */
+            margin: 1.8em 0 0.6em 0; /* Adjusted vertical spacing */
+            font-weight: 700;
+            color: var(--dark-blue-bg);
+            position: relative; /* For underline effect */
+        }
 
-    .nav-container a:hover {
-      background-color: #3e5a99;
-    }
+        /* Modern, subtle underline for titles */
+        .underline-text {
+            font-family: 'Playfair Display', serif; /* Consistent elegant font */
+            text-decoration: none; /* Remove default */
+            display: inline-block; /* Allow padding/margin for pseudo-element */
+            padding-bottom: 5px; /* Space for the line */
+        }
 
-    @media (max-width: 600px) {
-      .header {
-        font-size: 6vw;
-      }
-    }
-  </style>
+        .underline-text::after {
+            content: '';
+            display: block;
+            width: 70px; /* Specific width */
+            height: 3px;
+            background-color: var(--red-accent);
+            margin: 5px auto 0 auto; /* Center the line */
+            border-radius: 2px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+        }
+
+        /* --- Record Values Styling --- */
+        .record-text-style {
+            color: var(--red-accent);
+            font-size: 1.2em !important; /* Prominent size for values */
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            line-height: 1.8; /* Improved readability */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
+        }
+
+        /* --- Table Styling --- */
+        table {
+            width: 100%;
+            border-collapse: separate; /* Allows border-radius */
+            border-spacing: 0;
+            font-size: 1em;
+            font-family: 'Montserrat', sans-serif;
+            margin-top: 20px; /* More space above table */
+            border-radius: 10px; /* Rounded table corners */
+            overflow: hidden; /* Ensures content respects border-radius */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Table shadow */
+            background-color: #fff; /* Ensure white background for cells */
+        }
+
+        th, td {
+            border: none; /* No individual cell borders */
+            padding: 14px 10px; /* More padding */
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--light-grey-table-header);
+            color: var(--dark-blue-bg);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--black-border); /* Separator for header */
+        }
+
+        tr:nth-child(even) {
+            background-color: #f0f0f0; /* Slightly darker stripe */
+        }
+
+        tr:hover {
+            background-color: #e5e5e5; /* Highlight row on hover */
+            cursor: pointer; /* Indicate interactivity */
+        }
+
+        /* --- Tooltip Styling --- */
+        .matchup-tooltip {
+            position: absolute;
+            background-color: var(--dark-blue-bg); /* Dark blue background */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            font-size: 0.95em;
+            font-family: 'Montserrat', sans-serif;
+            z-index: 1000; /* Ensure it's on top */
+            opacity: 0; /* Start hidden */
+            visibility: hidden; /* Start hidden */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            pointer-events: none; /* Don't block mouse events on elements below */
+            text-align: center;
+            border: 1px solid var(--red-accent); /* Red accent border */
+            white-space: nowrap; /* Keep content on one line */
+            letter-spacing: 0.5px;
+        }
+
+        .matchup-tooltip.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* --- Navigation Button --- */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            padding: 40px 0 10px 0; /* More padding above the button */
+        }
+
+        .nav-container a {
+            color: white;
+            font-size: 1.2rem;
+            border: 2px solid var(--black-border);
+            border-radius: 10px; /* More rounded button */
+            text-decoration: none;
+            padding: 15px 25px; /* Larger button */
+            background: linear-gradient(to right, var(--medium-blue-accent) 0%, var(--dark-blue-bg) 100%); /* Gradient background for depth */
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Button shadow */
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .nav-container a:hover {
+            background: linear-gradient(to right, var(--light-blue-hover) 0%, var(--medium-blue-accent) 100%); /* Lighter gradient on hover */
+            transform: translateY(-5px) scale(1.02); /* Lift and slight scale */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Stronger shadow on hover */
+            filter: brightness(1.1); /* Subtle brightness increase */
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .header {
+                font-size: 7vw;
+                padding: 20px 20px;
+                margin: 30px auto 20px auto;
+            }
+
+            .column {
+                flex: 1 1 100%; /* Stack columns on smaller screens */
+                padding: 25px;
+            }
+
+            .column p {
+                font-size: 1.3em;
+                margin: 1.5em 0 0.5em 0;
+            }
+
+            .record-text-style {
+                font-size: 1.1em !important;
+            }
+
+            .nav-container {
+                padding: 30px 0 10px 0;
+            }
+
+            .nav-container a {
+                font-size: 1rem;
+                padding: 12px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                font-size: 9vw;
+                padding: 15px 10px;
+                margin: 20px auto;
+            }
+
+            .column {
+                padding: 20px;
+            }
+
+            .column p {
+                font-size: 1.2em;
+                margin: 1.2em 0 0.4em 0;
+            }
+
+            .record-text-style {
+                font-size: 1em !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-  <div class="header">League Records</div>
+    <div class="header">League Records</div>
 
-  <div class="container">
-    <div class="column">
-      <p class="underline-text">Championships Won:</p>
-      <p class="record-text-style">Matt G. 1<br>Jessica 1</p>
+    <div class="container">
+        <div class="column">
+            <p class="underline-text">Championships Won:</p>
+            <p class="record-text-style">Matt G. 1<br>Jessica 1</p>
 
-   
-      <p class="underline-text">Highest Win Percentage:</p>
-      <p class="record-text-style">Evelyn 75%</p>
+            <p class="underline-text">Highest Win Percentage:</p>
+            <p class="record-text-style">Evelyn 75%</p>
 
-      <p class="underline-text">Lowest Win Percentage:</p>
-      <p class="record-text-style">Steven 25%</p>
-      
-      <p class="underline-text">Most Points For:</p>
-      <p class="record-text-style">Evelyn 3,496.80 points</p>
+            <p class="underline-text">Lowest Win Percentage:</p>
+            <p class="record-text-style">Steven 25%</p>
+            
+            <p class="underline-text">Most Points For:</p>
+            <p class="record-text-style">Evelyn 3,496.80 points</p>
 
-      <p class="underline-text">Lowest Points For:</p>
-      <p class="record-text-style">Matt S. 2,952.28 points</p>
+            <p class="underline-text">Lowest Points For:</p>
+            <p class="record-text-style">Matt S. 2,952.28 points</p>
 
-      <p class="underline-text">Most Transactions:</p>
-      <p class="record-text-style">Matt 105</p>
-   
- </div>
+            <p class="underline-text">Most Transactions:</p>
+            <p class="record-text-style">Matt 105</p>
+        </div>
 
-    <div class="column">
-      <p class="underline-text">Highest Weekly Total:</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Year</th>
-            <th>Week</th>
-            <th>Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Trevor</td><td>2023</td><td>3</td><td>190.40</td></tr>
-          <tr><td>Bonnie</td><td>2023</td><td>9</td><td>187.40</td></tr>
-          <tr><td>Jessica</td><td>2024</td><td>12</td><td>186.58</td></tr>
-          <tr><td>Trevor</td><td>2024</td><td>16</td><td>185.70</td></tr>
-          <tr><td>Evelyn</td><td>2024</td><td>16</td><td>182.42</td></tr>
-          <tr><td>Evelyn</td><td>2023</td><td>4</td><td>181.10</td></tr>
-          <tr><td>Sylvester</td><td>2024</td><td>15</td><td>175.46</td></tr>
-          <tr><td>Bonnie</td><td>2023</td><td>15</td><td>174.06</td></tr>
-          <tr><td>Matt G</td><td>2023</td><td>11</td><td>173.56</td></tr>
-          <tr><td>Bonnie</td><td>2024</td><td>14</td><td>172.68</td></tr>
-        </tbody>
-      </table>
+        <div class="column">
+            <p class="underline-text">Highest Weekly Total:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Year</th>
+                        <th>Week</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td data-matchup="dudenamedtrevor: 190.40 - lightmyBONfire: 104.18">dudenamedtrevor</td><td>2023</td><td>3</td><td>190.40</td></tr>
 
-      <div class="nav-container">
-        <a href="underconstruction.html">Manager Rankings</a>
-      </div>
+                    <tr><td data-matchup="lightmyBONfire: 187.40 - BUNNIESUPBUDDY: 96.14">lightmyBONfire</td><td>2023</td><td>16</td><td>187.40</td></tr>
+
+                    <tr><td data-matchup="CrazyCougars: 186.58 - lightmyBONfire: 112.032">CrazyCougars</td><td>2024</td><td>12</td><td>186.58</td></tr>
+
+                    <tr><td data-matchup="dudenamedtrevor: 185.70 - BUNNIESUPBUDDY: 182.42">dudenamedtrevor</td><td>2024</td><td>16</td><td>185.70</td></tr>
+
+                    <tr><td data-matchup="BUNNIESUPBUDDY: 182.42 - dudenamedtrevor: 185.70">BUNNIESUPBUDDY</td><td>2024</td><td>16</td><td>182.42</td></tr>
+
+                    <tr><td data-matchup="BUNNIESUPBUDDY: 181.10 - TB12isDaddy: 114.72">BUNNIESUPBUDDY</td><td>2023</td><td>4</td><td>181.10</td></tr>
+
+                    <tr><td data-matchup="SanDiegoSuperBurgers: 175.46 - Harry: 146.36">SanDiegoSuperBurgers</td><td>2024</td><td>15</td><td>175.46</td></tr>
+
+                    <tr><td data-matchup="lightmyBONfire: 174.06 - dudenamedtrevor: 98.56">lightmyBONfire</td><td>2023</td><td>15</td><td>174.06</td></tr>
+
+                    <tr><td data-matchup="mgreg00x: 173.56 - drvargas: 165.40">mgreg00x</td><td>2023</td><td>11</td><td>173.56</td></tr>
+
+                    <tr><td data-matchup="lightmyBONfire: 172.68 - DawgPound247: 117.10">lightmyBONfire</td><td>2024</td><td>14</td><td>172.68</td></tr>
+                </tbody>
+            </table>
+
+            <div class="nav-container">
+                <a href="underconstruction.html">Manager Rankings</a>
+            </div>
+        </div>
     </div>
-  </div>
 
+    <div id="matchupTooltip" class="matchup-tooltip"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameCells = document.querySelectorAll('.column table tbody td:first-child');
+            const tooltip = document.getElementById('matchupTooltip');
+
+            nameCells.forEach(cell => {
+                // Only add listeners if the cell has matchup data
+                if (cell.dataset.matchup) {
+                    cell.addEventListener('mouseenter', (event) => {
+                        // Set tooltip content
+                        tooltip.textContent = cell.dataset.matchup;
+                        
+                        // Position the tooltip
+                        const cellRect = cell.getBoundingClientRect();
+                        const scrollX = window.scrollX || document.documentElement.scrollLeft;
+                        const scrollY = window.scrollY || document.documentElement.scrollTop;
+
+                        // Calculate desired position (e.g., above and centered to the cell)
+                        let left = cellRect.left + scrollX + (cellRect.width / 2) - (tooltip.offsetWidth / 2);
+                        let top = cellRect.top + scrollY - tooltip.offsetHeight - 10; // 10px above the cell
+
+                        // Adjust if it goes off screen to the left
+                        if (left < scrollX) {
+                            left = scrollX + 10;
+                        }
+                        // Adjust if it goes off screen to the right
+                        if (left + tooltip.offsetWidth > window.innerWidth + scrollX) {
+                            left = window.innerWidth + scrollX - tooltip.offsetWidth - 10;
+                        }
+                        // Adjust if it goes off screen to the top (move below if necessary)
+                        if (top < scrollY) {
+                            top = cellRect.bottom + scrollY + 10;
+                        }
+
+
+                        tooltip.style.left = `${left}px`;
+                        tooltip.style.top = `${top}px`;
+                        
+                        // Show tooltip
+                        tooltip.classList.add('visible');
+                    });
+
+                    cell.addEventListener('mouseleave', () => {
+                        // Hide tooltip
+                        tooltip.classList.remove('visible');
+                    });
+
+                    // Add a small event listener to parent to make sure tooltip disappears
+                    // if mouse rapidly leaves the table area.
+                    cell.closest('table').addEventListener('mouseleave', () => {
+                        tooltip.classList.remove('visible');
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

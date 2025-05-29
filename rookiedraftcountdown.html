@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Rookie Draft Lottery Countdown</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* --- Root Variables for Easy Color Management --- */
+        :root {
+            --dark-blue-bg: #0f2027;
+            --medium-blue-bg: #203a43;
+            --light-blue-bg: #2c5364;
+            --accent-gold: #FFD700; /* Gold for highlight */
+            --light-text: #E0E0E0;
+            --dark-text: #1a1a1a;
+            --box-bg-color: rgba(255, 255, 255, 0.08); /* Slightly more opaque for content */
+            --box-border-color: rgba(255, 255, 255, 0.2);
+            --glow-color: rgba(255, 215, 0, 0.6);
+        }
+
+        /* --- Global Styles & Body --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--dark-blue-bg) 0%, var(--medium-blue-bg) 50%, var(--light-blue-bg) 100%);
+            color: var(--light-text);
+            font-family: 'Montserrat', sans-serif;
+            display: flex; /* Makes body a flex container */
+            flex-direction: column; /* Stacks content vertically */
+            align-items: center; /* Centers items horizontally */
+            justify-content: center; /* Centers items vertically */
+            min-height: 100vh; /* Ensures body takes at least full viewport height */
+            text-align: center;
+            overflow: hidden; /* Prevents scroll on background animation */
+            position: relative; /* For z-index of animations */
+        }
+
+        /* --- Background Animation: Stars / Particles --- */
+        body::before {
+            content: '';
+            position: fixed; /* Stays fixed regardless of scroll */
+            top: 0;
+            left: 0;
+            width: 100%; /* Takes full width of viewport */
+            height: 100%; /* Takes full height of viewport */
+            
+            background-size: 30px 30px; /* Controls particle density, scales with px */
+            animation: moveBackground 80s linear infinite;
+            z-index: 0; /* Behind main content */
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        @keyframes moveBackground {
+            from { background-position: 0 0; }
+            to { background-position: 100% 100%; }
+        }
+
+        /* --- Main Content Container for entrance animation --- */
+        .main-content {
+            z-index: 1; /* Above background */
+            animation: fadeInScale 1.5s ease-out forwards;
+            opacity: 0;
+            transform: scale(0.9);
+            max-width: 90%; /* Limits overall width, scales down on smaller screens */
+            padding: 0 10px; /* Small horizontal padding to prevent content touching edges */
+            box-sizing: border-box; /* Include padding in width calculation */
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* --- Header --- */
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4rem); /* Fluid font size: min 2.5rem, max 4rem, scales with 6vw */
+            margin-bottom: 1rem;
+            color: var(--accent-gold);
+            text-shadow: 0 0 15px var(--glow-color), 0 0 30px rgba(255, 215, 0, 0.4);
+            letter-spacing: 3px;
+            position: relative;
+            animation: textPulse 2s infinite alternate ease-in-out;
+        }
+
+        h1 i {
+            margin-right: 15px;
+            color: var(--accent-gold);
+            font-size: 0.8em; /* Scales relative to parent h1 font size */
+        }
+
+        @keyframes textPulse {
+            from { text-shadow: 0 0 10px var(--glow-color), 0 0 20px rgba(255, 215, 0, 0.3); }
+            to { text-shadow: 0 0 20px var(--glow-color), 0 0 40px rgba(255, 215, 0, 0.5); }
+        }
+
+        /* --- Subtitle --- */
+        .subtitle {
+            font-size: clamp(1.2rem, 3vw, 1.8rem); /* Fluid font size */
+            margin-bottom: 3rem;
+            color: var(--light-text);
+            opacity: 0.9;
+        }
+
+        /* --- Countdown Display --- */
+        .countdown {
+            display: flex; /* Makes countdown items a flex container */
+            gap: 25px; /* Spacing between countdown boxes */
+            font-size: clamp(1.8rem, 5vw, 3.5rem); /* Fluid font size for numbers */
+            font-weight: bold;
+            flex-wrap: wrap; /* Allows boxes to wrap to the next line on smaller screens */
+            justify-content: center; /* Centers boxes horizontally when wrapped */
+        }
+
+        .countdown div {
+            background: var(--box-bg-color);
+            padding: 30px 25px;
+            border-radius: 15px;
+            min-width: 100px; /* Ensures boxes don't get too small initially */
+            border: 1px solid var(--box-border-color);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            color: var(--accent-gold);
+            font-family: 'Orbitron', sans-serif;
+            flex: 1 1 auto; /* Allows boxes to grow and shrink to fit available space */
+            max-width: 250px; /* Prevents individual boxes from becoming excessively wide on large screens */
+        }
+
+        .countdown div:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.6), 0 0 25px var(--glow-color);
+        }
+
+        .countdown div::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease-out, height 0.4s ease-out;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .countdown div:hover::before {
+            width: 200%;
+            height: 200%;
+        }
+
+        .countdown .label {
+            display: block;
+            font-size: clamp(0.7rem, 2vw, 1.1rem); /* Fluid font size for labels */
+            font-weight: normal;
+            margin-top: 15px;
+            color: var(--light-text);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* --- Lottery Live message style --- */
+        .lottery-live-message {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.8rem, 5vw, 3.5rem);
+            font-weight: bold;
+            color: var(--accent-gold);
+            text-shadow: 0 0 20px var(--glow-color);
+            padding: 30px;
+            border-radius: 15px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid var(--accent-gold);
+            box-shadow: 0 0 30px var(--glow-color);
+            animation: pulseGlowLarge 1.5s infinite alternate ease-in-out;
+            margin-top: 50px;
+        }
+
+        @keyframes pulseGlowLarge {
+            from { box-shadow: 0 0 20px var(--glow-color); }
+            to { box-shadow: 0 0 40px var(--glow-color); }
+        }
+
+        /* --- Responsive Design with Media Queries --- */
+
+        /* Adjustments for medium screens (e.g., tablets) */
+        @media (max-width: 768px) {
+            .countdown {
+                gap: 15px; /* Reduce gap between boxes */
+            }
+            .countdown div {
+                padding: 20px 15px; /* Reduce padding inside boxes */
+                min-width: 70px; /* Allow boxes to shrink slightly more */
+            }
+            .countdown .label {
+                font-size: clamp(0.6rem, 1.8vw, 0.9rem); /* Adjust label font size range */
+                margin-top: 10px; /* Reduce space from number */
+            }
+            h1 {
+                margin-bottom: 0.8rem; /* Adjust header margin */
+            }
+            .subtitle {
+                margin-bottom: 2rem; /* Adjust subtitle margin */
+            }
+        }
+
+        /* Adjustments for small screens (e.g., mobile phones) */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: clamp(2rem, 8vw, 3rem); /* Allow header to shrink more on very small screens */
+                letter-spacing: 2px;
+            }
+            h1 i {
+                margin-right: 10px;
+                font-size: 0.7em;
+            }
+            .subtitle {
+                font-size: clamp(1rem, 4vw, 1.4rem); /* Allow subtitle to shrink more */
+                margin-bottom: 1.5rem;
+            }
+            .countdown {
+                gap: 10px; /* Further reduce gap on mobile */
+            }
+            .countdown div {
+                padding: 15px 10px; /* Smaller padding on mobile */
+                min-width: unset; /* Remove explicit min-width to let flexbox distribute freely */
+                flex: 1 1 45%; /* Allow two boxes per row (roughly) or stack if narrower */
+            }
+            .countdown .label {
+                font-size: clamp(0.6rem, 2.5vw, 0.8rem); /* Adjust label font size range */
+                margin-top: 8px;
+            }
+            .lottery-live-message {
+                font-size: clamp(1.5rem, 6vw, 2.5rem); /* Adjust font size for live message */
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <h1><i class="fas fa-trophy"></i> Rookie Draft Lottery Reveal</h1>
+        <p class="subtitle">Countdown to February 8, 2026</p>
+
+        <div class="countdown" id="countdown">
+            <div><div id="days">0</div><span class="label">Days</span></div>
+            <div><div id="hours">0</div><span class="label">Hours</span></div>
+            <div><div id="minutes">0</div><span class="label">Minutes</span></div>
+            <div><div id="seconds">0</div><span class="label">Seconds</span></div>
+        </div>
+    </div>
+
+    <script>
+        const countdownElement = document.getElementById("countdown");
+        const daysElement = document.getElementById("days");
+        const hoursElement = document.getElementById("hours");
+        const minutesElement = document.getElementById("minutes");
+        const secondsElement = document.getElementById("seconds");
+
+        const countdown = () => {
+            // Note: '2026-02-08T00:00:00Z' uses UTC. Adjust if you need a specific local timezone.
+            // Example for Pacific Standard Time (PST), adjust if needed for your local time:
+            // const endDate = new Date('2026-02-08T00:00:00-08:00').getTime(); 
+            const endDate = new Date('2026-02-08T00:00:00Z').getTime(); 
+            const now = new Date().getTime();
+            const distance = endDate - now;
+
+            if (distance < 0) {
+                clearInterval(timer);
+                countdownElement.innerHTML = '<div class="lottery-live-message">🎉 The Draft Lottery is Live! 🎉</div>';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Add leading zeros for a cleaner look
+            daysElement.innerText = String(days).padStart(2, '0');
+            hoursElement.innerText = String(hours).padStart(2, '0');
+            minutesElement.innerText = String(minutes).padStart(2, '0');
+            secondsElement.innerText = String(seconds).padStart(2, '0');
+        };
+
+        const timer = setInterval(countdown, 1000);
+        countdown(); // Initial call to display immediately
+    </script>
+</body>
+</html>

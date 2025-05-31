@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite League Records</title>
+    <title>Records & Rankings</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         /* --- Root Variables for Easy Color Management --- */
@@ -38,7 +38,8 @@
             padding: 25px 40px;
             font-size: clamp(2rem, 5vw, 3.5rem); /* Responsive font size */
             text-align: center;
-            font-family: 'Playfair Display', serif; /* Elegant, strong header font */
+            font-family: 'Inter', sans-serif;
+	    font-weight: bold;
             color: var(--dark-blue-bg);
             margin: 40px auto 30px auto; /* More vertical margin, center horizontally */
             box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5); /* Stronger, more prominent shadow */
@@ -121,6 +122,7 @@
         .column p {
             font-size: 1.5em; /* Larger, more impactful titles */
             margin: 1.8em 0 0.6em 0; /* Adjusted vertical spacing */
+	    font-family: 'Inter', sans-serif;
             font-weight: 700;
             color: var(--dark-blue-bg);
             position: relative; /* For underline effect */
@@ -307,27 +309,27 @@
 
 <body>
 
-    <div class="header">League Records</div>
+    <div class="header">Records & Rankings</div>
 
     <div class="container">
         <div class="column">
             <p class="underline-text">Championships Won:</p>
-            <p class="record-text-style">Matt G. 1<br>Jessica 1</p>
+            <p class="record-text-style">mgreg00x 1<br>CrazyCougars 1</p>
 
             <p class="underline-text">Highest Win Percentage:</p>
-            <p class="record-text-style">Evelyn 75%</p>
+            <p class="record-text-style">BUNNIESUPBUDDY 75%</p>
 
             <p class="underline-text">Lowest Win Percentage:</p>
-            <p class="record-text-style">Steven 25%</p>
+            <p class="record-text-style">drvargas 25%</p>
             
             <p class="underline-text">Most Points For:</p>
-            <p class="record-text-style">Evelyn 3,496.80 points</p>
+            <p class="record-text-style">BUNNIESUPBUDDY 3,496.80 points</p>
 
             <p class="underline-text">Lowest Points For:</p>
-            <p class="record-text-style">Matt S. 2,952.28 points</p>
+            <p class="record-text-style">mahomesDiggAhole 2,952.28 points</p>
 
             <p class="underline-text">Most Transactions:</p>
-            <p class="record-text-style">Matt 105</p>
+            <p class="record-text-style">mgreg00x 105</p>
         </div>
 
         <div class="column">
@@ -369,6 +371,8 @@
             </div>
         </div>
     </div>
+
+
 
     <div id="matchupTooltip" class="matchup-tooltip"></div>
 

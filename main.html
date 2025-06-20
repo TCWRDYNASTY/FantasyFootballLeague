@@ -9,109 +9,113 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="console.log('Supabase library loaded successfully!');"></script>
 
-    <style>
-        /* --------------------------f------------------------ */
-        /* --- General Body and Typography Styles --- */
-        /* -------------------------------------------------- */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: #1e3159;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            min-height: 100vh; /* Ensure body takes full viewport height */
-        }
+  <style>
+  /* --- Body & Typography --- */
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #1e3159;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 100vh;
+  }
+  .title-text, .left-column-title {
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    font-weight: 590;
+    color: #facc15;
+    padding: 0.25rem;
+    text-align: center;
+  }
 
-        .title-text {
-            font-size: clamp(1rem, 4vw, 1.5rem); /* Responsive font size */
-            font-weight: 590;
-            color: #facc15;
-            padding: 0.25rem;
-            text-align: center;
-        }
+  /* --- Header --- */
+  .header {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px solid black;
+    background-color: beige;
+    color: black;
+    padding: 20px 10px;
+    gap: 20px;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+  }
+  .logo-container img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+  }
+  .header-text {
+    display: flex;
+    flex-direction: column;
+  }
+  .header-text p {
+    margin: 5px 0;
+  }
+  .header .title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: bold;
+  }
+  .header .subtitle {
+    font-size: clamp(1rem, 4vw, 1.5rem);
+  }
+  .header .since {
+    font-size: clamp(0.9rem, 3vw, 1.2rem);
+  }
 
-        /* -------------------------------------------------- */
-        /* --- Header Section Styles --- */
-        /* -------------------------------------------------- */
-        .header {
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap; /* Allows items to wrap on smaller screens */
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            border: 2px solid black;
-            background-color: beige;
-            color: black;
-            padding: 20px 10px; /* Adjust padding for smaller screens */
-            gap: 20px;
-            box-sizing: border-box;
-            font-family: 'Courier New', monospace;
-        }
+  /* --- Main Layout --- */
+  .main-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1rem;
+    gap: 1rem;
+    padding: 0 10px;
+  }
+  .main-content {
+    order: 1;
+    width: 100%;
+    max-width: 700px;
+    background-color: #1e3159;
+    border-radius: 0.375rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .right-column {
+    order: 2;
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
 
-        .logo-container img {
-            width: 100%;
-            max-width: 200px; /* Smaller max-width for mobile */
-            height: auto;
-        }
+  }
+  .left-column-wrapper {
+    order: 3;
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+  }
 
-        .header-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header-text p {
-            margin: 5px 0;
-        }
-
-        .header .title {
-            font-size: clamp(1.5rem, 5vw, 2rem); /* Responsive font size */
-            font-weight: bold;
-        }
-
-        .header .subtitle {
-            font-size: clamp(1rem, 4vw, 1.5rem); /* Responsive font size */
-        }
-
-        .header .since {
-            font-size: clamp(0.9rem, 3vw, 1.2rem); /* Responsive font size */
-        }
-
-        /* -------------------------------------------------- */
-        /* --- Main Content Layout --- */
-        /* -------------------------------------------------- */
-        .main-content-wrapper {
-            display: flex;
-            flex-direction: column; /* Default to column for mobile */
-            align-items: center; /* Center items in column layout */
-            margin-top: 1rem;
-            gap: 1rem;
-            padding: 0 10px; /* Add horizontal padding for smaller screens */
-        }
-
-        .main-content {
-            width: 100%; /* Take full width on small screens */
-            max-width: 700px; /* Max width for larger screens */
-            background-color: #1e3159;
-            border-radius: 0.375rem;
-            margin: 0; /* Remove auto margin as we're centering with align-items */
-        }
-
-        /* -------------------------------------------------- */
-        /* --- Message Display Section --- */
-        /* -------------------------------------------------- */
-        #message-display {
-            height: 400px; /* Slightly reduced height for mobile */
-            background-color: #2d3748;
-            overflow-y: auto;
-            border-radius: 0.5rem;
-            padding: 0.2rem;
-            border: 2px solid #4a5568;
-        }
-
-        .message-item {
+  /* --- Message Display --- */
+  #message-display {
+    height: 400px;
+    background-color: #2d3748;
+    overflow-y: auto;
+    border-radius: 0.375rem;
+    padding: 0.2rem;
+    flex: 1;
+  }
+  .message-item {
     margin-bottom: 8px;
     padding: 1rem;
     border-radius: 6px;
@@ -119,459 +123,321 @@
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    max-width: 800px; /* Keeps consistent max width for messages */
+    max-width: 800px;
     color: #e2e8f0;
     font-weight: 500;
     font-size: 1rem;
     background-color: #2d3748;
     box-sizing: border-box;
-    white-space: pre-wrap; /* Add this line */
-}
+    white-space: pre-wrap;
+  }
+  .chat-image {
+    max-width: 120px;
+    height: auto;
+    border-radius: 4px;
+    margin-right: 8px;
+  }
+  .timestamp {
+    font-size: 0.65em;
+    color: #facc15;
+    margin-top: 4px;
+  }
+
+  /* --- Right Column Content --- */
+  .right-column-container {
+    font-size: 0.9rem;
+    padding-top: 0.5rem;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    border-radius: 0.375rem;
+    box-sizing: border-box;
+    flex: 1;  
+  }
+  .standings-scroll-area {
+    overflow-y: auto;
+    height: 100%;
+    width: 100%;
+        border-radius: 0.375rem;
+    border-left: none;
+    border-top: none;
+    border-bottom: none;
+  }
+
+  /* Table styles */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #2d3748;
+  }
+  th, td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #333;
+    text-align: left;
+    color: #f0f0f0;
+    font-size: 0.85rem;
+  }
+  th {
+    background: #1a202c;
+    font-size: 0.9rem;
+  }
+  tr.playoff-divider td {
+    border-bottom: 2px solid red;
+  }
+
+  /* Transactions & Trending */
+  .recent-transactions-container,
+  .trending-container {
+    overflow-y: auto;
+    border-bottom: 3px solid #4a5568;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    max-height: 250px;
+    color: #e2e8f0;
+  }
+  .trade-alert,
+  .free-agent-pickup,
+  .waiver-claim {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #facc15;
+    margin-bottom: 0.5rem;
+  }
+  .transaction-team-name {
+    font-weight: 500;
+    color: #facc15;
+  }
+  .added-players-title {
+    color: #48bb78;
+    font-weight: 400;
+  }
+  .dropped-players-title {
+    color: #f56565;
+    font-weight: 400;
+  }
+  .player-info,
+  .player-change-info,
+  .trending-list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.2rem;
+  }
+  .player-image,
+  .player-change-image,
+  .trending-player-image {
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .player-name,
+  .trending-player-name {
+    font-size: 0.8rem;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .recent-transactions-title,
+  .trending-title {
+    font-size: 1.3rem;
+    color: #facc15;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .trending-up-title,
+  .trending-down-title {
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    padding: 0.6rem;
+  }
+  .trending-up-title { color: #48bb78; }
+  .trending-down-title { color: #f56565; }
+  .trending-count-up { color: #48bb78; }
+  .trending-count-down { color: #f56565; }
+
+  /* --- Left Column (NFL News) --- */
+  .left-column {
+    background-color: #2d3748;
+    border-radius: 0.375rem;
+    width: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .news-box {
+    border-radius: 0.375rem;
+    width: 100%;
+    max-width: 300px;
+    height: 100%;
+    color: #facc15;
+  }
+  #nfl-news {
+    list-style: none;
+    margin: 0;
+  }
+  #nfl-news li {
+    font-size: 0.9rem;
+    margin: 0.75rem 0;
+    padding: 0.25rem;
+    background-color: #2d3748;
+    border-left: 6px solid #facc15;
+    border-radius: 6px;
+    transition: background-color 0.3s, transform 0.2s;
+    text-align: left;
+  }
+  #nfl-news li:hover {
+    background-color: #1e3159;
+    transform: scale(1.02);
+  }
+  #nfl-news a {
+    color: #e2e8f0;
+    padding: 0;
+    display: block;
+  }
+  #nfl-news a:hover {
+    text-decoration: underline;
+  }
+ 
+
+  /* --- Sidebar Navigation --- */
+  .sidebar-left {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 80%;
+    max-width: 350px;
+    height: 100%;
+    background-color: #2d3748;
+    transition: left 0.3s ease;
+    z-index: 9999;
+    overflow-y: auto;
+    padding-top: 20px;
+  }
+  .sidebar-left:hover {
+    left: 0;
+  }
+  .sidebar-left::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 20px;
+    z-index: 9998;
+  }
+  .nav-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 10px;
+  }
+  .nav-container a {
+    color: white;
+    font-size: 1rem;
+    padding: 10px;
+    background-color: #2e4a80;
+    border-left: 2px solid black;
+    border-bottom: 2px solid black;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+  .nav-container a:hover {
+    background-color: #3e5a99;
+  }
+
+  /* --- Media Queries --- */
+  @media (min-width: 768px) {
+    .header { padding: 20px; }
+    .logo-container img { max-width: 250px; }
+    .header .title { font-size: 2rem; }
+    .header .subtitle { font-size: 1.5rem; }
+    .header .since { font-size: 1.2rem; }
+    #message-display { height: 500px; }
+    .chat-image { max-width: 150px; }
+    .timestamp { font-size: 0.7em; }
+    th, td { padding: 0.75rem; font-size: inherit; }
+    .recent-transactions-container,
+    .trending-container {
+      padding-left: 1rem;
+      max-height: 290px;
+    }
+    .trade-alert,
+    .free-agent-pickup,
+    .waiver-claim { font-size: 1.25rem; }
+    .player-info,
+    .player-change-info,
+    .trending-list-item {
+      gap: 0.75rem;
+      margin-bottom: 0.25rem;
+    }
+    .player-image,
+    .player-change-image,
+    .trending-player-image {
+      width: 2rem;
+      height: 2rem;
+    }
+    .player-name,
+    .trending-player-name { font-size: 0.875rem; }
+    .recent-transactions-title,
+    .trending-title { font-size: 1.5rem; }
+    .trending-up-title,
+    .trending-down-title { padding: 0.8rem; }
+    .left-column {
+      margin-top: 0.5rem;
+      height: 500px;
+    }
+    #nfl-news li {
+      font-size: 0.95rem;
+      margin: 1rem 0;
+      padding: 0.6rem;
+    }
+    #nfl-news a { padding: 1rem;}
+    .sidebar-left { width: 350px; }
+    .nav-container {
+      flex-direction: row;
+      padding: 0;
+    }
+    .nav-container a {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      padding: 10px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .main-content-wrapper {
+      flex-direction: row;
+      justify-content: center;
+      align-items: stretch;
+      gap: 1rem;
+      padding: 0;
+      height: 500px;
+    }
+    .left-column-wrapper,
+    .main-content,
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .left-column-wrapper { order: 1; width: 300px; }
+    .main-content { order: 2; width: 700px; }
+    .right-column { order: 3; width: 350px; }
+    .left-column,
+    .right-column-container,
+    #message-display {
+      flex: 1;
+      overflow-y: auto;
+    }
+  }
+</style>
 
-        .chat-image {
-            max-width: 120px; /* Smaller image size for mobile */
-            height: auto;
-            border-radius: 4px;
-            margin-right: 8px;
-        }
-
-        .timestamp {
-            font-size: 0.65em; /* Slightly smaller timestamp for mobile */
-            color: #facc15;
-            margin-top: 4px;
-        }
-
-        /* -------------------------------------------------- */
-        /* --- Right Column (Standings & Transactions) --- */
-        /* -------------------------------------------------- */
-        .right-column {
-            width: 100%; /* Take full width on small screens */
-            max-width: 350px; /* Max width for larger screens */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .right-column-container {
-            font-size: 0.9rem;
-            border-radius: 0.5rem;
-            padding-top: 0.5rem;
-            width: 100%;
-            height: auto; /* Auto height for mobile, will be fixed on desktop */
-            overflow: hidden;
-            border: 2px transparent; /* Add border for mobile consistency */
-            box-sizing: border-box; /* Include padding/border in element's total width/height */
-        }
-
-        .standings-scroll-area {
-            overflow-y: auto;
-            height: 100%;
-            width: 100%;
-            border-radius: 0.5rem;
-            /* Borders will be handled by parent .right-column-container on mobile */
-            border-left: none;
-            border-top: none;
-            border-bottom: none;
-        }
-
-        /* Table General Styles */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #2d3748;
-        }
-
-        th,
-        td {
-            padding: 0.5rem; /* Reduced padding for mobile tables */
-            border-bottom: 1px solid #333;
-            text-align: left;
-            color: #f0f0f0;
-            font-size: 0.85rem; /* Smaller font size for table cells */
-        }
-
-        th {
-            background: #1a202c;
-            color: #f0f0f0;
-            font-size: 0.9rem; /* Smaller font size for table headers */
-        }
-
-        tr.playoff-divider td {
-            border-bottom: 2px solid red;
-        }
-
-        /* Recent Transactions & Trending Sections */
-        .recent-transactions-container,
-        .trending-container {
-            overflow-y: auto;
-            border-bottom: 3px solid #4a5568;
-            padding-left: 0.5rem; /* Reduced padding for mobile */
-            padding-right: 0.5rem;
-            max-height: 250px; /* Slightly reduced max-height for mobile */
-            color: #e2e8f0;
-        }
-
-        .trade-alert,
-        .free-agent-pickup,
-        .waiver-claim {
-            font-size: 1.1rem; /* Slightly smaller title for mobile */
-            font-weight: 700;
-            color: #facc15;
-            margin-bottom: 0.5rem;
-        }
-
-        .transaction-team-name {
-            font-weight: 500;
-            color: #facc15;
-        }
-
-        .added-players-title {
-            color: #48bb78;
-            font-weight: 400;
-        }
-
-        .dropped-players-title {
-            color: #f56565;
-            font-weight: 400;
-        }
-
-        .player-info,
-        .player-change-info,
-        .trending-list-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem; /* Reduced gap for mobile */
-            margin-bottom: 0.2rem; /* Reduced margin for mobile */
-        }
-
-        .player-image,
-        .player-change-image,
-        .trending-player-image {
-            width: 1.8rem; /* Slightly smaller image for mobile */
-            height: 1.8rem;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .player-name,
-        .trending-player-name {
-            font-size: 0.8rem; /* Smaller font for player names */
-            color: #e2e8f0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .recent-transactions-title,
-        .trending-title {
-            font-size: 1.3rem; /* Slightly smaller title */
-            color: #facc15;
-            text-align: center;
-            margin-top: 1rem; /* Add some top margin */
-        }
-
-        .trending-up-title,
-        .trending-down-title {
-            font-weight: 400;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            padding: 0.6rem; /* Reduced padding */
-        }
-
-        .trending-up-title {
-            color: #48bb78;
-        }
-
-        .trending-down-title {
-            color: #f56565;
-        }
-
-        .trending-count-up {
-            color: #48bb78;
-        }
-
-        .trending-count-down {
-            color: #f56565;
-        }
-
-        /* -------------------------------------------------- */
-        /* --- Left Column (NFL News) --- */
-        /* -------------------------------------------------- */
-        .left-column {
-            width: 100%; /* Take full width on small screens */
-            max-width: 300px; /* Max width for larger screens */
-            border-right: none; /* Remove border on mobile */
-            border-top: 2px solid #4a5568; /* Add top border for separation on mobile */
-            border-bottom: 2px solid #4a5568; /* Add bottom border for separation on mobile */
-            border-left: 2px solid #4a5568; /* Add left border to maintain consistency */
-            border-radius: 0.375rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            background-color: #2d3748;
-            margin-top: 1rem; /* Adjust margin for mobile */
-            height: 400px; /* Fixed height for news on mobile */
-        }
-
-        .news-box {
-            border-radius: 0.375rem;
-            width: 100%;
-            max-width: 300px; /* Max width for news box */
-            height: 100%; /* Fill parent height */
-        }
-
-        #nfl-news {
-            list-style: none; /* Remove default list bullets */
-            padding: 0.5rem; /* Add padding inside news box */
-            margin: 0;
-        }
-
-        #nfl-news li {
-            font-size: 0.9rem; /* Slightly smaller font for news items */
-            margin: 0.75rem 0; /* Reduced margin for news items */
-            padding: 0.5rem; /* Reduced padding for news items */
-            background-color: #2d3748;
-            border-left: 6px solid #facc15;
-            border-radius: 6px;
-            transition: background-color 0.3s, transform 0.2s;
-            text-align: left;
-        }
-
-        #nfl-news li:hover {
-            background-color: #1e3159;
-            transform: scale(1.02);
-        }
-
-        #nfl-news a {
-            color: #e2e8f0;
-            padding: 0; /* Remove extra padding */
-            display: block; /* Make link fill the list item */
-        }
-
-        #nfl-news a:hover {
-            text-decoration: underline;
-        }
-
-        /* -------------------------------------------------- */
-        /* --- Sidebar Navigation --- */
-        /* -------------------------------------------------- */
-        .sidebar-left {
-            position: fixed;
-            top: 0;
-            left: -100%; /* Hide completely off-screen by default */
-            width: 80%; /* Take up 80% of viewport width on small screens */
-            max-width: 350px; /* Max width for larger screens */
-            height: 100%;
-            background-color: #2d3748;
-            transition: left 0.3s ease;
-            z-index: 9999;
-            border-right: 2px solid #4a5568;
-            overflow-y: auto; /* Allow scrolling for long navigation lists */
-            padding-top: 20px; /* Space from top */
-        }
-
-        /* This hover effect is primarily for desktop. On mobile, you'd typically use a toggle button. */
-        .sidebar-left:hover {
-            left: 0;
-        }
-
-        /* To trigger the sidebar on mobile, consider a hamburger menu icon */
-        /* For now, we'll keep the hover to demonstrate. */
-
-        .sidebar-left::before {
-            /* This is a subtle trigger area. For mobile, a dedicated button is better. */
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 20px;
-            z-index: 9998;
-            /* For debugging, you can add a background here: background: rgba(255,0,0,0.1); */
-        }
-
-
-        .nav-container {
-            display: flex;
-            flex-direction: column; /* Stack navigation items vertically on mobile */
-            gap: 0.5rem;
-            padding: 10px; /* Add padding around nav items */
-        }
-
-        .nav-container a {
-            margin: 0; /* Remove individual margins as flex gap handles it */
-            color: white;
-            font-size: 1rem; /* Slightly larger font for better touch targets */
-            padding: 10px; /* Increased padding for better touch targets */
-            background-color: #2e4a80;
-            border-left: 2px solid black;
-            border-bottom: 2px solid black;
-            text-align: center;
-            transition: background-color 0.3s ease;
-            text-decoration: none; /* Remove underline by default */
-            border-radius: 4px; /* Slightly rounded corners for buttons */
-        }
-
-        .nav-container a:hover {
-            background-color: #3e5a99;
-        }
-
-        /* -------------------------------------------------- */
-        /* --- Media Queries for Larger Screens --- */
-        /* -------------------------------------------------- */
-
-        /* Tablet and larger (e.g., min-width 768px) */
-        @media (min-width: 768px) {
-            .header {
-                padding: 20px; /* Restore original padding */
-            }
-
-            .logo-container img {
-                max-width: 250px; /* Restore original max-width */
-            }
-
-            .header .title {
-                font-size: 2rem;
-            }
-
-            .header .subtitle {
-                font-size: 1.5rem;
-            }
-
-            .header .since {
-                font-size: 1.2rem;
-            }
-
-            #message-display {
-                height: 500px; /* Restore original height */
-            }
-
-            .chat-image {
-                max-width: 150px; /* Restore original image size */
-            }
-
-            .timestamp {
-                font-size: 0.7em; /* Restore original font size */
-            }
-
-            th,
-            td {
-                padding: 0.75rem; /* Restore original padding */
-                font-size: inherit; /* Inherit font size from parent */
-            }
-
-            th {
-                font-size: inherit;
-            }
-
-            .recent-transactions-container,
-            .trending-container {
-                padding-left: 1rem; /* Restore original padding */
-                max-height: 290px; /* Restore original max-height */
-            }
-
-            .trade-alert,
-            .free-agent-pickup,
-            .waiver-claim {
-                font-size: 1.25rem; /* Restore original font size */
-            }
-
-            .player-info,
-            .player-change-info,
-            .trending-list-item {
-                gap: 0.75rem; /* Restore original gap */
-                margin-bottom: 0.25rem; /* Restore original margin */
-            }
-
-            .player-image,
-            .player-change-image,
-            .trending-player-image {
-                width: 2rem; /* Restore original size */
-                height: 2rem;
-            }
-
-            .player-name,
-            .trending-player-name {
-                font-size: 0.875rem; /* Restore original font size */
-            }
-
-            .recent-transactions-title,
-            .trending-title {
-                font-size: 1.5rem; /* Restore original font size */
-            }
-
-            .trending-up-title,
-            .trending-down-title {
-                padding: 0.8rem; /* Restore original padding */
-            }
-
-            .left-column {
-                margin-top: 0.5rem; /* Restore original margin */
-                height: 500px; /* Restore original height */
-            }
-
-            #nfl-news li {
-                font-size: 0.95rem; /* Restore original font size */
-                margin: 1rem 0; /* Restore original margin */
-                padding: 0.60rem; /* Restore original padding */
-            }
-
-            #nfl-news a {
-                padding: 1rem; /* Restore original padding */
-            }
-
-            .sidebar-left {
-                width: 350px; /* Restore original width for sidebar */
-            }
-
-            .nav-container {
-                flex-direction: row; /* Allow navigation items to go horizontal again */
-                padding: 0;
-            }
-
-            .nav-container a {
-                margin-top: 0.5rem;
-                margin-bottom: 0.5rem;
-                padding: 10px;
-            }
-        }
-
-
-        /* Desktop and larger (e.g., min-width 1024px) */
-        @media (min-width: 1024px) {
-            .main-content-wrapper {
-                flex-direction: row; /* Layout columns horizontally */
-                justify-content: center;
-                align-items: flex-start; /* Align items to the top in row layout */
-                padding: 0; /* Remove horizontal padding */
-            }
-
-            .main-content {
-                margin: 0; /* No auto margin when part of flex row */
-            }
-
-            .right-column-container {
-                height: 505px; /* Fixed height for desktop */
-                border-left: 2px transparent; /* Restore left border */
-                border-top: 2px transparent; /* Restore top border */
-                border-bottom: 2px transparent; /* Restore bottom border */
-            }
-
-            .standings-scroll-area {
-                border-left: transparent; /* Restore left border for scroll area */
-                border-top: transparent;
-                border-bottom: transparent;
-            }
-
-            .left-column {
-                border-right: 2px solid #4a5568; /* Restore right border */
-                border-top: 2px solid #4a5568; /* Ensure top border */
-                border-bottom: 2px solid #4a5568; /* Ensure bottom border */
-                border-left: 2px solid #4a5568; /* Ensure left border */
-            }
-        }
-    </style>
 </head>
 
 <body class="body">
@@ -617,41 +483,45 @@
   </div>
 
 <div class="main-content-wrapper">
-<div class="title-text">
-NFL News from ESPN
-<div class="left-column">
 
-<div class="news-box">
-    <ul id="nfl-news">Loading...</ul>
+  <!-- LEFT COLUMN (Wrapper first, order handled by CSS) -->
+  <div class="left-column-wrapper">
+    <div class="left-column-title">NFL News from ESPN</div>
+    <div class="left-column">
+      <div class="news-box">
+        <ul id="nfl-news">Loading...</ul>
+      </div>
+    </div>
   </div>
- </div>
-</div>
-  
-<div class="main-content">
+
+  <!-- MIDDLE CONTENT -->
+  <div class="main-content">
     <h2 class="title-text" style="padding-bottom: 0.5rem;">League Updates!</h2>
     <div id="message-display"></div>
   </div>
 
+  <!-- RIGHT COLUMN -->
+  <div class="right-column">
+    <div class="title-text">
+      <h1>League Standings</h1>
+    </div>
+    <div class="right-column-container">
+      <div class="standings-scroll-area">
+        <table id="standings-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Team</th>
+              <th>Record</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-<div class="right-column">
-  <div class="title-text">
-    <h1>League Standings</h1>
-  </div>
-  <div class="right-column-container">
-    <div class="standings-scroll-area">
-      <table id="standings-table">
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Team</th>
-          <th>Record</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
 </div>
-
 
     <script>
 

@@ -6,419 +6,451 @@
     <title>Fourth and Roasted</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.6"></script>
     <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
-    <style>
-        :root {
-            /* Define CSS variables for colors to make them easily reusable and modifiable */
-            --primary-color: #ffcc00;
-            --secondary-color: #2a2a2a;
-            --accent-color: #ff9900;
-            --dark-background: #1e3159;
-            --text-color-light: #ffaa00cc;
-            --button-color-send: green;
-            --button-color-hover: #0056b3;
-            --button-color-text: white;
-            --border-color: #ffcc00;
-            --input-background: #ffcc00;
-            --input-text-color: #2a2a2a; /* Assuming text in input should contrast with yellow */
-            --light-grey: #6c757d;
-        }
+  <style>
+    :root {
+        /* Define CSS variables for colors to make them easily reusable and modifiable */
+        --primary-color: #ffcc00;
+        --secondary-color: #2a2a2a;
+        --accent-color: #ff9900;
+        --dark-background: #1e3159;
+        --text-color-light: #ffaa00cc;
+        --button-color-send: green;
+        --button-color-hover: #0056b3;
+        --button-color-text: white;
+        --border-color: #ffcc00;
+        --input-background: #ffcc00;
+        --input-text-color: #2a2a2a; /* Assuming text in input should contrast with yellow */
+        --light-grey: #6c757d;
+    }
 
-        body {
-            font-family: 'Nunito', sans-serif;
-            background-color: var(--dark-background);
-            margin: 0; /* Reset default margin */
-            padding: 1rem; /* Add padding around the entire content */
-            box-sizing: border-box; /* Include padding in element's total width and height */
-            min-height: 100vh; /* Ensure body takes at least full viewport height */
-            display: flex; /* Use flexbox for body to help center content vertically if needed */
-            flex-direction: column;
-            align-items: center; /* Center content horizontally */
-        }
+    body {
+        font-family: 'Nunito', sans-serif;
+        background-color: var(--dark-background);
+        margin: 0; /* Reset default margin */
+        padding: 1rem; /* Add padding around the entire content */
+        box-sizing: border-box; /* Include padding in element's total width and height */
+        min-height: 100vh; /* Ensure body takes at least full viewport height */
+        display: flex; /* Use flexbox for body to help center content vertically if needed */
+        flex-direction: column;
+        align-items: center; /* Center content horizontally */
+    }
 
-        /* --- Header Section --- */
-        .app-header-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 2rem;
-            width: 100%; /* Take full width */
-            padding: 0 1rem; /* Add horizontal padding */
-            box-sizing: border-box;
-        }
+    /* --- Header Section --- */
+    .app-header-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+        width: 100%; /* Take full width */
+        padding: 0 1rem; /* Add horizontal padding */
+        box-sizing: border-box;
+    }
 
-        .app-header {
-            text-align: center;
-            color: var(--primary-color);
-            background-color: var(--secondary-color);
-            padding: 1.5rem 5%; /* Use percentage for horizontal padding */
-            width: 90%; /* Start with a relative width */
-            max-width: 600px; /* Set a maximum width for larger screens */
-            box-shadow: 0 6px 15px rgba(255, 204, 0, 0.7);
-            border-radius: 12px;
-            font-family: 'Courier New', monospace;
-            user-select: none;
-            box-sizing: border-box;
-        }
+    .app-header {
+        text-align: center;
+        color: var(--primary-color);
+        background-color: var(--secondary-color);
+        padding: 1.5rem 5%; /* Use percentage for horizontal padding */
+        width: 90%; /* Start with a relative width */
+        max-width: 600px; /* Set a maximum width for larger screens */
+        box-shadow: 0 6px 15px rgba(255, 204, 0, 0.7);
+        border-radius: 12px;
+        font-family: 'Courier New', monospace;
+        user-select: none;
+        box-sizing: border-box;
+    }
 
-        .app-header h1 {
-            font-size: clamp(2rem, 6vw, 3.5rem); /* Responsive font size using clamp */
-            margin: 0;
-            font-weight: 900;
-            text-shadow:
-                0 0 5px var(--primary-color),
-                0 0 10px var(--accent-color),
-                0 0 20px #ff6600;
-        }
+    .app-header h1 {
+        font-size: clamp(2rem, 6vw, 3.5rem); /* Responsive font size using clamp */
+        margin: 0;
+        font-weight: 900;
+        text-shadow:
+            0 0 5px var(--primary-color),
+            0 0 10px var(--accent-color),
+            0 0 20px #ff6600;
+    }
 
-        .app-header h2 {
-            font-size: clamp(1rem, 2.5vw, 1.5rem); /* Responsive font size */
-            margin-top: 0.3rem;
-            font-weight: 600;
-            color: var(--text-color-light);
-            font-style: italic;
-        }
+    .app-header h2 {
+        font-size: clamp(1rem, 2.5vw, 1.5rem); /* Responsive font size */
+        margin-top: 0.3rem;
+        font-weight: 600;
+        color: var(--text-color-light);
+        font-style: italic;
+    }
 
-        .header-images {
-            margin-top: 0.8rem;
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap; /* Allow images to wrap to the next line on smaller screens */
-        }
+    .header-images {
+        margin-top: 0.8rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap; /* Allow images to wrap to the next line on smaller screens */
+    }
 
-        .header-images img {
-            width: clamp(40px, 8vw, 60px); /* Responsive image size */
-            height: auto;
-            border-radius: 8px;
-            filter: drop-shadow(0 0 2px var(--primary-color));
-        }
+    .header-images img {
+        width: clamp(40px, 8vw, 60px); /* Responsive image size */
+        height: auto;
+        border-radius: 8px;
+        filter: drop-shadow(0 0 2px var(--primary-color));
+    }
 
-        /* --- Chat Container --- */
-        .chat-container {
-            width: 95%; /* Make it more responsive */
-            max-width: 550px; /* Limit max width */
-            margin: 2rem auto; /* Add vertical margin, center horizontally */
-            padding: 20px;
-            background-color: var(--secondary-color);
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            box-sizing: border-box;
-        }
+    /* --- Chat Container --- */
+    .chat-container {
+        width: 95%; /* Make it more responsive */
+        max-width: 550px; /* Limit max width */
+        margin: 2rem auto; /* Add vertical margin, center horizontally */
+        padding: 20px;
+        background-color: var(--secondary-color);
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+    }
 
-        /* User Login Section */
-        .user-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap; /* Allow items to wrap */
-            gap: 10px; /* Space between wrapped items */
-        }
+    /* User Login Section */
+    .user-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        flex-wrap: wrap; /* Allow items to wrap */
+        gap: 10px; /* Space between wrapped items */
+    }
 
-        /* Chat Box Container */
-        .chat-box {
-            display: flex;
-            flex-direction: column;
-        }
+    /* Chat Box Container */
+    .chat-box {
+        display: flex;
+        flex-direction: column;
+    }
 
-        /* Message Display Area */
-        #message-display {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            height: 300px;
-            max-height: 50vh; /* Make height responsive to viewport height */
-            overflow-y: scroll;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
+    /* Message Display Area */
+    #message-display {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        height: 300px;
+        max-height: 50vh; /* Make height responsive to viewport height */
+        overflow-y: scroll;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
 
-        /* Individual Message Styling */
-        .message-item {
-            margin-bottom: 8px;
-            margin-left: auto;
-            padding: 8px;
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            background-color: var(--primary-color);
-            width: fit-content; /* Adjust width to content */
-            max-width: 90%; /* Allow messages to take more width on smaller screens */
-            word-break: break-word; /* Ensure long words break */
-        }
+    /* Individual Message Styling */
+    .message-item {
+        margin-bottom: 8px;
+        margin-left: auto;
+        padding: 8px;
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        background-color: var(--primary-color);
+        width: fit-content; /* Adjust width to content */
+        max-width: 90%; /* Allow messages to take more width on smaller screens */
+        word-break: break-word; /* Ensure long words break */
+    }
 
-        /* Message Content (Image and Text) */
-        .message-content {
-            display: flex;
-            align-items: flex-start;
-            width: 100%;
-        }
+    /* Message Content (Image and Text) */
+    .message-content {
+        display: flex;
+        align-items: flex-start;
+        width: 100%;
+    }
 
-        /* Chat Image Styling */
-        .chat-image {
-            max-width: clamp(100px, 25vw, 150px); /* Responsive image size in messages */
-            height: auto;
-            border-radius: 4px;
-            margin-right: 8px;
-            flex-shrink: 0; /* Prevent image from shrinking */
-        }
+    /* Chat Image Styling */
+    .chat-image {
+        max-width: clamp(100px, 25vw, 150px); /* Responsive image size in messages */
+        height: auto;
+        border-radius: 4px;
+        margin-right: 8px;
+        flex-shrink: 0; /* Prevent image from shrinking */
+    }
 
-        /* Message Text Styling */
-        .message-text {
-            flex-grow: 1;
-            color: var(--input-text-color); /* Ensure text is readable on yellow background */
-        }
+    /* Message Text Styling */
+    .message-text {
+        flex-grow: 1;
+        color: var(--input-text-color); /* Ensure text is readable on yellow background */
+    }
 
-        /* Timestamp Styling */
-        .timestamp {
-            font-size: 0.7em;
-            color: #777;
-            align-self: flex-start;
-            margin-top: 4px;
-        }
+    /* Timestamp Styling */
+    .timestamp {
+        font-size: 0.7em;
+        color: #777;
+        align-self: flex-start;
+        margin-top: 4px;
+    }
 
-        /* --- Input Area --- */
-        .input-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 100%; /* Take full width */
-        }
+    /* --- Input Area --- */
+    .input-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%; /* Take full width */
+    }
 
-        textarea#message-input {
-            width: 100%;
-            min-height: 60px; /* Use min-height */
-            margin-bottom: 10px;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 4px;
-            box-sizing: border-box;
-            padding-right: 90px;
-            resize: vertical; /* Allow vertical resizing */
-            background-color: var(--input-background);
-            font-family: 'Nunito', sans-serif;
-            color: var(--input-text-color); /* Text color inside textarea */
-        }
+    textarea#message-input {
+        width: 100%;
+        min-height: 60px; /* Use min-height */
+        margin-bottom: 10px;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        padding-right: 90px;
+        resize: vertical; /* Allow vertical resizing */
+        background-color: var(--input-background);
+        font-family: 'Nunito', sans-serif;
+        color: var(--input-text-color); /* Text color inside textarea */
+    }
 
-        .input-buttons {
-            position: absolute;
-            right: 5px;
-            top: 5px;
-            display: flex;
-            flex-direction: row;
-            gap: 0.5rem;
-            align-items: flex-start;
-        }
+    .input-buttons {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
 
-        .input-buttons button {
-            border-radius: 50%;
-            width: 30px; /* Slightly larger buttons for better touch targets */
-            height: 30px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.1em; /* Larger font size for icons */
-            transition: transform 0.2s ease, color 0.3s ease, background-color 0.3s ease, box-shadow 0.2s ease;
-            box-shadow: none;
-            border: none;
-            background-color: transparent;
-            color: var(--light-grey);
-        }
+    .input-buttons button {
+        border-radius: 50%;
+        width: 30px; /* Slightly larger buttons for better touch targets */
+        height: 30px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.1em; /* Larger font size for icons */
+        transition: transform 0.2s ease, color 0.3s ease, background-color 0.3s ease, box-shadow 0.2s ease;
+        box-shadow: none;
+        border: none;
+        background-color: transparent;
+        color: var(--light-grey);
+    }
 
-        .input-buttons button:hover {
-            transform: scale(1.1);
-            color: var(--button-color-hover);
-            background-color: rgba(0, 86, 179, 0.1);
-            box-shadow: none;
-        }
+    .input-buttons button:hover {
+        transform: scale(1.1);
+        color: var(--button-color-hover);
+        background-color: rgba(0, 86, 179, 0.1);
+        box-shadow: none;
+    }
 
-        /* Main Action Buttons (Send, Sign Off) */
-        .buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            flex-wrap: wrap; /* Allow buttons to wrap */
-        }
+    /* Main Action Buttons (Send, Sign Off) */
+    .buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        flex-wrap: wrap; /* Allow buttons to wrap */
+    }
 
-        button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            background-color: var(--button-color-send);
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            color: var(--button-color-text);
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0; /* Prevent buttons from shrinking */
-        }
+    button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background-color: var(--button-color-send);
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        color: var(--button-color-text);
+        font-family: 'Courier New', monospace;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        flex-shrink: 0; /* Prevent buttons from shrinking */
+    }
 
-        button:hover {
-            background-color: var(--button-color-hover);
-            transform: translateY(-1px);
-        }
+    button:hover {
+        background-color: var(--button-color-hover);
+        transform: translateY(-1px);
+    }
 
-        /* Utility Class */
-        .hidden {
-            display: none !important;
-        }
+    /* Utility Class */
+    .hidden {
+        display: none !important;
+    }
 
-        /* Specific GIF button styling */
-        #gif-btn {
-            background-color: transparent;
-            color: var(--light-grey);
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.1em;
-            transition: transform 0.2s ease, color 0.3s ease;
-            box-shadow: none;
-        }
+    /* Specific GIF button styling */
+    #gif-btn {
+        background-color: transparent;
+        color: var(--light-grey);
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.1em;
+        transition: transform 0.2s ease, color 0.3s ease;
+        box-shadow: none;
+    }
 
-        #gif-btn:hover {
-            transform: scale(1.1);
-            color: var(--button-color-hover);
-            background-color: transparent;
-            box-shadow: none;
-        }
+    #gif-btn:hover {
+        transform: scale(1.1);
+        color: var(--button-color-hover);
+        background-color: transparent;
+        box-shadow: none;
+    }
 
-        #gif-btn:active {
-            transform: scale(0.95);
-            color: #5a6268;
-        }
+    #gif-btn:active {
+        transform: scale(0.95);
+        color: #5a6268;
+    }
 
-        #gif-search-container {
-            display: none;
-            /* Consider adding responsive styles here if it becomes visible */
-        }
+    #gif-search-container {
+        display: none;
+        /* Consider adding responsive styles here if it becomes visible */
+    }
 
+    #emoji-picker {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        /* Adjusted padding for a tighter fit */
+        padding: 2px 3px;
+        z-index: 100;
+        max-width: 90vw; /* Responsive max-width */
+        overflow-x: auto;
+        white-space: nowrap;
+        left: 0;
+        top: 100%;
+        margin-top: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        display: flex;
+        flex-direction: row;
+        /* Further reduced gap for closer emojis */
+        gap: 1px;
+        box-sizing: border-box; /* Ensure padding is included */
+    }
+
+    #emoji-picker button {
+        /* Minimized padding for the button itself */
+        padding: 0px;
+        margin: 0;
+        border: none;
+        background-color: transparent;
+        font-size: 1.2rem; /* Slightly larger emojis */
+        cursor: pointer;
+        line-height: 1;
+        /* Keep min-width/height for consistent sizing, but slightly reduce */
+        min-width: 28px;
+        min-height: 28px;
+        display: flex; /* Use flexbox to center emoji within button */
+        align-items: center;
+        justify-content: center;
+    }
+
+    #emoji-picker button:hover {
+        background-color: #eee;
+        border-radius: 2px;
+    }
+
+    /* --- Media Queries for smaller screens --- */
+    /* Adjust this media query to target a broader range of smaller computer screens */
+    @media (max-width: 992px) { /* Targeting tablets and smaller desktops */
         #emoji-picker {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-            padding: 5px 10px;
-            z-index: 100;
-            max-width: 90vw; /* Responsive max-width */
-            overflow-x: auto;
-            white-space: nowrap;
-            left: 0;
-            top: 100%;
-            margin-top: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-            display: flex;
-            flex-direction: row;
-            gap: 8px;
-            box-sizing: border-box; /* Ensure padding is included */
+            /* Tighter gap for emojis on medium screens */
+            gap: 1px;
+            padding: 2px 2px; /* Even tighter padding */
         }
 
         #emoji-picker button {
-            padding: 0;
-            margin: 0;
-            border: none;
-            background-color: transparent;
-            font-size: 1.2rem; /* Slightly larger emojis */
-            cursor: pointer;
-            line-height: 1;
+            min-width: 26px; /* Slightly smaller buttons */
+            min-height: 26px;
+            font-size: 1.1rem; /* Slightly smaller emoji font */
+        }
+    }
+
+    @media (max-width: 768px) {
+        body {
+            padding: 0.5rem; /* Reduce overall padding on smaller screens */
         }
 
-        #emoji-picker button:hover {
-            background-color: #eee;
-            border-radius: 2px;
+        .app-header {
+            padding: 1rem 3%; /* Adjust padding for smaller screens */
         }
 
-        /* --- Media Queries for smaller screens --- */
-        @media (max-width: 768px) {
-            body {
-                padding: 0.5rem; /* Reduce overall padding on smaller screens */
-            }
-
-            .app-header {
-                padding: 1rem 3%; /* Adjust padding for smaller screens */
-            }
-
-            .app-header h1 {
-                font-size: clamp(1.8rem, 8vw, 3rem); /* Adjust font size range */
-            }
-
-            .app-header h2 {
-                font-size: clamp(0.9rem, 3vw, 1.25rem); /* Adjust font size range */
-            }
-
-            .chat-container {
-                padding: 15px; /* Reduce padding inside chat container */
-                width: 100%; /* Take full width on smaller screens */
-                margin-left: 0;
-                margin-right: 0;
-            }
-
-            .input-buttons {
-                top: 8px; /* Adjust vertical position */
-                right: 8px;
-                gap: 0.3rem; /* Reduce gap between buttons */
-            }
-
-            .input-buttons button {
-                width: 28px; /* Smaller buttons */
-                height: 28px;
-                font-size: 1em;
-            }
-
-            textarea#message-input {
-                padding-right: 80px; /* Adjust padding to accommodate smaller buttons */
-            }
-
-            .buttons {
-                flex-direction: column; /* Stack buttons vertically */
-                align-items: stretch; /* Stretch buttons to full width */
-                gap: 0.5rem; /* Smaller gap between stacked buttons */
-            }
-
-            button {
-                width: 100%; /* Make buttons full width */
-                box-sizing: border-box;
-            }
-
-            .message-item {
-                max-width: 95%; /* Allow messages to take more width */
-            }
+        .app-header h1 {
+            font-size: clamp(1.8rem, 8vw, 3rem); /* Adjust font size range */
         }
 
-        @media (max-width: 480px) {
-            .app-header h1 {
-                font-size: clamp(1.5rem, 10vw, 2.5rem);
-            }
-
-            .app-header h2 {
-                font-size: clamp(0.8rem, 4vw, 1rem);
-            }
-
-            .header-images img {
-                width: clamp(30px, 10vw, 50px);
-            }
-
-            .chat-image {
-                max-width: clamp(80px, 30vw, 120px);
-            }
-
-            #emoji-picker {
-                gap: 5px; /* Even smaller gap for emojis */
-            }
+        .app-header h2 {
+            font-size: clamp(0.9rem, 3vw, 1.25rem); /* Adjust font size range */
         }
-    </style>
+
+        .chat-container {
+            padding: 15px; /* Reduce padding inside chat container */
+            width: 100%; /* Take full width on smaller screens */
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .input-buttons {
+            top: 8px; /* Adjust vertical position */
+            right: 8px;
+            gap: 0.3rem; /* Reduce gap between buttons */
+        }
+
+        .input-buttons button {
+            width: 28px; /* Smaller buttons */
+            height: 28px;
+            font-size: 1em;
+        }
+
+        textarea#message-input {
+            padding-right: 80px; /* Adjust padding to accommodate smaller buttons */
+        }
+
+        .buttons {
+            flex-direction: column; /* Stack buttons vertically */
+            align-items: stretch; /* Stretch buttons to full width */
+            gap: 0.5rem; /* Smaller gap between stacked buttons */
+        }
+
+        button {
+            width: 100%; /* Make buttons full width */
+            box-sizing: border-box;
+        }
+
+        .message-item {
+            max-width: 95%; /* Allow messages to take more width */
+        }
+    }
+
+    @media (max-width: 480px) {
+        .app-header h1 {
+            font-size: clamp(1.5rem, 10vw, 2.5rem);
+        }
+
+        .app-header h2 {
+            font-size: clamp(0.8rem, 4vw, 1rem);
+        }
+
+        .header-images img {
+            width: clamp(30px, 10vw, 50px);
+        }
+
+        .chat-image {
+            max-width: clamp(80px, 30vw, 120px);
+        }
+
+        #emoji-picker {
+            /* Even tighter spacing for very small screens */
+            gap: 0px;
+            padding: 1px 1px;
+        }
+
+        #emoji-picker button {
+            min-width: 24px;
+            min-height: 24px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
 </head>
 <body>
     <audio id="background-audio" src="camp-fire.mp3"></audio>
@@ -466,227 +498,267 @@
         </div>
     </div>
 
-    <script>
-        // Audio playback logic
-        const backgroundAudio = document.getElementById('background-audio');
+  <script>
+    function playAudio() {
+        const playPromise = backgroundAudio.play();
 
-        // Attempt to play audio immediately.
-        // Modern browsers often block autoplay until user interaction.
-        // We'll also add an event listener for a user gesture.
-        function playAudio() {
-            const playPromise = backgroundAudio.play();
-
-            if (playPromise !== undefined) {
-                playPromise.then(_ => {
-                    // Autoplay started!
-                    console.log("Audio autoplayed successfully.");
-                }).catch(error => {
-                    // Autoplay was prevented. Show a message or a play button.
-                    console.warn("Audio autoplay prevented:", error);
-                    // Optionally, you could add a visible play button here
-                    // if the audio fails to play.
-                });
-            }
-        }
-
-        // Try to play audio when the document is fully loaded
-        document.addEventListener('DOMContentLoaded', playAudio);
-
-        // Also try to play audio on the first user interaction (e.g., a click anywhere)
-        // This is a common workaround for browser autoplay policies.
-        document.addEventListener('click', playAudio, { once: true });
-        // { once: true } ensures the listener is removed after the first click.
-
-
-        const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-        // DOM element references - Ensure chatBox is declared here
-        const loginSection = document.getElementById('login-section');
-        const userSelect = document.getElementById('user-select');
-        const passwordInput = document.getElementById('password-input');
-        const loginButton = document.getElementById('login-btn');
-        const signoffButton = document.getElementById('sign-off-btn');
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-btn');
-        const messageDisplay = document.getElementById('message-display');
-        const imageButton = document.getElementById('image-btn');
-        const imageInput = document.getElementById("image-input");
-        const chatBox = document.getElementById('chat-box'); // Moved this line up
-        const gifButton = document.getElementById('gif-btn');
-        const gifSearchContainer = document.getElementById('gif-search-container');
-        const gifSearchInput = document.getElementById('gif-search-input');
-        const gifSearchButton = document.getElementById('gif-search-button');
-        const gifResultsContainer = document.getElementById('gif-results');
-        const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb';
-        const emojiButton = document.getElementById('emoji-btn');
-        const emojiPicker = document.getElementById('emoji-picker');
-        const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
-
-        function populateEmojiPicker() {
-            emojiPicker.innerHTML = ''; // Clear existing emojis
-
-            emojis.forEach(emoji => {
-                const emojiBtn = document.createElement('button');
-                emojiBtn.type = 'button';
-                emojiBtn.textContent = emoji;
-                emojiBtn.addEventListener('click', () => {
-                    messageInput.value += emoji;
-                    emojiPicker.classList.add('hidden'); // Hide picker after selection
-                });
-                emojiPicker.appendChild(emojiBtn);
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                // Autoplay started!
+                console.log("Audio autoplayed successfully.");
+            }).catch(error => {
+                // Autoplay was prevented. Show a message or a play button.
+                console.warn("Audio autoplay prevented:", error);
+                // Optionally, you could add a visible play button here
+                // if the audio fails to play.
             });
         }
+    }
 
-        populateEmojiPicker();
+
+    document.addEventListener('DOMContentLoaded', playAudio);
+    document.addEventListener('click', playAudio, { once: true });
 
 
-        emojiButton.addEventListener('click', () => {
-            emojiPicker.classList.toggle('hidden');
+    const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+
+    const loginSection = document.getElementById('login-section');
+    const userSelect = document.getElementById('user-select');
+    const passwordInput = document.getElementById('password-input');
+    const loginButton = document.getElementById('login-btn');
+    const signoffButton = document.getElementById('sign-off-btn');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-btn');
+    const messageDisplay = document.getElementById('message-display');
+    const imageButton = document.getElementById('image-btn');
+    const imageInput = document.getElementById("image-input");
+    const chatBox = document.getElementById('chat-box'); // Moved this line up
+    const gifButton = document.getElementById('gif-btn');
+    const gifSearchContainer = document.getElementById('gif-search-container');
+    const gifSearchInput = document.getElementById('gif-search-input');
+    const gifSearchButton = document.getElementById('gif-search-button');
+    const gifResultsContainer = document.getElementById('gif-results');
+    const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb';
+    const emojiButton = document.getElementById('emoji-btn');
+    const emojiPicker = document.getElementById('emoji-picker');
+    const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
+
+    function populateEmojiPicker() {
+        emojiPicker.innerHTML = ''; // Clear existing emojis
+
+        emojis.forEach(emoji => {
+            const emojiBtn = document.createElement('button');
+            emojiBtn.type = 'button';
+            emojiBtn.textContent = emoji;
+            emojiBtn.addEventListener('click', () => {
+                messageInput.value += emoji;
+                emojiPicker.classList.add('hidden'); // Hide picker after selection
+            });
+            emojiPicker.appendChild(emojiBtn);
         });
+    }
 
-        document.addEventListener('click', (event) => {
-            if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
-                emojiPicker.classList.add('hidden');
-            }
-        });
+    populateEmojiPicker();
 
 
-        console.log("Emoji button listener attached:", emojiButton);
-        let username = null;
-        let currentUserId = null;
+    emojiButton.addEventListener('click', () => {
+        emojiPicker.classList.toggle('hidden');
+    });
 
-        function saveLoginState(user) {
-            localStorage.setItem('loggedInUser', JSON.stringify(user));
+    document.addEventListener('click', (event) => {
+        if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
+            emojiPicker.classList.add('hidden');
+        }
+    });
+
+
+    console.log("Emoji button listener attached:", emojiButton);
+    let username = null;
+    let currentUserId = null;
+
+    function saveLoginState(user) {
+        localStorage.setItem('loggedInUser', JSON.stringify(user));
+    }
+
+    function clearLoginState() {
+        localStorage.removeItem('loggedInUser');
+    }
+
+    function isLoggedIn() {
+        return localStorage.getItem('loggedInUser') !== null;
+    }
+
+    function getLoggedInUser() {
+        const userString = localStorage.getItem('loggedInUser');
+        return userString ? JSON.parse(userString) : null;
+    }
+
+    async function uploadImage() {
+        const file = imageInput.files[0];
+
+        if (!file) {
+            alert("Please select a file.");
+            return;
         }
 
-        function clearLoginState() {
-            localStorage.removeItem('loggedInUser');
-        }
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "chat-upload-preset");
+        formData.append("api_key", "935271789947252");
 
-        function isLoggedIn() {
-            return localStorage.getItem('loggedInUser') !== null;
-        }
+        try {
+            const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
+                method: "POST",
+                body: formData
+            });
 
-        function getLoggedInUser() {
-            const userString = localStorage.getItem('loggedInUser');
-            return userString ? JSON.parse(userString) : null;
-        }
-
-        async function uploadImage() {
-            const file = imageInput.files[0];
-
-            if (!file) {
-                alert("Please select a file.");
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Upload failed:", errorText);
+                alert("Image upload failed.");
                 return;
             }
 
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("upload_preset", "chat-upload-preset");
-            formData.append("api_key", "935271789947252");
+            const data = await response.json();
+            const imageUrl = data.secure_url;
+            console.log("Image uploaded to Cloudinary:", imageUrl);
+            sendMessage(imageUrl);
+        } catch (error) {
+            console.error("Image upload error:", error);
+            alert("An error occurred during upload.");
+        }
+    }
 
-            try {
-                const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
-                    method: "POST",
-                    body: formData
-                });
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error("Upload failed:", errorText);
-                    alert("Image upload failed.");
-                    return;
-                }
-
-                const data = await response.json();
-                const imageUrl = data.secure_url;
-                console.log("Image uploaded to Cloudinary:", imageUrl);
-                sendMessage(imageUrl);
-            } catch (error) {
-                console.error("Image upload error:", error);
-                alert("An error occurred during upload.");
-            }
+    async function searchGifs(query) {
+        if (!query.trim()) {
+            gifResultsContainer.innerHTML = '<p>Please enter a search term.</p>';
+            return;
         }
 
+        const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`; // Adjust limit as needed
 
-        async function searchGifs(query) {
-            if (!query.trim()) {
-                gifResultsContainer.innerHTML = '<p>Please enter a search term.</p>';
-                return;
-            }
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
 
-            const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`; // Adjust limit as needed
-
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-
-                if (data.data && data.data.length > 0) {
-                    gifResultsContainer.innerHTML = '';
-                    data.data.forEach(gif => {
-                        const img = document.createElement('img');
-                        img.src = gif.images.fixed_width_downsampled.url; // Use a smaller size for display
-                        img.alt = gif.title;
-                        img.addEventListener('click', () => {
-                            sendMessage(img.src); // Send the GIF URL as a message
-                            gifSearchContainer.classList.add('hidden'); // Hide the search container
-                        });
-                        gifResultsContainer.appendChild(img);
+            if (data.data && data.data.length > 0) {
+                gifResultsContainer.innerHTML = '';
+                data.data.forEach(gif => {
+                    const img = document.createElement('img');
+                    img.src = gif.images.fixed_width_downsampled.url; // Use a smaller size for display
+                    img.alt = gif.title;
+                    img.addEventListener('click', () => {
+                        sendMessage(img.src); // Send the GIF URL as a message
+                        // Ensure the GIF search container is hidden after sending a GIF
+                        gifSearchContainer.style.display = 'none'; // Explicitly set to 'none'
+                        gifSearchInput.value = ''; // Clear the search input
+                        gifResultsContainer.innerHTML = ''; // Clear previous results
                     });
-                } else {
-                    gifResultsContainer.innerHTML = '<p>No GIFs found for your search.</p>';
-                }
-            } catch (error) {
-                console.error('Error fetching GIFs:', error);
-                gifResultsContainer.innerHTML = '<p>Failed to fetch GIFs.</p>';
-            }
-        }
-
-        // ADDED THIS EVENT LISTENER HERE
-        gifButton.addEventListener('click', () => {
-            console.log("GIF button clicked!"); // This is for testing
-            console.log("gifSearchContainer element:", gifSearchContainer);
-            gifSearchContainer.style.display = gifSearchContainer.style.display === 'none' ? 'block' : 'none';
-        });
-
-        // ADDED THIS EVENT LISTENER HERE
-        gifSearchButton.addEventListener('click', () => {
-            const searchTerm = gifSearchInput.value;
-            searchGifs(searchTerm);
-        });
-
-        // ADDED THIS EVENT LISTENER HERE
-        gifSearchInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                gifSearchButton.click();
-            }
-        });
-
-
-        async function sendMessage(imageUrl = '') {
-            const message = messageInput.value.trim(); // Get the message from the input and trim whitespace
-            if ((message === '' && imageUrl === '') || !username) {
-                return;
-            }
-            const trimmedUsername = username ? username.trim() : null; // Define trimmedUsername here
-
-            const { error } = await supabase // Use the supabase client
-                .from('messages') // Specify the table name
-                .insert([{ sender: trimmedUsername, content: message, image_url: imageUrl }]); // The data to insert
-
-            if (error) {
-                console.error("Error sending message:", error);
-                alert("Failed to send message.");
+                    gifResultsContainer.appendChild(img);
+                });
             } else {
-                messageInput.value = '';
-                // Optionally, you can fetch and display messages here if you want to update immediately
-                fetchMessages(); // Assuming you have a fetchMessages function
+                gifResultsContainer.innerHTML = '<p>No GIFs found for your search.</p>';
             }
+        } catch (error) {
+            console.error('Error fetching GIFs:', error);
+            gifResultsContainer.innerHTML = '<p>Failed to fetch GIFs.</p>';
+        }
+    }
+
+    gifButton.addEventListener('click', () => {
+        console.log("GIF button clicked!"); // This is for testing
+        console.log("gifSearchContainer element:", gifSearchContainer);
+        // Toggle the display of the GIF search container
+        if (gifSearchContainer.style.display === 'block') {
+            gifSearchContainer.style.display = 'none';
+            gifSearchInput.value = ''; // Clear input when hiding
+            gifResultsContainer.innerHTML = ''; // Clear results when hiding
+        } else {
+            gifSearchContainer.style.display = 'block';
+        }
+    });
+
+    gifSearchButton.addEventListener('click', () => {
+        const searchTerm = gifSearchInput.value;
+        searchGifs(searchTerm);
+    });
+
+    gifSearchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            gifSearchButton.click();
+        }
+    });
+
+
+    async function sendMessage(imageUrl = '') {
+        const message = messageInput.value.trim(); // Get the message from the input and trim whitespace
+        if ((message === '' && imageUrl === '') || !username) {
+            return;
+        }
+        const trimmedUsername = username ? username.trim() : null; // Define trimmedUsername here
+
+        const { error } = await supabase // Use the supabase client
+            .from('messages') // Specify the table name
+            .insert([{ sender: trimmedUsername, content: message, image_url: imageUrl }]); // The data to insert
+
+        if (error) {
+            console.error("Error sending message:", error);
+            alert("Failed to send message.");
+        } else {
+            messageInput.value = '';
+            // Optionally, you can fetch and display messages here if you want to update immediately
+            fetchMessages(); // Assuming you have a fetchMessages function
+        }
+    }
+
+    async function fetchMessages() {
+        const { data: messages, error: messagesError } = await supabase
+            .from('messages')
+            .select('*')
+            .order('created_at');
+
+        if (messagesError) {
+            console.error("Error fetching messages:", messagesError);
+            alert("Failed to load chat messages.");
+        } else {
+            displayMessages(messages);
+        }
+    }
+
+    async function login() {
+        const selectedUsername = userSelect.value;
+        const password = passwordInput.value;
+
+        if (!selectedUsername || !password) {
+            alert("Please select a username and enter a password.");
+            return;
         }
 
-        async function fetchMessages() {
+        const { data: user, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('assigned_name', selectedUsername)
+            .eq('password_word', password)
+            .single();
+
+        if (userError) {
+            alert("Incorrect username or password.");
+        } else if (user) {
+            username = user.assigned_name.trim();
+            currentUserId = user.id;
+            saveLoginState({ username: username, id: currentUserId });
+            loginSection.classList.add('hidden');
+            chatBox.classList.remove('hidden');
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+            // Ensure gifButton is enabled after login
+            gifButton.disabled = false;
+
+
             const { data: messages, error: messagesError } = await supabase
                 .from('messages')
                 .select('*')
@@ -699,241 +771,207 @@
                 displayMessages(messages);
             }
         }
+    }
 
-        async function login() {
-            const selectedUsername = userSelect.value;
-            const password = passwordInput.value;
+    async function renderMessage(message) {
+        const messageContainer = document.createElement('div');
+        messageContainer.classList.add('message-item');
+        messageContainer.dataset.messageId = message.id;
 
-            if (!selectedUsername || !password) {
-                alert("Please select a username and enter a password.");
-                return;
-            }
+        const messageContent = document.createElement('div');
+        messageContent.classList.add('message-content');
 
-            const { data: user, error: userError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('assigned_name', selectedUsername)
-                .eq('password_word', password)
-                .single();
-
-            if (userError) {
-                alert("Incorrect username or password.");
-            } else if (user) {
-                username = user.assigned_name.trim();
-                currentUserId = user.id;
-                saveLoginState({ username: username, id: currentUserId });
-                loginSection.classList.add('hidden');
-                chatBox.classList.remove('hidden');
-                messageInput.disabled = false;
-                sendButton.disabled = false;
-
-                const { data: messages, error: messagesError } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .order('created_at');
-
-                if (messagesError) {
-                    console.error("Error fetching messages:", messagesError);
-                    alert("Failed to load chat messages.");
-                } else {
-                    displayMessages(messages);
-                }
-            }
-        }
-
-        async function renderMessage(message) {
-            const messageContainer = document.createElement('div');
-            messageContainer.classList.add('message-item');
-            messageContainer.dataset.messageId = message.id;
-
-            const messageContent = document.createElement('div');
-            messageContent.classList.add('message-content');
-
-            if (message.image_url) {
-                const imgEl = document.createElement('img');
-                imgEl.src = message.image_url;
-                imgEl.classList.add('chat-image');
-                messageContent.appendChild(imgEl);
-                if (message.content) {
-                    const contentEl = document.createElement('div');
-                    contentEl.textContent = message.content;
-                    contentEl.classList.add('message-text');
-                    messageContent.appendChild(contentEl);
-                }
-            } else if (message.content) {
+        if (message.image_url) {
+            const imgEl = document.createElement('img');
+            imgEl.src = message.image_url;
+            imgEl.classList.add('chat-image');
+            messageContent.appendChild(imgEl);
+            if (message.content) {
                 const contentEl = document.createElement('div');
                 contentEl.textContent = message.content;
                 contentEl.classList.add('message-text');
                 messageContent.appendChild(contentEl);
             }
-
-            const timestampEl = document.createElement('small');
-            const createdAt = new Date(message.created_at);
-            const formattedDate = createdAt.toLocaleDateString();
-            const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            timestampEl.textContent = `${message.sender} - ${formattedDate} ${formattedTime}`;
-            timestampEl.classList.add('timestamp');
-
-            messageContainer.appendChild(messageContent);
-            messageContainer.appendChild(timestampEl);
-
-            // Check if the user can delete this message
-            if (username === message.sender) {
-                console.log(`User ${username} can delete message ID: ${message.id}`);
-                messageContainer.style.cursor = 'pointer';
-                messageContainer.addEventListener('click', () => {
-                    console.log(`Message ID ${message.id} clicked for deletion.`);
-                    if (confirm('Are you sure you want to delete this message?')) {
-                        console.log(`Confirmation given for message ID: ${message.id}`);
-                        handleDeleteButtonClick(message.id);
-                    } else {
-                        console.log(`Deletion cancelled for message ID: ${message.id}`);
-                    }
-                });
-            } else {
-                console.log(`User ${username} cannot delete message ID: ${message.id} (sender: ${message.sender})`);
-            }
-
-            return messageContainer;
+        } else if (message.content) {
+            const contentEl = document.createElement('div');
+            contentEl.textContent = message.content;
+            contentEl.classList.add('message-text');
+            messageContent.appendChild(contentEl);
         }
 
-        async function displayMessages(messages) {
-            const messageDisplay = document.getElementById('message-display');
-            messageDisplay.innerHTML = ''; // This line is crucial for clearing existing messages
+        const timestampEl = document.createElement('small');
+        const createdAt = new Date(message.created_at);
+        const formattedDate = createdAt.toLocaleDateString();
+        const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        timestampEl.textContent = `${message.sender} - ${formattedDate} ${formattedTime}`;
+        timestampEl.classList.add('timestamp');
 
-            if (messages && Array.isArray(messages)) {
-                for (const msg of messages) {
-                    const messageElement = await renderMessage(msg);
-                    if (messageElement instanceof Node) {
-                        messageDisplay.appendChild(messageElement);
-                    } else {
-                        console.error('Invalid message element:', messageElement, msg);
-                    }
+        messageContainer.appendChild(messageContent);
+        messageContainer.appendChild(timestampEl);
+
+        // Check if the user can delete this message
+        if (username === message.sender) {
+            console.log(`User ${username} can delete message ID: ${message.id}`);
+            messageContainer.style.cursor = 'pointer';
+            messageContainer.addEventListener('click', () => {
+                console.log(`Message ID ${message.id} clicked for deletion.`);
+                if (confirm('Are you sure you want to delete this message?')) {
+                    console.log(`Confirmation given for message ID: ${message.id}`);
+                    handleDeleteButtonClick(message.id);
+                } else {
+                    console.log(`Deletion cancelled for message ID: ${message.id}`);
                 }
-                messageDisplay.scrollTop = messageDisplay.scrollHeight;
-            } else {
-                console.log("No messages or invalid messages array received.");
-            }
+            });
+        } else {
+            console.log(`User ${username} cannot delete message ID: ${message.id} (sender: ${message.sender})`);
         }
 
-        async function deleteMessage(messageIdToDelete) {
-            console.log('deleteMessage called with ID:', messageIdToDelete);
-            try {
-                const { data, error } = await supabase
-                    .from('messages')
-                    .delete()
-                    .eq('id', messageIdToDelete);
+        return messageContainer;
+    }
 
-                console.log('Supabase delete response - Data:', data, 'Error:', error);
+    async function displayMessages(messages) {
+        const messageDisplay = document.getElementById('message-display');
+        messageDisplay.innerHTML = ''; // This line is crucial for clearing existing messages
 
-                if (error) {
-                    console.error('Error deleting message from Supabase:', error);
-                    return false;
+        if (messages && Array.isArray(messages)) {
+            for (const msg of messages) {
+                const messageElement = await renderMessage(msg);
+                if (messageElement instanceof Node) {
+                    messageDisplay.appendChild(messageElement);
+                } else {
+                    console.error('Invalid message element:', messageElement, msg);
                 }
+            }
+            messageDisplay.scrollTop = messageDisplay.scrollHeight;
+        } else {
+            console.log("No messages or invalid messages array received.");
+        }
+    }
 
-                console.log('Message deleted successfully from Supabase:', messageIdToDelete);
-                return true;
+    async function deleteMessage(messageIdToDelete) {
+        console.log('deleteMessage called with ID:', messageIdToDelete);
+        try {
+            const { data, error } = await supabase
+                .from('messages')
+                .delete()
+                .eq('id', messageIdToDelete);
 
-            } catch (error) {
-                console.error('An unexpected error occurred while deleting from Supabase:', error);
+            console.log('Supabase delete response - Data:', data, 'Error:', error);
+
+            if (error) {
+                console.error('Error deleting message from Supabase:', error);
                 return false;
             }
+
+            console.log('Message deleted successfully from Supabase:', messageIdToDelete);
+            return true;
+
+        } catch (error) {
+            console.error('An unexpected error occurred while deleting from Supabase:', error);
+            return false;
         }
+    }
 
-        async function handleDeleteButtonClick(messageId) {
-            console.log('handleDeleteButtonClick called with ID:', messageId);
-            const isDeleted = await deleteMessage(messageId);
-            console.log('isDeleted:', isDeleted);
-            if (isDeleted) {
-                console.log('Message deletion successful, refreshing messages.');
-                const { data: updatedMessages, error: fetchError } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .neq('id', messageId) // Explicitly exclude the deleted message ID
-                    .order('created_at');
+    async function handleDeleteButtonClick(messageId) {
+        console.log('handleDeleteButtonClick called with ID:', messageId);
+        const isDeleted = await deleteMessage(messageId);
+        console.log('isDeleted:', isDeleted);
+        if (isDeleted) {
+            console.log('Message deletion successful, refreshing messages.');
+            const { data: updatedMessages, error: fetchError } = await supabase
+                .from('messages')
+                .select('*')
+                .neq('id', messageId) // Explicitly exclude the deleted message ID
+                .order('created_at');
 
-                if (fetchError) {
-                    console.error("Error fetching updated messages after delete:", fetchError);
-                    alert("Failed to refresh chat after deletion.");
-                } else {
-                    console.log('Updated messages after delete (excluding deleted):', updatedMessages); // Debug log
-                    displayMessages(updatedMessages);
-                }
+            if (fetchError) {
+                console.error("Error fetching updated messages after delete:", fetchError);
+                alert("Failed to refresh chat after deletion.");
             } else {
-                alert("Failed to delete the message.");
+                console.log('Updated messages after delete (excluding deleted):', updatedMessages); // Debug log
+                displayMessages(updatedMessages);
             }
+        } else {
+            alert("Failed to delete the message.");
+        }
+    }
+
+    function signOff() {
+        username = null;
+        currentUserId = null;
+        clearLoginState();
+        chatBox.classList.add('hidden');
+        loginSection.classList.remove('hidden');
+        messageInput.disabled = true;
+        sendButton.disabled = true;
+        // Ensure gifButton is disabled after sign off
+        gifButton.disabled = true;
+        displayMessages();
+    }
+
+    loginButton.addEventListener('click', login);
+    signoffButton.addEventListener('click', signOff);
+    sendButton.addEventListener('click', () => sendMessage());
+
+
+    imageButton.addEventListener('click', () => {
+        imageInput.click();
+    });
+
+
+    document.getElementById("image-input").addEventListener("change", uploadImage);
+
+    async function populateUsernames() {
+        const { data, error } = await supabase.from('users').select('assigned_name');
+        if (error) {
+            console.error("Error fetching usernames:", error);
+            return;
         }
 
-        function signOff() {
-            username = null;
-            currentUserId = null;
-            clearLoginState();
-            chatBox.classList.add('hidden');
-            loginSection.classList.remove('hidden');
-            messageInput.disabled = true;
-            sendButton.disabled = true;
-            displayMessages();
+        data.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.assigned_name;
+            option.textContent = user.assigned_name;
+            userSelect.appendChild(option);
+        });
+    }
+
+    window.addEventListener('load', async () => {
+        await populateUsernames();
+
+        if (isLoggedIn()) {
+            const user = getLoggedInUser();
+            username = user.username;
+            currentUserId = user.id;
+            loginSection.classList.add('hidden');
+            chatBox.classList.remove('hidden');
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+            // Ensure gifButton is enabled on load if logged in
+            gifButton.disabled = false;
+
+            const { data: messages, error: messagesError } = await supabase
+                .from('messages')
+                .select('*')
+                .order('created_at');
+            if (messagesError) {
+                console.error("Error fetching messages:", messagesError);
+            }
+            else {
+                displayMessages(messages);
+            }
+        } else {
+            // Ensure gifButton is disabled if not logged in on load
+            gifButton.disabled = true;
         }
+    });
 
-        loginButton.addEventListener('click', login);
-        signoffButton.addEventListener('click', signOff);
-        sendButton.addEventListener('click', () => sendMessage());
+    passwordInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            loginButton.click();
 
-
-
-        imageButton.addEventListener('click', () => {
-            imageInput.click();
-        });
-
-
-        document.getElementById("image-input").addEventListener("change", uploadImage);
-
-        async function populateUsernames() {
-            const { data, error } = await supabase.from('users').select('assigned_name');
-            if (error) {
-                console.error("Error fetching usernames:", error);
-                return;
-            }
-
-            data.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user.assigned_name;
-                option.textContent = user.assigned_name;
-                userSelect.appendChild(option);
-            });
         }
-
-        window.addEventListener('load', async () => {
-            await populateUsernames();
-
-            if (isLoggedIn()) {
-                const user = getLoggedInUser();
-                username = user.username;
-                currentUserId = user.id;
-                loginSection.classList.add('hidden');
-                chatBox.classList.remove('hidden');
-                messageInput.disabled = false;
-                sendButton.disabled = false;
-
-                const { data: messages, error: messagesError } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .order('created_at');
-                if (messagesError) {
-                    console.error("Error fetching messages:", messagesError);
-                }
-                else {
-                    displayMessages(messages);
-                }
-            }
-        });
-
-        passwordInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                loginButton.click();
-
-            }
-        });
-    </script>
+    });
+</script>
 </body>
 </html>

@@ -42,7 +42,8 @@
     padding: 20px 10px;
     gap: 20px;
     box-sizing: border-box;
-    font-family: 'Courier New', monospace;
+    font-family: 'Inter', sans-serif;
+    position: relative; /* Essential for dropdown positioning */
   }
   .logo-container img {
     width: 100%;
@@ -66,6 +67,72 @@
   .header .since {
     font-size: clamp(0.9rem, 3vw, 1.2rem);
   }
+  /* --- Dropdown Menu --- */
+  .dropdown {
+    position: absolute;
+    top: 10px; /* Position from the top of the header */
+    right: 10px; /* Position from the right of the header */
+    margin-left: 20px; /* Add some space to the left if content wraps */
+  }
+
+  .dropdown-content {
+    display: none; /* Hidden by default, will show on hover */
+    position: absolute;
+    background-color: #2e4a80;
+    min-width: 220px; /* This is the key change for width */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;
+    border-radius: 5px;
+    padding: 10px;
+    border: 2px solid black;
+  }
+
+  /* Show the dropdown menu on hover */
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  .dropdown-content a {
+    color: white;
+    padding: 12px 15px; /* Spacing for each link */
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    font-family: 'Inter', sans-serif; /* Your chosen font */
+    font-weight: 500; /* Valid font-weight */
+    font-size: 1rem;
+    background-color: #2e4a80;
+    border-left: 2px solid black;
+    border-bottom: 2px solid black;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    margin-bottom: 0.5rem;
+  }
+
+  .dropdown-content a:last-child {
+      margin-bottom: 0;
+  }
+
+  .dropdown-content a:hover {
+    background-color: #3e5a99;
+  }
+
+  .dropbtn {
+    background-color: #facc15;
+    color: #1e3159;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+
+  .dropbtn:hover {
+    background-color: #e4b500;
+  }
+
 
   /* --- Main Layout --- */
   .main-content-wrapper {
@@ -301,7 +368,7 @@
   #nfl-news a:hover {
     text-decoration: underline;
   }
- 
+  
 
   /* --- Sidebar Navigation --- */
   .sidebar-left {
@@ -328,27 +395,6 @@
     height: 100%;
     width: 20px;
     z-index: 9998;
-  }
-  .nav-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 10px;
-  }
-  .nav-container a {
-    color: white;
-    font-size: 1rem;
-    padding: 10px;
-    background-color: #2e4a80;
-    border-left: 2px solid black;
-    border-bottom: 2px solid black;
-    text-align: center;
-    transition: background-color 0.3s ease;
-    text-decoration: none;
-    border-radius: 4px;
-  }
-  .nav-container a:hover {
-    background-color: #3e5a99;
   }
 
   /* --- Media Queries --- */
@@ -399,7 +445,8 @@
     }
     #nfl-news a { padding: 1rem;}
     .sidebar-left { width: 350px; }
-    .nav-container {
+    /* The .nav-container was part of your previous example links, not used in the dropdown */
+    /* .nav-container {
       flex-direction: row;
       padding: 0;
     }
@@ -407,7 +454,7 @@
       margin-top: 0.5rem;
       margin-bottom: 0.5rem;
       padding: 10px;
-    }
+    } */
   }
 
   @media (min-width: 1024px) {
@@ -442,9 +489,9 @@
 
 <body class="body">
 
- <div class="sidebar-left">
+  <div class="sidebar-left">
 <h2 class="recent-transactions-title">Recent Transactions</h2>
-    <div class="recent-transactions-container">   
+    <div class="recent-transactions-container">    
       <div class="transaction-list">
         <ul id="transaction-list" class="transaction-list"></ul>
       </div>
@@ -459,7 +506,7 @@
 </div>
 
 <div class="header">
- <div class="logo-container">
+  <div class="logo-container">
       <img src="DYNASTYLOGO.jpeg" alt="logo">
     </div>
     <div class="header-text">
@@ -467,24 +514,28 @@
       <p class="subtitle">Fantasy Football League</p>
       <p class="since">Since 2023</p>
     </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Menu</button>
+      <div class="dropdown-content">
+        <a href="Fourth&Roaster.html">Fourth & Roasted</a>
+        <a href="https://tcwrdynasty.github.io/members/">League Members</a>
+        <a href="3Hall of Champions.html">Hall of Champions</a>
+        <a href="4Flushables.html">Flushables</a>  
+        <a href="7Records.html">Records & Rankings</a>
+        <a href="rookiedraftcountdown.html">Draft Lottery</a>  
+        <a href="https://tcwrdynasty.github.io/games/">Games!</a>  
+        <a href="8Bylaws.html">Constitution</a> 
+        <a href="contactcommish.html">Contact Commish</a>
+        <a href="https://sleeper.com/login">Sleeper</a> 
+      </div>
+    </div>
 </div>
 
- <div class="nav-container">
-    <a href="Fourth&Roaster.html">Fourth & Roasted</a>
-    <a href="3Hall of Champions.html">Hall of Champions</a>
-    <a href="4Flushables.html">Flushables</a>  
-    <a href="https://tcwrdynasty.github.io/members/">League Members</a>
-    <a href="7Records.html">Records & Rankings</a>
-    <a href="rookiedraftcountdown.html">Draft Lottery</a>  
-    <a href="https://tcwrdynasty.github.io/games/">Games!</a> 
-    <a href="https://sleeper.com/login">Sleeper</a> 
-    <a href="contactcommish.html">Contact Commish</a>
-    <a href="8Bylaws.html">Constitution</a>
-  </div>
+
 
 <div class="main-content-wrapper">
 
-  <!-- LEFT COLUMN (Wrapper first, order handled by CSS) -->
   <div class="left-column-wrapper">
     <div class="left-column-title">NFL News from ESPN</div>
     <div class="left-column">
@@ -494,13 +545,11 @@
     </div>
   </div>
 
-  <!-- MIDDLE CONTENT -->
   <div class="main-content">
     <h2 class="title-text" style="padding-bottom: 0.5rem;">League Updates!</h2>
     <div id="message-display"></div>
   </div>
 
-  <!-- RIGHT COLUMN -->
   <div class="right-column">
     <div class="title-text">
       <h1>League Standings</h1>
@@ -522,6 +571,8 @@
   </div>
 
 </div>
+</body>
+</html>
 
     <script>
 
@@ -893,5 +944,6 @@ for (const [rosterId, data] of Object.entries(teamMap)) {
       });
 
     </script>
+
 </body>
 </html>

@@ -499,7 +499,15 @@
     </div>
 
   <script>
+    const backgroundAudio = document.getElementById('background-audio');
+
     function playAudio() {
+        // It's also good practice to check if the element exists before trying to play it.
+        if (!backgroundAudio) {
+            console.error("Background audio element not found! Make sure you have <audio id='background-audio'> in your HTML.");
+            return; // Exit the function if the audio element isn't found
+        }
+
         const playPromise = backgroundAudio.play();
 
         if (playPromise !== undefined) {
@@ -519,11 +527,9 @@
     document.addEventListener('DOMContentLoaded', playAudio);
     document.addEventListener('click', playAudio, { once: true });
 
-
     const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
 
     const loginSection = document.getElementById('login-section');
     const userSelect = document.getElementById('user-select');

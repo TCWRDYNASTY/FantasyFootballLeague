@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Football SIDE BET WHEEL</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- --- CSS Styling --- -->
+    <style>
+        /* Define a custom gold color */
+        .gold {
+            background-color: #FFD700;
+        }
+        .hover\:bg-gold:hover {
+            background-color: #e6c500;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* min-h-screen */
+            padding: 1rem; /* p-4 */
+        }
+
+        /* The main application container */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem; /* p-6 */
+            background-color: #1e3159;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
+            width: 100%;
+            max-width: 48rem; /* max-w-2xl */
+        }
+        
+        /* Heading style */
+        .main-title {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: #facc15; /* text-yellow-400 */
+            margin-bottom: 1rem; /* mb-4 */
+            text-align: center;
+        }
+
+        /* The wrapper for the wheel and pointer */
+        .wheel-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 32rem; /* max-w-lg */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+
+        /* Triangle Pointer styles */
+        .pointer-container {
+            position: absolute;
+            top: -1.5rem; /* -top-6 */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        
+        /* Canvas container for responsive centering */
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            padding-top: 100%; /* Maintain 1:1 aspect ratio */
+            max-width: 500px; /* Maximum size for the wheel */
+            margin: 0 auto;
+        }
+        
+        /* The prize wheel itself */
+        #prizeWheel {
+            cursor: pointer;
+            border: 8px solid #d1d5db; /* border-gray-300 */
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 9999px; /* rounded-full */
+        }
+        
+        /* Spin Button Styling */
+        #spinButton {
+            width: 100%;
+            max-width: 28rem; /* max-w-sm */
+            padding: 1rem 2rem; /* py-4 px-8 */
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700; /* font-bold */
+            color: gold; /* text-white */
+            border-radius: 9999px; /* rounded-full */
+            border: 1px solid black;
+            background-color: green;
+            box-shadow: 0 6px 20px rgba(252, 165, 165, 0.5);
+        }
+
+        #spinButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(252, 165, 165, 0.5);
+        }
+
+        #spinButton:disabled {
+            background-image: linear-gradient(to right, #9ca3af 0%, #6b7280 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        .pulse-animation {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Result Display styling */
+        #resultDisplay {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            color: #1f2937; /* text-gray-800 */
+            margin-top: 1.5rem; /* mt-6 */
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Custom Modal for Messages */
+        #messageBox {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            background-color: black;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            display: none; /* Initially hidden */
+        }
+
+        #messageBox.show {
+            display: block;
+        }
+        
+        .message-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* gap-4 */
+        }
+        
+        .message-content-wrapper h2 {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            color: #ffffff; /* text-white */
+        }
+        
+        .message-content-wrapper p {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            color: #d1d5db; /* text-gray-300 */
+        }
+        
+        #closeButton {
+            color: #ffffff; /* text-white */
+            font-weight: 700; /* font-bold */
+            padding: 0.5rem 1rem; /* py-2 px-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* shadow */
+            transition: all 0.15s ease-in-out; /* transition */
+            background-color: red; /* bg-gold */
+        }
+    </style>
+</head>
+<body>
+    <!-- --- HTML Structure --- -->
+    <div class="main-container">
+        <h1 class="main-title">SIDE BET WHEEL</h1>
+
+        <!-- The wheel container -->
+        <div class="wheel-wrapper">
+            <!-- Triangle Pointer -->
+            <div class="pointer-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+                    <polygon points="20,0 40,40 0,40" fill="#dc2626" stroke="#b91c1c" stroke-width="2" />
+                </svg>
+            </div>
+            
+            <div class="canvas-container">
+                <canvas id="prizeWheel"></canvas>
+            </div>
+        </div>
+
+        <!-- Spin Button -->
+        <button id="spinButton" disabled>
+            Spin!
+        </button>
+
+        <!-- Result Display -->
+        <div id="resultDisplay">
+            
+        </div>
+    </div>
+
+    <!-- Custom Modal for Messages -->
+    <div id="messageBox" class="hidden">
+      <div class="message-content-wrapper">
+          <h2>Your Task:</h2>
+          <p id="messageContent">Cook a meal for the league winner.</p>
+          <button id="closeButton">
+              Acknowledge Fate
+          </button>
+      </div>
+    </div>
+    
+    <!-- Audio element for the spinning sound -->
+    <audio id="spinAudio" preload="auto">
+      <!-- IMPORTANT: Replace this placeholder URL with the actual path to your 'prizewheel.mp3' file -->
+      <source src="prizewheel.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+
+
+    <script>
+        // --- JavaScript Logic ---
+
+        // --- Wheel Data & Configuration ---
+        // Data for the prize wheel segments
+        const prizes = [
+            { text: "Wear a silly hat\nto the draft", color1: "#FACC15", color2: "#FCD34D" },
+            { text: "Cook for the\nleague winner", color1: "#EF4444", color2: "#F87171" },
+            { text: "Sing a team's\nfight song", color1: "#22C55E", color2: "#4ADE80" },
+            { text: "Be the league\ncommissioner next year", color1: "#3B82F6", color2: "#60A5FA" },
+            { text: "Change your profile\npic to a funny photo", color1: "#EC4899", color2: "#F9A8D4" },
+            { text: "Buy the league\nwinner a beer", color1: "#8B5CF6", color2: "#A78BFA" },
+            { text: "Clean the league\nwinner's car", color1: "#14B8A6", color2: "#5EEAD4" },
+            { text: "Record a video of\nyou doing a victory dance", color1: "#F97316", color2: "#FB923C" },
+            { text: "Get a tattoo of the\nleague logo (joke!)", color1: "#6366F1", color2: "#818CF8" },
+            { text: "Do 50 pushups", color1: "#A855F7", color2: "#C084FC" },
+            { text: "Another Spin", color1: "#EAB308", color2: "#FCD34D" },
+            { text: "Take a selfie with a\nrival team's jersey on", color1: "#06B6D4", color2: "#22D3EE" }
+        ];
+
+        // --- Global Variables and State ---
+        let startAngle = 0;
+        let arc = Math.PI / (prizes.length / 2);
+        let spinTimeout = null;
+        let isSpinning = false;
+        let isSetup = false;
+        let canvas, ctx;
+        // The shimmer animation has been removed, so this variable is no longer needed.
+        let animationFrameId;
+
+
+        // --- UI Element References ---
+        const resultDisplay = document.getElementById('resultDisplay');
+        const spinButton = document.getElementById('spinButton');
+        const messageBox = document.getElementById('messageBox');
+        const messageContent = document.getElementById('messageContent');
+        const closeButton = document.getElementById('closeButton');
+        // Reference to the new audio element
+        const spinAudio = document.getElementById('spinAudio');
+
+        // --- Core Functions ---
+
+        // Function to draw the wheel on the canvas
+        function drawWheel() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) * 0.95;
+
+            // Loop through each prize to draw a segment
+            for (let i = 0; i < prizes.length; i++) {
+                const angle = startAngle + i * arc;
+                const prize = prizes[i];
+
+                // Create a simple linear gradient for each segment
+                const gradient = ctx.createLinearGradient(
+                    centerX + radius * Math.cos(angle),
+                    centerY + radius * Math.sin(angle),
+                    centerX + radius * Math.cos(angle + arc),
+                    centerY + radius * Math.sin(angle + arc)
+                );
+                gradient.addColorStop(0, prize.color1);
+                gradient.addColorStop(1, prize.color2);
+                
+                ctx.beginPath();
+                ctx.fillStyle = gradient;
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, angle, angle + arc, false);
+                ctx.closePath();
+                ctx.fill();
+
+                // Draw the prize text
+                ctx.save();
+                ctx.fillStyle = "black";
+                ctx.font = 'bold 12px "Comic Sans MS"';
+                ctx.textAlign = "left";
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle + arc / 2);
+
+                const lines = prizes[i].text.split('\n');
+                const lineHeight = 15;
+                const startY = -(lines.length - 1) * lineHeight / 2;
+
+                for (let j = 0; j < lines.length; j++) {
+                    ctx.fillText(lines[j], radius / 3, startY + j * lineHeight);
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        // Main animation loop for the wheel
+        function animateLoop() {
+            // The shimmer animation has been removed, so this loop simply keeps the wheel drawn.
+            drawWheel();
+            animationFrameId = requestAnimationFrame(animateLoop);
+        }
+
+        // Function to handle the spin animation
+        function spin() {
+            if (isSpinning) return;
+            isSpinning = true;
+
+            spinButton.disabled = true;
+            spinButton.classList.add('pulse-animation');
+            
+            // Play the audio when the spin starts
+            spinAudio.play();
+
+            // Set the spin duration to 10 seconds (10000 ms) to match the audio file
+            const spinDuration = 10000;
+            const totalRotations = Math.random() * 10 + 5;
+            const finalAngleOffset = Math.random() * (2 * Math.PI);
+            const totalAngle = totalRotations * 2 * Math.PI + finalAngleOffset;
+
+            let startTime = performance.now();
+
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = elapsed / spinDuration;
+
+                if (progress >= 1) {
+                    isSpinning = false;
+                    spinButton.disabled = false;
+                    spinButton.classList.remove('pulse-animation');
+                    clearTimeout(spinTimeout);
+                    determineWinner();
+                    animateLoop();
+                    // Stop the audio and reset its position
+                    spinAudio.pause();
+                    spinAudio.currentTime = 0;
+                    return;
+                }
+
+                const easingProgress = 1 - (1 - progress) * (1 - progress);
+                startAngle = (totalAngle * easingProgress) % (2 * Math.PI);
+
+                drawWheel();
+                spinTimeout = requestAnimationFrame(animate);
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Function to determine the winner based on the final angle
+        function determineWinner() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const pointerAngle = (2 * Math.PI - startAngle + Math.PI / 2) % (2 * Math.PI);
+            
+            const normalizedAngle = (pointerAngle + 2 * Math.PI) % (2 * Math.PI);
+
+            const degrees = normalizedAngle * (180 / Math.PI);
+            const prizeIndex = Math.floor(degrees / (360 / prizes.length));
+            const winningPrize = prizes[prizes.length - 1 - prizeIndex].text;
+            
+            showMessage(winningPrize);
+        }
+        
+        // Custom message box function to display the result
+        function showMessage(text) {
+            messageContent.textContent = text;
+            messageBox.classList.remove('hidden');
+            messageBox.classList.add('show');
+        }
+
+        // --- Event Listeners ---
+        spinButton.addEventListener('click', () => {
+            cancelAnimationFrame(animationFrameId);
+            spin();
+        });
+        closeButton.addEventListener('click', () => {
+            messageBox.classList.remove('show');
+            messageBox.classList.add('hidden');
+        });
+
+        // --- Initial Setup and Responsiveness ---
+        // Function to set up the canvas and draw the initial wheel
+        function setupCanvas() {
+            canvas = document.getElementById('prizeWheel');
+            ctx = canvas.getContext('2d');
+            
+            const container = canvas.parentElement;
+            const containerSize = container.clientWidth;
+            
+            canvas.width = containerSize;
+            canvas.height = containerSize;
+            
+            isSetup = true;
+            animateLoop();
+            spinButton.disabled = false;
+        }
+
+        // Resize handler to make the wheel responsive
+        window.addEventListener('resize', () => {
+            if (isSetup) {
+                setupCanvas();
+            }
+        });
+
+        // Initial setup on window load
+        window.onload = setupCanvas;
+    </script>
+</body>
+</html>

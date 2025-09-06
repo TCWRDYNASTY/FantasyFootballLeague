@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Password TCWR</title>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* =========================================
            Base Layout Styles
@@ -142,7 +142,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="image-container">
         <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
@@ -152,35 +151,57 @@
         <div class="password-container">
             <p>TCWR Dy-NASTY</p>
             <p>Fantasy Football League</p>
-            <p><input id="passwordBox" type="password" placeholder="Enter Password" onkeypress="handleKeyPress(event)" /></p>
-            <button id="submitButton" onclick="checkPassword()">Submit</button>
+            <p><input id="passwordBox" type="password" placeholder="Enter Password" /></p>
+            <button id="submitButton">Submit</button>
         </div>
     </div>
-</body>
 
-  <script>
-        function checkPassword() {
-    const passwordInput = document.getElementById("passwordBox");
+    <script>
+        const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    if (passwordInput.value === "Hercules") {
-        window.location.href = "main.html"; // Redirect on correct password
-    } else {
-        const audio = new Audio('magicword.mp3');
-        audio.play(); // Start audio first
+        const passwordInput = document.getElementById("passwordBox");
+        const submitButton = document.getElementById("submitButton");
 
-        // Delay the alert slightly so the audio can begin
-        setTimeout(() => {
-            alert("Access Denied");
-            passwordInput.value = "";
-        }, 100); // 100ms delay gives audio time to start
-    }
-}
+        async function checkPassword() {
+            const password = passwordInput.value;
+
+            if (!password) {
+                alert("Please enter a password.");
+                return;
+            }
+
+            // Query the 'users' table to check for the password
+            const { data: user, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('password_word', password)
+                .single();
+
+            if (error) {
+                const audio = new Audio('magicword.mp3');
+                audio.play(); 
+                setTimeout(() => {
+                    alert("Access Denied");
+                    passwordInput.value = "";
+                }, 100);
+                console.error('Login error:', error);
+            } else if (user) {
+                // Password is correct, save the user state and redirect
+                localStorage.setItem('loggedInUser', JSON.stringify({ username: user.assigned_name, id: user.id }));
+                window.location.href = "main.html";
+            }
+        }
 
         function handleKeyPress(event) {
             if (event.key === "Enter") {
                 checkPassword();
             }
         }
-    </script>
 
+        submitButton.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keypress', handleKeyPress);
+    </script>
+</body>
 </html>

@@ -463,66 +463,58 @@
         </header>
     </header>
 
-    <div class="chat-container">
-        <div class="user-section" id="login-section">
-            <select id="user-select">
-                <option value=>Select your name</option>
-            </select>
-            <input type="password" id="password-input" placeholder="Enter Password" />
-            <button id="login-btn">Login</button>
-        </div>
-
-        <div class="chat-box hidden" id="chat-box">
-            <div id="message-display"></div>
-            <div class="input-container">
-                <textarea id="message-input" placeholder="Type your message..." disabled></textarea>
-                <div class="input-buttons">
-                    <button id="emoji-btn" type="button">😊</button>
-                    <button id="image-btn" type="button">📸</button>
-                    <button id="gif-btn" type="button">GIF</button>
-                    <div id="gif-search-container" style="display: none;">
-                        <input type="text" id="gif-search-input" placeholder="Search GIFs...">
-                        <button id="gif-search-button">Search</button>
-                        <div id="gif-results"></div>
-                    </div>
-                </div>
-                <div id="emoji-picker" class="hidden">
-                </div>
-            </div>
-
-            <div class="buttons" style="justify-content: flex-end;">
-                <input type="file" id="image-input" accept="image/*" style="display: none;">
-                <button id="send-btn" disabled>Send</button>
-                <button id="sign-off-btn">Sign Off</button>
-            </div>
-        </div>
+   <div class="chat-container">
+    <div class="user-section" id="login-section">
+        <input type="text" id="username-input" placeholder="Enter your name" />
+        <input type="password" id="password-input" placeholder="Enter Password" />
+        <button id="login-btn">Login</button>
     </div>
 
-  <script>
+    <div class="chat-box hidden" id="chat-box">
+        <div id="message-display"></div>
+        <div class="input-container">
+            <textarea id="message-input" placeholder="Type your message..." disabled></textarea>
+            <div class="input-buttons">
+                <button id="emoji-btn" type="button">😊</button>
+                <button id="image-btn" type="button">📸</button>
+                <button id="gif-btn" type="button">GIF</button>
+                <div id="gif-search-container" style="display: none;">
+                    <input type="text" id="gif-search-input" placeholder="Search GIFs...">
+                    <button id="gif-search-button">Search</button>
+                    <div id="gif-results"></div>
+                </div>
+            </div>
+            <div id="emoji-picker" class="hidden">
+            </div>
+        </div>
+
+        <div class="buttons" style="justify-content: flex-end;">
+            <input type="file" id="image-input" accept="image/*" style="display: none;">
+            <button id="send-btn" disabled>Send</button>
+            <button id="sign-off-btn">Sign Off</button>
+        </div>
+    </div>
+</div>
+
+ <script>
     const backgroundAudio = document.getElementById('background-audio');
 
     function playAudio() {
-        // It's also good practice to check if the element exists before trying to play it.
         if (!backgroundAudio) {
             console.error("Background audio element not found! Make sure you have <audio id='background-audio'> in your HTML.");
-            return; // Exit the function if the audio element isn't found
+            return;
         }
 
         const playPromise = backgroundAudio.play();
 
         if (playPromise !== undefined) {
             playPromise.then(_ => {
-                // Autoplay started!
                 console.log("Audio autoplayed successfully.");
             }).catch(error => {
-                // Autoplay was prevented. Show a message or a play button.
                 console.warn("Audio autoplay prevented:", error);
-                // Optionally, you could add a visible play button here
-                // if the audio fails to play.
             });
         }
     }
-
 
     document.addEventListener('DOMContentLoaded', playAudio);
     document.addEventListener('click', playAudio, { once: true });
@@ -532,7 +524,7 @@
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     const loginSection = document.getElementById('login-section');
-    const userSelect = document.getElementById('user-select');
+    const usernameInput = document.getElementById('username-input');
     const passwordInput = document.getElementById('password-input');
     const loginButton = document.getElementById('login-btn');
     const signoffButton = document.getElementById('sign-off-btn');
@@ -541,7 +533,7 @@
     const messageDisplay = document.getElementById('message-display');
     const imageButton = document.getElementById('image-btn');
     const imageInput = document.getElementById("image-input");
-    const chatBox = document.getElementById('chat-box'); // Moved this line up
+    const chatBox = document.getElementById('chat-box');
     const gifButton = document.getElementById('gif-btn');
     const gifSearchContainer = document.getElementById('gif-search-container');
     const gifSearchInput = document.getElementById('gif-search-input');
@@ -553,22 +545,20 @@
     const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
 
     function populateEmojiPicker() {
-        emojiPicker.innerHTML = ''; // Clear existing emojis
-
+        emojiPicker.innerHTML = '';
         emojis.forEach(emoji => {
             const emojiBtn = document.createElement('button');
             emojiBtn.type = 'button';
             emojiBtn.textContent = emoji;
             emojiBtn.addEventListener('click', () => {
                 messageInput.value += emoji;
-                emojiPicker.classList.add('hidden'); // Hide picker after selection
+                emojiPicker.classList.add('hidden');
             });
             emojiPicker.appendChild(emojiBtn);
         });
     }
 
     populateEmojiPicker();
-
 
     emojiButton.addEventListener('click', () => {
         emojiPicker.classList.toggle('hidden');
@@ -579,7 +569,6 @@
             emojiPicker.classList.add('hidden');
         }
     });
-
 
     console.log("Emoji button listener attached:", emojiButton);
     let username = null;
@@ -604,7 +593,6 @@
 
     async function uploadImage() {
         const file = imageInput.files[0];
-
         if (!file) {
             alert("Please select a file.");
             return;
@@ -638,14 +626,13 @@
         }
     }
 
-
     async function searchGifs(query) {
         if (!query.trim()) {
             gifResultsContainer.innerHTML = '<p>Please enter a search term.</p>';
             return;
         }
 
-        const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`; // Adjust limit as needed
+        const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`;
 
         try {
             const response = await fetch(apiUrl);
@@ -655,14 +642,13 @@
                 gifResultsContainer.innerHTML = '';
                 data.data.forEach(gif => {
                     const img = document.createElement('img');
-                    img.src = gif.images.fixed_width_downsampled.url; // Use a smaller size for display
+                    img.src = gif.images.fixed_width_downsampled.url;
                     img.alt = gif.title;
                     img.addEventListener('click', () => {
-                        sendMessage(img.src); // Send the GIF URL as a message
-                        // Ensure the GIF search container is hidden after sending a GIF
-                        gifSearchContainer.style.display = 'none'; // Explicitly set to 'none'
-                        gifSearchInput.value = ''; // Clear the search input
-                        gifResultsContainer.innerHTML = ''; // Clear previous results
+                        sendMessage(img.src);
+                        gifSearchContainer.style.display = 'none';
+                        gifSearchInput.value = '';
+                        gifResultsContainer.innerHTML = '';
                     });
                     gifResultsContainer.appendChild(img);
                 });
@@ -676,13 +662,12 @@
     }
 
     gifButton.addEventListener('click', () => {
-        console.log("GIF button clicked!"); // This is for testing
+        console.log("GIF button clicked!");
         console.log("gifSearchContainer element:", gifSearchContainer);
-        // Toggle the display of the GIF search container
         if (gifSearchContainer.style.display === 'block') {
             gifSearchContainer.style.display = 'none';
-            gifSearchInput.value = ''; // Clear input when hiding
-            gifResultsContainer.innerHTML = ''; // Clear results when hiding
+            gifSearchInput.value = '';
+            gifResultsContainer.innerHTML = '';
         } else {
             gifSearchContainer.style.display = 'block';
         }
@@ -699,25 +684,28 @@
         }
     });
 
-
     async function sendMessage(imageUrl = '') {
-        const message = messageInput.value.trim(); // Get the message from the input and trim whitespace
+        const message = messageInput.value.trim();
         if ((message === '' && imageUrl === '') || !username) {
             return;
         }
-        const trimmedUsername = username ? username.trim() : null; // Define trimmedUsername here
+        const trimmedUsername = username ? username.trim() : null;
 
-        const { error } = await supabase // Use the supabase client
-            .from('messages') // Specify the table name
-            .insert([{ sender: trimmedUsername, content: message, image_url: imageUrl }]); // The data to insert
+        const { error } = await supabase
+            .from('messages')
+            .insert([{
+                sender: trimmedUsername,
+                content: message,
+                image_url: imageUrl,
+                user_id: currentUserId
+            }]);
 
         if (error) {
             console.error("Error sending message:", error);
             alert("Failed to send message.");
         } else {
             messageInput.value = '';
-            // Optionally, you can fetch and display messages here if you want to update immediately
-            fetchMessages(); // Assuming you have a fetchMessages function
+            fetchMessages();
         }
     }
 
@@ -736,23 +724,27 @@
     }
 
     async function login() {
-        const selectedUsername = userSelect.value;
+        const selectedUsername = usernameInput.value;
         const password = passwordInput.value;
 
+        // This console log will show us exactly what the script is seeing
+        console.log("The password being sent is:", password);
+
         if (!selectedUsername || !password) {
-            alert("Please select a username and enter a password.");
+            alert("Please enter a username and password.");
             return;
         }
 
         const { data: user, error: userError } = await supabase
             .from('users')
             .select('*')
-            .eq('assigned_name', selectedUsername)
-            .eq('password_word', password)
+            .eq('assigned_name', selectedUsername) 
+            .ilike('password_word', password) 
             .single();
 
         if (userError) {
             alert("Incorrect username or password.");
+            console.error('Login error:', userError);
         } else if (user) {
             username = user.assigned_name.trim();
             currentUserId = user.id;
@@ -761,10 +753,8 @@
             chatBox.classList.remove('hidden');
             messageInput.disabled = false;
             sendButton.disabled = false;
-            // Ensure gifButton is enabled after login
             gifButton.disabled = false;
-
-
+            
             const { data: messages, error: messagesError } = await supabase
                 .from('messages')
                 .select('*')
@@ -815,21 +805,13 @@
         messageContainer.appendChild(messageContent);
         messageContainer.appendChild(timestampEl);
 
-        // Check if the user can delete this message
         if (username === message.sender) {
-            console.log(`User ${username} can delete message ID: ${message.id}`);
             messageContainer.style.cursor = 'pointer';
             messageContainer.addEventListener('click', () => {
-                console.log(`Message ID ${message.id} clicked for deletion.`);
                 if (confirm('Are you sure you want to delete this message?')) {
-                    console.log(`Confirmation given for message ID: ${message.id}`);
                     handleDeleteButtonClick(message.id);
-                } else {
-                    console.log(`Deletion cancelled for message ID: ${message.id}`);
                 }
             });
-        } else {
-            console.log(`User ${username} cannot delete message ID: ${message.id} (sender: ${message.sender})`);
         }
 
         return messageContainer;
@@ -837,7 +819,7 @@
 
     async function displayMessages(messages) {
         const messageDisplay = document.getElementById('message-display');
-        messageDisplay.innerHTML = ''; // This line is crucial for clearing existing messages
+        messageDisplay.innerHTML = '';
 
         if (messages && Array.isArray(messages)) {
             for (const msg of messages) {
@@ -871,7 +853,6 @@
 
             console.log('Message deleted successfully from Supabase:', messageIdToDelete);
             return true;
-
         } catch (error) {
             console.error('An unexpected error occurred while deleting from Supabase:', error);
             return false;
@@ -879,26 +860,17 @@
     }
 
     async function handleDeleteButtonClick(messageId) {
-        console.log('handleDeleteButtonClick called with ID:', messageId);
-        const isDeleted = await deleteMessage(messageId);
-        console.log('isDeleted:', isDeleted);
-        if (isDeleted) {
-            console.log('Message deletion successful, refreshing messages.');
-            const { data: updatedMessages, error: fetchError } = await supabase
-                .from('messages')
-                .select('*')
-                .neq('id', messageId) // Explicitly exclude the deleted message ID
-                .order('created_at');
+        const { error } = await supabase
+            .from('messages')
+            .delete()
+            .eq('id', messageId);
 
-            if (fetchError) {
-                console.error("Error fetching updated messages after delete:", fetchError);
-                alert("Failed to refresh chat after deletion.");
-            } else {
-                console.log('Updated messages after delete (excluding deleted):', updatedMessages); // Debug log
-                displayMessages(updatedMessages);
-            }
-        } else {
+        if (error) {
+            console.error('Error deleting message:', error);
             alert("Failed to delete the message.");
+        } else {
+            console.log('Message deleted successfully.');
+            fetchMessages();
         }
     }
 
@@ -910,7 +882,6 @@
         loginSection.classList.remove('hidden');
         messageInput.disabled = true;
         sendButton.disabled = true;
-        // Ensure gifButton is disabled after sign off
         gifButton.disabled = true;
         displayMessages();
     }
@@ -918,33 +889,22 @@
     loginButton.addEventListener('click', login);
     signoffButton.addEventListener('click', signOff);
     sendButton.addEventListener('click', () => sendMessage());
-
-
     imageButton.addEventListener('click', () => {
         imageInput.click();
     });
 
-
     document.getElementById("image-input").addEventListener("change", uploadImage);
-
-    async function populateUsernames() {
-        const { data, error } = await supabase.from('users').select('assigned_name');
-        if (error) {
-            console.error("Error fetching usernames:", error);
-            return;
+    
+    // START of NEW CODE to send messages with Enter key
+    messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
         }
-
-        data.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.assigned_name;
-            option.textContent = user.assigned_name;
-            userSelect.appendChild(option);
-        });
-    }
+    });
+    // END of NEW CODE
 
     window.addEventListener('load', async () => {
-        await populateUsernames();
-
         if (isLoggedIn()) {
             const user = getLoggedInUser();
             username = user.username;
@@ -953,21 +913,18 @@
             chatBox.classList.remove('hidden');
             messageInput.disabled = false;
             sendButton.disabled = false;
-            // Ensure gifButton is enabled on load if logged in
-            gifButton.disabled = false;
-
+            gifButton.disabled = true;
+            
             const { data: messages, error: messagesError } = await supabase
                 .from('messages')
                 .select('*')
                 .order('created_at');
             if (messagesError) {
                 console.error("Error fetching messages:", messagesError);
-            }
-            else {
+            } else {
                 displayMessages(messages);
             }
         } else {
-            // Ensure gifButton is disabled if not logged in on load
             gifButton.disabled = true;
         }
     });
@@ -975,7 +932,6 @@
     passwordInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             loginButton.click();
-
         }
     });
 </script>

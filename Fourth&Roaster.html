@@ -6,7 +6,8 @@
     <title>Fourth and Roasted</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.6"></script>
     <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
-  <style>
+  <link rel="manifest" href="/manifest.json">
+    <style>
     :root {
         /* Define CSS variables for colors to make them easily reusable and modifiable */
         --primary-color: #ffcc00;
@@ -934,6 +935,19 @@
             loginButton.click();
         }
     });
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('Service Worker registered!');
+        })
+        .catch(error => {
+          console.log('Service Worker registration failed:', error);
+        });
+    });
+  }
 </script>
 </body>
 </html>

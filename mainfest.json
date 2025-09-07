@@ -1,0 +1,21 @@
+{
+  "name": "TCWR Dy-NASTY Fantasy Football League",
+  "short_name": "TCWR",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#1e3159",
+  "theme_color": "#ffffff",
+  "description": "A fantasy football league app for TCWR.",
+  "icons": [
+    {
+      "src": "tcwr-192.PNG",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "tcwr-512.PNG",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

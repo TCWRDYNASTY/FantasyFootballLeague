@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>Flushables</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
+ <link rel="manifest" href="/manifest.json">
+    <style>
 /*------------------------------------*\
   #BASE STYLES
 \*------------------------------------*/
@@ -161,9 +162,19 @@ body {
           <div class="badge">💩</div>
       </div>
   </div>
-
 </div>
-
-
 </body>
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('Service Worker registered!');
+        })
+        .catch(error => {
+          console.log('Service Worker registration failed:', error);
+        });
+    });
+  }
+</script>
 </html>

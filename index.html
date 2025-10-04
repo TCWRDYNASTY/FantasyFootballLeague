@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Password TCWR</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-     <link rel="manifest" href="/manifest.json">
+     <link rel="manifest" href="manifest.json">
     <style>
         /* =========================================
            Base Layout Styles
@@ -207,7 +207,7 @@
        <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
+          navigator.serviceWorker.register('service-worker.js')
             .then(registration => {
               console.log('Service Worker registered!');
             })

@@ -6,7 +6,7 @@
     <title>Fourth and Roasted</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.6"></script>
     <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="manifest.json">
     <style>
     :root {
         /* Define CSS variables for colors to make them easily reusable and modifiable */
@@ -939,7 +939,7 @@
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
+      navigator.serviceWorker.register('service-worker.js')
         .then(registration => {
           console.log('Service Worker registered!');
         })

@@ -1,36 +1,42 @@
-const CACHE_NAME = 'tcwr-main-v1'; 
+const CACHE_NAME = 'tcwr-main-v1'; // Name for the main repository cache
 
 const urlsToCache = [
- 
+  // ESSENTIAL CORE FILES (MUST BE IN THE ROOT AND HAVE CORRECT CASE)
   './',
   'index.html',
   'manifest.json',
   'service-worker.js',
-  'main.html',
-  '3Hall%20of%20Champions.html',
-  '4Flushables.html',
-  '7Records.html',
-  '8Bylaws.html',
-  'Fourth&Roaster.html',
-  'Sidebetwheel.html',
-  'contactcommish.html',
-  'rookiedraftcountdown.html',
-  'underconstruction.html',
-  'style.css',
-  'wildlifeentrance.jpeg',
-  'Bucky%20bear.jpg',
-  'DYNASTYLOGO.jpg',
-  'Subject.jpeg',
-  'ainteasy.jpeg',
-  'bylawsbackground.jpeg',
-  'thehomies.jpeg',
-  'trophy3.jpeg',
-  'magicword.mp3',
-  'prizewheel.mp3',
-  'camp-fire.mp3',
-  'tcwr-192.png',
-  'tcwr-512.png',
+  'style.css', // Keeping the main stylesheet for basic page styling
+  
+  // EXTERNAL DEPENDENCY (Must be full URL)
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+
+  /* ======================================================================
+     TEMPORARILY COMMENTED OUT: THESE FILES ARE THE LIKELY SOURCE OF THE ERROR
+     ====================================================================== */
+  // 'main.html',
+  // '3Hall%20of%20Champions.html',
+  // '4Flushables.html',
+  // '7Records.html',
+  // '8Bylaws.html',
+  // 'Fourth&Roaster.html',
+  // 'Sidebetwheel.html',
+  // 'contactcommish.html',
+  // 'rookiedraftcountdown.html',
+  // 'underconstruction.html',
+  // 'wildlifeentrance.jpeg',
+  // 'Bucky%20bear.jpg',
+  // 'DYNASTYLOGO.jpg',
+  // 'Subject.jpeg',
+  // 'ainteasy.jpeg',
+  // 'bylawsbackground.jpeg',
+  // 'thehomies.jpeg',
+  // 'trophy3.jpeg',
+  // 'magicword.mp3',
+  // 'prizewheel.mp3',
+  // 'camp-fire.mp3',
+  // 'tcwr-192.png',
+  // 'tcwr-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -40,7 +46,7 @@ self.addEventListener('install', (event) => {
       .then((cache) => {
         return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting()) 
+      .then(() => self.skipWaiting())
       .catch((error) => {
         console.error('[Service Worker] Failed to cache resources:', error);
       })

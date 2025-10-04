@@ -1,221 +1,235 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password TCWR</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-     <link rel="manifest" href="manifest.json">
-    <style>
-        /* =========================================
-           Base Layout Styles
-        ========================================= */
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #1e3159;
-            font-family: "Courier New", monospace;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password TCWR</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        /* =========================================
+           Base Layout Styles
+        ========================================= */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1e3159;
+            font-family: "Courier New", monospace;
+            padding: 20px;
+            box-sizing: border-box;
+        }
 
-        /* =========================================
-           Flex Container for Main Content
-        ========================================= */
-        .content-columns {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 1rem;
-            gap: 40px;
-            width: 100%;
-            max-width: 1200px;
-            box-sizing: border-box;
-        }
+        /* =========================================
+           Flex Container for Main Content
+        ========================================= */
+        .content-columns {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1rem;
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
 
-        /* =========================================
-           Shared Container Styles
-        ========================================= */
-        .password-container,
-        .image-container {
-            flex: 1 1 300px;
-            padding: 20px;
-            background-color: beige;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+        /* =========================================
+           Shared Container Styles
+        ========================================= */
+        .password-container,
+        .image-container {
+            flex: 1 1 300px;
+            padding: 20px;
+            background-color: beige;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
 
-        /* =========================================
-           Image Styling
-        ========================================= */
-        .image-container img {
-            max-width: 100%;
-            height: auto;
-            border: 2px solid black;
-            border-radius: 8px;
-        }
+        /* =========================================
+           Image Styling
+        ========================================= */
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid black;
+            border-radius: 8px;
+        }
 
-        /* =========================================
-           Password Input Styling
-        ========================================= */
-        #passwordBox {
-            padding: 10px;
-            margin: 10px auto;
-            font-size: 1rem;
-            width: 80%;
-            max-width: 300px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
+        /* =========================================
+           Password Input Styling
+        ========================================= */
+        #passwordBox {
+            padding: 10px;
+            margin: 10px auto;
+            font-size: 1rem;
+            width: 80%;
+            max-width: 300px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
 
-        /* =========================================
-           Submit Button Styling
-        ========================================= */
-        #submitButton {
-            padding: 12px 24px;
-            font-size: 1.1em;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease-in-out;
-        }
+        /* =========================================
+           Submit Button Styling
+        ========================================= */
+        #submitButton {
+            padding: 12px 24px;
+            font-size: 1.1em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease-in-out;
+        }
 
-        #submitButton:hover {
-            background-color: #218838;
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
+        #submitButton:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
 
-        /* =========================================
-           Typography (Headings, Paragraphs)
-        ========================================= */
-        .password-container p {
-            margin: 0.5em 0;
-        }
+        /* =========================================
+           Typography (Headings, Paragraphs)
+        ========================================= */
+        .password-container p {
+            margin: 0.5em 0;
+        }
 
-        .password-container p:first-child {
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
+        .password-container p:first-child {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
 
-        .password-container p:nth-child(2) {
-            font-size: 1.4rem;
-        }
+        .password-container p:nth-child(2) {
+            font-size: 1.4rem;
+        }
 
-        /* =========================================
-           Responsive Layout Adjustments
-        ========================================= */
-        @media (max-width: 768px) {
-            .content-columns {
-                flex-direction: column;
-                align-items: center;
-                gap: 20px;
-            }
+        /* =========================================
+           Responsive Layout Adjustments
+        ========================================= */
+        @media (max-width: 768px) {
+            .content-columns {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
 
-            #passwordBox {
-                width: 100%;
-                max-width: none;
-            }
-        }
+            #passwordBox {
+                width: 100%;
+                max-width: none;
+            }
+        }
 
-        @media (max-width: 480px) {
-            .password-container p:first-child {
-                font-size: 2rem;
-            }
+        @media (max-width: 480px) {
+            .password-container p:first-child {
+                font-size: 2rem;
+            }
 
-            .password-container p:nth-child(2) {
-                font-size: 1.2rem;
-            }
+            .password-container p:nth-child(2) {
+                font-size: 1.2rem;
+            }
 
-            #submitButton {
-                width: 100%;
-            }
-        }
-    </style>
+            #submitButton {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="image-container">
-        <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
-    </div>
+    <div class="image-container">
+        <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
+    </div>
 
-    <div class="content-columns">
-        <div class="password-container">
-            <p>TCWR Dy-NASTY</p>
-            <p>Fantasy Football League</p>
-            <p><input id="passwordBox" type="password" placeholder="Enter Password" /></p>
-            <button id="submitButton">Submit</button>
-        </div>
-    </div>
+    <div class="content-columns">
+        <div class="password-container">
+            <p>TCWR Dy-NASTY</p>
+            <p>Fantasy Football League</p>
+            <p><input id="passwordBox" type="password" placeholder="Enter Password" /></p>
+            <button id="submitButton">Submit</button>
+        </div>
+    </div>
 
-    <script>
-        const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    <script>
+        const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        const passwordInput = document.getElementById("passwordBox");
-        const submitButton = document.getElementById("submitButton");
+        const passwordInput = document.getElementById("passwordBox");
+        const submitButton = document.getElementById("submitButton");
 
-        async function checkPassword() {
-            const password = passwordInput.value;
+        // NEW FUNCTION: Check for existing login data in localStorage and redirect
+        function checkExistingLogin() {
+            const storedUser = localStorage.getItem('loggedInUser');
 
-            if (!password) {
-                alert("Please enter a password.");
-                return;
-            }
-
-            // Query the 'users' table to check for the password
-            const { data: user, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('password_word', password)
-                .single();
-
-            if (error) {
-                const audio = new Audio('magicword.mp3');
-                audio.play(); 
-                setTimeout(() => {
-                    alert("Access Denied");
-                    passwordInput.value = "";
-                }, 100);
-                console.error('Login error:', error);
-            } else if (user) {
-                // Password is correct, save the user state and redirect
-                localStorage.setItem('loggedInUser', JSON.stringify({ username: user.assigned_name, id: user.id }));
+            if (storedUser) {
+                // If user data exists, skip login and redirect
+                console.log('Existing session found. Redirecting to main site.');
                 window.location.href = "main.html";
             }
         }
+        
+        async function checkPassword() {
+            const password = passwordInput.value;
 
-        function handleKeyPress(event) {
-            if (event.key === "Enter") {
-                checkPassword();
-            }
-        }
+            if (!password) {
+                alert("Please enter a password.");
+                return;
+            }
 
-        submitButton.addEventListener('click', checkPassword);
-        passwordInput.addEventListener('keypress', handleKeyPress);
-    </script>
-       <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('service-worker.js')
-            .then(registration => {
-              console.log('Service Worker registered!');
-            })
-            .catch(error => {
-              console.log('Service Worker registration failed:', error);
-            });
-        });
-      }
-    </script>
+            // Query the 'users' table to check for the password
+            const { data: user, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('password_word', password)
+                .single();
+
+            if (error) {
+                const audio = new Audio('magicword.mp3');
+                audio.play(); 
+                setTimeout(() => {
+                    alert("Access Denied");
+                    passwordInput.value = "";
+                }, 100);
+                console.error('Login error:', error);
+            } else if (user) {
+                // Password is correct, save the user state and redirect
+                localStorage.setItem('loggedInUser', JSON.stringify({ username: user.assigned_name, id: user.id }));
+                window.location.href = "main.html";
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                checkPassword();
+            }
+        }
+
+        submitButton.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keypress', handleKeyPress);
+        
+        // EXECUTE the check for existing login immediately on page load
+        checkExistingLogin();
+    </script>
+       <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(registration => {
+              console.log('Service Worker registered!');
+            })
+            .catch(error => {
+              console.log('Service Worker registration failed:', error);
+            });
+        });
+      }
+    </script>
 </body>
 </html>

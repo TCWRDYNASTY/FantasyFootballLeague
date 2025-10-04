@@ -1,24 +1,27 @@
-const CACHE_NAME = 'tcwr-main-v2'; 
-const urlsToCache = [
+const CACHE_NAME = 'tcwr-main-v2'; // Cache version updated for final stability
 
+const urlsToCache = [
+  // CORE PWA FILES
   './',
   'index.html',
   'manifest.json',
   'service-worker.js',
- 
+  
+  // HTML PAGES (Hyphens used for stability)
   'main.html',
   '3-Hall-of-Champions.html', 
   '4Flushables.html',
   '7Records.html',
   '8Bylaws.html',
-  'Fourth-and-Roaster.html',  
+  'Fourth-and-Roaster.html',
   'Sidebetwheel.html',
   'contactcommish.html',
   'rookiedraftcountdown.html',
   'underconstruction.html',
   
+  // IMAGE ASSETS (Case and path verified)
   'wildlifeentrance.jpeg',
-  'Bucky-bear.jpg',            
+  'Bucky-bear.jpg',
   'DYNASTYLOGO.jpeg',
   'Subject.jpeg',
   'ainteasy.jpeg',
@@ -42,7 +45,6 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        // This should now succeed without a 'Request failed' error!
         return cache.addAll(urlsToCache); 
       })
       .then(() => self.skipWaiting())

@@ -1,7 +1,7 @@
 {
   "name": "TCWR Games",
   "short_name": "Games",
-  "start_url": "/index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#1e3159",
   "theme_color": "#FFD700",

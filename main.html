@@ -9,291 +9,978 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="console.log('Supabase library loaded successfully!');"></script>
 <link rel="manifest" href="manifest.json">
-<style>
-/* ==========================================================
-   1. Universal Reset & Body (Mobile-First: <768px)
-   ========================================================== */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
+ <style>
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: #1e3159;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
+  /* --- Body & Typography --- */
 
-/* Base Utility Classes (Retained) */
-.title-text, .left-column-title {
-    font-size: clamp(1rem, 4vw, 1.5rem);
-    font-weight: 590;
-    color: #facc15;
-    padding: 0.25rem;
-    text-align: center;
-}
+  body {
 
-/* ==========================================================
-   2. Header & Dropdown (Retained)
-   ========================================================== */
-.header {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    border: 2px solid black;
-    background-color: beige;
-    color: black;
-    padding: 20px 10px;
-    gap: 20px;
-    font-family: 'Inter', sans-serif;
-    position: relative;
-}
-.logo-container img {
-    width: 100%;
-    max-width: 150px;
-    height: auto;
-}
-/* ... [Rest of header/dropdown styles retained] ... */
-.dropbtn:hover {
-    background-color: #e4b500;
-}
+    margin: 0; padding: 0;
 
-/* ==========================================================
-   3. Main Layout (Mobile: Stacked, 100% Width)
-   ========================================================== */
-.main-content-wrapper {
-    display: flex;
-    flex-direction: column; /* STACKS VERTICALLY by default */
-    align-items: center;
-    margin-top: 1rem;
-    gap: 1rem;
-    padding: 0 10px;
-    width: 100%;
-    flex-grow: 1;
-}
+    font-family: 'Inter', sans-serif;
 
-/* Mobile: All columns take 100% width when stacked */
-.left-column-wrapper,
-.main-content,
-.right-column {
-    width: 100%;
-    max-width: none;
-    display: flex;
-    flex-direction: column;
-    height: auto;
-}
+    background-color: #1e3159;
 
-/* Mobile Stacking Order: Center -> Right -> Left */
-.main-content { order: 1; }
-.right-column { order: 2; }
-.left-column-wrapper { order: 3; }
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    min-height: 100vh;
+
+  }
+
+  .title-text, .left-column-title {
+
+    font-size: clamp(1rem, 4vw, 1.5rem);
+
+    font-weight: 590;
+
+    color: #facc15;
+
+    padding: 0.25rem;
+
+    text-align: center;
+
+  }
 
 
-/* Specific Column Styling Adjustments (Retained) */
-.main-content {
-    background-color: #1e3159;
-    border-radius: 0.375rem;
-}
+
+  /* --- Header --- */
+
+  .header {
+
+    width: 100%;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    border: 2px solid black;
+
+    background-color: beige;
+
+    color: black;
+
+    padding: 20px 10px;
+
+    gap: 20px;
+
+    box-sizing: border-box;
+
+    font-family: 'Inter', sans-serif;
+
+    position: relative; /* Essential for dropdown positioning */
+
+  }
+
+  .logo-container img {
+
+    width: 100%;
+
+    max-width: 200px;
+
+    height: auto;
+
+  }
+
+  .header-text {
+
+    display: flex;
+
+    flex-direction: column;
+
+  }
+
+  .header-text p {
+
+    margin: 5px 0;
+
+  }
+
+  .header .title {
+
+    font-size: clamp(1.5rem, 5vw, 2rem);
+
+    font-weight: bold;
+
+  }
+
+  .header .subtitle {
+
+    font-size: clamp(1rem, 4vw, 1.5rem);
+
+  }
+
+  .header .since {
+
+    font-size: clamp(0.9rem, 3vw, 1.2rem);
+
+  }
+
+  /* --- Dropdown Menu --- */
+
+  .dropdown {
+
+    position: absolute;
+
+    top: 10px; /* Position from the top of the header */
+
+    right: 10px; /* Position from the right of the header */
+
+    margin-left: 20px; /* Add some space to the left if content wraps */
+
+  }
+
+
+
+  .dropdown-content {
+
+    display: none; /* Hidden by default, will show on hover */
+
+    position: absolute;
+
+    background-color: #2e4a80;
+
+    min-width: 220px; /* This is the key change for width */
+
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+
+    z-index: 1;
+
+    right: 0;
+
+    border-radius: 5px;
+
+    padding: 10px;
+
+    border: 2px solid black;
+
+  }
+
+
+
+  /* Show the dropdown menu on hover */
+
+  .dropdown:hover .dropdown-content {
+
+    display: block;
+
+  }
+
+
+
+  .dropdown-content a {
+
+    color: white;
+
+    padding: 12px 15px; /* Spacing for each link */
+
+    text-decoration: none;
+
+    display: block;
+
+    text-align: center;
+
+    font-family: 'Inter', sans-serif; /* Your chosen font */
+
+    font-weight: 500; /* Valid font-weight */
+
+    font-size: 1rem;
+
+    background-color: #2e4a80;
+
+    border-left: 2px solid black;
+
+    border-bottom: 2px solid black;
+
+    border-radius: 4px;
+
+    transition: background-color 0.3s ease;
+
+    margin-bottom: 0.5rem;
+
+  }
+
+
+
+  .dropdown-content a:last-child {
+
+      margin-bottom: 0;
+
+  }
+
+
+
+  .dropdown-content a:hover {
+
+    background-color: #3e5a99;
+
+  }
+
+
+
+  .dropbtn {
+
+    background-color: #facc15;
+
+    color: #1e3159;
+
+    padding: 10px 15px;
+
+    font-size: 1rem;
+
+    border: none;
+
+    cursor: pointer;
+
+    border-radius: 5px;
+
+    font-weight: bold;
+
+  }
+
+
+
+  .dropbtn:hover {
+
+    background-color: #e4b500;
+
+  }
+
+
+
+
+
+  /* --- Main Layout --- */
+
+  .main-content-wrapper {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    margin-top: 1rem;
+
+    gap: 1rem;
+
+    padding: 0 10px;
+
+  }
+
+  .main-content {
+
+    order: 1;
+
+    width: 100%;
+
+    max-width: 700px;
+
+    background-color: #1e3159;
+
+    border-radius: 0.375rem;
+
+    margin: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+  }
+
+  .right-column {
+
+    order: 2;
+
+    width: 100%;
+
+    max-width: 350px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    height: 100%;
+
+
+
+  }
+
+  .left-column-wrapper {
+
+    order: 3;
+
+    width: 100%;
+
+    max-width: 300px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    height: 100%;
+
+  }
+
+
+
+
+
+/* --- Message Display --- */
+
 #message-display {
-    max-height: 600px;
-    background-color: #2d3748;
-    overflow-y: auto;
-    border-radius: 0.375rem;
-    padding: 0.2rem;
-    flex: 1;
-    display: block;
-}
-/* ... [Rest of inner column and component styles retained for brevity] ... */
-.sidebar-left:hover {
-    left: 0;
-}
-/* ... [Rest of sidebar styles retained] ... */
 
-/* ==========================================================
-   5. Media Queries
-   ========================================================== */
+  /* Use max-height for responsiveness */
 
-/* Tablet Portrait (768px to 1023px) - NEW TWO-ROW BEHAVIOR */
-@media (min-width: 768px) and (max-width: 1023px) {
-    /* * To achieve the two-row layout (Center full width, Left/Right side-by-side):
-     * 1. Remove flex-direction: column from .main-content-wrapper (implicitly row now).
-     * 2. Wrap the Left and Right columns in a new container, or use flex properties strategically.
-     * * Since we cannot easily wrap the elements, we'll use CSS Grid on the wrapper 
-     * for this specific breakpoint to define the two-row structure.
-     */
-    
-    .main-content-wrapper {
-        display: grid; /* Use Grid for precise two-row control */
-        grid-template-columns: 100%; /* Only one column at the top */
-        grid-template-rows: auto auto;
-        grid-template-areas: 
-            "center" 
-            "bottom-row";
-        
-        /* Reset any Flex properties that conflict */
-        flex-direction: initial;
-        align-items: initial;
-        height: auto;
-        max-width: 95%;
-        width: 95%;
-        margin: 1rem auto;
-    }
+  max-height: 700px;
 
-    /* Top Row: Main Content (Center Column) - Full Width */
-    .main-content {
-        grid-area: center;
-        width: 100%;
-        max-width: none;
-        order: 1; /* Ensure it's the first element */
-    }
+  background-color: #2d3748;
 
-    /* Bottom Row: Left and Right Columns - Side-by-Side */
-    .left-column-wrapper {
-        /* This column will be half the width */
-        width: 100%; /* Temporarily set to 100% to fill its grid area */
-        max-width: none;
-        order: 3; /* Must appear after the combined container (order 2) */
-    }
-    
-    .right-column {
-        /* This column will be half the width */
-        width: 100%; /* Temporarily set to 100% to fill its grid area */
-        max-width: none;
-        order: 4; /* Must appear after the combined container (order 2) */
-    }
+  overflow-y: auto;
 
-    /* NEW CONTAINER: Wrap Left and Right for side-by-side in the bottom grid area */
-    /* NOTE: We can't actually insert a new HTML element here, so we must 
-       restructure the main container and its children to act as a two-row grid. 
-       This means the bottom row will need its own display: flex on a wrapper, 
-       but since they are direct children, we have to rely on their grid placement. 
-       
-       Since we cannot easily group elements not grouped in the HTML, we'll use a 
-       simpler Flexbox approach that stacks the Center column, then puts Left/Right side-by-side. 
-    */
-    
-    /* REVERTING to Flexbox for Simplicity and relying on flex-wrap */
-    .main-content-wrapper {
-        display: flex;
-        flex-direction: row; /* Try horizontal, let elements wrap */
-        flex-wrap: wrap; 
-        align-items: flex-start; /* Align to the top of the container */
-        height: auto;
-    }
-    
-    /* Center Column: Takes 100% width, forcing Left/Right to the next row */
-    .main-content {
-        order: 1;
-        width: 100%; 
-        flex-basis: 100%; /* Ensure it spans the full width */
-        height: auto; /* Height by content */
-    }
+  border-radius: 0.375rem;
 
-    /* Left and Right Columns: Now share the second row */
-    .left-column-wrapper {
-        order: 2; /* Left Column comes after Center Column */
-        width: 50%; /* Takes half the width of the second row */
-        max-width: 50%;
-        height: auto;
-    }
-    
-    .right-column {
-        order: 3; /* Right Column comes after Left Column */
-        width: 50%; /* Takes the other half of the width */
-        max-width: 50%;
-        height: auto;
-    }
+  padding: 0.2rem;
 
-    /* Inner columns should align their content top-to-bottom */
-    .left-column,
-    .right-column-container {
-        height: 100%;
-        flex: 1; /* Allows inner content to match height of tallest sibling in its row */
-    }
-    
-    /* Other tablet adjustments */
-    .logo-container img { max-width: 200px; }
-    th, td { padding: 0.75rem; font-size: inherit; }
+  flex: 1;
+
+  display: block; 
+
 }
 
-/* Tablet Landscape/Desktop (1024px and up) - FIXED PROPORTIONAL WIDTHS (UNCHANGED) */
-@media (min-width: 1024px) {
-    .main-content-wrapper {
-        flex-direction: row; /* Arranges columns HORIZONTALLY */
-        justify-content: center;
-        align-items: stretch;
-        gap: 1rem;
-        padding: 0;
-        height: 80vh;
-        max-width: 1400px;
-        width: 95%;
-        margin: 1rem auto;
-    }
 
-    /* Column Widths (Fixed Proportional) - No change here */
-    .left-column-wrapper {
-        order: 1;
-        width: 300px;
-        max-width: 300px;
-        flex: 0 0 300px; /* Ensures fixed width */
-        height: 100%;
-    }
-    .main-content {
-        order: 2;
-        width: 700px;
-        max-width: 700px;
-        flex: 0 0 700px; /* Ensures fixed width */
-        height: 100%;
-    }
-    .right-column {
-        order: 3;
-        width: 350px;
-        max-width: 350px;
-        flex: 0 0 350px; /* Ensures fixed width */
-        height: 100%;
-    }
 
-    /* Inner Column Content Fill for Equal Height (Retained) */
-    .left-column,
-    .right-column-container,
-    #message-display {
-        flex: 1;
-        overflow-y: auto;
-        max-height: none;
-    }
-    
-    .right-column-container {
-        display: flex;
-        flex-direction: column;
-    }
+    /* Individual Message Styling */
 
-    .recent-transactions-container,
-    .trending-container {
-        flex-grow: 0;
-        max-height: 250px;
-    }
-    
-    .standings-scroll-area {
-        flex: 1;
-        min-height: 200px;
-    }
+    .message-item {
 
-    .news-box {
-        flex: 1;
-    }
+  margin-bottom: 8px;
 
-    #nfl-news {
-        flex: 1;
-    }
-}
+  padding: 1rem;
+
+  border-radius: 6px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: stretch;
+
+  width: 100%;
+
+  max-width: 800px;
+
+  color: #e2e8f0;
+
+  font-weight: 500;
+
+  font-size: 1rem;
+
+  background-color: #2d3748;
+
+  box-sizing: border-box;
+
+  white-space: pre-wrap;
+
+    }
+
+
+
+    /* Message Content (Image and Text) */
+
+    .message-content {
+
+        display: flex;
+
+        align-items: flex-start;
+
+        width: 100%;
+
+    }
+
+  .chat-image {
+
+    max-width: 120px;
+
+    height: auto;
+
+    border-radius: 4px;
+
+    margin-right: 8px;
+
+  }
+
+  .timestamp {
+
+    font-size: 0.65em;
+
+    color: #facc15;
+
+    margin-top: 4px;
+
+  }
+
+
+
+  /* --- Right Column Content --- */
+
+  .right-column-container {
+
+    font-size: 0.9rem;
+
+    padding-top: 0.5rem;
+
+    width: 100%;
+
+    height: auto;
+
+    overflow: hidden;
+
+    border-radius: 0.375rem;
+
+    box-sizing: border-box;
+
+    flex: 1;  
+
+  }
+
+  .standings-scroll-area {
+
+    overflow-y: auto;
+
+    height: 100%;
+
+    width: 100%;
+
+        border-radius: 0.375rem;
+
+    border-left: none;
+
+    border-top: none;
+
+    border-bottom: none;
+
+  }
+
+
+
+  /* Table styles */
+
+  table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background-color: #2d3748;
+
+  }
+
+  th, td {
+
+    padding: 0.5rem;
+
+    border-bottom: 1px solid #333;
+
+    text-align: left;
+
+    color: #f0f0f0;
+
+    font-size: 0.85rem;
+
+  }
+
+  th {
+
+    background: #1a202c;
+
+    font-size: 0.9rem;
+
+  }
+
+  tr.playoff-divider td {
+
+    border-bottom: 2px solid red;
+
+  }
+
+
+
+  /* Transactions & Trending */
+
+  .recent-transactions-container,
+
+  .trending-container {
+
+    overflow-y: auto;
+
+    border-bottom: 3px solid #4a5568;
+
+    padding-left: 0.5rem;
+
+    padding-right: 0.5rem;
+
+    max-height: 250px;
+
+    color: #e2e8f0;
+
+  }
+
+  .trade-alert,
+
+  .free-agent-pickup,
+
+  .waiver-claim {
+
+    font-size: 1.1rem;
+
+    font-weight: 700;
+
+    color: #facc15;
+
+    margin-bottom: 0.5rem;
+
+  }
+
+  .transaction-team-name {
+
+    font-weight: 500;
+
+    color: #facc15;
+
+  }
+
+  .added-players-title {
+
+    color: #48bb78;
+
+    font-weight: 400;
+
+  }
+
+  .dropped-players-title {
+
+    color: #f56565;
+
+    font-weight: 400;
+
+  }
+
+  .player-info,
+
+  .player-change-info,
+
+  .trending-list-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.5rem;
+
+    margin-bottom: 0.2rem;
+
+  }
+
+  .player-image,
+
+  .player-change-image,
+
+  .trending-player-image {
+
+    width: 1.8rem;
+
+    height: 1.8rem;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+  }
+
+  .player-name,
+
+  .trending-player-name {
+
+    font-size: 0.8rem;
+
+    color: #e2e8f0;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+  }
+
+  .recent-transactions-title,
+
+  .trending-title {
+
+    font-size: 1.3rem;
+
+    color: #facc15;
+
+    text-align: center;
+
+    margin-top: 1rem;
+
+  }
+
+  .trending-up-title,
+
+  .trending-down-title {
+
+    font-weight: 400;
+
+    margin-bottom: 0.5rem;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 0.6rem;
+
+  }
+
+  .trending-up-title { color: #48bb78; }
+
+  .trending-down-title { color: #f56565; }
+
+  .trending-count-up { color: #48bb78; }
+
+  .trending-count-down { color: #f56565; }
+
+
+
+  /* --- Left Column (NFL News) --- */
+
+  .left-column {
+
+    background-color: #2d3748;
+
+    border-radius: 0.375rem;
+
+    width: 100%;
+
+    overflow-y: auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+  }
+
+  .news-box {
+
+    border-radius: 0.375rem;
+
+    width: 100%;
+
+    max-width: 300px;
+
+    height: 100%;
+
+    color: #facc15;
+
+  }
+
+  #nfl-news {
+
+    list-style: none;
+
+    margin: 0;
+
+  }
+
+  #nfl-news li {
+
+    font-size: 0.9rem;
+
+    margin: 0.75rem 0;
+
+    padding: 0.25rem;
+
+    background-color: #2d3748;
+
+    border-left: 6px solid #facc15;
+
+    border-radius: 6px;
+
+    transition: background-color 0.3s, transform 0.2s;
+
+    text-align: left;
+
+  }
+
+  #nfl-news li:hover {
+
+    background-color: #1e3159;
+
+    transform: scale(1.02);
+
+  }
+
+  #nfl-news a {
+
+    color: #e2e8f0;
+
+    padding: 0;
+
+    display: block;
+
+  }
+
+  #nfl-news a:hover {
+
+    text-decoration: underline;
+
+  }
+
+  
+
+
+
+  /* --- Sidebar Navigation --- */
+
+  .sidebar-left {
+
+    position: fixed;
+
+    top: 0;
+
+    left: -100%;
+
+    width: 80%;
+
+    max-width: 350px;
+
+    height: 100%;
+
+    background-color: #2d3748;
+
+    transition: left 0.3s ease;
+
+    z-index: 9999;
+
+    overflow-y: auto;
+
+    padding-top: 20px;
+
+  }
+
+  .sidebar-left:hover {
+
+    left: 0;
+
+  }
+
+  .sidebar-left::before {
+
+    content: "";
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    height: 100%;
+
+    width: 20px;
+
+    z-index: 9998;
+
+  }
+
+
+
+  /* --- Media Queries --- */
+
+  @media (min-width: 768px) {
+
+    .header { padding: 20px; }
+
+    .logo-container img { max-width: 250px; }
+
+    .header .title { font-size: 2rem; }
+
+    .header .subtitle { font-size: 1.5rem; }
+
+    .header .since { font-size: 1.2rem; }
+
+    #message-display { height: 500px; }
+
+    .chat-image { max-width: 150px; }
+
+    .timestamp { font-size: 0.7em; }
+
+    th, td { padding: 0.75rem; font-size: inherit; }
+
+    .recent-transactions-container,
+
+    .trending-container {
+
+      padding-left: 1rem;
+
+      max-height: 290px;
+
+    }
+
+    .trade-alert,
+
+    .free-agent-pickup,
+
+    .waiver-claim { font-size: 1.25rem; }
+
+    .player-info,
+
+    .player-change-info,
+
+    .trending-list-item {
+
+      gap: 0.75rem;
+
+      margin-bottom: 0.25rem;
+
+    }
+
+    .player-image,
+
+    .player-change-image,
+
+    .trending-player-image {
+
+      width: 2rem;
+
+      height: 2rem;
+
+    }
+
+    .player-name,
+
+    .trending-player-name { font-size: 0.875rem; }
+
+    .recent-transactions-title,
+
+    .trending-title { font-size: 1.5rem; }
+
+    .trending-up-title,
+
+    .trending-down-title { padding: 0.8rem; }
+
+    .left-column {
+
+      margin-top: 0.5rem;
+
+      height: 500px;
+
+    }
+
+    #nfl-news li {
+
+      font-size: 0.95rem;
+
+      margin: 1rem 0;
+
+      padding: 0.6rem;
+
+    }
+
+    #nfl-news a { padding: 1rem;}
+
+    .sidebar-left { width: 350px; }
+
+    /* The .nav-container was part of your previous example links, not used in the dropdown */
+
+    /* .nav-container {
+
+      flex-direction: row;
+
+      padding: 0;
+
+    }
+
+    .nav-container a {
+
+      margin-top: 0.5rem;
+
+      margin-bottom: 0.5rem;
+
+      padding: 10px;
+
+    } */
+
+  }
+
+
+
+  @media (min-width: 1024px) {
+
+    .main-content-wrapper {
+
+      flex-direction: row;
+
+      justify-content: center;
+
+      align-items: stretch;
+
+      gap: 1rem;
+
+      padding: 0;
+
+      height: 500px;
+
+    }
+
+    .left-column-wrapper,
+
+    .main-content,
+
+    .right-column {
+
+      display: flex;
+
+      flex-direction: column;
+
+      height: 100%;
+
+    }
+
+    .left-column-wrapper { order: 1; width: 300px; }
+
+    .main-content { order: 2; width: 700px; }
+
+    .right-column { order: 3; width: 350px; }
+
+    .left-column,
+
+    .right-column-container,
+
+    #message-display {
+
+      flex: 1;
+
+      overflow-y: auto;
+
+    }
+
+  }
+
 </style>
 
 </head>

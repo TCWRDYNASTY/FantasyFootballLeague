@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="console.log('Supabase library loaded successfully!');"></script>
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="manifest.json">
   <style>
   /* --- Body & Typography --- */
   body {
@@ -963,7 +963,7 @@ window.addEventListener('load', async () => {
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
+      navigator.serviceWorker.register('service-worker.js')
         .then(registration => {
           console.log('Service Worker registered!');
         })

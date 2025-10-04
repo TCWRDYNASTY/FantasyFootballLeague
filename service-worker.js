@@ -1,42 +1,40 @@
-const CACHE_NAME = 'tcwr-main-v1'; // Name for the main repository cache
-
+const CACHE_NAME = 'tcwr-main-v2'; 
 const urlsToCache = [
-  // ESSENTIAL CORE FILES (MUST BE IN THE ROOT AND HAVE CORRECT CASE)
+
   './',
   'index.html',
   'manifest.json',
   'service-worker.js',
-  'style.css', // Keeping the main stylesheet for basic page styling
+ 
+  'main.html',
+  '3-Hall-of-Champions.html', 
+  '4Flushables.html',
+  '7Records.html',
+  '8Bylaws.html',
+  'Fourth-and-Roaster.html',  
+  'Sidebetwheel.html',
+  'contactcommish.html',
+  'rookiedraftcountdown.html',
+  'underconstruction.html',
   
-  // EXTERNAL DEPENDENCY (Must be full URL)
+  'wildlifeentrance.jpeg',
+  'Bucky-bear.jpg',            
+  'DYNASTYLOGO.jpeg',
+  'Subject.jpeg',
+  'ainteasy.jpeg',
+  'bylawsbackground.jpeg',
+  'thehomies.jpeg',
+  'trophy3.jpeg',
+  'tcwr-192.png',
+  'tcwr-512.png',
+  
+  // AUDIO ASSETS
+  'magicword.mp3',
+  'prizewheel.mp3',
+  'camp-fire.mp3',
+  
+  // EXTERNAL DEPENDENCY
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
-
-  /* ======================================================================
-     TEMPORARILY COMMENTED OUT: THESE FILES ARE THE LIKELY SOURCE OF THE ERROR
-     ====================================================================== */
-  // 'main.html',
-  // '3Hall%20of%20Champions.html',
-  // '4Flushables.html',
-  // '7Records.html',
-  // '8Bylaws.html',
-  // 'Fourth&Roaster.html',
-  // 'Sidebetwheel.html',
-  // 'contactcommish.html',
-  // 'rookiedraftcountdown.html',
-  // 'underconstruction.html',
-  // 'wildlifeentrance.jpeg',
-  // 'Bucky%20bear.jpg',
-  // 'DYNASTYLOGO.jpg',
-  // 'Subject.jpeg',
-  // 'ainteasy.jpeg',
-  // 'bylawsbackground.jpeg',
-  // 'thehomies.jpeg',
-  // 'trophy3.jpeg',
-  // 'magicword.mp3',
-  // 'prizewheel.mp3',
-  // 'camp-fire.mp3',
-  // 'tcwr-192.png',
-  // 'tcwr-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -44,7 +42,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        return cache.addAll(urlsToCache);
+        // This should now succeed without a 'Request failed' error!
+        return cache.addAll(urlsToCache); 
       })
       .then(() => self.skipWaiting())
       .catch((error) => {

@@ -155,27 +155,32 @@
             <p><input id="passwordBox" type="password" placeholder="Enter Password" /></p>
             <button id="submitButton">Submit</button>
         </div>
-    </div>
+      </div>
 
     <script>
         const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        const passwordInput = document.getElementById("passwordBox");
-        const submitButton = document.getElementById("submitButton");
+        // ===============================================
+        // 1. IMMEDIATE LOGIN CHECK AND REDIRECT (PERSISTENCE)
+        // ===============================================
+        const storedUser = localStorage.getItem('loggedInUser');
 
-        // NEW FUNCTION: Check for existing login data in localStorage and redirect
-        function checkExistingLogin() {
-            const storedUser = localStorage.getItem('loggedInUser');
-
-            if (storedUser) {
-                // If user data exists, skip login and redirect
-                console.log('Existing session found. Redirecting to main site.');
-                window.location.href = "main.html";
-            }
+        if (storedUser) {
+            // If user data exists, skip login and redirect
+            console.log('Existing persistent session found. Redirecting to main site.');
+            window.location.href = "main.html";
         }
-        
+
+        // ===============================================
+        // 2. REST OF SCRIPT ONLY RUNS IF NO SESSION FOUND
+        // ===============================================
+
+        // We only need these elements if the login form is shown
+        const passwordInput = document.getElementById("passwordBox");
+        const submitButton = document.getElementById("submitButton");
+
         async function checkPassword() {
             const password = passwordInput.value;
 
@@ -212,11 +217,11 @@
             }
         }
 
-        submitButton.addEventListener('click', checkPassword);
-        passwordInput.addEventListener('keypress', handleKeyPress);
-        
-        // EXECUTE the check for existing login immediately on page load
-        checkExistingLogin();
+        // Attach listeners only if the user is NOT redirected
+        if (!storedUser) {
+            submitButton.addEventListener('click', checkPassword);
+            passwordInput.addEventListener('keypress', handleKeyPress);
+        }
     </script>
        <script>
       if ('serviceWorker' in navigator) {

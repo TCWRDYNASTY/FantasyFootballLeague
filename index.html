@@ -8,32 +8,34 @@
     <link rel="manifest" href="manifest.json">
     <style>
         /* =========================================
-           Base Layout Styles
+           Base Layout Styles (Centered)
         ========================================= */
         body {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            /* Key for vertical centering */
+            justify-content: center; 
+            /* Key for horizontal centering */
+            align-items: center; 
+            /* Key for taking up the full screen height */
+            min-height: 100vh; 
             margin: 0;
-            /* 👇 COLOR SCHEME FIX: Explicitly set colors and scheme */
-            background-color: #1e3159; /* Deep Blue background */
-            color: white; /* Default text color on the body */
-            color-scheme: light; /* Suggest light scheme to the OS/PWA */
-            /* 👆 END FIX */
+            background-color: #1e3159;
+            color: white;
+            color-scheme: light; 
             font-family: "Courier New", monospace;
             padding: 20px;
             box-sizing: border-box;
         }
 
         /* =========================================
-           Flex Container for Main Content (Now includes Image)
+           Flex Container for Main Content
         ========================================= */
         .content-columns {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
+            /* Ensures items inside are horizontally centered */
+            justify-content: center; 
             align-items: flex-start;
             padding: 1rem;
             gap: 40px;
@@ -47,12 +49,10 @@
         ========================================= */
         .password-container,
         .image-container {
-            flex: 1 1 300px; /* Base for side-by-side on desktop */
+            flex: 1 1 300px; 
             padding: 20px;
-            /* 👇 COLOR SCHEME FIX: Explicitly set text color for beige background */
             background-color: beige;
             color: black; 
-            /* 👆 END FIX */
             border-radius: 8px;
             text-align: center;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -80,7 +80,6 @@
             border-radius: 6px;
             border: 1px solid #ccc;
             box-sizing: border-box;
-            /* Fix for potential dark mode input text issue */
             background-color: white;
             color: black; 
         }
@@ -127,13 +126,11 @@
         ========================================= */
         @media (max-width: 768px) {
             .content-columns {
-                /* Stacks content vertically on smaller devices */
                 flex-direction: column; 
                 align-items: center;
                 gap: 20px;
             }
             
-            /* Ensures both image and password sections take up full width on stack */
             .password-container, 
             .image-container {
                 flex: 1 1 100%;
@@ -155,16 +152,14 @@
                 font-size: 1.2rem;
             }
 
-            /* 👇 RESPONSIVENESS FIX: Ensure button and input are full width and easy to tap */
             #submitButton {
                 width: 100%;
-                padding: 15px; /* Larger tap target */
+                padding: 15px; 
             }
             
             #passwordBox {
-                width: 100%; /* Full width for input field */
+                width: 100%; 
             }
-            /* 👆 END FIX */
         }
     </style>
 </head>
@@ -195,7 +190,6 @@
     const storedUser = localStorage.getItem('loggedInUser');
 
     if (storedUser) {
-        // If user data exists, skip login and redirect
         console.log('Existing persistent session found. Redirecting to main site.');
         window.location.href = "main.html";
     }
@@ -204,7 +198,6 @@
     // 2. REST OF SCRIPT ONLY RUNS IF NO SESSION FOUND
     // ===============================================
 
-    // We only need these elements if the login form is shown
     const passwordInput = document.getElementById("passwordBox");
     const submitButton = document.getElementById("submitButton");
 
@@ -216,7 +209,6 @@
             return;
         }
 
-        // Query the 'users' table to check for the password
         const { data: user, error } = await supabase
             .from('users')
             .select('*')
@@ -232,7 +224,6 @@
             }, 100);
             console.error('Login error:', error);
         } else if (user) {
-            // Password is correct, save the user state and redirect
             localStorage.setItem('loggedInUser', JSON.stringify({ username: user.assigned_name, id: user.id }));
             window.location.href = "main.html";
         }
@@ -244,7 +235,6 @@
         }
     }
 
-    // Attach listeners only if the user is NOT redirected
     if (!storedUser) {
         submitButton.addEventListener('click', checkPassword);
         passwordInput.addEventListener('keypress', handleKeyPress);

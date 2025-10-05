@@ -144,16 +144,20 @@
     </style>
 </head>
 <body>
-    <div class="image-container">
-        <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
+  
+    <div class="image-container">
+        <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
+    </div>
+
+    <div class="content-columns">
+        <div class="password-container">
             <p>TCWR Dy-NASTY</p>
-            <p>Fantasy Football League</p>
-                <p>hello is this thing working?</p>
-            
-    </div>
-
- 
-
+            <p>Fantasy Football League</p>
+            <p><input id="passwordBox" type="password" placeholder="Enter Password" onkeypress="handleKeyPress(event)" /></p>
+            <button id="submitButton" onclick="checkPassword()">Submit</button>
+        </div>
+    </div>
+</body>
     <script>
         const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
@@ -233,5 +237,4 @@
         });
       }
     </script>
-</body>
 </html>

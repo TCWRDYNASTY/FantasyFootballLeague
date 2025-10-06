@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tcwr-main-v3'; // 🔥 UPDATED: Increment cache version to force client update 🔥
+const CACHE_NAME = 'tcwr-main-v4'; // 🔥 UPDATED: Increment cache version to V4 to trigger a new install 🔥
 
 const urlsToCache = [
   // CORE PWA FILES
@@ -7,7 +7,7 @@ const urlsToCache = [
   'manifest.json',
   'service-worker.js',
   
-  // HTML PAGES (Hyphens used for stability)
+  // HTML PAGES
   'main.html',
   '3-Hall-of-Champions.html', 
   '4Flushables.html',
@@ -19,7 +19,7 @@ const urlsToCache = [
   'rookiedraftcountdown.html',
   'underconstruction.html',
   
-  // IMAGE ASSETS (Case and path verified)
+  // IMAGE ASSETS
   'wildlifeentrance.jpeg',
   'Bucky-bear.jpg',
   'DYNASTYLOGO.jpeg',
@@ -36,8 +36,11 @@ const urlsToCache = [
   'prizewheel.mp3',
   'camp-fire.mp3',
   
-  // EXTERNAL DEPENDENCY
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+  // 🔥 NEW EXTERNAL DEPENDENCIES ADDED 🔥
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+  'https://cdn.tailwindcss.com', // Tailwind CDN
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap', // Google Fonts CSS
+  'https://via.placeholder.com/32?text=Player' // Placeholder image URL for failed player images
 ];
 
 self.addEventListener('install', (event) => {

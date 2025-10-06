@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="console.log('Supabase library loaded successfully!');"></script>
 <link rel="manifest" href="manifest.json">
- <style>
+<style>
 
   /* --- Body & Typography --- */
 
@@ -98,11 +98,10 @@
     border-radius: 5px;
     padding: 10px;
     border: 2px solid black;
-    
-    /* 👇 FIX: Set max height relative to viewport and enable scrolling */
-    max-height: 80vh; 
-    overflow-y: auto; 
-    /* 👆 END FIX */
+    
+    /* This fix is correct for the sign-off button issue */
+    max-height: 80vh; 
+    overflow-y: auto; 
   }
 
   /* Show the dropdown menu on hover */
@@ -152,7 +151,7 @@
   }
 
 
-  /* --- Main Layout --- */
+  /* --- Main Layout (Mobile First) --- */
 
   .main-content-wrapper {
     display: flex;
@@ -161,9 +160,13 @@
     margin-top: 1rem;
     gap: 1rem;
     padding: 0 10px;
+    max-width: 1400px; /* New: Add a max-width to the wrapper */
+    margin: 1rem auto; /* New: Center the wrapper */
   }
+
+    /* CORRECTION: Change the stacking order for mobile so content is in a logical flow (Left, Main, Right) */
   .main-content {
-    order: 1;
+    order: 2; /* Main content is second */
     width: 100%;
     max-width: 700px;
     background-color: #1e3159;
@@ -173,7 +176,7 @@
     flex-direction: column;
   }
   .right-column {
-    order: 2;
+    order: 3; /* Right column is third */
     width: 100%;
     max-width: 350px;
     display: flex;
@@ -182,7 +185,7 @@
     height: 100%;
   }
   .left-column-wrapper {
-    order: 3;
+    order: 1; /* Left column is now first, visible immediately on top */
     width: 100%;
     max-width: 300px;
     display: flex;
@@ -406,10 +409,10 @@
   #nfl-news a:hover {
     text-decoration: underline;
   }
-  
+  
 
-  /* --- Sidebar Navigation --- */
-
+/* CORRECTION: REMOVE OR COMMENT OUT THIS SECTION */
+/*
   .sidebar-left {
     position: fixed;
     top: 0;
@@ -435,10 +438,36 @@
     width: 20px;
     z-index: 9998;
   }
+*/
 
   /* --- Media Queries --- */
 
   @media (min-width: 768px) {
+    /* CORRECTION: Start 3-column-like layout on tablets to better use space */
+    .main-content-wrapper {
+      flex-direction: row; /* Switch to a row layout */
+      align-items: flex-start; /* Align columns to the top */
+      gap: 1rem;
+    }
+
+    /* Stack the two side columns on the right for a 2-column feel */
+    .left-column-wrapper {
+      order: 3; /* Move left column to the bottom of the visible area */
+      width: 40%; /* Give it some space */
+      max-width: 350px;
+    }
+    .main-content {
+      order: 1; /* Main content is the primary focus */
+      flex-grow: 1; /* Let it fill the remaining space */
+      max-width: 60%; /* Allow it to be up to 60% of the screen */
+    }
+    .right-column {
+      order: 2; /* Right column is second */
+      width: 40%;
+      max-width: 350px;
+    }
+    /* END CORRECTIONS FOR 768px */
+
     .header { padding: 20px; }
     .logo-container img { max-width: 250px; }
     .header .title { font-size: 2rem; }
@@ -484,17 +513,18 @@
       padding: 0.6rem;
     }
     #nfl-news a { padding: 1rem;}
-    .sidebar-left { width: 350px; }
+    /* .sidebar-left { width: 350px; } */ /* Removed */
   }
 
   @media (min-width: 1024px) {
+    /* CORRECTION: Full three-column layout for desktop */
     .main-content-wrapper {
       flex-direction: row;
       justify-content: center;
       align-items: stretch;
       gap: 1rem;
       padding: 0;
-      height: 500px;
+      height: 500px; /* Keep this if you want a fixed height on desktop */
     }
     .left-column-wrapper,
     .main-content,
@@ -503,9 +533,12 @@
       flex-direction: column;
       height: 100%;
     }
+    /* Set correct 3-column order and widths */
     .left-column-wrapper { order: 1; width: 300px; }
-    .main-content { order: 2; width: 700px; }
+    .main-content { order: 2; flex-grow: 1; max-width: 700px; } /* Set main content to grow, but limit max */
     .right-column { order: 3; width: 350px; }
+    /* END CORRECTIONS FOR 1024px */
+    
     .left-column,
     .right-column-container,
     #message-display {

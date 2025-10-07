@@ -13,11 +13,8 @@
         body {
             display: flex;
             flex-direction: column;
-            /* Key for vertical centering */
             justify-content: center; 
-            /* Key for horizontal centering */
             align-items: center; 
-            /* Key for taking up the full screen height */
             min-height: 100vh; 
             margin: 0;
             background-color: #1e3159;
@@ -34,7 +31,6 @@
         .content-columns {
             display: flex;
             flex-wrap: wrap;
-            /* Ensures items inside are horizontally centered */
             justify-content: center; 
             align-items: flex-start;
             padding: 1rem;
@@ -168,14 +164,7 @@
     <div class="content-columns">
         <div class="image-container">
             <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
-              <p>TCWR Dy-NASTY</p>
-            <p>Fantasy Football League</p>
-            <p><input id="passwordBox" type="password" placeholder="Enter Password" onkeypress="handleKeyPress(event)" /></p>
-            <button id="submitButton" onclick="checkPassword()">Submit</button>
-        </div>
-
-        <div class="password-container">
-            <p>TCWR Dy-NASTY</p>
+          <p style="font-size: 2.5rem; font-weight: bold;">TCWR Dy-NASTY</p>
             <p>Fantasy Football League</p>
             <p><input id="passwordBox" type="password" placeholder="Enter Password" onkeypress="handleKeyPress(event)" /></p>
             <button id="submitButton" onclick="checkPassword()">Submit</button>

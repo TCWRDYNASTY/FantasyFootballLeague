@@ -526,6 +526,51 @@ tr.playoff-divider td {
         overflow-y: auto;
     }
 }
+
+      /* =========================================
+   Toast Notification Styles
+========================================= */
+#toast-notification {
+    visibility: hidden; /* Hidden by default */
+    min-width: 250px;
+    margin-left: -125px; /* Used to center the element in the parent (though we'll position it fixed) */
+    background-color: #facc15;
+    color: #1e3159;
+    text-align: center;
+    border-radius: 5px;
+    padding: 16px;
+    position: fixed;
+    z-index: 10000; /* High z-index to ensure it is always on top */
+    right: 20px; /* Position from the right edge */
+    bottom: 30px; /* Position from the bottom edge */
+    font-size: 1rem;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* Animation for fade-in and fade-out */
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations */
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
 </style>
 
 </head>
@@ -546,7 +591,6 @@ tr.playoff-divider td {
       <div id="trending-down"></div>
     </div>
   </div>
-</div>
 
 <div class="header">
   <div class="logo-container">
@@ -571,7 +615,7 @@ tr.playoff-divider td {
         <a href="8Bylaws.html">Constitution</a> 
         <a href="contactcommish.html">Contact Commish</a>
         <a href="https://sleeper.com/login">Sleeper</a> 
-        <a href="index.html" onclick="logout(); return false;">Sign Off</a>
+       <a href="#" onclick="logout();">Sign Off</a>
       </div>
     </div>
 </div>
@@ -615,9 +659,27 @@ tr.playoff-divider td {
   </div>
 </div>
 
+    <div id="toast-notification">Signed Off Successfully!</div>
+    
     <script>
 
+function logout() {
+    const toast = document.getElementById("toast-notification");
+    
+    localStorage.removeItem('loggedInUser');
+    
 
+    if (toast) {
+        toast.textContent = "Signed Off Successfully!";
+        toast.style.visibility = "visible";
+        toast.className = "show"; // Use this if you want to rely on the CSS animation class
+    }
+
+  
+    setTimeout(() => {
+        window.location.href = "index.html"; 
+    }, 1500); // 1.5 seconds delay
+}
         const leagueId = "1180908151502815232";
 
  

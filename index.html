@@ -13,47 +13,47 @@
         body {
             display: flex;
             flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             margin: 0;
             background-color: #1e3159;
             color: white;
-            color-scheme: light; 
+            color-scheme: light;
             font-family: "Courier New", monospace;
             padding: 20px;
             box-sizing: border-box;
         }
 
-      /* =========================================
-    Flex Container for Main Content
-========================================= */
-.content-columns {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center; 
-    align-items: center; 
-    padding: 1rem;
-    gap: 40px;
-    width: 100%;
-    max-width: 1200px;
-    box-sizing: border-box;
-}
+        /* =========================================
+           Flex Container for Main Content
+        ========================================= */
+        .content-columns {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
 
-      /* =========================================
-    Shared Container Styles (Fixed for single container)
-========================================= */
-.image-container {
-    margin: 0 auto;
-    max-width: 400px;
-    width: 90%;
-    padding: 20px;
-    background-color: beige;
-    color: black; 
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
+        /* =========================================
+           Shared Container Styles
+        ========================================= */
+        .image-container {
+            margin: 0 auto;
+            max-width: 400px;
+            width: 90%;
+            padding: 20px;
+            background-color: beige;
+            color: black;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
 
         /* =========================================
            Image Styling
@@ -63,6 +63,7 @@
             height: auto;
             border: 2px solid black;
             border-radius: 8px;
+            margin-bottom: 15px;
         }
 
         /* =========================================
@@ -78,7 +79,7 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
             background-color: white;
-            color: black; 
+            color: black;
         }
 
         /* =========================================
@@ -104,31 +105,40 @@
 
         /* =========================================
            Typography (Headings, Paragraphs)
+           -- New, Corrected Styles --
         ========================================= */
-        .password-container p {
-            margin: 0.5em 0;
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.2em 0;
         }
 
+        .sub-title {
+            font-size: 1.4rem;
+            margin: 0.2em 0 0.5em 0;
+        }
+        
+        /* You had this previously, it's not needed anymore
         .password-container p:first-child {
             font-size: 2.5rem;
             font-weight: bold;
         }
-
         .password-container p:nth-child(2) {
             font-size: 1.4rem;
         }
+        */
 
         /* =========================================
            Responsive Layout Adjustments
         ========================================= */
         @media (max-width: 768px) {
             .content-columns {
-                flex-direction: column; 
+                flex-direction: column;
                 align-items: center;
                 gap: 20px;
             }
             
-            .password-container, 
+            .password-container,
             .image-container {
                 flex: 1 1 100%;
                 width: 100%;
@@ -141,21 +151,21 @@
         }
 
         @media (max-width: 480px) {
-            .password-container p:first-child {
+            .main-title {
                 font-size: 2rem;
             }
 
-            .password-container p:nth-child(2) {
+            .sub-title {
                 font-size: 1.2rem;
             }
 
             #submitButton {
                 width: 100%;
-                padding: 15px; 
+                padding: 15px;
             }
             
             #passwordBox {
-                width: 100%; 
+                width: 100%;
             }
         }
     </style>
@@ -165,32 +175,24 @@
     <div class="content-columns">
         <div class="image-container">
             <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
-          <p style="font-size: 2.5rem; font-weight: bold;">TCWR Dy-NASTY</p>
-            <p style="font-size: 1.5rem;">Fantasy Football League</p>
+            <p class="main-title">TCWR Dy-NASTY</p>
+            <p class="sub-title">Fantasy Football League</p>
             <p><input id="passwordBox" type="password" placeholder="Enter Password" onkeypress="handleKeyPress(event)" /></p>
             <button id="submitButton" onclick="checkPassword()">Submit</button>
         </div>
     </div>
     
-</body>
 <script>
     const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    // ===============================================
-    // 1. IMMEDIATE LOGIN CHECK AND REDIRECT (PERSISTENCE)
-    // ===============================================
     const storedUser = localStorage.getItem('loggedInUser');
 
     if (storedUser) {
         console.log('Existing persistent session found. Redirecting to main site.');
         window.location.href = "main.html";
     }
-
-    // ===============================================
-    // 2. REST OF SCRIPT ONLY RUNS IF NO SESSION FOUND
-    // ===============================================
 
     const passwordInput = document.getElementById("passwordBox");
     const submitButton = document.getElementById("submitButton");
@@ -211,7 +213,7 @@
 
         if (error) {
             const audio = new Audio('magicword.mp3');
-            audio.play();  
+            audio.play();
             setTimeout(() => {
                 alert("Access Denied");
                 passwordInput.value = "";
@@ -247,4 +249,5 @@
         });
     }
 </script>
+</body>
 </html>

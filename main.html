@@ -145,7 +145,6 @@ body {
 .dropbtn:hover {
     background-color: #e4b500;
 }
-
 /* --- Main Layout (Mobile First - Stacked) --- */
 .main-content-wrapper {
     display: flex;
@@ -166,6 +165,9 @@ body {
     margin: 0;
     display: flex;
     flex-direction: column;
+    /* Add this line to enable scrolling on the main-content area */
+    overflow-y: auto; 
+    height: 400px; /* You may need to set a fixed height for overflow to work */
 }
 
 .right-column {
@@ -192,12 +194,13 @@ body {
 #message-display {
     height: 400px;
     background-color: #2d3748;
-    overflow-y: auto; /* Enables scrollbar on mobile */
+    overflow-y: auto; /* This already enables scrolling on the inner div */
     border-radius: 0.375rem;
     padding: 0.2rem;
     flex: 1;
 }
 
+/* ... (the rest of your CSS remains unchanged) */
 .message-item {
     margin-bottom: 8px;
     padding: 1rem;
@@ -610,10 +613,7 @@ tr.playoff-divider td {
       </div>
     </div>
   </div>
-
 </div>
-</body>
-</html>
 
     <script>
 

@@ -11,12 +11,7 @@
 
   <style>
   /* --- Body & Typography --- */
-html, body {
-    margin: 0;
-    padding: 0;
-}
-      
-    body {
+  body {
     margin: 0; padding: 0;
     font-family: 'Inter', sans-serif;
     background-color: #1e3159;
@@ -50,7 +45,6 @@ html, body {
     font-family: 'Inter', sans-serif;
     position: relative; /* Essential for dropdown positioning */
   }
-      
   .logo-container img {
     width: 100%;
     max-width: 200px;
@@ -140,70 +134,50 @@ html, body {
   }
 
 
-  /* --- Main Layout: New Flexbox Structure with Hidden Sidebar --- */
-
-  /* The outer container for the three columns */
-  .container {
-    max-width: 1400px;
-    margin: 20px auto;
-    padding: 0 15px;
-    display: flex; /* Enables flexbox layout for the columns */
-    justify-content: space-between;
-    min-height: calc(100vh - 150px);
-    overflow: hidden; /* Prevents horizontal scrollbar when sidebar is revealed */
-  }
-
-  /* HIDDEN LEFT SIDEBAR */
-  .sidebar-left {
-    flex-shrink: 0; 
-    width: 0; /* Start with zero width to hide it */
-    overflow: hidden; /* Hide content that flows outside the 0 width */
-    transition: width 0.3s ease-in-out, padding 0.3s ease-in-out; /* Smooth transition */
-    background-color: #2d3748; /* Background for the sidebar */
-    padding: 0; /* Start with 0 padding */
-    margin-right: 20px;
-    border-radius: 0.375rem;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    height: 500px; /* Set height to match other columns */
-  }
-
-  /* HOVER EFFECT - Reveals the sidebar */
-  .container:hover .sidebar-left {
-    width: 250px; /* Expand to show content on hover */
-    padding: 20px 15px; /* Add padding back to reveal content */
-  }
-
-  /* MAIN CONTENT (League Updates) */
-  .main-content {
-    flex-grow: 1; /* Allow it to take up available space */
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 700px; /* Keep your max-width */
-    background-color: #1e3159;
-    border-radius: 0.375rem;
-    height: 500px; /* Set a fixed height */
-    margin-right: 20px;
-  }
-
-  /* RIGHT COLUMN (Standings) */
-  .right-column {
-    flex-shrink: 0; /* Important to prevent it from shrinking */
-    width: 350px; /* Set a fixed width */
+  /* --- Main Layout --- */
+  .main-content-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 500px; /* Set a fixed height */
+    margin-top: 1rem;
+    gap: 1rem;
+    padding: 0 10px;
+  }
+  .main-content {
+    order: 1;
+    width: 100%;
+    max-width: 700px;
+    background-color: #1e3159;
+    border-radius: 0.375rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .right-column {
+    order: 2;
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+
+  }
+  .left-column-wrapper {
+    order: 3;
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
   }
 
-  /* --- Message Display (The chat/updates area) --- */
+  /* --- Message Display --- */
   #message-display {
-    /* SCROLLBAR IS ALREADY HERE, we ensure proper sizing */
-    height: 400px; /* Fixed height for mobile/default */
-    min-height: 350px; 
+    height: 400px;
     background-color: #2d3748;
-    overflow-y: auto; /* THIS CREATES THE VERTICAL SCROLLBAR */
-    overflow-x: hidden;
+    overflow-y: auto;
     border-radius: 0.375rem;
     padding: 0.2rem;
     flex: 1;
@@ -251,7 +225,7 @@ html, body {
     overflow-y: auto;
     height: 100%;
     width: 100%;
-    border-radius: 0.375rem;
+        border-radius: 0.375rem;
     border-left: none;
     border-top: none;
     border-bottom: none;
@@ -278,7 +252,7 @@ html, body {
     border-bottom: 2px solid red;
   }
 
-  /* Transactions & Trending - Now moved to the HIDDEN sidebar in HTML */
+  /* Transactions & Trending */
   .recent-transactions-container,
   .trending-container {
     overflow-y: auto;
@@ -352,7 +326,7 @@ html, body {
   .trending-count-up { color: #48bb78; }
   .trending-count-down { color: #f56565; }
 
-  /* --- Left Column (NFL News) - Now inside .sidebar-left --- */
+  /* --- Left Column (NFL News) --- */
   .left-column {
     background-color: #2d3748;
     border-radius: 0.375rem;
@@ -395,8 +369,33 @@ html, body {
     text-decoration: underline;
   }
   
-  /* The old sidebar styles have been replaced by the .sidebar-left in the new layout section */
 
+  /* --- Sidebar Navigation --- */
+  .sidebar-left {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 80%;
+    max-width: 350px;
+    height: 100%;
+    background-color: #2d3748;
+    transition: left 0.3s ease;
+    z-index: 9999;
+    overflow-y: auto;
+    padding-top: 20px;
+  }
+  .sidebar-left:hover {
+    left: 0;
+  }
+  .sidebar-left::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 20px;
+    z-index: 9998;
+  }
 
   /* --- Media Queries --- */
   @media (min-width: 768px) {
@@ -405,15 +404,7 @@ html, body {
     .header .title { font-size: 2rem; }
     .header .subtitle { font-size: 1.5rem; }
     .header .since { font-size: 1.2rem; }
-    
-    /* Ensure height consistency on desktop/tablet */
-    .sidebar-left,
-    .main-content,
-    .right-column {
-        height: 500px; 
-    }
-    #message-display { height: 500px; } /* Override default height for desktop */
-    
+    #message-display { height: 500px; }
     .chat-image { max-width: 150px; }
     .timestamp { font-size: 0.7em; }
     th, td { padding: 0.75rem; font-size: inherit; }
@@ -453,98 +444,139 @@ html, body {
       padding: 0.6rem;
     }
     #nfl-news a { padding: 1rem;}
+    .sidebar-left { width: 350px; }
+    /* The .nav-container was part of your previous example links, not used in the dropdown */
+    /* .nav-container {
+      flex-direction: row;
+      padding: 0;
+    }
+    .nav-container a {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      padding: 10px;
+    } */
   }
 
-  /* Remove all conflicting 1024px media queries */
   @media (min-width: 1024px) {
-      /* This section is intentionally left nearly empty, 
-         as the main layout is now handled by the .container styles above. */
+    .main-content-wrapper {
+      flex-direction: row;
+      justify-content: center;
+      align-items: stretch;
+      gap: 1rem;
+      padding: 0;
+      height: 500px;
+    }
+    .left-column-wrapper,
+    .main-content,
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .left-column-wrapper { order: 1; width: 300px; }
+    .main-content { order: 2; width: 700px; }
+    .right-column { order: 3; width: 350px; }
+    .left-column,
+    .right-column-container,
+    #message-display {
+      flex: 1;
+      overflow-y: auto;
+    }
   }
 </style>
 
-
 </head>
+
 <body class="body">
 
-    <header class="header">
-        <div class="logo-container">
-            <img src="DYNASTYLOGO.jpeg" alt="logo">
-        </div>
-        <div class="header-text">
-            <p class="title">TCWR Dy-NASTY</p>
-            <p class="subtitle">Fantasy Football League</p>
-            <p class="since">Since 2023</p>
-        </div>
-        <div class="dropdown">
-            <button class="dropbtn">Menu</button>
-            <div class="dropdown-content">
-                <a href="dynastychat.html">Fourth & Roasted</a>
-                <a href="https://tcwrdynasty.github.io/members/">League Members</a>
-                <a href="HallofChampions.html">Hall of Champions</a>
-                <a href="4Flushables.html">Flushables</a>
-                <a href="7Records.html">Records & Rankings</a>
-                <a href="rookiedraftcountdown.html">Draft Lottery</a>
-                <a href="https://tcwrdynasty.github.io/games/">Games!</a>
-                <a href="8Bylaws.html">Constitution</a>
-                <a href="contactcommish.html">Contact Commish</a>
-                <a href="https://sleeper.com/login">Sleeper</a>
-                <a href="#" onclick="logout(); return false;">Sign Off</a>
-            </div>
-        </div>
-    </header>
-
-    <div class="container">
-        <div class="sidebar-left">
-            <h2 class="recent-transactions-title">Recent Transactions</h2>
-            <div class="recent-transactions-container">
-                <div class="transaction-list">
-                    <ul id="transaction-list" class="transaction-list"></ul>
-                </div>
-            </div>
-
-            <h2 class="trending-title">Trending Players</h2>
-            <div id="trending-container" class="trending-container">
-                <div id="trending-up"></div>
-                <div id="trending-down"></div>
-            </div>
-        </div>
-        
-        <div class="main-content">
-            <h2 class="title-text" style="padding-bottom: 0.5rem;">League Updates!</h2>
-            <div id="message-display"></div>
-        </div>
-
-        <div class="right-column">
-            <div class="title-text">
-                <h1>League Standings</h1>
-            </div>
-            <div class="right-column-container">
-                <div class="standings-scroll-area">
-                    <table id="standings-table">
-                        <thead>
-                            <tr>
-                                <th>Rank</th>
-                                <th>Team</th>
-                                <th>Record</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+  <div class="sidebar-left">
+<h2 class="recent-transactions-title">Recent Transactions</h2>
+    <div class="recent-transactions-container">    
+      <div class="transaction-list">
+        <ul id="transaction-list" class="transaction-list"></ul>
+      </div>
     </div>
+
+    <h2 class="trending-title">Trending Players</h2>
+    <div id="trending-container" class="trending-container">
+      <div id="trending-up"></div>
+      <div id="trending-down"></div>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <div class="logo-container">
+      <img src="DYNASTYLOGO.jpeg" alt="logo">
+    </div>
+    <div class="header-text">
+      <p class="title">TCWR Dy-NASTY</p>
+      <p class="subtitle">Fantasy Football League</p>
+      <p class="since">Since 2023</p>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Menu</button>
+      <div class="dropdown-content">
+        <a href="Fourth&Roaster.html">Fourth & Roasted</a>
+        <a href="https://tcwrdynasty.github.io/members/">League Members</a>
+        <a href="3Hall of Champions.html">Hall of Champions</a>
+        <a href="4Flushables.html">Flushables</a>  
+        <a href="7Records.html">Records & Rankings</a>
+        <a href="rookiedraftcountdown.html">Draft Lottery</a>  
+        <a href="https://tcwrdynasty.github.io/games/">Games!</a>  
+        <a href="8Bylaws.html">Constitution</a> 
+        <a href="contactcommish.html">Contact Commish</a>
+        <a href="https://sleeper.com/login">Sleeper</a> 
+      </div>
+    </div>
+</div>
+
+
+
+<div class="main-content-wrapper">
+
+  <div class="left-column-wrapper">
+    <div class="left-column-title">NFL News from ESPN</div>
+    <div class="left-column">
+      <div class="news-box">
+        <ul id="nfl-news">Loading...</ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <h2 class="title-text" style="padding-bottom: 0.5rem;">League Updates!</h2>
+    <div id="message-display"></div>
+  </div>
+
+  <div class="right-column">
+    <div class="title-text">
+      <h1>League Standings</h1>
+    </div>
+    <div class="right-column-container">
+      <div class="standings-scroll-area">
+        <table id="standings-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Team</th>
+              <th>Record</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
 </body>
+</html>
 
     <script>
 
-function logout() {
-    localStorage.removeItem('loggedInUser'); 
-    window.location.href = "index.html"; 
-}
 
-/* ====== Chat Box ====== */
-// ... (The rest of your chat box and other scripts continue below)
         const leagueId = "1180908151502815232";
 
  
@@ -913,4 +945,5 @@ for (const [rosterId, data] of Object.entries(teamMap)) {
 
     </script>
 
+</body>
 </html>

@@ -808,7 +808,6 @@ Animations (These are correct)
     <div class="dropdown">
       <button class="dropbtn">Menu</button>
       <div class="dropdown-content">
-        <a href="dynastychat.html">Fourth & Roasted</a>
         <a href="https://tcwrdynasty.github.io/members/">League Members</a>
         <a href="HallofChampions.html">Hall of Champions</a>
         <a href="4Flushables.html">Flushables</a>  
@@ -1245,7 +1244,6 @@ const messageDisplay = document.getElementById('message-display');
 let username = null;
 let currentUserId = null;
 
-/* ====== Helper Functions ====== */
 function isLoggedIn() {
     return localStorage.getItem('loggedInUser') !== null;
 }
@@ -1270,12 +1268,9 @@ function populateEmojiPicker() {
 }
 populateEmojiPicker(); 
 
-/* ====== Supabase & Media Logic (Upload/Search/Send/Delete) ====== */
-
-// --- NEW REALTIME LISTENER FUNCTION (Added for notifications) ---
 function setupRealtimeListener() {
     supabase
-        .channel('messages_changes') // Name your channel
+        .channel('messages_changes') 
         .on(
             'postgres_changes',
             { event: 'INSERT', schema: 'public', table: 'messages' },
@@ -1384,8 +1379,10 @@ async function sendMessage(imageUrl = '') {
     } else {
         messageInput.value = '';
         
-        showToast("Message successfully posted!");
        
+        fetchMessages(); 
+        
+        showToast("Message successfully posted!");
     }
 }
 
@@ -1454,17 +1451,18 @@ async function renderMessage(message) {
 
 
 async function displayMessages(messages) {
-    messageDisplay.innerHTML = '';
+    if (!messageDisplay) return; 
+
+    messageDisplay.innerHTML = ''; 
+    
     if (messages && Array.isArray(messages)) {
+      
         for (const msg of messages) {
-            if (messageDisplay) {
-                const messageElement = await renderMessage(msg);
-                messageDisplay.appendChild(messageElement);
-            }
+            const messageElement = await renderMessage(msg);
+            messageDisplay.appendChild(messageElement);
         }
-        if (messageDisplay) {
-             messageDisplay.scrollTop = messageDisplay.scrollHeight;
-        }
+        
+        messageDisplay.scrollTop = messageDisplay.scrollHeight;
     }
 }
 

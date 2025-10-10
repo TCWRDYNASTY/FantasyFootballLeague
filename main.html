@@ -263,10 +263,16 @@ body {
 /* ------------------------------------------- */
 /* --- CHAT INPUT & BUTTONS (NEW) ---          */
 /* ------------------------------------------- */
+/* ------------------------------------------- */
+/* --- CHAT INPUT & BUTTONS (UPDATED) ---      */
+/* ------------------------------------------- */
 .chat-container {
     padding: 0.5rem;
     border-top: 1px solid #4a5568;
     background-color: #1e3159;
+    /* Ensure chat-container spans the full width of main-content */
+    width: 100%; 
+    box-sizing: border-box;
 }
 
 .chat-box {
@@ -275,64 +281,65 @@ body {
     gap: 0.5rem;
 }
 
-.input-container {
-    display: flex;
-    flex-direction: column;
+/* 🌟 KEY: New container for the textarea and the right-side buttons 🌟 */
+.input-row-container {
+    display: flex; /* Makes children (textarea and buttons) sit side-by-side */
+    align-items: stretch; /* Stretches children to fill the height */
     gap: 0.5rem;
-    position: relative;
+    position: relative; /* Anchor for absolute elements (like emoji/gif popups) */
 }
 
 #message-input {
-    width: 100%;
+    /* 🌟 KEY: Takes up all available width after fixed-width items 🌟 */
+    flex-grow: 1; 
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #4a5568;
     background-color: #2d3748;
     color: #e2e8f0;
     resize: none;
-    min-height: 50px;
+    min-height: 50px; /* Ensure a minimum height for the input area */
     box-sizing: border-box;
 }
 
-.input-buttons {
+/* 🌟 KEY: Container for the small buttons on the right 🌟 */
+.input-buttons-right {
     display: flex;
-    gap: 0.5rem;
-    align-items: center;
+    flex-direction: column; /* Stacks buttons vertically */
+    gap: 4px; /* Small gap between stacked buttons */
 }
 
-.input-buttons button {
+.input-buttons-right button {
+    /* General button styling for fixed size */
+    width: 45px; /* Fixed width for uniform look */
+    height: 45px; /* Fixed height for uniform look */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: #4a5568;
     color: #e2e8f0;
     border: none;
-    padding: 8px 12px;
+    padding: 0;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1rem;
     transition: background-color 0.2s;
+    flex-shrink: 0; /* Prevents buttons from shrinking */
 }
 
-.input-buttons button:hover {
+.input-buttons-right button:hover {
     background-color: #6a768c;
 }
 
-.input-buttons button:disabled {
+.input-buttons-right button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-.buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-}
-
+/* Specific styling for the Send button to make it stand out */
 #send-btn {
     background-color: #facc15;
     color: #1e3159;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
     font-weight: bold;
 }
 
@@ -340,31 +347,19 @@ body {
     background-color: #e4b500;
 }
 
-#sign-off-btn {
-    background-color: #f56565;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-#sign-off-btn:hover {
-    background-color: #e53e3e;
-}
-
-/* GIF Search Container */
+/* GIF Search Container - Positioned relative to .input-row-container */
 #gif-search-container {
     position: absolute;
-    bottom: 100%; /* Position above the input area */
-    left: 0;
-    right: 0;
+    bottom: calc(100% + 10px); /* Position above the input area */
+    right: 0; /* Aligned to the right side (where the buttons are) */
+    width: 300px;
+    max-width: 100%;
     background-color: #1e3159;
     border: 1px solid #4a5568;
     padding: 10px;
     border-radius: 5px 5px 0 0;
     display: flex;
+    flex-direction: column;
     gap: 5px;
     z-index: 10;
 }
@@ -399,11 +394,12 @@ body {
     border-color: #facc15;
 }
 
-/* Emoji Picker */
+/* Emoji Picker - Positioned relative to .input-row-container */
 #emoji-picker {
     position: absolute;
-    bottom: 100%;
-    left: 0;
+    bottom: calc(100% + 10px);
+    right: 0; /* Aligned to the right side (where the buttons are) */
+    width: 200px;
     background-color: #1e3159;
     border: 1px solid #4a5568;
     padding: 10px;
@@ -725,30 +721,38 @@ tr.playoff-divider td {
 }
 
 /* =========================================
-Toast Notification Styles
+Toast Notification Styles (CORRECTED)
 ========================================= */
 #toast-notification {
     visibility: hidden; /* Hidden by default */
     min-width: 250px;
-    margin-left: -125px; /* Used to center the element in the parent (though we'll position it fixed) */
+    margin-left: -125px; 
     background-color: #facc15;
     color: #1e3159;
     text-align: center;
     border-radius: 5px;
     padding: 16px;
     position: fixed;
-    z-index: 10000; /* High z-index to ensure it is always on top */
-    right: 20px; /* Position from the right edge */
-    bottom: 30px; /* Position from the bottom edge */
+    z-index: 10000;
+    right: 20px;
+    bottom: 30px;
     font-size: 1rem;
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    /* Animation for fade-in and fade-out */
+    /* * ⚠️ NOTE: The animation lines MUST be removed from here 
+    * and kept only on the .show-toast-animation class below.
+    */
+}
+
+/* 🌟 This is the only place the animation should be defined 🌟 */
+.show-toast-animation {
     -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
     animation: fadein 0.5s, fadeout 0.5s 2.5s;
 }
 
-/* Animations */
+/* =========================================
+Animations (These are correct)
+========================================= */
 @-webkit-keyframes fadein {
     from {bottom: 0; opacity: 0;}
     to {bottom: 30px; opacity: 1;}
@@ -769,6 +773,8 @@ Toast Notification Styles
     to {bottom: 0; opacity: 0;}
 }
 </style>
+
+
 
 </head>
 
@@ -838,34 +844,34 @@ Toast Notification Styles
     <div class="chat-container">
         <div class="chat-box" id="chat-box">
             
-            <div class="input-container">
+            <div class="input-row-container">
+                
                 <textarea id="message-input" placeholder="Type your message..." disabled></textarea>
                 
-                <div class="input-buttons">
+                <div class="input-buttons-right">
                     <button id="emoji-btn" type="button">😊</button>
                     <button id="image-btn" type="button">📸</button>
                     <button id="gif-btn" type="button">GIF</button>
-                    
-                    <div id="gif-search-container" style="display: none;">
-                        <input type="text" id="gif-search-input" placeholder="Search GIFs...">
-                        <button id="gif-search-button">Search</button>
-                        <div id="gif-results"></div>
-                    </div>
-                </div>
-                
-                <div id="emoji-picker" class="hidden">
+                    <button id="send-btn" disabled>Send</button>
                 </div>
             </div>
 
-            <div class="buttons" style="justify-content: flex-end;">
+            <div class="hidden-elements">
                 <input type="file" id="image-input" accept="image/*" style="display: none;">
-                <button id="send-btn" disabled>Send</button>
-                <button id="sign-off-btn">Sign Off</button>
+                
+                <div id="gif-search-container" style="display: none;">
+                    <input type="text" id="gif-search-input" placeholder="Search GIFs...">
+                    <button id="gif-search-button">Search</button>
+                    <div id="gif-results"></div>
+                </div>
+                
+                <div id="emoji-picker" class="hidden"></div>
             </div>
+            
         </div>
     </div>
     </div>
-
+    
   <div class="right-column">
     <div class="title-text">
       <h1>League Standings</h1>
@@ -887,35 +893,35 @@ Toast Notification Styles
   </div>
 </div>
 
-    <div id="toast-notification">Signed Off Successfully!</div>
+   <div id="toast-notification"></div>
     
-    <script>
-// =======================================================
-// 1. SITE-WIDE FUNCTIONS (LOGOUT, STANDINGS, TRANSACTIONS, NEWS)
-// =======================================================
-function logout() {
+  <script>
+
+function showToast(messageText) {
     const toast = document.getElementById("toast-notification");
     
-    // Clear user data
-    localStorage.removeItem('loggedInUser');
-    
-
     if (toast) {
-        toast.textContent = "Signed Off Successfully!";
+        toast.textContent = messageText;
+        toast.classList.remove("show-toast-animation");
         toast.style.visibility = "visible";
-        toast.className = "show"; 
+        void toast.offsetWidth; 
+        toast.classList.add("show-toast-animation"); 
+        setTimeout(() => {
+            toast.style.visibility = "hidden";
+            toast.classList.remove("show-toast-animation");
+        }, 3000); 
     }
+}
 
-    // Delay redirect for toast to show
+function logout() {
+    localStorage.removeItem('loggedInUser');
+    showToast("Signed Off Successfully!");
     setTimeout(() => {
         window.location.href = "index.html"; 
-    }, 1500); 
+    }, 1000); 
 }
 
 const leagueId = "1180908151502815232";
-
-// --- SLEEPER API FUNCTIONS (Keeping your existing logic) ---
-
 async function fetchStandings() {
     const [rostersRes, usersRes] = await Promise.all([
         fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
@@ -951,7 +957,7 @@ async function fetchStandings() {
     );
 
     const tbody = document.querySelector('#standings-table tbody');
-    tbody.innerHTML = ''; // Clear existing rows
+    tbody.innerHTML = ''; 
     teams.forEach((team, index) => {
         const row = document.createElement('tr');
         if (index === 5) row.classList.add('playoff-divider');
@@ -1183,8 +1189,6 @@ async function fetchTrendingPlayers() {
 
 fetchTrendingPlayers();
 
-
-// --- NFL NEWS RSS FEED ---
 const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
 const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
@@ -1217,11 +1221,6 @@ fetch(proxyUrl)
     });
 
 
-// =======================================================
-// 2. CHAT FUNCTIONALITY INTEGRATION
-// =======================================================
-
-/* ====== Chat Box Supabase Setup & Vars ====== */
 const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
@@ -1272,6 +1271,25 @@ function populateEmojiPicker() {
 populateEmojiPicker(); 
 
 /* ====== Supabase & Media Logic (Upload/Search/Send/Delete) ====== */
+
+// --- NEW REALTIME LISTENER FUNCTION (Added for notifications) ---
+function setupRealtimeListener() {
+    supabase
+        .channel('messages_changes') // Name your channel
+        .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'messages' },
+            (payload) => {
+                const newMessage = payload.new;
+                if (currentUserId && currentUserId !== newMessage.user_id) {
+                    showToast(`🔔 New Post from ${newMessage.sender}!`);
+                }
+                
+                fetchMessages();
+            }
+        )
+        .subscribe();
+}
 
 async function uploadImage() {
     const file = imageInput.files[0];
@@ -1357,15 +1375,17 @@ async function sendMessage(imageUrl = '') {
             sender: trimmedUsername,
             content: message,
             image_url: imageUrl,
-            user_id: currentUserId
+            user_id: currentUserId 
         }]);
 
     if (error) {
         console.error("Error sending message:", error);
-        alert("Failed to send message.");
+        showToast("❌ Failed to send message."); 
     } else {
         messageInput.value = '';
-        fetchMessages();
+        
+        showToast("Message successfully posted!");
+       
     }
 }
 
@@ -1377,7 +1397,7 @@ async function handleDeleteButtonClick(messageId) {
 
     if (error) {
         console.error('Error deleting message:', error);
-        alert("Failed to delete the message.");
+        showToast("❌ Failed to delete the message.");
     } else {
         console.log('Message deleted successfully.');
         fetchMessages();
@@ -1420,7 +1440,6 @@ async function renderMessage(message) {
     messageContainer.appendChild(messageContent);
     messageContainer.appendChild(timestampEl);
 
-    // MESSAGE DELETION LOGIC: Allow user to delete their own messages
     if (username === message.sender) {
         messageContainer.style.cursor = 'pointer';
         messageContainer.addEventListener('click', () => {
@@ -1463,16 +1482,13 @@ async function fetchMessages() {
 }
 
 function signOff() {
-    // Calls the existing site-wide logout function for consistency
+
     logout(); 
 }
 
-
-/* ====== Event Listeners ====== */
 signoffButton.addEventListener('click', signOff);
 sendButton.addEventListener('click', () => sendMessage());
 
-// Media listeners
 imageButton.addEventListener('click', () => { imageInput.click(); });
 document.getElementById("image-input").addEventListener("change", uploadImage);
 gifButton.addEventListener('click', () => {
@@ -1489,12 +1505,12 @@ gifSearchButton.addEventListener('click', () => {
     searchGifs(searchTerm);
 });
 gifSearchInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
         gifSearchButton.click();
     }
 });
 
-// Emoji listeners
 emojiButton.addEventListener('click', () => { emojiPicker.classList.toggle('hidden'); });
 document.addEventListener('click', (event) => {
     if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
@@ -1502,7 +1518,6 @@ document.addEventListener('click', (event) => {
     }
 });
 
-// Send message on Enter key (without Shift)
 messageInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
@@ -1510,31 +1525,27 @@ messageInput.addEventListener('keydown', (event) => {
     }
 });
 
-
-// =======================================================
-// 3. INITIALIZATION ON LOAD
-// =======================================================
 window.addEventListener('load', async () => {
-    // 1. Check if user is logged in
+   
     if (isLoggedIn()) {
         const user = getLoggedInUser();
         username = user.username;
-        currentUserId = user.id;
+        currentUserId = user.id; 
 
-        // Enable chat elements
         if (chatBox) chatBox.classList.remove('hidden'); 
         if (messageInput) messageInput.disabled = false;
         if (sendButton) sendButton.disabled = false;
         if (gifButton) gifButton.disabled = false;
+   
+        setupRealtimeListener();
 
     } else {
-        // Disable chat input if not logged in
+ 
         if (messageInput) messageInput.disabled = true;
         if (sendButton) sendButton.disabled = true;
         if (gifButton) gifButton.disabled = true;
     }
     
-    // 2. Fetch messages so user can read chat history immediately
     fetchMessages();
 });
 </script>

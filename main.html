@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="console.log('Supabase library loaded successfully!');"></script>
 
-  <style>
+ <style>
 /* --- UNIVERSAL RESET --- */
 html, body {
     margin: 0;
@@ -145,6 +145,7 @@ body {
 .dropbtn:hover {
     background-color: #e4b500;
 }
+
 /* --- Main Layout (Mobile First - Stacked) --- */
 .main-content-wrapper {
     display: flex;
@@ -165,8 +166,6 @@ body {
     margin: 0;
     display: flex;
     flex-direction: column;
-    /* Add this line to enable scrolling on the main-content area */
-    overflow-y: auto; 
     height: 600px; /* You may need to set a fixed height for overflow to work */
 }
 
@@ -194,41 +193,239 @@ body {
 #message-display {
     height: 400px;
     background-color: #2d3748;
-    overflow-y: auto; /* This already enables scrolling on the inner div */
+    overflow-y: auto; 
     border-radius: 0.375rem;
-    padding: 0.2rem;
+    padding: 0.5rem; /* Increased padding slightly for better look */
     flex: 1;
+    display: flex; /* Enable flex for better message layout */
+    flex-direction: column;
 }
 
-/* ... (the rest of your CSS remains unchanged) */
+/* ------------------------------------------- */
+/* --- CHAT BUBBLE STYLES (NEW/MODIFIED) ---   */
+/* ------------------------------------------- */
+
+/* The outer container for each message. This handles the bubble alignment. */
 .message-item {
-    margin-bottom: 8px;
-    padding: 1rem;
-    border-radius: 6px;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start; /* Default alignment (for others' messages) */
     width: 100%;
-    max-width: 800px;
-    color: #e2e8f0;
-    font-weight: 500;
-    font-size: 1rem;
-    background-color: #2d3748;
+    margin-bottom: 10px;
     box-sizing: border-box;
+}
+
+/* The actual bubble and content */
+.message-content {
+    background-color: #2e4a80; /* Blue for the bubble */
+    color: #e2e8f0;
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 75%; /* Max width for the bubble */
+    word-wrap: break-word;
     white-space: pre-wrap;
+    font-size: 1rem;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.chat-image {
-    max-width: 120px;
-    height: auto;
-    border-radius: 4px;
-    margin-right: 8px;
-}
-
+/* Timestamp element for all messages */
 .timestamp {
-    font-size: 0.65em;
+    font-size: 0.7em;
     color: #facc15;
-    margin-top: 4px;
+    margin-top: 2px;
+    padding: 0 5px; /* Padding for better spacing */
+}
+
+/* Style for messages sent by the logged-in user (click to delete) */
+.message-item[style*="cursor: pointer"] {
+    align-items: flex-end; /* Align user's bubble to the right */
+}
+
+.message-item[style*="cursor: pointer"] .message-content {
+    background-color: #48bb78; /* Green for user's bubble */
+    color: #1e3159;
+}
+
+/* --- Media inside bubbles --- */
+.chat-image {
+    max-width: 100%; /* Image fills the bubble width, but is limited by max-width of message-content */
+    height: auto;
+    border-radius: 12px;
+    margin: 5px 0;
+}
+
+.message-text {
+    /* If an image is present, this ensures text goes below it or alongside */
+    display: block;
+}
+
+/* ------------------------------------------- */
+/* --- CHAT INPUT & BUTTONS (NEW) ---          */
+/* ------------------------------------------- */
+.chat-container {
+    padding: 0.5rem;
+    border-top: 1px solid #4a5568;
+    background-color: #1e3159;
+}
+
+.chat-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+}
+
+#message-input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #4a5568;
+    background-color: #2d3748;
+    color: #e2e8f0;
+    resize: none;
+    min-height: 50px;
+    box-sizing: border-box;
+}
+
+.input-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.input-buttons button {
+    background-color: #4a5568;
+    color: #e2e8f0;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+.input-buttons button:hover {
+    background-color: #6a768c;
+}
+
+.input-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+#send-btn {
+    background-color: #facc15;
+    color: #1e3159;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#send-btn:hover {
+    background-color: #e4b500;
+}
+
+#sign-off-btn {
+    background-color: #f56565;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#sign-off-btn:hover {
+    background-color: #e53e3e;
+}
+
+/* GIF Search Container */
+#gif-search-container {
+    position: absolute;
+    bottom: 100%; /* Position above the input area */
+    left: 0;
+    right: 0;
+    background-color: #1e3159;
+    border: 1px solid #4a5568;
+    padding: 10px;
+    border-radius: 5px 5px 0 0;
+    display: flex;
+    gap: 5px;
+    z-index: 10;
+}
+
+#gif-search-input {
+    flex-grow: 1;
+    padding: 5px;
+    border-radius: 3px;
+    border: 1px solid #4a5568;
+    background-color: #2d3748;
+    color: #e2e8f0;
+}
+
+#gif-results {
+    display: flex;
+    overflow-x: auto;
+    gap: 5px;
+    margin-top: 10px;
+    max-height: 100px;
+}
+
+#gif-results img {
+    height: 80px;
+    width: auto;
+    cursor: pointer;
+    border-radius: 3px;
+    border: 2px solid transparent;
+    transition: border 0.2s;
+}
+
+#gif-results img:hover {
+    border-color: #facc15;
+}
+
+/* Emoji Picker */
+#emoji-picker {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background-color: #1e3159;
+    border: 1px solid #4a5568;
+    padding: 10px;
+    border-radius: 5px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#emoji-picker button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+}
+
+.hidden {
+    display: none !important;
 }
 
 /* --- Right Column Content (Standings) --- */
@@ -502,7 +699,7 @@ tr.playoff-divider td {
         align-items: stretch;
         gap: 1rem;
         padding: 0;
-        height: 500px; /* Fixed height for the container */
+        height: 600px; /* Increased height to match main-content height */
     }
     
     .left-column-wrapper,
@@ -527,8 +724,8 @@ tr.playoff-divider td {
     }
 }
 
-      /* =========================================
-   Toast Notification Styles
+/* =========================================
+Toast Notification Styles
 ========================================= */
 #toast-notification {
     visibility: hidden; /* Hidden by default */

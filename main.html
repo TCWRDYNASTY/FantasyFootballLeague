@@ -1509,21 +1509,13 @@ async function fetchMessages() {
     }
 }
 
-
-// --- EVENT LISTENERS ---
-sendButton.addEventListener('click', () => sendMessage());
-
-imageButton.addEventListener('click', () => { imageInput.click(); });
-document.getElementById("image-input").addEventListener("change", uploadImage);
-
-gifButton.addEventListener('click', (event) => { // 1. Define 'event'
-    event.stopPropagation(); // 2. Use it immediately
-    if (gifSearchContainer.style.display === 'block') {
-        gifSearchContainer.style.display = 'none';
+gifButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    gifSearchContainer.classList.toggle('hidden'); 
+    emojiPicker.classList.add('hidden');
+    if (gifSearchContainer.classList.contains('hidden')) {
         gifSearchInput.value = '';
         gifResultsContainer.innerHTML = '';
-    } else {
-        gifSearchContainer.style.display = 'block';
     }
 });
       
@@ -1537,21 +1529,25 @@ gifSearchInput.addEventListener('keydown', (event) => {
         gifSearchButton.click();
     }
 });
-
 emojiButton.addEventListener('click', (event) => { 
     event.stopPropagation(); 
     emojiPicker.classList.toggle('hidden');
+    gifSearchContainer.classList.add('hidden');
 });
 
-
 messageInput.addEventListener('keydown', (event) => {
-    // Send message on Enter key (unless Shift is also pressed)
     if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         sendMessage();
     }
 });
 
+   document.addEventListener('click', (event) => {
+    if (!emojiPicker.contains(event.target) && event.target !== emojiButton && event.target !== gifButton) {
+        emojiPicker.classList.add('hidden');
+    }
+});   
+      
 // --- INITIALIZATION ---
 window.addEventListener('load', async () => {
     populateEmojiPicker(); 

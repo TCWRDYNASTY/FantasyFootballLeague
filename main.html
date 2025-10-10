@@ -1278,7 +1278,20 @@ function populateEmojiPicker() {
         emojiPicker.appendChild(emojiBtn);
     });
 }
-populateEmojiPicker(); 
+populateEmojiPicker();
+        emojiButton.addEventListener('click', () => {
+        emojiPicker.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
+            emojiPicker.classList.add('hidden');
+        }
+    });
+
+    console.log("Emoji button listener attached:", emojiButton);
+    let username = null;
+    let currentUserId = null;
 
 
 function setupRealtimeListener() {
@@ -1457,24 +1470,54 @@ async function handleDeleteButtonClick(messageId) {
     }
 }
 
-// NOTE: The renderMessage function below remains correct as it calls handleDeleteButtonClick.
 async function renderMessage(message) {
-    const messageContainer = document.createElement('div');
-    messageContainer.classList.add('message-item');
-    messageContainer.dataset.messageId = message.id;
-    // ... (rest of the renderMessage function: message content, timestamp) ...
+        const messageContainer = document.createElement('div');
+        messageContainer.classList.add('message-item');
+        messageContainer.dataset.messageId = message.id;
 
-    if (username === message.sender) {
-        messageContainer.style.cursor = 'pointer';
-        messageContainer.addEventListener('click', () => {
-            if (confirm('Are you sure you want to delete this message?')) {
-                // Calls the handler, which now calls deleteMessage() and fetchMessages()
-                handleDeleteButtonClick(message.id); 
+        const messageContent = document.createElement('div');
+        messageContent.classList.add('message-content');
+
+        if (message.image_url) {
+            const imgEl = document.createElement('img');
+            imgEl.src = message.image_url;
+            imgEl.classList.add('chat-image');
+            messageContent.appendChild(imgEl);
+            if (message.content) {
+                const contentEl = document.createElement('div');
+                contentEl.textContent = message.content;
+                contentEl.classList.add('message-text');
+                messageContent.appendChild(contentEl);
             }
-        });
+        } else if (message.content) {
+            const contentEl = document.createElement('div');
+            contentEl.textContent = message.content;
+            contentEl.classList.add('message-text');
+            messageContent.appendChild(contentEl);
+        }
+
+        const timestampEl = document.createElement('small');
+        const createdAt = new Date(message.created_at);
+        const formattedDate = createdAt.toLocaleDateString();
+        const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        timestampEl.textContent = `${message.sender} - ${formattedDate} ${formattedTime}`;
+        timestampEl.classList.add('timestamp');
+
+        messageContainer.appendChild(messageContent);
+        messageContainer.appendChild(timestampEl);
+
+        if (username === message.sender) {
+            messageContainer.style.cursor = 'pointer';
+            messageContainer.addEventListener('click', () => {
+                if (confirm('Are you sure you want to delete this message?')) {
+                    handleDeleteButtonClick(message.id);
+                }
+            });
+        }
+
+        return messageContainer;
     }
-    return messageContainer;
-}
+
 
 async function displayMessages(messages) {
     if (!messageDisplay) return; 

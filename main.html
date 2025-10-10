@@ -974,18 +974,29 @@ async function fetchStandings() {
 fetchStandings();
 
 const transactionListElement = document.getElementById('transaction-list');
-const week = 1; 
+
+const week = 1; 
+
 const allPlayersUrl = "https://api.sleeper.app/v1/players/nfl";
 
+
+
 const fetchData = async (url) => {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    return response.json();
+
+    const response = await fetch(url);
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    return response.json();
+
 };
 
 const displayTransactions = async (transactions, playersData) => {
+    // Defined a stable, reliable fallback URL
+    const FALLBACK_IMAGE_URL = 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/person.svg';
+
     if (!transactions?.length) {
-        transactionListElement.innerHTML = '<li class="no-transactions">No recent transactions found.</li>';
+        // Corrected: Returns silently if no transactions
         return;
     }
 
@@ -1043,7 +1054,7 @@ const displayTransactions = async (transactions, playersData) => {
                                 <p class="received-players-title">Received</p>
                                 ${data.received.map(p => `
                                     <div class="player-info">
-                                        ${p.isPick ? `🎯` : p.img ? `<img src="${p.img}" alt="${p.name}" class="player-image" onerror="this.src='https://via.placeholder.com/32?text=+';">` : '👤'}
+                                        ${p.isPick ? `🎯` : p.img ? `<img src="${p.img}" alt="${p.name}" class="player-image" onerror="this.onerror=null;this.src='${FALLBACK_IMAGE_URL}';" />` : '👤'}
                                         <span class="player-name">${p.name}</span>
                                     </div>`).join('')}
                             </div>
@@ -1051,7 +1062,7 @@ const displayTransactions = async (transactions, playersData) => {
                                 <p class="sent-players-title">Sent</p>
                                 ${data.sent.map(p => `
                                     <div class="player-info">
-                                        ${p.isPick ? `🎯` : p.img ? `<img src="${p.img}" alt="${p.name}" class="player-image" onerror="this.src='https://via.placeholder.com/32?text=-';">` : '👤'}
+                                        ${p.isPick ? `🎯` : p.img ? `<img src="${p.img}" alt="${p.name}" class="player-image" onerror="this.onerror=null;this.src='${FALLBACK_IMAGE_URL}';" />` : '👤'}
                                         <span class="player-name">${p.name}</span>
                                     </div>`).join('')}
                             </div>
@@ -1059,7 +1070,6 @@ const displayTransactions = async (transactions, playersData) => {
                     </div>
                 `;
             }
-
         } else if (["free_agent", "waiver"].includes(transaction.type)) {
             const teamMap = {};
             const handleChange = (obj, type) => {
@@ -1072,14 +1082,13 @@ const displayTransactions = async (transactions, playersData) => {
                     teamMap[rosterId][type].push(`
                         <div class="player-change-info">
                             <span class="${type === 'adds' ? 'trending-count-up' : 'trending-count-down'} player-change-icon">${type === 'adds' ? '+' : '-'}</span>
-                            <img class="player-change-image" src="${img}" alt="${name}" onerror="this.src='https://via.placeholder.com/32?text=Player';" />
+                            <img class="player-change-image" src="${img}" alt="${name}" onerror="this.onerror=null;this.src='${FALLBACK_IMAGE_URL}';" />
                             <span class="player-change-name">${name}</span>
                         </div>`);
                 }
             };
             if (transaction.adds) handleChange(transaction.adds, 'adds');
             if (transaction.drops) handleChange(transaction.drops, 'drops');
-
             li.innerHTML = `<p class="${transaction.type === 'free_agent' ? 'free-agent-pickup' : 'waiver-claim'}">${transaction.type === 'free_agent' ? 'Free Agent Pickup' : 'Waiver Claim'}</p>`;
             for (const [rosterId, data] of Object.entries(teamMap)) {
                 const team = rosterIdToTeamNameMap[rosterId] || "Unknown Team";
@@ -1089,36 +1098,11 @@ const displayTransactions = async (transactions, playersData) => {
                     ${data.drops.length ? `<div><p class="dropped-players-title">Dropped</p>${data.drops.join('')}</div>` : ''}
                 `;
             }
-
         }
-
         transactionListElement.appendChild(li);
     }
 };
 
-(async () => {
-    try {
-        const transactions = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/transactions/${week}`);
-        const recentTransactions = transactions.slice(0, 10);
-
-        const playersData = await fetchData(allPlayersUrl);
-        displayTransactions(recentTransactions, playersData);
-
-    } catch (error) {
-        transactionListElement.innerHTML = `<li class="text-red-500">Error loading transactions: ${error.message}</li>`;
-    }
-})();
-
-async function fetchPlayerData() {
-    try {
-        const response = await fetch("https://api.sleeper.app/v1/players/nfl");
-        if (!response.ok) throw new Error("Failed to fetch player data");
-        return await response.json();
-    } catch (error) {
-        console.error("Error fetching player data:", error);
-        return {};
-    }
-}
 
 async function fetchTrendingPlayers() {
     const trendingUpElement = document.getElementById('trending-up');

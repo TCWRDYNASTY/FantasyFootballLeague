@@ -975,7 +975,6 @@ async function fetchStandings() {
 fetchStandings();
 
 const transactionListElement = document.getElementById('transaction-list');
-// Note: You may want to dynamically set this, or set it to a recent week
 const week = 1; 
 const allPlayersUrl = "https://api.sleeper.app/v1/players/nfl";
 
@@ -1101,8 +1100,6 @@ const displayTransactions = async (transactions, playersData) => {
 (async () => {
     try {
         const transactions = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/transactions/${week}`);
-
-        // Slice to get only the 10 most recent transactions
         const recentTransactions = transactions.slice(0, 10);
 
         const playersData = await fetchData(allPlayersUrl);
@@ -1194,7 +1191,6 @@ fetchTrendingPlayers();
 
 // --- ESPN NEWS FEED ---
 const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
-// Using a proxy to bypass CORS restrictions for RSS
 const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
 fetch(proxyUrl)
@@ -1208,7 +1204,6 @@ fetch(proxyUrl)
         const list = document.getElementById('nfl-news');
         if (list) {
             list.innerHTML = '';
-            // Limit to 5 news items
             data.items.slice(0, 5).forEach(item => {
                 const li = document.createElement('li');
                 li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a><small>${new Date(item.pubDate).toLocaleDateString()}</small>`;
@@ -1228,7 +1223,6 @@ fetch(proxyUrl)
 
 // --- SUPABASE CHAT SETUP ---
 const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-// WARNING: This key is publicly exposed. Keep RLS enabled for security!
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -1248,12 +1242,8 @@ const emojiButton = document.getElementById('emoji-btn');
 const emojiPicker = document.getElementById('emoji-picker');
 const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
 const messageDisplay = document.getElementById('message-display'); 
-
 let username = null;
 let currentUserId = null;
-
-// --- AUTH UTILITIES ---
-
 function isLoggedIn() {
     return localStorage.getItem('loggedInUser') !== null;
 }
@@ -1264,7 +1254,6 @@ function getLoggedInUser() {
 }
 
 // --- EMOJI LOGIC ---
-
 function populateEmojiPicker() {
     emojiPicker.innerHTML = '';
     emojis.forEach(emoji => {
@@ -1278,20 +1267,6 @@ function populateEmojiPicker() {
         emojiPicker.appendChild(emojiBtn);
     });
 }
-populateEmojiPicker();
-        emojiButton.addEventListener('click', () => {
-        emojiPicker.classList.toggle('hidden');
-    });
-
-    document.addEventListener('click', (event) => {
-        if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
-            emojiPicker.classList.add('hidden');
-        }
-    });
-
-    console.log("Emoji button listener attached:", emojiButton);
-    let username = null;
-    let currentUserId = null;
 
 
 function setupRealtimeListener() {
@@ -1301,7 +1276,6 @@ function setupRealtimeListener() {
             'postgres_changes',
             { event: '*', schema: 'public', table: 'messages' }, 
             (payload) => {
-                // If the event is an INSERT, show a toast
                 if (payload.eventType === 'INSERT') {
                     const newMessage = payload.new;
                     if (currentUserId && currentUserId !== newMessage.user_id) {
@@ -1324,7 +1298,6 @@ async function uploadImage() {
 
     const formData = new FormData();
     formData.append("file", file);
-    // These keys are for your specific Cloudinary account
     formData.append("upload_preset", "chat-upload-preset"); 
     formData.append("api_key", "935271789947252"); 
 
@@ -1389,10 +1362,8 @@ async function searchGifs(query) {
 async function sendMessage(imageUrl = '') {
     const message = messageInput.value.trim();
 
-    // Check 1: User must be logged in
     if (!isLoggedIn() || !username) {
         showToast("Please sign in to chat.");
-        // If not logged in, ensure controls are disabled
         messageInput.disabled = true;
         sendButton.disabled = true;
         return;
@@ -1416,16 +1387,13 @@ async function sendMessage(imageUrl = '') {
 
     if (error) {
         console.error("Error sending message:", error);
-        // This is where you will see the 403 error if RLS is wrong
         showToast("❌ Failed to send message. Check RLS policy."); 
     } else {
         messageInput.value = '';
-        // Realtime listener handles the fetch, but we can clear input immediately
         showToast("Message successfully posted!");
     }
 }
 
-// This is your robust delete function that works with Supabase.
 async function deleteMessage(messageIdToDelete) {
     console.log('deleteMessage called with ID:', messageIdToDelete);
     try {
@@ -1451,21 +1419,14 @@ async function deleteMessage(messageIdToDelete) {
     }
 }
 
-// This is the function called by the UI. It now calls the working delete function
-// and performs the necessary screen refresh.
 async function handleDeleteButtonClick(messageId) {
-    
-    // 🛑 FIX: Call the working delete function (deleteMessage)
     const success = await deleteMessage(messageId); 
 
     if (success) {
         console.log('Message deleted successfully, refreshing chat.');
-        
-        // 🛑 CRITICAL FIX: Refresh the chat display immediately after successful deletion
-        // This makes the deleted message disappear without a page refresh.
+        showToast("✅ Message deleted successfully!");
         fetchMessages(); 
     } else {
-        // Error handling is inside deleteMessage, but we can log here too.
         console.error('Deletion failed.'); 
     }
 }
@@ -1514,10 +1475,8 @@ async function renderMessage(message) {
                 }
             });
         }
-
         return messageContainer;
     }
-
 
 async function displayMessages(messages) {
     if (!messageDisplay) return; 
@@ -1530,8 +1489,6 @@ async function displayMessages(messages) {
             const messageElement = await renderMessage(msg);
             messageDisplay.appendChild(messageElement);
         }
-        
-        // Scroll to the bottom of the chat window
         messageDisplay.scrollTop = messageDisplay.scrollHeight;
     }
 }
@@ -1540,11 +1497,10 @@ async function fetchMessages() {
     const { data: messages, error: messagesError } = await supabase
         .from('messages')
         .select('*')
-        .order('created_at', { ascending: true }); // Ensure proper ordering
+        .order('created_at', { ascending: true }); 
 
     if (messagesError) {
         console.error("Error fetching messages (403 likely):", messagesError);
-        // Display a user-friendly error if messages fail to load
         if (messageDisplay) {
              messageDisplay.innerHTML = '<p style="color:red; padding: 10px;">❌ Error loading messages. Please check database permissions (RLS).</p>';
         }
@@ -1555,7 +1511,6 @@ async function fetchMessages() {
 
 
 // --- EVENT LISTENERS ---
-
 sendButton.addEventListener('click', () => sendMessage());
 
 imageButton.addEventListener('click', () => { imageInput.click(); });
@@ -1583,11 +1538,11 @@ gifSearchInput.addEventListener('keydown', (event) => {
     }
 });
 
-emojiButton.addEventListener('click', (event) => { // 1. Define 'event'
-    event.stopPropagation(); // 2. Use it immediately
+emojiButton.addEventListener('click', (event) => { 
+    event.stopPropagation(); 
     emojiPicker.classList.toggle('hidden');
 });
-// document.addEventListener logic remains correct
+
 
 messageInput.addEventListener('keydown', (event) => {
     // Send message on Enter key (unless Shift is also pressed)
@@ -1598,34 +1553,28 @@ messageInput.addEventListener('keydown', (event) => {
 });
 
 // --- INITIALIZATION ---
-
 window.addEventListener('load', async () => {
+    populateEmojiPicker(); 
     
     if (isLoggedIn()) {
         const user = getLoggedInUser();
-        // Set global variables from local storage
         username = user.username;
         currentUserId = user.id; 
-
-        // Enable chat controls
         if (chatBox) chatBox.classList.remove('hidden'); 
         if (messageInput) messageInput.disabled = false;
         if (sendButton) sendButton.disabled = false;
         if (gifButton) gifButton.disabled = false;
-    
-        // Only setup real-time listener if a user is logged in
         setupRealtimeListener();
 
     } else {
-        // Ensure chat controls are disabled if no user is logged in
         if (messageInput) messageInput.disabled = true;
         if (sendButton) sendButton.disabled = true;
         if (gifButton) gifButton.disabled = true;
     }
     
-    // Fetch initial messages regardless of login status (assuming public read)
-    fetchMessages();
+     fetchMessages();
 });
+
 </script>
 </body>
 </html>

@@ -9,8 +9,8 @@ const urlsToCache = [
   
   // HTML PAGES
   'main.html',
-  '3-Hall-of-Champions.html', 
-  '4Flushables.html',
+  '3HallofChampions.html', 
+  'dynastychat.html',
   '7Records.html',
   '8Bylaws.html',
   'Fourth-and-Roaster.html',
@@ -28,8 +28,8 @@ const urlsToCache = [
   'bylawsbackground.jpeg',
   'thehomies.jpeg',
   'trophy3.jpeg',
-  'tcwr-192.png',
-  'tcwr-512.png',
+  'tcwr-icon-192.png',
+  'tcwr-icon-512.png',
   
   // AUDIO ASSETS
   'magicword.mp3',

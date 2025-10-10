@@ -259,12 +259,6 @@ body {
     display: block;
 }
 
-/* ------------------------------------------- */
-/* --- CHAT INPUT & BUTTONS (NEW) ---          */
-/* ------------------------------------------- */
-/* ------------------------------------------- */
-/* --- CHAT INPUT & BUTTONS (UPDATED) ---      */
-/* ------------------------------------------- */
 .chat-container {
     padding: 0.5rem;
     border-top: 1px solid #4a5568;
@@ -298,7 +292,6 @@ body {
     box-sizing: border-box;
 }
 
-/* 🌟 KEY: Container for the small buttons on the right 🌟 */
 .input-buttons-right {
     display: flex;
     flex-direction: column; /* Stacks buttons vertically */
@@ -343,7 +336,6 @@ body {
     background-color: #e4b500;
 }
 
-/* GIF Search Container - Positioned relative to .input-row-container */
 #gif-search-container {
     position: absolute;
     bottom: calc(100% + 10px); /* Position above the input area */
@@ -414,16 +406,12 @@ body {
     padding: 5px;
     line-height: 1;
 }
+     
  #emoji-picker button:hover {
             background-color: #eee;
             border-radius: 2px;
-        }
-     
-.hidden {
-    display: none !important;
 }
 
-/* --- Right Column Content (Standings) --- */
 .right-column-container {
     font-size: 0.9rem;
     padding-top: 0.5rem;
@@ -445,7 +433,6 @@ body {
     border-bottom: none;
 }
 
-/* Table styles */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -469,7 +456,6 @@ tr.playoff-divider td {
     border-bottom: 2px solid red;
 }
 
-/* Transactions & Trending (Note: these sections are often in a sidebar or hidden element) */
 .recent-transactions-container,
 .trending-container {
     overflow-y: auto;
@@ -544,7 +530,6 @@ tr.playoff-divider td {
 .trending-count-up { color: #48bb78; }
 .trending-count-down { color: #f56565; }
 
-/* --- Left Column (NFL News) --- */
 .left-column {
     background-color: #2d3748;
     border-radius: 0.375rem;
@@ -681,7 +666,6 @@ tr.playoff-divider td {
     .sidebar-left { width: 350px; }
 }
 
-
 @media (min-width: 1024px) {
     .main-content-wrapper {
         flex-direction: row; /* Arrange columns horizontally */
@@ -712,9 +696,6 @@ tr.playoff-divider td {
     }
 }
 
-/* =========================================
-Toast Notification Styles (CORRECTED)
-========================================= */
 #toast-notification {
     visibility: hidden; /* Hidden by default */
     min-width: 250px;
@@ -731,21 +712,14 @@ Toast Notification Styles (CORRECTED)
     font-size: 1rem;
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
+}
+     
 .show-toast-animation {
     -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
     animation: fadein 0.5s, fadeout 0.5s 2.5s;
 }
 
-/* =========================================
-Animations (These are correct)
-========================================= */
 @-webkit-keyframes fadein {
-    from {bottom: 0; opacity: 0;}
-    to {bottom: 30px; opacity: 1;}
-}
-
-@keyframes fadein {
     from {bottom: 0; opacity: 0;}
     to {bottom: 30px; opacity: 1;}
 }
@@ -755,10 +729,20 @@ Animations (These are correct)
     to {bottom: 0; opacity: 0;}
 }
 
+     .hidden {
+    display: none !important;
+     }
+     
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
 @keyframes fadeout {
     from {bottom: 30px; opacity: 1;}
     to {bottom: 0; opacity: 0;}
 }
+     
 /* --- Media Queries for smaller screens --- */
         @media (max-width: 768px) {
             body {
@@ -832,9 +816,6 @@ Animations (These are correct)
             }
         }
 </style>
-
-
-
 </head>
 
 <body class="body">
@@ -953,7 +934,6 @@ Animations (These are correct)
 
    <div id="toast-notification"></div>
 <script>
-// --- UTILITY FUNCTIONS ---
 function showToast(messageText) {
     const toast = document.getElementById("toast-notification");
     
@@ -961,7 +941,6 @@ function showToast(messageText) {
         toast.textContent = messageText;
         toast.classList.remove("show-toast-animation");
         toast.style.visibility = "visible";
-        // Force reflow/restart animation
         void toast.offsetWidth; 
         toast.classList.add("show-toast-animation"); 
         setTimeout(() => {
@@ -975,12 +954,9 @@ function logout() {
     localStorage.removeItem('loggedInUser');
     showToast("Signed Off Successfully!");
     setTimeout(() => {
-        // Redirect to the login page after a short delay
         window.location.href = "index.html"; 
     }, 1000); 
 }
-
-// --- FANTASY LEAGUE DATA FUNCTIONS (Sleeper API) ---
 
 const leagueId = "1180908151502815232";
 async function fetchStandings() {
@@ -1032,14 +1008,12 @@ async function fetchStandings() {
         tbody.innerHTML = ''; 
         teams.forEach((team, index) => {
             const row = document.createElement('tr');
-            // Add playoff divider after 6th place
-            if (index === 6) row.classList.add('playoff-divider'); // Corrected to index === 6 for 7th place, or index === 5 for 6th place if 6 teams make playoffs
+            if (index === 6) row.classList.add('playoff-divider');
             row.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${team.teamName}</td>
                 <td>${team.record}</td>
-                <td>${team.pointsFor.toFixed(2)}</td>
-            `; // Added Points For column to match the data being calculated/sorted
+                <td>${team.pointsFor.toFixed(2)}</td>; 
             tbody.appendChild(row);
         });
     } catch (error) {
@@ -1099,15 +1073,7 @@ const displayTransactions = async (transactions, playersData) => {
                     tradeTeams[rosterId][key].push({ name, img, isPick: false });
                 }
             };
-            // In Sleeper API, 'adds' means a player was added to that roster, 'drops' means they were dropped.
-            // For a trade, if roster A has an 'add' and roster B has a 'drop' of the same player, the logic needs to determine which team SENT and which RECEIVED.
-            // The original logic assumes: 'adds' are RECEIVED by the rosterId in the value, and 'drops' are SENT by the rosterId in the value.
-            // This is complex for a trade object which has {adds:{player:roster_id}, drops:{player:roster_id}, reciever_rosters:[roster_id]}
-            // A more robust trade logic would be:
-            // 1. Iterate over transaction.roster_ids (all involved teams)
-            // 2. Determine what each team RECEIVED (in transaction.adds with their roster_id as value)
-            // 3. Determine what each team SENT (in transaction.drops with their roster_id as value)
-            // The provided logic for trade is simplified but generally works for *non-waiver* transactions. Keeping original but noting the simplification.
+        
             if (transaction.adds) processPlayerChange(transaction.adds, 'received');
             if (transaction.drops) processPlayerChange(transaction.drops, 'sent');
 
@@ -1248,22 +1214,41 @@ async function fetchTrendingPlayers() {
 
         const allPlayers = await fetchPlayerData();
 
-        const formatList = (data, colorClass, sign) => {
-            return `<ul>
-                ${data.map(item => {
-                    const info = allPlayers[item.player_id];
-                    const name = info ? `${info.first_name} ${info.last_name} (${info.position})` : "Unknown Player";
-                    const img = info ? `https://sleepercdn.com/content/nfl/players/${item.player_id}.jpg` : "";
-                    return `
-                        <li class="trending-list-item">
-                            ${img ? `<img src="${img}" alt="${name}" class="trending-player-image" onerror="this.src='https://via.placeholder.com/32?text=🏈';">` : `<span class="trending-player-image-placeholder">🏈</span>`}
-                            <div>
-                                <span class="trending-player-name">${name}</span>, <span class="${colorClass}">${sign}${item.count}</span>
-                            </div>
-                        </li>`;
-                }).join('')}
-            </ul>`;
-        };
+    const formatList = (data, colorClass, sign) => {
+        return `<ul>
+            ${data.map(item => {
+                const info = allPlayers[item.player_id];
+                // Added position check for robustness, assuming info exists when fetching position.
+                const position = info && info.position ? ` (${info.position})` : '';
+                const name = info ? `${info.first_name} ${info.last_name}${position}` : "Unknown Player";
+                const imgUrl = info ? `https://sleepercdn.com/content/nfl/players/${item.player_id}.jpg` : "";
+                const fallbackHtml = `<span class="trending-player-image-placeholder" style="display: none;">🏈</span>`;
+                
+                let imageHtml = '';
+                if (imgUrl) {
+                    // Set a default style for the fallback span to be hidden initially
+                    // The onerror will run if the image fails (403/network error)
+                    imageHtml = `<img 
+                        src="${imgUrl}" 
+                        alt="${name}" 
+                        class="trending-player-image" 
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                        ${fallbackHtml}`;
+                } else {
+                    // If no info (no player ID), only show the fallback icon immediately.
+                    imageHtml = `<span class="trending-player-image-placeholder">🏈</span>`;
+                }
+
+                return `
+                    <li class="trending-list-item">
+                        ${imageHtml}
+                        <div>
+                            <span class="trending-player-name">${name}</span>, <span class="${colorClass}">${sign}${item.count}</span>
+                        </div>
+                    </li>`;
+            }).join('')}
+        </ul>`;
+    };
 
         trendingUpElement.innerHTML = `
             <h3 class="trending-up-title">
@@ -1298,10 +1283,7 @@ async function fetchTrendingPlayers() {
 
 fetchTrendingPlayers();
 
-// --- ESPN NEWS FEED ---
 const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
-// This proxy URL is likely non-functional in a real-world scenario without a hosted proxy. 
-// Assuming the user has set up a working proxy for their needs.
 const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
 fetch(proxyUrl)
@@ -1334,8 +1316,6 @@ fetch(proxyUrl)
         }
     });
 
-// --- SUPABASE CHAT SETUP ---
-// NOTE: window.supabase must be included via a separate <script> tag (e.g., CDN) for this to work.
 const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
 
@@ -1362,7 +1342,6 @@ const emojiButton = document.getElementById('emoji-btn');
 const emojiPicker = document.getElementById('emoji-picker');
 const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
 const messageDisplay = document.getElementById('message-display'); 
-// CORRECTED ERROR: Declared as global variables, not inside a function scope
 let username = null;
 let currentUserId = null;
 
@@ -1383,13 +1362,6 @@ function populateEmojiPicker() {
         emojiPicker.appendChild(emojiBtn);
     });
 }
-
-// CORRECTED ERROR: Removed the redundant local variable declarations for username/currentUserId
-// from here, as they are now correctly declared at the global/module level above.
-// The console.log below is not strictly an error but is removed for conciseness.
-// console.log("Emoji button listener attached:", emojiButton);
-
-// Attach event listeners for emoji and click-outside for the picker
 if (emojiButton) {
     emojiButton.addEventListener('click', () => {
         if (emojiPicker) emojiPicker.classList.toggle('hidden');
@@ -1752,16 +1724,12 @@ if (messageInput) {
 
 // --- INITIALIZATION ---
 window.addEventListener('load', async () => {
-    // Check if DOM elements exist before trying to use them
     if (emojiPicker) populateEmojiPicker(); 
     
     if (isLoggedIn()) {
         const user = getLoggedInUser();
-        // Global variables updated
         username = user.username;
         currentUserId = user.id; 
-        
-        // Only show chat elements if they exist
         if (chatBox) chatBox.classList.remove('hidden'); 
         if (messageInput) messageInput.disabled = false;
         if (sendButton) sendButton.disabled = false;
@@ -1771,16 +1739,13 @@ window.addEventListener('load', async () => {
         setupRealtimeListener();
 
     } else {
-        // Disable chat input if not logged in
         if (messageInput) messageInput.disabled = true;
         if (sendButton) sendButton.disabled = true;
         if (gifButton) gifButton.disabled = true;
         if (imageButton) imageButton.disabled = true;
     }
-    
     fetchMessages();
 });
-
 </script>
 
 </body>

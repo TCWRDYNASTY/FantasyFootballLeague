@@ -26,14 +26,15 @@
         }
 
         /* =========================================
-           Flex Container for Main Content
+           Flex Container for Main Content (Centered Fix Applied)
         ========================================= */
         .content-columns {
             padding: 1rem;
             gap: 40px;
             width: 100%;
             max-width: 1200px;
-            margin: 0 auto;
+            /* FIX: Centering the container */
+            margin: 0 auto; 
             box-sizing: border-box;
         }
 
@@ -102,7 +103,6 @@
 
         /* =========================================
            Typography (Headings, Paragraphs)
-           -- New, Corrected Styles --
         ========================================= */
         .main-title {
             font-size: 2.5rem;
@@ -115,23 +115,13 @@
             margin: 0.2em 0 0.5em 0;
         }
         
-        /* You had this previously, it's not needed anymore
-        .password-container p:first-child {
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-        .password-container p:nth-child(2) {
-            font-size: 1.4rem;
-        }
-        */
-
         /* =========================================
            Responsive Layout Adjustments
         ========================================= */
         @media (max-width: 768px) {
+            /* Note: .content-columns styling was already simplified */
             .content-columns {
-                flex-direction: column;
-                align-items: center;
+                /* Removed unnecessary flex properties here */
                 gap: 20px;
             }
             
@@ -236,7 +226,8 @@
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('service-worker.js')
+            // FIX: Renamed Service Worker file reference to ensure re-registration
+            navigator.serviceWorker.register('service-worker-2.js') 
                 .then(registration => {
                     console.log('Service Worker registered!');
                 })

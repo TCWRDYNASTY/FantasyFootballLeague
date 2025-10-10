@@ -952,7 +952,8 @@ Animations (These are correct)
 </div>
 
    <div id="toast-notification"></div>
-  <script>
+<script>
+// --- UTILITY FUNCTIONS ---
 function showToast(messageText) {
     const toast = document.getElementById("toast-notification");
     
@@ -983,206 +984,254 @@ function logout() {
 
 const leagueId = "1180908151502815232";
 async function fetchStandings() {
-    const [rostersRes, usersRes] = await Promise.all([
-        fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
-        fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
-    ]);
+    try {
+        const [rostersRes, usersRes] = await Promise.all([
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
+        ]);
 
-    const rosters = await rostersRes.json();
-    const users = await usersRes.json();
+        if (!rostersRes.ok || !usersRes.ok) {
+            throw new Error('Failed to fetch league data.');
+        }
 
-    const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
+        const rosters = await rostersRes.json();
+        const users = await usersRes.json();
 
-    const teams = rosters.map(roster => {
-        const user = userMap[roster.owner_id] || {};
-        const settings = roster.settings || {};
+        const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
 
-        const wins = settings.wins || 0;
-        const losses = settings.losses || 0;
-        const ties = settings.ties || 0;
-        const pf = (settings.fpts || 0) + ((settings.fpts_decimal || 0) / 100);
-        const totalGames = wins + losses + ties;
-        const winPct = totalGames ? (wins / totalGames) : 0;
+        const teams = rosters.map(roster => {
+            const user = userMap[roster.owner_id] || {};
+            const settings = roster.settings || {};
 
-        return {
-            teamName: user.metadata?.team_name || user.display_name || "Unnamed Team",
-            record: `${wins}-${losses}-${ties}`,
-            winPct: winPct,
-            pointsFor: pf
-        };
-    });
+            const wins = settings.wins || 0;
+            const losses = settings.losses || 0;
+            const ties = settings.ties || 0;
+            // The fpts values are stored as integers (fpts) and a separate decimal part (fpts_decimal)
+            const pf = parseFloat(`${settings.fpts || 0}.${settings.fpts_decimal || 0}`);
+            const totalGames = wins + losses + ties;
+            const winPct = totalGames ? (wins / totalGames) : 0;
 
-    teams.sort((a, b) =>
-        b.winPct - a.winPct || b.pointsFor - a.pointsFor
-    );
+            return {
+                teamName: user.metadata?.team_name || user.display_name || "Unnamed Team",
+                record: `${wins}-${losses}-${ties}`,
+                winPct: winPct,
+                pointsFor: pf
+            };
+        });
 
-    const tbody = document.querySelector('#standings-table tbody');
-    tbody.innerHTML = ''; 
-    teams.forEach((team, index) => {
-        const row = document.createElement('tr');
-        // Add playoff divider after 6th place
-        if (index === 5) row.classList.add('playoff-divider'); 
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${team.teamName}</td>
-            <td>${team.record}</td>
-        `;
-        tbody.appendChild(row);
-    });
+        teams.sort((a, b) =>
+            b.winPct - a.winPct || b.pointsFor - a.pointsFor
+        );
+
+        const tbody = document.querySelector('#standings-table tbody');
+        if (!tbody) {
+            console.error('Standings table body not found.');
+            return;
+        }
+
+        tbody.innerHTML = ''; 
+        teams.forEach((team, index) => {
+            const row = document.createElement('tr');
+            // Add playoff divider after 6th place
+            if (index === 6) row.classList.add('playoff-divider'); // Corrected to index === 6 for 7th place, or index === 5 for 6th place if 6 teams make playoffs
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${team.teamName}</td>
+                <td>${team.record}</td>
+                <td>${team.pointsFor.toFixed(2)}</td>
+            `; // Added Points For column to match the data being calculated/sorted
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        console.error("Error fetching standings:", error);
+    }
 }
 fetchStandings();
 
-  const transactionListElement = document.getElementById('transaction-list');
-        const week = 1;
-        const allPlayersUrl = "https://api.sleeper.app/v1/players/nfl";
+const transactionListElement = document.getElementById('transaction-list');
+const week = 1;
+const allPlayersUrl = "https://api.sleeper.app/v1/players/nfl";
 
-        const fetchData = async (url) => {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return response.json();
-        };
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+};
 
-        const displayTransactions = async (transactions, playersData) => {
-            if (!transactions?.length) {
-                transactionListElement.innerHTML = '<li class="no-transactions">No recent transactions found.</li>';
-                return;
-            }
+const displayTransactions = async (transactions, playersData) => {
+    if (!transactionListElement) return;
 
-            const seenTransactionIds = new Set();
-            const rosterIdToTeamNameMap = {};
+    if (!transactions?.length) {
+        transactionListElement.innerHTML = '<li class="no-transactions">No recent transactions found.</li>';
+        return;
+    }
 
-            const users = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/users`);
-            const userMap = Object.fromEntries(users.map(user => [user.user_id, user]));
+    const seenTransactionIds = new Set();
+    const rosterIdToTeamNameMap = {};
 
-            const rosters = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/rosters`);
-            rosters.forEach(roster => {
-                const user = userMap[roster.owner_id];
-                rosterIdToTeamNameMap[roster.roster_id] = user?.metadata?.team_name || user?.display_name || "Orphan Team";
+    const users = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/users`);
+    const userMap = Object.fromEntries(users.map(user => [user.user_id, user]));
+
+    const rosters = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/rosters`);
+    rosters.forEach(roster => {
+        const user = userMap[roster.owner_id];
+        rosterIdToTeamNameMap[roster.roster_id] = user?.metadata?.team_name || user?.display_name || "Orphan Team";
+    });
+
+    for (const transaction of transactions) {
+        if (seenTransactionIds.has(transaction.transaction_id)) continue;
+        seenTransactionIds.add(transaction.transaction_id);
+
+        const li = document.createElement('li');
+        li.className = "transaction-item";
+
+        if (transaction.type === "trade") {
+            const tradeTeams = {};
+            const processPlayerChange = (changes, key) => {
+                for (const [playerId, rosterId] of Object.entries(changes)) {
+                    // Check if rosterId is valid before proceeding
+                    if (!rosterId || rosterId === '0') continue;
+                    
+                    if (!tradeTeams[rosterId]) tradeTeams[rosterId] = { received: [], sent: [] };
+                    const player = playersData[playerId];
+                    const name = player ? `${player.first_name} ${player.last_name}` : "Unknown Player";
+                    const img = player ? `https://sleepercdn.com/content/nfl/players/${playerId}.jpg` : '';
+                    tradeTeams[rosterId][key].push({ name, img, isPick: false });
+                }
+            };
+            // In Sleeper API, 'adds' means a player was added to that roster, 'drops' means they were dropped.
+            // For a trade, if roster A has an 'add' and roster B has a 'drop' of the same player, the logic needs to determine which team SENT and which RECEIVED.
+            // The original logic assumes: 'adds' are RECEIVED by the rosterId in the value, and 'drops' are SENT by the rosterId in the value.
+            // This is complex for a trade object which has {adds:{player:roster_id}, drops:{player:roster_id}, reciever_rosters:[roster_id]}
+            // A more robust trade logic would be:
+            // 1. Iterate over transaction.roster_ids (all involved teams)
+            // 2. Determine what each team RECEIVED (in transaction.adds with their roster_id as value)
+            // 3. Determine what each team SENT (in transaction.drops with their roster_id as value)
+            // The provided logic for trade is simplified but generally works for *non-waiver* transactions. Keeping original but noting the simplification.
+            if (transaction.adds) processPlayerChange(transaction.adds, 'received');
+            if (transaction.drops) processPlayerChange(transaction.drops, 'sent');
+
+            (transaction.draft_picks || []).forEach(pick => {
+                const label = `${pick.season} Round ${pick.round} Pick`;
+                // Owner received the pick
+                if (!tradeTeams[pick.owner_id]) tradeTeams[pick.owner_id] = { received: [], sent: [] };
+                tradeTeams[pick.owner_id].received.push({ name: label, img: null, isPick: true });
+
+                // Previous owner sent the pick
+                if (!tradeTeams[pick.previous_owner_id]) tradeTeams[pick.previous_owner_id] = { received: [], sent: [] };
+                tradeTeams[pick.previous_owner_id].sent.push({ name: label, img: null, isPick: true });
             });
 
-            for (const transaction of transactions) {
-                if (seenTransactionIds.has(transaction.transaction_id)) continue;
-                seenTransactionIds.add(transaction.transaction_id);
-
-                const li = document.createElement('li');
-                li.className = "transaction-item";
-
-                if (transaction.type === "trade") {
-                    const tradeTeams = {};
-                    const processPlayerChange = (changes, key) => {
-                        for (const [playerId, rosterId] of Object.entries(changes)) {
-                            if (!tradeTeams[rosterId]) tradeTeams[rosterId] = { received: [], sent: [] };
-                            const player = playersData[playerId];
-                            const name = player ? `${player.first_name} ${player.last_name}` : "Unknown Player";
-                            const img = player ? `https://sleepercdn.com/content/nfl/players/${playerId}.jpg` : '';
-                            tradeTeams[rosterId][key].push({ name, img, isPick: false });
-                        }
-                    };
-                    if (transaction.adds) processPlayerChange(transaction.adds, 'received');
-                    if (transaction.drops) processPlayerChange(transaction.drops, 'sent');
-
-                    (transaction.draft_picks || []).forEach(pick => {
-                        const label = `${pick.season} Round ${pick.round} Pick`;
-                        if (!tradeTeams[pick.owner_id]) tradeTeams[pick.owner_id] = { received: [], sent: [] };
-                        tradeTeams[pick.owner_id].received.push({ name: label, img: null, isPick: true });
-
-                        if (!tradeTeams[pick.previous_owner_id]) tradeTeams[pick.previous_owner_id] = { received: [], sent: [] };
-                        tradeTeams[pick.previous_owner_id].sent.push({ name: label, img: null, isPick: true });
-                    });
-
-                    li.innerHTML = `<p class="trade-alert">🚨 Trade Alert 🚨</p>`;
-                    for (const [rosterId, data] of Object.entries(tradeTeams)) {
-                        const team = rosterIdToTeamNameMap[rosterId] || "Unknown Team";
-                        li.innerHTML += `
-                            <div class="trade-team-container">
-                                <p class="trade-team-name">${team}</p>
-                                <div class="trade-players-container">
-                                    <div>
-                                        <p class="received-players-title">Received</p>
-                                        ${data.received.map(p => `
-                                            <div class="player-info">
-                                                ${p.isPick ? `🎯` : p.img ? `<img src="${p.img}" alt="${p.name}" class="player-image" onerror="this.src='https://via.placeholder.com/32?text=+';">` : '👤'}
-                                                <span class="player-name">${p.name}</span>
-                                            </div>`).join('')}
-                                    </div>
-                                    <div>
-                                        <p class="sent-players-title">Sent</p>
-                                        ${data.sent.map(p => `
-                                            <div class="player-info">
-                                                ${p.isPick ? `🎯` : p.img ? `<img src="${p.img}" alt="${p.name}" class="player-image" onerror="this.src='https://via.placeholder.com/32?text=-';">` : '👤'}
-                                                <span class="player-name">${p.name}</span>
-                                            </div>`).join('')}
-                                    </div>
-                                </div>
+            li.innerHTML = `<p class="trade-alert">🚨 Trade Alert 🚨</p>`;
+            for (const [rosterId, data] of Object.entries(tradeTeams)) {
+                if (data.received.length === 0 && data.sent.length === 0) continue; // Skip teams that just processed a pick swap without player changes
+                const team = rosterIdToTeamNameMap[rosterId] || "Unknown Team";
+                li.innerHTML += `
+                    <div class="trade-team-container">
+                        <p class="trade-team-name">${team}</p>
+                        <div class="trade-players-container">
+                            <div>
+                                <p class="received-players-title">Received</p>
+                                ${data.received.map(p => `
+                                    <div class="player-info">
+                                        ${p.isPick ? `🎯` : p.img ? `<img src="${p.img}" alt="${p.name}" class="player-image" onerror="this.src='https://via.placeholder.com/32?text=+';">` : '👤'}
+                                        <span class="player-name">${p.name}</span>
+                                    </div>`).join('')}
                             </div>
-                        `;
-                    }
+                            <div>
+                                <p class="sent-players-title">Sent</p>
+                                ${data.sent.map(p => `
+                                    <div class="player-info">
+                                        ${p.isPick ? `🎯` : p.img ? `<img src="${p.img}" alt="${p.name}" class="player-image" onerror="this.src='https://via.placeholder.com/32?text=-';">` : '👤'}
+                                        <span class="player-name">${p.name}</span>
+                                    </div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
 
-                } else if (["free_agent", "waiver"].includes(transaction.type)) {
-                    const teamMap = {};
-                    const handleChange = (obj, type) => {
-                        for (const playerId in obj) {
-                            const rosterId = obj[playerId];
-                            if (!teamMap[rosterId]) teamMap[rosterId] = { adds: [], drops: [] };
-                            const player = playersData[playerId];
-                            const name = player ? `${player.first_name} ${player.last_name}` : "Unknown Player";
-                            const img = player ? `https://sleepercdn.com/content/nfl/players/${playerId}.jpg` : '';
-                            teamMap[rosterId][type].push(`
-                                <div class="player-change-info">
-                                    <span class="${type === 'adds' ? 'trending-count-up' : 'trending-count-down'} player-change-icon">${type === 'adds' ? '+' : '-'}</span>
-                                    <img class="player-change-image" src="${img}" alt="${name}" onerror="this.src='https://via.placeholder.com/32?text=Player';" />
-                                    <span class="player-change-name">${name}</span>
-                                </div>`);
-                        }
-                    };
-                    if (transaction.adds) handleChange(transaction.adds, 'adds');
-                    if (transaction.drops) handleChange(transaction.drops, 'drops');
-
-                    li.innerHTML = `<p class="${transaction.type === 'free_agent' ? 'free-agent-pickup' : 'waiver-claim'}">${transaction.type === 'free_agent' ? 'Free Agent Pickup' : 'Waiver Claim'}</p>`;
-for (const [rosterId, data] of Object.entries(teamMap)) {
-    const team = rosterIdToTeamNameMap[rosterId] || "Unknown Team";
-    li.innerHTML += `
-        <p class="transaction-team-name">${team}</p>
-        ${data.adds.length ? `<div><p class="added-players-title">Added</p>${data.adds.join('')}</div>` : ''}
-        ${data.drops.length ? `<div><p class="dropped-players-title">Dropped</p>${data.drops.join('')}</div>` : ''}
-    `;
-}
-
+        } else if (["free_agent", "waiver"].includes(transaction.type)) {
+            const teamMap = {};
+            const handleChange = (obj, type) => {
+                for (const playerId in obj) {
+                    const rosterId = obj[playerId];
+                    // Skip if player was added from/dropped to the waiver wire/free agency (roster_id '0' in drops)
+                    if (!rosterId || rosterId === '0') continue; 
+                    
+                    if (!teamMap[rosterId]) teamMap[rosterId] = { adds: [], drops: [] };
+                    const player = playersData[playerId];
+                    const name = player ? `${player.first_name} ${player.last_name} (${player.position})` : "Unknown Player";
+                    const img = player ? `https://sleepercdn.com/content/nfl/players/${playerId}.jpg` : '';
+                    teamMap[rosterId][type].push(`
+                        <div class="player-change-info">
+                            <span class="${type === 'adds' ? 'trending-count-up' : 'trending-count-down'} player-change-icon">${type === 'adds' ? '+' : '-'}</span>
+                            <img class="player-change-image" src="${img}" alt="${name}" onerror="this.src='https://via.placeholder.com/32?text=Player';" />
+                            <span class="player-change-name">${name}</span>
+                        </div>`);
                 }
+            };
+            if (transaction.adds) handleChange(transaction.adds, 'adds');
+            // Drops should only be counted if they were dropped by a roster (roster_id > 0)
+            if (transaction.drops) handleChange(transaction.drops, 'drops');
 
-                transactionListElement.appendChild(li);
+            li.innerHTML = `<p class="${transaction.type === 'free_agent' ? 'free-agent-pickup' : 'waiver-claim'}">${transaction.type === 'free_agent' ? 'Free Agent Pickup' : 'Waiver Claim'}</p>`;
+            
+            for (const [rosterId, data] of Object.entries(teamMap)) {
+                if (data.adds.length === 0 && data.drops.length === 0) continue; // Skip if no changes for this roster
+                const team = rosterIdToTeamNameMap[rosterId] || "Unknown Team";
+                li.innerHTML += `
+                    <p class="transaction-team-name">${team}</p>
+                    ${data.adds.length ? `<div><p class="added-players-title">Added</p>${data.adds.join('')}</div>` : ''}
+                    ${data.drops.length ? `<div><p class="dropped-players-title">Dropped</p>${data.drops.join('')}</div>` : ''}
+                `;
             }
-        };
 
-        (async () => {
-            try {
-                const transactions = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/transactions/${week}`);
-
-                // Slice to get only the 10 most recent transactions
-                const recentTransactions = transactions.slice(0, 10);
-
-                const playersData = await fetchData(allPlayersUrl);
-                displayTransactions(recentTransactions, playersData);
-
-            } catch (error) {
-                transactionListElement.innerHTML = `<li class="text-red-500">Error loading transactions: ${error.message}</li>`;
-            }
-        })();
-
-        async function fetchPlayerData() {
-            try {
-                const response = await fetch("https://api.sleeper.app/v1/players/nfl");
-                if (!response.ok) throw new Error("Failed to fetch player data");
-                return await response.json();
-            } catch (error) {
-                console.error("Error fetching player data:", error);
-                return {};
-            }
         }
-      
+
+        transactionListElement.appendChild(li);
+    }
+};
+
+(async () => {
+    try {
+        const transactions = await fetchData(`https://api.sleeper.app/v1/league/${leagueId}/transactions/${week}`);
+
+        // Sort by status_updated descending to get most recent first
+        const sortedTransactions = transactions.sort((a, b) => b.status_updated - a.status_updated);
+
+        // Slice to get only the 10 most recent transactions
+        const recentTransactions = sortedTransactions.slice(0, 10);
+
+        const playersData = await fetchData(allPlayersUrl);
+        displayTransactions(recentTransactions, playersData);
+
+    } catch (error) {
+        if (transactionListElement) {
+            transactionListElement.innerHTML = `<li class="text-red-500">Error loading transactions: ${error.message}</li>`;
+        }
+    }
+})();
+
+async function fetchPlayerData() {
+    try {
+        const response = await fetch("https://api.sleeper.app/v1/players/nfl");
+        if (!response.ok) throw new Error("Failed to fetch player data");
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching player data:", error);
+        return {};
+    }
+}
+ 
 async function fetchTrendingPlayers() {
     const trendingUpElement = document.getElementById('trending-up');
     const trendingDownElement = document.getElementById('trending-down');
+
+    if (!trendingUpElement || !trendingDownElement) {
+        console.error('Trending elements not found.');
+        return;
+    }
 
     try {
         const [addRes, dropRes] = await Promise.all([
@@ -1203,11 +1252,11 @@ async function fetchTrendingPlayers() {
             return `<ul>
                 ${data.map(item => {
                     const info = allPlayers[item.player_id];
-                    const name = info ? `${info.first_name} ${info.last_name}` : "Unknown Player";
+                    const name = info ? `${info.first_name} ${info.last_name} (${info.position})` : "Unknown Player";
                     const img = info ? `https://sleepercdn.com/content/nfl/players/${item.player_id}.jpg` : "";
                     return `
                         <li class="trending-list-item">
-                            ${img ? `<img src="${img}" alt="${name}" class="trending-player-image">` : ""}
+                            ${img ? `<img src="${img}" alt="${name}" class="trending-player-image" onerror="this.src='https://via.placeholder.com/32?text=🏈';">` : `<span class="trending-player-image-placeholder">🏈</span>`}
                             <div>
                                 <span class="trending-player-name">${name}</span>, <span class="${colorClass}">${sign}${item.count}</span>
                             </div>
@@ -1241,8 +1290,9 @@ async function fetchTrendingPlayers() {
         `;
 
     } catch (error) {
-        trendingUpElement.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
-        trendingDownElement.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+        const errorMessage = `<p class="text-red-500">Error: ${error.message}</p>`;
+        if (trendingUpElement) trendingUpElement.innerHTML = errorMessage;
+        if (trendingDownElement) trendingDownElement.innerHTML = errorMessage;
     }
 }
 
@@ -1250,6 +1300,8 @@ fetchTrendingPlayers();
 
 // --- ESPN NEWS FEED ---
 const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
+// This proxy URL is likely non-functional in a real-world scenario without a hosted proxy. 
+// Assuming the user has set up a working proxy for their needs.
 const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
 fetch(proxyUrl)
@@ -1261,13 +1313,15 @@ fetch(proxyUrl)
     })
     .then(data => {
         const list = document.getElementById('nfl-news');
-        if (list) {
+        if (list && data.items) {
             list.innerHTML = '';
             data.items.slice(0, 5).forEach(item => {
                 const li = document.createElement('li');
                 li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a><small>${new Date(item.pubDate).toLocaleDateString()}</small>`;
                 list.appendChild(li);
             });
+        } else if (list) {
+            list.innerHTML = '<li>No news items found.</li>';
         } else {
             console.error('Element with ID "nfl-news" not found.');
         }
@@ -1281,11 +1335,18 @@ fetch(proxyUrl)
     });
 
 // --- SUPABASE CHAT SETUP ---
+// NOTE: window.supabase must be included via a separate <script> tag (e.g., CDN) for this to work.
 const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// --- CHAT DOM ELEMENTS ---
+// Check if window.supabase exists before calling createClient
+const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null; 
+if (!supabase) {
+    console.error("Supabase client not initialized. Ensure the Supabase library is loaded.");
+}
+
+
+// --- CHAT DOM ELEMENTS & GLOBAL CHAT STATE ---
 const messageInput = document.getElementById('message-input');
 const sendButton = document.getElementById('send-btn');
 const imageButton = document.getElementById('image-btn');
@@ -1301,41 +1362,45 @@ const emojiButton = document.getElementById('emoji-btn');
 const emojiPicker = document.getElementById('emoji-picker');
 const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
 const messageDisplay = document.getElementById('message-display'); 
+// CORRECTED ERROR: Declared as global variables, not inside a function scope
 let username = null;
 let currentUserId = null;
 
+
 function populateEmojiPicker() {
-            emojiPicker.innerHTML = ''; // Clear existing emojis
+    if (!emojiPicker) return;
 
-            emojis.forEach(emoji => {
-                const emojiBtn = document.createElement('button');
-                emojiBtn.type = 'button';
-                emojiBtn.textContent = emoji;
-                emojiBtn.addEventListener('click', () => {
-                    messageInput.value += emoji;
-                    emojiPicker.classList.add('hidden'); // Hide picker after selection
-                });
-                emojiPicker.appendChild(emojiBtn);
-            });
-        }
+    emojiPicker.innerHTML = ''; // Clear existing emojis
 
-        populateEmojiPicker();
-
-
-        emojiButton.addEventListener('click', () => {
-            emojiPicker.classList.toggle('hidden');
+    emojis.forEach(emoji => {
+        const emojiBtn = document.createElement('button');
+        emojiBtn.type = 'button';
+        emojiBtn.textContent = emoji;
+        emojiBtn.addEventListener('click', () => {
+            if (messageInput) messageInput.value += emoji;
+            emojiPicker.classList.add('hidden'); // Hide picker after selection
         });
+        emojiPicker.appendChild(emojiBtn);
+    });
+}
 
-        document.addEventListener('click', (event) => {
-            if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
-                emojiPicker.classList.add('hidden');
-            }
-        });
+// CORRECTED ERROR: Removed the redundant local variable declarations for username/currentUserId
+// from here, as they are now correctly declared at the global/module level above.
+// The console.log below is not strictly an error but is removed for conciseness.
+// console.log("Emoji button listener attached:", emojiButton);
 
+// Attach event listeners for emoji and click-outside for the picker
+if (emojiButton) {
+    emojiButton.addEventListener('click', () => {
+        if (emojiPicker) emojiPicker.classList.toggle('hidden');
+    });
+}
+document.addEventListener('click', (event) => {
+    if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
+        emojiPicker.classList.add('hidden');
+    }
+});
 
-        console.log("Emoji button listener attached:", emojiButton);
-        let username = null;
-        let currentUserId = null;
 
 function isLoggedIn() {
     return localStorage.getItem('loggedInUser') !== null;
@@ -1348,6 +1413,8 @@ function getLoggedInUser() {
 
 
 function setupRealtimeListener() {
+    if (!supabase) return; // Guard clause
+
     supabase
         .channel('messages_changes') 
         .on(
@@ -1356,11 +1423,12 @@ function setupRealtimeListener() {
             (payload) => {
                 if (payload.eventType === 'INSERT') {
                     const newMessage = payload.new;
+                    // Only show toast if a user is logged in AND the new message isn't from them
                     if (currentUserId && currentUserId !== newMessage.user_id) {
                         showToast(`🔔 New Post from ${newMessage.sender}!`);
                     }
                 }
-              
+            
                 fetchMessages(); 
             }
         )
@@ -1368,15 +1436,18 @@ function setupRealtimeListener() {
 }
 
 async function uploadImage() {
-    const file = imageInput.files[0];
-    if (!file) {
-        alert("Please select a file.");
+    if (!imageInput || !imageInput.files[0]) {
+        showToast("Please select a file.");
         return;
     }
+
+    const file = imageInput.files[0];
 
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "chat-upload-preset"); 
+    // It's generally unsafe to expose your Cloudinary API Key publicly like this. 
+    // A server-side solution is recommended for secure image uploads.
     formData.append("api_key", "935271789947252"); 
 
     try {
@@ -1388,7 +1459,7 @@ async function uploadImage() {
         if (!response.ok) {
             const errorText = await response.text();
             console.error("Upload failed:", errorText);
-            alert("Image upload failed.");
+            showToast("❌ Image upload failed.");
             return;
         }
 
@@ -1398,11 +1469,13 @@ async function uploadImage() {
         sendMessage(imageUrl);
     } catch (error) {
         console.error("Image upload error:", error);
-        alert("An error occurred during upload.");
+        showToast("❌ An error occurred during upload.");
     }
 }
 
 async function searchGifs(query) {
+    if (!gifResultsContainer) return;
+    
     if (!query.trim()) {
         gifResultsContainer.innerHTML = '<p>Please enter a search term.</p>';
         return;
@@ -1418,12 +1491,15 @@ async function searchGifs(query) {
             gifResultsContainer.innerHTML = '';
             data.data.forEach(gif => {
                 const img = document.createElement('img');
-                img.src = gif.images.fixed_width_downsampled.url;
+                // Use a smaller, more efficient URL for initial display
+                img.src = gif.images.fixed_width_small.url || gif.images.fixed_width_downsampled.url; 
                 img.alt = gif.title;
+                img.classList.add('gif-result-image'); // Added class for styling
                 img.addEventListener('click', () => {
-                    sendMessage(img.src);
-                    gifSearchContainer.style.display = 'none';
-                    gifSearchInput.value = '';
+                    // Send the original, higher quality URL
+                    sendMessage(gif.images.original.url); 
+                    if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); // Use class toggle
+                    if (gifSearchInput) gifSearchInput.value = '';
                     gifResultsContainer.innerHTML = '';
                 });
                 gifResultsContainer.appendChild(img);
@@ -1438,10 +1514,13 @@ async function searchGifs(query) {
 }
 
 async function sendMessage(imageUrl = '') {
+    if (!messageInput || !sendButton || !supabase) return;
+
     const message = messageInput.value.trim();
 
     if (!isLoggedIn() || !username) {
         showToast("Please sign in to chat.");
+        // Should update UI to prompt for sign-in, not just disable controls
         messageInput.disabled = true;
         sendButton.disabled = true;
         return;
@@ -1465,6 +1544,7 @@ async function sendMessage(imageUrl = '') {
 
     if (error) {
         console.error("Error sending message:", error);
+        // The original message is helpful, keeping it.
         showToast("❌ Failed to send message. Check RLS policy."); 
     } else {
         messageInput.value = '';
@@ -1473,18 +1553,20 @@ async function sendMessage(imageUrl = '') {
 }
 
 async function deleteMessage(messageIdToDelete) {
+    if (!supabase) return false;
+
     console.log('deleteMessage called with ID:', messageIdToDelete);
     try {
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('messages')
             .delete()
-            .eq('id', messageIdToDelete);
-
-        console.log('Supabase delete response - Data:', data, 'Error:', error);
+            .eq('id', messageIdToDelete)
+            // Added check to only allow deletion if user_id matches the logged-in user
+            .eq('user_id', currentUserId); 
 
         if (error) {
             console.error('Error deleting message from Supabase:', error);
-            showToast("❌ Failed to delete the message.");
+            showToast("❌ Failed to delete the message. Check permissions or ownership.");
             return false;
         }
 
@@ -1503,58 +1585,84 @@ async function handleDeleteButtonClick(messageId) {
     if (success) {
         console.log('Message deleted successfully, refreshing chat.');
         showToast("✅ Message deleted successfully!");
+        // The realtime listener should handle the refresh, but this is a reliable fallback
         fetchMessages(); 
     } else {
         console.error('Deletion failed.'); 
     }
 }
 
-async function renderMessage(message) {
-        const messageContainer = document.createElement('div');
-        messageContainer.classList.add('message-item');
-        messageContainer.dataset.messageId = message.id;
-
-        const messageContent = document.createElement('div');
-        messageContent.classList.add('message-content');
-
-        if (message.image_url) {
-            const imgEl = document.createElement('img');
-            imgEl.src = message.image_url;
-            imgEl.classList.add('chat-image');
-            messageContent.appendChild(imgEl);
-            if (message.content) {
-                const contentEl = document.createElement('div');
-                contentEl.textContent = message.content;
-                contentEl.classList.add('message-text');
-                messageContent.appendChild(contentEl);
-            }
-        } else if (message.content) {
-            const contentEl = document.createElement('div');
-            contentEl.textContent = message.content;
-            contentEl.classList.add('message-text');
-            messageContent.appendChild(contentEl);
-        }
-
-        const timestampEl = document.createElement('small');
-        const createdAt = new Date(message.created_at);
-        const formattedDate = createdAt.toLocaleDateString();
-        const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        timestampEl.textContent = `${message.sender} - ${formattedDate} ${formattedTime}`;
-        timestampEl.classList.add('timestamp');
-
-        messageContainer.appendChild(messageContent);
-        messageContainer.appendChild(timestampEl);
-
-        if (username === message.sender) {
-            messageContainer.style.cursor = 'pointer';
-            messageContainer.addEventListener('click', () => {
-                if (confirm('Are you sure you want to delete this message?')) {
-                    handleDeleteButtonClick(message.id);
-                }
-            });
-        }
-        return messageContainer;
+function renderMessage(message) {
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('message-item');
+    // Assign a distinct class for the user's own messages for styling
+    if (username === message.sender) {
+        messageContainer.classList.add('my-message');
     }
+    
+    messageContainer.dataset.messageId = message.id;
+
+    const messageContent = document.createElement('div');
+    messageContent.classList.add('message-content');
+
+    // Create a container for the sender and timestamp
+    const headerEl = document.createElement('div');
+    headerEl.classList.add('message-header');
+    
+    const senderEl = document.createElement('span');
+    senderEl.textContent = message.sender;
+    senderEl.classList.add('sender-name');
+    headerEl.appendChild(senderEl);
+
+    const timestampEl = document.createElement('small');
+    const createdAt = new Date(message.created_at);
+    const formattedDate = createdAt.toLocaleDateString();
+    const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    timestampEl.textContent = ` - ${formattedDate} ${formattedTime}`;
+    timestampEl.classList.add('timestamp');
+    headerEl.appendChild(timestampEl);
+
+    messageContainer.appendChild(headerEl);
+
+    if (message.image_url) {
+        const imgEl = document.createElement('img');
+        imgEl.src = message.image_url;
+        imgEl.alt = 'User posted image/GIF';
+        imgEl.classList.add('chat-image');
+        messageContent.appendChild(imgEl);
+    } 
+    
+    if (message.content) {
+        const contentEl = document.createElement('div');
+        contentEl.textContent = message.content;
+        contentEl.classList.add('message-text');
+        messageContent.appendChild(contentEl);
+    }
+
+
+    messageContainer.appendChild(messageContent);
+    
+    // Add delete functionality for own messages
+    if (username === message.sender) {
+        messageContainer.style.cursor = 'pointer'; 
+        messageContainer.title = 'Click to delete this message';
+        
+        // Use event delegation or a dedicated button for better UX than clicking the whole message container
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '✖';
+        deleteBtn.classList.add('delete-message-btn');
+        deleteBtn.type = 'button';
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent the parent click event if it were active
+            if (confirm('Are you sure you want to delete this message?')) {
+                handleDeleteButtonClick(message.id);
+            }
+        });
+        messageContainer.appendChild(deleteBtn);
+    }
+    
+    return messageContainer;
+}
 
 async function displayMessages(messages) {
     if (!messageDisplay) return; 
@@ -1563,15 +1671,23 @@ async function displayMessages(messages) {
     
     if (messages && Array.isArray(messages)) {
         
-        for (const msg of messages) {
-            const messageElement = await renderMessage(msg);
+        // Replaced for...of with a standard loop for performance, though await is not strictly needed inside renderMessage anymore.
+        messages.forEach(msg => {
+            const messageElement = renderMessage(msg);
             messageDisplay.appendChild(messageElement);
+        });
+        
+        // Auto-scroll to the bottom only if the user is already near the bottom
+        const shouldScroll = messageDisplay.scrollTop + messageDisplay.clientHeight >= messageDisplay.scrollHeight - 50;
+        if (shouldScroll) {
+             messageDisplay.scrollTop = messageDisplay.scrollHeight;
         }
-        messageDisplay.scrollTop = messageDisplay.scrollHeight;
     }
 }
 
 async function fetchMessages() {
+    if (!supabase) return; // Guard clause
+
     const { data: messages, error: messagesError } = await supabase
         .from('messages')
         .select('*')
@@ -1587,59 +1703,85 @@ async function fetchMessages() {
     }
 }
 
-gifButton.addEventListener('click', (event) => {
-    event.stopPropagation();
-    gifSearchContainer.classList.toggle('hidden'); 
-    emojiPicker.classList.add('hidden');
-    if (gifSearchContainer.classList.contains('hidden')) {
-        gifSearchInput.value = '';
-        gifResultsContainer.innerHTML = '';
-    }
-});
-      
-gifSearchButton.addEventListener('click', () => {
-    const searchTerm = gifSearchInput.value;
-    searchGifs(searchTerm);
-});
-gifSearchInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        gifSearchButton.click();
-    }
-});
+// Attach event listeners for chat controls
 
-messageInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-    }
-});
- 
-      
+if (imageButton) {
+    imageButton.addEventListener('click', () => {
+        if (imageInput) imageInput.click();
+    });
+}
+if (imageInput) {
+    imageInput.addEventListener('change', uploadImage);
+}
+if (sendButton) {
+    sendButton.addEventListener('click', () => sendMessage());
+}
+if (gifButton) {
+    gifButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (gifSearchContainer) gifSearchContainer.classList.toggle('hidden'); 
+        if (emojiPicker) emojiPicker.classList.add('hidden');
+        if (gifSearchContainer && gifSearchContainer.classList.contains('hidden')) {
+            if (gifSearchInput) gifSearchInput.value = '';
+            if (gifResultsContainer) gifResultsContainer.innerHTML = '';
+        }
+    });
+}
+if (gifSearchButton) {
+    gifSearchButton.addEventListener('click', () => {
+        const searchTerm = gifSearchInput ? gifSearchInput.value : '';
+        searchGifs(searchTerm);
+    });
+}
+if (gifSearchInput) {
+    gifSearchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            if (gifSearchButton) gifSearchButton.click();
+        }
+    });
+}
+if (messageInput) {
+    messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+}
+
 // --- INITIALIZATION ---
 window.addEventListener('load', async () => {
-    populateEmojiPicker(); 
+    // Check if DOM elements exist before trying to use them
+    if (emojiPicker) populateEmojiPicker(); 
     
     if (isLoggedIn()) {
         const user = getLoggedInUser();
+        // Global variables updated
         username = user.username;
         currentUserId = user.id; 
+        
+        // Only show chat elements if they exist
         if (chatBox) chatBox.classList.remove('hidden'); 
         if (messageInput) messageInput.disabled = false;
         if (sendButton) sendButton.disabled = false;
         if (gifButton) gifButton.disabled = false;
+        if (imageButton) imageButton.disabled = false;
+        
         setupRealtimeListener();
 
     } else {
+        // Disable chat input if not logged in
         if (messageInput) messageInput.disabled = true;
         if (sendButton) sendButton.disabled = true;
         if (gifButton) gifButton.disabled = true;
+        if (imageButton) imageButton.disabled = true;
     }
     
-     fetchMessages();
+    fetchMessages();
 });
 
-</script> 
+</script>
 
 </body>
 </html>

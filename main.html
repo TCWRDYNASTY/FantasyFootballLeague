@@ -860,18 +860,13 @@ body {
 <div id="toast-notification"></div>
 
 <script>
-
- 
-
 function logout() {
     localStorage.removeItem('loggedInUser');
     showToast("Signed Off Successfully!");
     setTimeout(() => {
         window.location.href = "index.html"; 
     }, 1000); 
-}
-
-      
+}      
 const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
 
@@ -899,7 +894,6 @@ const messageDisplay = document.getElementById('message-display');
 let username = null;
 let currentUserId = null;
 
-// 🌟 UPDATED: FONT CONTROL ELEMENT DECLARATIONS 🌟
 const boldBtn = document.getElementById('bold-btn');
 const italicBtn = document.getElementById('italic-btn');
 const underlineBtn = document.getElementById('underline-btn');
@@ -907,13 +901,9 @@ const sizeSelect = document.getElementById('size-select');
 const styleToggleBtn = document.getElementById('style-toggle-btn'); // 🎯 NEW: Style toggle button
 const styleDropdown = document.getElementById('style-dropdown');   // 🎯 NEW: Dropdown container
 
-// -------------------------------------------------------------
-
 function populateEmojiPicker() {
     if (!emojiPicker) return;
-
     emojiPicker.innerHTML = ''; // Clear existing emojis
-
     emojis.forEach(emoji => {
         const emojiBtn = document.createElement('button');
         emojiBtn.type = 'button';
@@ -938,23 +928,17 @@ if (emojiButton) {
     });
 }
 
-// 🎯 UPDATED GLOBAL CLICK HANDLER
 document.addEventListener('click', (event) => {
-    // Hide emoji picker if click is outside
     if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
         emojiPicker.classList.add('hidden');
     }
-    // Hide GIF search if click is outside
     if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
            gifSearchContainer.classList.add('hidden');
     }
-    // 🎯 NEW: Hide Style dropdown if click is outside
     if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
         styleDropdown.classList.add('hidden');
     }
 });
-// -------------------------------------------------------------
-
 
 function isLoggedIn() {
     return localStorage.getItem('loggedInUser') !== null;
@@ -968,39 +952,26 @@ function getLoggedInUser() {
 
 function setupRealtimeListener() {
     if (!supabase) return; // Guard clause
-
-    // CORRECTED: Start the chain with supabase.channel().
     supabase
-        .channel('messages_changes') // Use the name you want for the channel
+        .channel('messages_changes')
         .on(
             'postgres_changes',
             { event: '*', schema: 'public', table: 'messages' }, 
             (payload) => {
-                
-                // --- 1. Handle New Message (INSERT) ---
+
                 if (payload.eventType === 'INSERT') {
                     const newMessage = payload.new;
-                    
-                    // Use renderMessage to build the element
                     const messageElement = renderMessage(newMessage); 
-                    
-                    // Append the single new element to the display
                     messageDisplay.appendChild(messageElement);
-
-                    // Scroll to the bottom
                     if (messageDisplay) {
                         messageDisplay.scrollTop = messageDisplay.scrollHeight;
                     }
-
-                    // Show toast notification for messages from OTHER users
                     if (currentUserId && currentUserId !== newMessage.user_id) {
                         showToast(`🔔 New Post from ${newMessage.sender}!`);
                     }
                 } 
                 
-                // --- 2. Handle Message Deletion (DELETE) ---
                 else if (payload.eventType === 'DELETE') {
-                    // Find and remove the element from the DOM instantly
                     const deletedMessageId = payload.old.id;
                     const messageElement = document.getElementById(`message-${deletedMessageId}`);
                     if (messageElement) {
@@ -1023,8 +994,6 @@ async function uploadImage() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "chat-upload-preset"); 
-    // It's generally unsafe to expose your Cloudinary API Key publicly like this. 
-    // A server-side solution is recommended for secure image uploads.
     formData.append("api_key", "935271789947252"); 
 
     try {
@@ -1070,14 +1039,12 @@ async function searchGifs(query) {
             gifResultsContainer.innerHTML = '';
             data.data.forEach(gif => {
                 const img = document.createElement('img');
-                // Use a smaller, more efficient URL for initial display
                 img.src = gif.images.fixed_width_small.url || gif.images.fixed_width_downsampled.url; 
                 img.alt = gif.title;
-                img.classList.add('gif-result-image'); // Added class for styling
+                img.classList.add('gif-result-image');
                 img.addEventListener('click', () => {
-                    // Send the original, higher quality URL
                     sendMessage(gif.images.original.url); 
-                    if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); // Use class toggle
+                    if (gifSearchContainer) gifSearchContainer.classList.add('hidden');
                     if (gifSearchInput) gifSearchInput.value = '';
                     gifResultsContainer.innerHTML = '';
                 });
@@ -1091,15 +1058,9 @@ async function searchGifs(query) {
         gifResultsContainer.innerHTML = '<p style="color:red; text-align: center;">Failed to fetch GIFs.</p>';
     }
 }
-
-// ❌ REMOVED: applyStylesToMessage function is no longer needed 
-
 async function sendMessage(imageUrl = '') {
     if (!messageInput || !sendButton || !supabase) return;
-
-    // 🎯 Use the HTML content from the contenteditable div
     const formattedMessage = messageInput.innerHTML.trim();
-    // -----------------------------------------------------------
 
     if (!isLoggedIn() || !username) {
         showToast("Please sign in to chat.");
@@ -1108,19 +1069,17 @@ async function sendMessage(imageUrl = '') {
         return;
     }
 
-    // Check if message is empty (no text/tags and no image)
     if (formattedMessage === '' && imageUrl === '') { 
         showToast("Message cannot be empty.");
         return;
     }
 
     const trimmedUsername = username.trim();
-
     const { error } = await supabase
         .from('messages')
         .insert([{
             sender: trimmedUsername,
-            content: formattedMessage, // 🎯 Use the HTML-formatted string
+            content: formattedMessage,
             image_url: imageUrl,
             user_id: currentUserId
         }]);
@@ -1129,19 +1088,19 @@ async function sendMessage(imageUrl = '') {
         console.error("Error sending message:", error);
         showToast("❌ Failed to send message. Check RLS policy.");
     } else {
-        messageInput.innerHTML = ''; // 🎯 Clear contenteditable div using innerHTML
+        messageInput.innerHTML = '';
         showToast("Message successfully posted!");
-        
-        // Reset button active classes visually
         if(boldBtn) boldBtn.classList.remove('active');
         if(italicBtn) italicBtn.classList.remove('active');
         if(underlineBtn) underlineBtn.classList.remove('active');
-        // Assuming default value for sizeSelect is '4' (based on execCommand change from previous steps)
         if(sizeSelect) sizeSelect.value = '4'; 
         if(styleDropdown) styleDropdown.classList.add('hidden'); // 🎯 Hide the dropdown after sending
     }
 }
 
+/* ==================================================================== */
+/* === delete and edit script=== */
+/* ==================================================================== */
 async function deleteMessage(messageIdToDelete) {
     if (!supabase) return false;
 
@@ -1151,7 +1110,6 @@ async function deleteMessage(messageIdToDelete) {
             .from('messages')
             .delete()
             .eq('id', messageIdToDelete)
-            // Added check to only allow deletion if user_id matches the logged-in user
             .eq('user_id', currentUserId); 
 
         if (error) {
@@ -1169,13 +1127,31 @@ async function deleteMessage(messageIdToDelete) {
     }
 }
 
+async function handleSaveEdit(messageId, newContent) {
+    const trimmedContent = newContent.trim();    
+    if (!trimmedContent) {
+        alert("Message content cannot be empty. Please cancel or enter text.");
+        return;
+    }
+    const { error } = await supabase.rpc('update_message', {
+        message_id_in: messageId, 
+        new_content_in: trimmedContent 
+    });
+
+    if (error) {
+        console.error('Error updating message:', error.message);
+        alert('Failed to save edit: ' + error.message);
+    } else {
+        console.log('Message updated successfully.');
+        handleCancelEdit(messageId); 
+    }
+}
+
 async function handleDeleteButtonClick(messageId) {
     const success = await deleteMessage(messageId); 
-
     if (success) {
         console.log('Message deleted successfully, refreshing chat.');
         showToast("✅ Message deleted successfully!");
-        // The realtime listener should handle the refresh, but this is a reliable fallback
         fetchMessages(); 
     } else {
         console.error('Deletion failed.'); 
@@ -1185,22 +1161,17 @@ async function handleDeleteButtonClick(messageId) {
 function renderMessage(message) {
     const messageContainer = document.createElement('div');
     messageContainer.classList.add('message-item');
-    // Use the class for styling instead of inline style
     if (username === message.sender) {
         messageContainer.classList.add('my-message');
     }
     
     messageContainer.dataset.messageId = message.id;
-
-    // Create a container for the sender and timestamp
     const headerEl = document.createElement('div');
-    headerEl.classList.add('message-header');
-    
+    headerEl.classList.add('message-header');   
     const senderEl = document.createElement('span');
     senderEl.textContent = message.sender;
     senderEl.classList.add('sender-name');
-    headerEl.appendChild(senderEl);
-    
+    headerEl.appendChild(senderEl);   
     const timestampEl = document.createElement('small');
     const createdAt = new Date(message.created_at);
     const formattedDate = createdAt.toLocaleDateString();
@@ -1208,13 +1179,9 @@ function renderMessage(message) {
     timestampEl.textContent = ` - ${formattedDate} ${formattedTime}`;
     timestampEl.classList.add('timestamp');
     headerEl.appendChild(timestampEl);
-
     messageContainer.appendChild(headerEl);
-
     const messageContent = document.createElement('div');
     messageContent.classList.add('message-content');
-
-
     if (message.image_url) {
         const imgEl = document.createElement('img');
         imgEl.src = message.image_url;
@@ -1224,39 +1191,43 @@ function renderMessage(message) {
     } 
     
     if (message.content) {
-        const contentEl = document.createElement('div');
-        
-        // ✅ Use innerHTML to render the stored HTML tags correctly
-        contentEl.innerHTML = message.content; 
-        
+        const contentEl = document.createElement('div');  
+        contentEl.innerHTML = message.content;     
         contentEl.classList.add('message-text');
         messageContent.appendChild(contentEl);
     }
-
-
-    messageContainer.appendChild(messageContent);
-    
-
-    if (username === message.sender) {
-        messageContainer.title = 'Click to delete this message';
-        
+    messageContainer.appendChild(messageContent);   
+if (username === message.sender) {
+        messageContainer.title = 'Click to manage (Edit/Delete) this message';   
         const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = '✖';
-        deleteBtn.classList.add('delete-message-btn');
+        deleteBtn.textContent = '...'; 
+        deleteBtn.classList.add('message-options-btn'); 
         deleteBtn.type = 'button';
+
         deleteBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent any parent click event
-            if (confirm('Are you sure you want to delete this message?')) {
-                handleDeleteButtonClick(message.id);
+            e.stopPropagation(); 
+            const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:'); 
+            if (action) {
+                const standardizedAction = action.toUpperCase().trim();  
+                if (standardizedAction === 'D') {
+                    if (confirm('Are you sure you want to delete this message?')) {
+                        handleDeleteButtonClick(message.id);
+                    }
+                } else if (standardizedAction === 'E') {
+                    handleStartEdit(message.id, message.content);
+                } else {
+                    alert('Invalid option selected. Please enter E or D.');
+                }
             }
         });
         messageContainer.appendChild(deleteBtn);
     }
-    
-    // ✅ This is the final and only return for the function
     return messageContainer;
 }
 
+/* ==================================================================== */
+/* === display script=== */
+/* ==================================================================== */
 async function displayMessages(messages) {
     if (!messageDisplay) return; 
 
@@ -1268,7 +1239,6 @@ async function displayMessages(messages) {
             messageDisplay.appendChild(messageElement);
         });
         
-        // Auto-scroll logic
         const shouldScroll = messageDisplay.scrollTop + messageDisplay.clientHeight >= messageDisplay.scrollHeight - 50;
         if (shouldScroll) {
             messageDisplay.scrollTop = messageDisplay.scrollHeight;
@@ -1278,31 +1248,22 @@ async function displayMessages(messages) {
 async function fetchMessages() {
     // 1. Clear the display container first (Already done in displayMessages, but harmless here)
     if (messageDisplay) messageDisplay.innerHTML = ''; 
-
-    // FIX 1: Ensure the chain is continuous to avoid SyntaxError
     const { data, error } = await supabase
         .from('messages')
         .select('*')
         .order('created_at', { ascending: true }); 
-
     if (error) {
         console.error('Error fetching messages:', error.message);
         return;
     }
-
-
-    displayMessages(data);
-    
-   
+    displayMessages(data);   
     if (messageDisplay) {
         messageDisplay.scrollTop = messageDisplay.scrollHeight;
     }
 }
-
-
-// --- EVENT LISTENERS ---
-
-// 🎯 NEW: STYLE TOGGLE BUTTON LISTENER
+/* ==================================================================== */
+/* === Event listeners=== */
+/* ==================================================================== */
 if (styleToggleBtn) {
     styleToggleBtn.addEventListener('click', (event) => {
         event.stopPropagation(); // Prevents global document listener from immediately closing it
@@ -1312,9 +1273,6 @@ if (styleToggleBtn) {
         messageInput.focus(); // Keep focus on the input area
     });
 }
-// ----------------------------------------------------------------------------------
-
-// 🎯 FONT STYLE LISTENERS: Use document.execCommand
 if (boldBtn) {
     boldBtn.addEventListener('click', () => {
         // 'bold' command applies <b> tags or CSS bold to selection
@@ -1351,8 +1309,6 @@ if (sizeSelect) {
         messageInput.focus();
     });
 }
-// 🌟 END UPDATED FONT STYLE LISTENERS 🌟
-
 if (imageButton) {
     imageButton.addEventListener('click', () => {
         if (imageInput) imageInput.click();
@@ -1370,8 +1326,6 @@ if (gifButton) {
         if (gifSearchContainer) gifSearchContainer.classList.toggle('hidden'); 
         if (emojiPicker) emojiPicker.classList.add('hidden'); // Close others
         if (styleDropdown) styleDropdown.classList.add('hidden'); // Close others
-        
-        // Reset search field if closing
         if (gifSearchContainer && gifSearchContainer.classList.contains('hidden')) {
             if (gifSearchInput) gifSearchInput.value = '';
             if (gifResultsContainer) gifResultsContainer.innerHTML = '';

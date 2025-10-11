@@ -972,17 +972,13 @@ async function fetchStandings() {
 
         const rosters = await rostersRes.json();
         const users = await usersRes.json();
-
         const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
-
         const teams = rosters.map(roster => {
             const user = userMap[roster.owner_id] || {};
             const settings = roster.settings || {};
-
             const wins = settings.wins || 0;
             const losses = settings.losses || 0;
             const ties = settings.ties || 0;
-            // The fpts values are stored as integers (fpts) and a separate decimal part (fpts_decimal)
             const pf = parseFloat(`${settings.fpts || 0}.${settings.fpts_decimal || 0}`);
             const totalGames = wins + losses + ties;
             const winPct = totalGames ? (wins / totalGames) : 0;
@@ -1005,27 +1001,28 @@ async function fetchStandings() {
             return;
         }
 
-        tbody.innerHTML = ''; 
-        teams.forEach((team, index) => {
-            const row = document.createElement('tr');
-            if (index === 6) row.classList.add('playoff-divider');
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${team.teamName}</td>
-                <td>${team.record}</td>
-                <td>${team.pointsFor.toFixed(2)}</td>; 
-            tbody.appendChild(row);
-        });
-    } catch (error) {
-        console.error("Error fetching standings:", error);
-    }
+  tbody.innerHTML = '';
+        teams.forEach((team, index) => {
+            const row = document.createElement('tr');
+            if (index === 6) row.classList.add('playoff-divider');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${team.teamName}</td>
+                <td>${team.record}</td>
+                <td>${team.pointsFor.toFixed(2)}</td>
+            `; // <--- CLOSING BACKTICK (`) IS HERE
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        console.error("Error fetching standings:", error);
+    }
 }
+        
 fetchStandings();
 
 const transactionListElement = document.getElementById('transaction-list');
 const week = 1;
 const allPlayersUrl = "https://api.sleeper.app/v1/players/nfl";
-
 const fetchData = async (url) => {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

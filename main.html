@@ -21,7 +21,6 @@ html, body {
   width: 100%;
   height: 100%;
 }
-
 body {
   font-family: 'Inter', sans-serif;
   background-color: #1e3159;
@@ -31,7 +30,6 @@ body {
   min-height: 100vh;
   padding: 1rem;
 }
-
   .title-text, .left-column-title {
     font-size: clamp(1rem, 4vw, 1.5rem);
     font-weight: 590;
@@ -58,38 +56,30 @@ body {
   gap: 20px;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
-  position: relative; /* keeps dropdown anchored */
+  position: relative; 
 }
-
 .logo-container img {
   width: 100%;
   max-width: 200px;
   height: auto;
 }
-
 .header-text {
   display: flex;
   flex-direction: column;
 }
-
 .header-text p {
   margin: 5px 0;
 }
-
 .header .title {
   font-size: clamp(1.5rem, 5vw, 2rem);
   font-weight: bold;
 }
-
 .header .subtitle {
   font-size: clamp(1rem, 4vw, 1.5rem);
 }
-
 .header .since {
   font-size: clamp(0.9rem, 3vw, 1.2rem);
 }
-
-/* --- Dropdown Menu (Stable + Responsive) --- */
 .dropdown {
   position: absolute;
   top: 1rem;
@@ -98,7 +88,6 @@ body {
   padding: 0.5rem;
   box-sizing: border-box;
 }
-
 .dropbtn {
   background-color: #facc15;
   color: #1e3159;
@@ -111,12 +100,9 @@ body {
   white-space: nowrap;
   transition: background-color 0.3s ease;
 }
-
 .dropbtn:hover {
   background-color: #e4b500;
 }
-
-/* Dropdown Content */
 .dropdown-content {
   display: none;
   position: absolute;
@@ -133,12 +119,10 @@ body {
   border: 2px solid black;
   overflow-wrap: break-word;
 }
-
 .dropdown:hover .dropdown-content,
 .dropdown:focus-within .dropdown-content {
   display: block;
 }
-
 .dropdown-content a {
   color: white;
   padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.75rem, 3vw, 1rem);
@@ -156,29 +140,23 @@ body {
   margin-bottom: 0.4rem;
   word-break: break-word;
 }
-
 .dropdown-content a:last-child {
   margin-bottom: 0;
 }
-
 .dropdown-content a:hover {
   background-color: #3e5a99;
 }
-
-/* --- Mobile Adjustments --- */
 @media (max-width: 600px) {
   .dropdown {
     top: 0.5rem;
     right: 0.5rem;
   }
-
   .dropdown-content {
     left: 0;
     right: 0;
     margin: 0 auto;
     width: 90vw;
   }
-
   .dropbtn {
     width: auto; /* prevents stretching too wide */
     font-size: 0.9rem;
@@ -188,7 +166,6 @@ body {
 /* ==================================================================== */
 /* === main content === */
 /* ==================================================================== */
-
 .main-content-wrapper {
   display: flex;
   flex-direction: column;
@@ -198,7 +175,6 @@ body {
   width: 100%;
   max-width: 90vw;
 }
-
 .main-content {
   width: 100%;
   max-width: 90vw;
@@ -207,12 +183,9 @@ body {
   display: flex;
   flex-direction: column;
   height: 40rem;
- 
   overflow-y: auto;
   overflow-x: hidden;
 }
-
-
     .left-column-wrapper { order: 1; width: 300px; }
     .main-content { order: 2; width: 700px; }
     .right-column { order: 3; width: 350px; }
@@ -223,7 +196,6 @@ body {
       overflow-y: auto;
     }
   }
-
 .right-column {
     order: 2;
     width: 100%;
@@ -244,9 +216,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-   
   }
-
   .right-column {
     order: 2; 
     width: 100%;
@@ -254,9 +224,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-   
   }
-
 /* ==================================================================== */
 /* === Left Column (NFL News) === */
 /* ==================================================================== */
@@ -288,7 +256,6 @@ body {
     border-radius: 6px;
     transition: background-color 0.3s, transform 0.2s;
     text-align: left;
-
   }
   #nfl-news li:hover {
     background-color: #1e3159;
@@ -302,7 +269,6 @@ body {
   #nfl-news a:hover {
     text-decoration: underline;
   }
-
 /* ==================================================================== */
 /* === Right Column Content (Standings) === */
 /* ==================================================================== */
@@ -325,12 +291,9 @@ body {
     border-top: none;
     border-bottom: none;
   }
-
 /* ==================================================================== */
 /* === 2. Trending and Transactions === */
 /* ==================================================================== */
-
-  /* Table styles */
   table {
     width: 100%;
     border-collapse: collapse;
@@ -350,8 +313,6 @@ body {
   tr.playoff-divider td {
     border-bottom: 2px solid red;
   }
-
-  /* Transactions & Trending */
   .recent-transactions-container,
   .trending-container {
     overflow-y: auto;
@@ -424,12 +385,9 @@ body {
   .trending-down-title { color: #f56565; }
   .trending-count-up { color: #48bb78; }
   .trending-count-down { color: #f56565; }
-
-
  /* ==================================================================== */
 /* === Side bar === */
 /* ==================================================================== */
-
   .sidebar-left {
     position: fixed;
     top: 0;
@@ -455,7 +413,6 @@ body {
     width: 20px;
     z-index: 9998;
   }
-
 /* ==================================================================== */
 /* === 3. MESSAGE DISPLAY AREA STYLES === */
 /* ==================================================================== */
@@ -469,7 +426,6 @@ body {
   display: flex;
   flex-direction: column;
 }
-
 .message-item {
   display: flex;
   flex-direction: column;
@@ -478,35 +434,29 @@ body {
   margin-bottom: 0.625rem;
   position: relative;
 }
-
 .my-message {
   align-items: flex-end;
 }
-
 /* ==================================================================== */
 /* === 3. MESSAGE BUBBLE & TEXT STYLES === */
 /* ==================================================================== */
-
 .message-header {
   display: flex;
   align-items: center;
   margin-bottom: 2px;
 }
-
 .sender-name {
   font-size: clamp(0.8rem, 1vw, 0.9rem);
   font-weight: 600;
   color: #cbd5e0;
   padding: 0 5px;
 }
-
 .timestamp {
   font-size: clamp(0.6rem, 0.8vw, 0.8rem);
   color: #facc15;
   margin-top: 2px;
   padding: 0 5px;
 }
-
 .message-content {
   background-color: #2e4a80;
   color: #e2e8f0;
@@ -519,27 +469,22 @@ body {
   font-weight: 500;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-
 .my-message .message-content {
   background-color: #f1f5f9;
   color: #1e293b;
 }
-
 .my-message .message-header {
   justify-content: flex-end;
 }
-
 .my-message .sender-name {
   color: #1e3159;
 }
-
 .chat-image {
   max-width: 100%;
   height: auto;
   border-radius: 12px;
   margin: 0.3rem 0;
 }
-
 /* ==================================================================== */
 /* === Delete and edit button === */
 /* ==================================================================== */
@@ -560,24 +505,19 @@ body {
     right: 5px; /* Default for messages sent by others (usually aligned left) */
     padding: 5px;
 }
-
-/* RETAIN THIS ALIGNMENT LOGIC: Adjust button position for 'my-message' (aligned right) */
 .my-message .message-options-btn {
-    right: unset; /* Remove the default right alignment */
-    left: 5px;    /* Set it to the left side of the 'my-message' box */
+    right: unset;
+    left: 5px;   
 }
-
 /* ==================================================================== */
 /* === Editing UI Styles === */
-/* ==================================================================== */
-    
+/* ==================================================================== */   
 .editing-active {
     border: 1px dashed #facc15;
     padding: 5px;
     margin: -5px; 
     min-height: 20px;
 }
-
 .edit-controls {
     display: flex;
     gap: 8px;
@@ -591,7 +531,6 @@ body {
     cursor: pointer;
     transition: background-color 0.2s;
 }
-
 .save-edit-btn {
     background-color: #2e4a80; 
     color: white;
@@ -602,11 +541,9 @@ body {
     color: white;
     border: 1px solid #1e3159;
 }
-
 /* ==================================================================== */
 /* === 5. CHAT INPUT / CONTROLS STYLES === */
 /* ==================================================================== */
-
 .chat-container {
   padding: 0.5rem;
   border-top: 1px solid #4a5568;
@@ -615,21 +552,18 @@ body {
   border-radius: 0 0 0.375rem 0.375rem;
   box-sizing: border-box;
 }
-
 .chat-box {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   position: relative;
 }
-
 .input-row-container {
   display: flex;
   align-items: stretch;
   gap: 0.5rem;
   position: relative;
 }
-
 #message-input {
   flex-grow: 1;
   padding: 0.6rem;
@@ -641,14 +575,12 @@ body {
   min-height: clamp(40px, 8vh, 60px);
   font-size: clamp(0.9rem, 1vw, 1rem);
 }
-
 .input-buttons-right,
 .input-buttons-left {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
-
 .input-buttons-right button,
 .input-buttons-left button {
   width: clamp(35px, 6vw, 45px);
@@ -664,32 +596,26 @@ body {
   font-size: clamp(0.8rem, 1vw, 1rem);
   transition: background-color 0.2s;
 }
-
 .input-buttons-right button:hover,
 .input-buttons-left button:hover {
   background-color: #6a768c;
 }
-
 #style-toggle-btn {
   background-color: #facc15 !important;
   color: #1e3159 !important;
   font-weight: bold;
 }
-
 #send-btn {
   background-color: #facc15;
   color: #1e3159;
   font-weight: bold;
 }
-
 #send-btn:hover {
   background-color: #e4b500;
 }
-
 /* ==================================================================== */
 /* === 6. RESPONSIVE / MEDIA QUERIES === */
 /* ==================================================================== */
-
 @media (min-width: 1024px) {
   .main-content-wrapper {
     flex-direction: row;
@@ -697,7 +623,6 @@ body {
     align-items: stretch;
     height: clamp(70vh, 85vh, 90vh);
   }
-
   .left-column-wrapper { 
     order: 1; /* NFL News (Left Column) is first */
     width: 300px; 
@@ -710,7 +635,6 @@ body {
     order: 3; 
     width: 350px; 
   }
-
   .left-column-wrapper,
   .main-content,
   .right-column {
@@ -718,7 +642,6 @@ body {
     flex-direction: column;
     height: 100%;
   }
-
   .left-column,
   .right-column-container,
   #message-display {
@@ -726,50 +649,40 @@ body {
     overflow-y: auto;
   }
 }
-
 @media (max-width: 768px) {
   body {
     padding: 0.5rem;
   }
-
   .main-content-wrapper {
     max-width: 95vw;
   }
-
   #message-input {
     font-size: 0.9rem;
   }
-
   .message-content {
     max-width: 85%;
   }
 }
-
 @media (max-width: 480px) {
   .chat-image {
     max-width: clamp(60px, 40vw, 120px);
   }
-
   .input-buttons-right button,
   .input-buttons-left button {
     width: 35px;
     height: 35px;
   }
 }
-
 /* ==================================================================== */
 /* === utility === */
 /* ==================================================================== */
-
 .hidden {
   display: none !important;
 }
 </style>
-
 </head>
 
 <body class="body">
-
 <div class="sidebar-left">
     <h2 class="recent-transactions-title">Recent Transactions</h2>
     <div class="recent-transactions-container">
@@ -811,8 +724,7 @@ body {
         <a href="index.html" onclick="logout();">Sign Off</a>
     </div>
 </div>
-
-
+    
 <div class="main-content-wrapper">
 
     <div class="left-column-wrapper">
@@ -823,8 +735,6 @@ body {
             </div>
         </div>
     </div>
-
-
 
     <div class="main-content">
         <h2 class="title-text" style="padding-bottom: 0.5rem;">League Updates!</h2>
@@ -876,9 +786,6 @@ body {
             </div>
         </div>
     </div>
-
-
-
 
     <div class="right-column">
     <div class="title-text">

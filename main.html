@@ -441,18 +441,21 @@ body {
 /* === 3. MESSAGE BUBBLE & TEXT STYLES === */
 /* ==================================================================== */
 .message-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* CRITICAL for placing name and button at ends */
-    width: 100%;
-    margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
 }
-
 .sender-name {
-    font-size: clamp(0.8rem, 1vw, 0.9rem);
-    font-weight: 600; /* Fixed */
-    color: #facc15;
-    padding: 0 5px;
+  font-size: clamp(0.8rem, 1vw, 0.9rem);
+  font-weight: 600;
+  color: #cbd5e0;
+  padding: 0 5px;
+}
+.timestamp {
+  font-size: clamp(0.6rem, 0.8vw, 0.8rem);
+  color: #facc15;
+  margin-top: 2px;
+  padding: 0 5px;
 }
 .message-content {
   background-color: #2e4a80;
@@ -470,78 +473,41 @@ body {
   background-color: #f1f5f9;
   color: #1e293b;
 }
-
 .my-message .message-header {
-    /* Correctly aligns the header elements to the right for user's messages */
-    justify-content: flex-end; 
+  justify-content: flex-end;
 }
-
 .my-message .sender-name {
-    color: #facc15; /* Correctly forces gold color for sender name */
+  color: #1e3159;
 }
-
-.message-options-btn {
-    background: transparent;
-    border: none;
-    color: #facc15; /* Gold color */
-    cursor: pointer;
-    font-size: 1.2rem; /* Reduced size for the header */
-    line-height: 1;
-    padding: 2px 5px;
-    /* Since it's inline in a flex container, it positions itself correctly */
-}
-
-/* --- NEW: Define the container for the timestamp at the bottom --- */
-.message-footer {
-    width: 100%;
-    display: flex;
-    /* Default: Align timestamp left for others' messages */
-    justify-content: flex-start; 
-    padding: 3px 0 0 0; /* Add a little vertical spacing */
-}
-
-/* --- ADD THIS: Override for user's messages to push timestamp right --- */
-.my-message .message-footer {
-    justify-content: flex-end; 
-}
-
-/* --- UPDATE THIS: Adjust the timestamp for its new position --- */
-/* Your current code: .timestamp { font-size: 1rem; color: #facc15; padding: 0 5px; } */
-.timestamp {
-    /* Making it smaller, as is typical for message details/footers */
-    font-size: 0.8rem; 
-    color: #facc15; 
-    padding: 0 5px;
-    white-space: nowrap; /* Prevents date/time from breaking into two lines */
-}
-
 .chat-image {
   max-width: 100%;
   height: auto;
   border-radius: 12px;
   margin: 0.3rem 0;
 }
+/* ==================================================================== */
+/* === Delete and edit button === */
+/* ==================================================================== */
 
 /* ==================================================================== */
 /* === New/Updated Options Button Styles === */
 /* ==================================================================== */
 
+/* Styles for the default (initial '...') options button */
 .message-options-btn {
-    background: transparent;
+    background: none;
     border: none;
     color: #facc15;
+    font-size: 0.9em;
     cursor: pointer;
-    position: relative; 
+    position: absolute;
     top: 0;
-    right: 5px; 
-    left: unset;
-    font-size: 1.5rem;
-    line-height: 1;
-    padding: 2px 5px;
+    right: 5px; /* Default for messages sent by others (usually aligned left) */
+    padding: 5px;
 }
 .my-message .message-options-btn {
     right: unset;
-    left: 5px;
+    left: 5px;   
 }
 /* ==================================================================== */
 /* === Editing UI Styles === */
@@ -1225,7 +1191,7 @@ function handleCancelEdit(messageId) {
     if (optionsBtn) optionsBtn.style.display = 'block';
     if (editControls) editControls.remove();
 }
-  
+    
 function renderMessage(message) {
     const messageContainer = document.createElement('div');
     messageContainer.classList.add('message-item');
@@ -1234,29 +1200,51 @@ function renderMessage(message) {
     }
 
     messageContainer.dataset.messageId = message.id;
-
-    // ===========================================
-    // 1. HEADER CONSTRUCTION (NOW ONLY HOLDS THE EDIT/DELETE BUTTON)
-    // ===========================================
     const headerEl = document.createElement('div');
-    headerEl.classList.add('message-header');
+    headerEl.classList.add('message-header');    
+    const senderEl = document.createElement('span');
+    senderEl.textContent = message.sender;
+    senderEl.classList.add('sender-name');
+    headerEl.appendChild(senderEl);    
+    const timestampEl = document.createElement('small');
+    const createdAt = new Date(message.created_at);
+    const formattedDate = createdAt.toLocaleDateString();
+    const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    timestampEl.textContent = ` - ${formattedDate} ${formattedTime}`;
+    timestampEl.classList.add('timestamp');
+    headerEl.appendChild(timestampEl);
+    messageContainer.appendChild(headerEl);    
+    const messageContent = document.createElement('div');
+    messageContent.classList.add('message-content');
     
-    // We REMOVE the senderEl creation here.
-
-    // MESSAGE OPTIONS BUTTON (REMAINS IN HEADER)
+    if (message.image_url) {
+        const imgEl = document.createElement('img');
+        imgEl.src = message.image_url;
+        imgEl.alt = 'User posted image/GIF';
+        imgEl.classList.add('chat-image');
+        messageContent.appendChild(imgEl);
+    } 
+    
+    if (message.content) {
+        const contentEl = document.createElement('div');  
+        contentEl.innerHTML = message.content;      
+        contentEl.classList.add('message-text');
+        messageContent.appendChild(contentEl);
+    }
+    messageContainer.appendChild(messageContent);    
     if (username === message.sender) {
-        const optionsBtn = document.createElement('button');
-        optionsBtn.textContent = '...';
-        optionsBtn.classList.add('message-options-btn');
-        optionsBtn.type = 'button';
-        optionsBtn.id = `message-${message.id}`;
-        optionsBtn.title = 'Click to manage (Edit/Delete) this message';
+        messageContainer.id = `message-${message.id}`; 
+        messageContainer.title = 'Click to manage (Edit/Delete) this message';          
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '...'; 
+        deleteBtn.classList.add('message-options-btn'); 
+        deleteBtn.type = 'button';
 
-        optionsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:');
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:'); 
             if (action) {
-                const standardizedAction = action.toUpperCase().trim();
+                const standardizedAction = action.toUpperCase().trim();  
                 if (standardizedAction === 'D') {
                     if (confirm('Are you sure you want to delete this message?')) {
                         handleDeleteButtonClick(message.id);
@@ -1268,57 +1256,8 @@ function renderMessage(message) {
                 }
             }
         });
-        headerEl.appendChild(optionsBtn); // The button stays in the header
+        messageContainer.appendChild(deleteBtn);
     }
-
-    messageContainer.appendChild(headerEl);
-
-    // ===========================================
-    // 2. MESSAGE CONTENT (No Change)
-    // ===========================================
-    const messageContent = document.createElement('div');
-    messageContent.classList.add('message-content');
-
-    if (message.image_url) {
-        const imgEl = document.createElement('img');
-        imgEl.src = message.image_url;
-        imgEl.alt = 'User posted image/GIF';
-        imgEl.classList.add('chat-image');
-        messageContent.appendChild(imgEl);
-    }
-
-    if (message.content) {
-        const contentEl = document.createElement('div');
-        contentEl.innerHTML = message.content;
-        contentEl.classList.add('message-text');
-        messageContent.appendChild(contentEl);
-    }
-    messageContainer.appendChild(messageContent);
-
-    // ===========================================
-    // 3. FOOTER CONSTRUCTION (NOW CONTAINS SENDER NAME + TIMESTAMP)
-    // ===========================================
-    const footerEl = document.createElement('div');
-    footerEl.classList.add('message-footer');
-
-    // ADDED: Sender Name is now in the footer
-    const senderEl = document.createElement('span');
-    senderEl.textContent = message.sender;
-    senderEl.classList.add('sender-name');
-    footerEl.appendChild(senderEl);
-
-    // Timestamp follows the sender name
-    const timestampEl = document.createElement('small');
-    const createdAt = new Date(message.created_at);
-    const formattedDate = createdAt.toLocaleDateString();
-    const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    // Adding a separator, since they are now side-by-side
-    timestampEl.textContent = ` ${formattedDate} ${formattedTime}`; 
-    timestampEl.classList.add('timestamp');
-
-    footerEl.appendChild(timestampEl);
-    messageContainer.appendChild(footerEl);
-
     return messageContainer;
 }
 
@@ -1771,11 +1710,7 @@ for (const [rosterId, data] of Object.entries(teamMap)) {
         }
 
         fetchTrendingPlayers();
-
-
-
 </script>
-
 </body>
 
 </html>

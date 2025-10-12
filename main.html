@@ -1240,40 +1240,33 @@ function handleStartEdit(messageId, initialContent) {
     }
 }
 
+// Assuming currentUserId is available globally, as per your previous code
+// E.g., currentUserId = getLoggedInUser().id;
+
 async function handleSaveEdit(messageId, newContent) {
     const trimmedContent = newContent.trim();
     if (!trimmedContent) {
-        alert("Message content cannot be empty. Please cancel or enter text.");
+        alert("Message content cannot be empty.");
+        return;
+    }
+    if (!currentUserId) {
+        alert("User session not loaded. Please refresh.");
         return;
     }
     const { error } = await supabase.rpc('update_message', {
         message_id_in: messageId,
-        new_content_in: trimmedContent
+        new_content_in: trimmedContent,
+        user_id_in: currentUserId
     });
 
     if (error) {
         console.error('Error updating message:', error.message);
         alert('Failed to save edit: ' + error.message);
     } else {
-        console.log('Message updated successfully.');
-        
-        // 💡 CRITICAL FIX: Update the content directly on the page
-        const messageTextElement = document.querySelector(`[data-message-id="${messageId}"] .message-text`);
-        if (messageTextElement) {
-            messageTextElement.innerHTML = newContent;
-        }
-
-        // 💡 Clean up the UI
         handleCancelEdit(messageId); 
-        
-        // 💡 You can remove fetchMessages() since you updated the element directly.
-        // If you need it for the 'edit=TRUE' flag, keep it, but it's less efficient.
-        // We will remove it here for efficiency:
-        // fetchMessages(); 
     }
 }
-    
-    
+        
 function handleCancelEdit(messageId) {
     const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
     if (!messageItem) return;
@@ -1281,20 +1274,14 @@ function handleCancelEdit(messageId) {
     const contentWrapper = messageItem.querySelector('.message-content .message-text');
     const optionsBtn = messageItem.querySelector('.message-options-btn');
     const editControls = messageItem.querySelector('.edit-controls'); // Targets the div created by handleStartEdit
-    
-    // 1. Revert the editable div
     if (contentWrapper) {
-        // Revert content (in case user hit cancel after typing)
         contentWrapper.innerHTML = contentWrapper.dataset.originalContent || contentWrapper.innerHTML;
         contentWrapper.contentEditable = 'false';
         contentWrapper.classList.remove('editing-active');
         delete contentWrapper.dataset.originalContent; 
     }
 
-    // 2. Restore the original options button
     if (optionsBtn) optionsBtn.style.display = 'block';
-    
-    // 3. Remove the edit buttons container
     if (editControls) editControls.remove();
 }
     
@@ -1349,7 +1336,6 @@ function renderMessage(message) {
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation(); 
             const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:'); 
-            
             if (action) {
                 const standardizedAction = action.toUpperCase().trim();  
                 if (standardizedAction === 'D') {

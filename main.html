@@ -1014,28 +1014,23 @@ function setupRealtimeListener() {
                     }
                 } 
                 
-                // 💡 CRITICAL ADDITION: Handle UPDATE events
+                // 💡 CORRECTED UPDATE LOGIC
                 else if (payload.eventType === 'UPDATE') {
                     const updatedMessage = payload.new;
                     const existingElement = document.getElementById(`message-${updatedMessage.id}`);
                     
                     if (existingElement) {
-                        // 1. Get the reference to the parent container
-                        const parent = existingElement.parentElement;
+                        // 1. Get the reference to the old message's position
+                        const oldElement = existingElement;
                         
-                        // 2. Remove the outdated message element
-                        existingElement.remove();
-                        
-                        // 3. Re-render the message with the new content and insert it
-                        const newMessageElement = renderMessage(updatedMessage);
-                        // Using 'before' to insert the new element where the old one was
-                        parent.insertBefore(newMessageElement, parent.children[0]); 
-                        
-                        // NOTE: A simpler approach if you can't rely on insertBefore: 
-                        // you can simply call fetchMessages() here, but that's inefficient.
+                        // 2. Create the new element with updated data
+                        const newElement = renderMessage(updatedMessage);
+
+                        // 3. Replace the old element with the new one
+                        oldElement.replaceWith(newElement);
+
                     } else {
-                        // If the element doesn't exist (e.g., if it was edited before loading),
-                        // simply force a full refresh.
+                        // If the element doesn't exist, simply force a full refresh.
                         fetchMessages(); 
                     }
                 }

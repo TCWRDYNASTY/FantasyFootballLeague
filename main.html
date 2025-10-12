@@ -1225,12 +1225,10 @@ async function handleSaveEdit(messageId, newContent) {
         alert("Message content cannot be empty. Please cancel or enter text.");
         return;
     }
-
     const { error } = await supabase.rpc('update_message', {
         message_id_in: messageId,
         new_content_in: trimmedContent
     });
-
     if (error) {
         console.error('Error updating message:', error.message);
         alert('Failed to save edit: ' + error.message);
@@ -1239,8 +1237,8 @@ async function handleSaveEdit(messageId, newContent) {
         const messageElement = document.getElementById(`message-${messageId}`);
         if (messageElement) {
             messageElement.remove();
-        }
-        fetchMessages(); 
+        }   
+        fetchMessages();
     }
 }
     

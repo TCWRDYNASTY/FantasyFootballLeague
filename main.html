@@ -1241,7 +1241,6 @@ function handleStartEdit(messageId, initialContent) {
     }
 }
 
-    // You previously showed this, but make sure it's placed BEFORE renderMessage:
 async function handleSaveEdit(messageId, newContent) {
     const trimmedContent = newContent.trim();
     if (!trimmedContent) {
@@ -1283,7 +1282,6 @@ function handleCancelEdit(messageId) {
     if (optionsBtn) optionsBtn.style.display = 'block';
     if (editControls) editControls.remove();
 }
-
     
 function renderMessage(message) {
     const messageContainer = document.createElement('div');
@@ -1291,14 +1289,14 @@ function renderMessage(message) {
     if (username === message.sender) {
         messageContainer.classList.add('my-message');
     }
-    
+
     messageContainer.dataset.messageId = message.id;
     const headerEl = document.createElement('div');
-    headerEl.classList.add('message-header');   
+    headerEl.classList.add('message-header');    
     const senderEl = document.createElement('span');
     senderEl.textContent = message.sender;
     senderEl.classList.add('sender-name');
-    headerEl.appendChild(senderEl);   
+    headerEl.appendChild(senderEl);    
     const timestampEl = document.createElement('small');
     const createdAt = new Date(message.created_at);
     const formattedDate = createdAt.toLocaleDateString();
@@ -1306,9 +1304,10 @@ function renderMessage(message) {
     timestampEl.textContent = ` - ${formattedDate} ${formattedTime}`;
     timestampEl.classList.add('timestamp');
     headerEl.appendChild(timestampEl);
-    messageContainer.appendChild(headerEl);
+    messageContainer.appendChild(headerEl);    
     const messageContent = document.createElement('div');
     messageContent.classList.add('message-content');
+    
     if (message.image_url) {
         const imgEl = document.createElement('img');
         imgEl.src = message.image_url;
@@ -1319,13 +1318,14 @@ function renderMessage(message) {
     
     if (message.content) {
         const contentEl = document.createElement('div');  
-        contentEl.innerHTML = message.content;     
+        contentEl.innerHTML = message.content;      
         contentEl.classList.add('message-text');
         messageContent.appendChild(contentEl);
     }
-    messageContainer.appendChild(messageContent);   
-if (username === message.sender) {
-        messageContainer.title = 'Click to manage (Edit/Delete) this message';   
+    messageContainer.appendChild(messageContent);    
+    if (username === message.sender) {
+        messageContainer.id = `message-${message.id}`; 
+        messageContainer.title = 'Click to manage (Edit/Delete) this message';          
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = '...'; 
         deleteBtn.classList.add('message-options-btn'); 
@@ -1334,6 +1334,7 @@ if (username === message.sender) {
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation(); 
             const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:'); 
+            
             if (action) {
                 const standardizedAction = action.toUpperCase().trim();  
                 if (standardizedAction === 'D') {

@@ -541,23 +541,66 @@ body {
 }
 
 /* ==================================================================== */
-/* === 4. DELETE BUTTON STYLES === */
+/* === Delete and edit button === */
 /* ==================================================================== */
 
-.delete-message-btn {
-  background: none;
-  border: none;
-  color: #facc15;
-  font-size: 0.8em;
-  cursor: pointer;
-  position: absolute;
-  top: 0;
-  right: 5px;
+/* ==================================================================== */
+/* === New/Updated Options Button Styles === */
+/* ==================================================================== */
+
+/* Styles for the default (initial '...') options button */
+.message-options-btn {
+    background: none;
+    border: none;
+    color: #facc15;
+    font-size: 0.9em;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    right: 5px; /* Default for messages sent by others (usually aligned left) */
+    padding: 5px;
 }
 
-.my-message .delete-message-btn {
-  right: unset;
-  left: 5px;
+/* RETAIN THIS ALIGNMENT LOGIC: Adjust button position for 'my-message' (aligned right) */
+.my-message .message-options-btn {
+    right: unset; /* Remove the default right alignment */
+    left: 5px;    /* Set it to the left side of the 'my-message' box */
+}
+
+/* ==================================================================== */
+/* === Editing UI Styles === */
+/* ==================================================================== */
+    
+.editing-active {
+    border: 1px dashed #facc15;
+    padding: 5px;
+    margin: -5px; 
+    min-height: 20px;
+}
+
+.edit-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 5px;
+    align-self: flex-end; 
+}
+.edit-controls button {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.save-edit-btn {
+    background-color: #2e4a80; 
+    color: white;
+    border: 1px solid #1e3159;
+}
+.cancel-edit-btn {
+    background-color: #4a5568; 
+    color: white;
+    border: 1px solid #1e3159;
 }
 
 /* ==================================================================== */

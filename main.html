@@ -937,7 +937,9 @@ function setupRealtimeListener() {
         console.error("DEBUG: Supabase client is null. Check initialization.");
         return;
     }
+    
     console.log("DEBUG: Attempting to subscribe to real-time channel.");
+    
     supabase
         .channel('messages_changes')
         .on(
@@ -945,9 +947,12 @@ function setupRealtimeListener() {
             { event: '*', schema: 'public', table: 'messages' },
             (payload) => {
                 console.log('DEBUG: Realtime change received!', payload);
+                
+                // --- INSERT LOGIC (Adding a new message) ---
                 if (payload.eventType === 'INSERT') {
                     const newMessage = payload.new;
                     console.log('DEBUG: Rendering new message object:', newMessage);
+                    
                     if (!messageDisplay) {
                         console.error("DEBUG CRITICAL: messageDisplay element is NULL!");
                         return;
@@ -957,6 +962,7 @@ function setupRealtimeListener() {
                         if (messageElement instanceof HTMLElement) {
                             messageDisplay.appendChild(messageElement);
                             console.log('DEBUG: Successfully appended new message to display.');
+                            
                             if (messageDisplay) {
                                 messageDisplay.scrollTop = messageDisplay.scrollHeight;
                             }
@@ -970,9 +976,40 @@ function setupRealtimeListener() {
                         console.error("DEBUG CRITICAL: Error rendering message:", e);
                     }
                 }
+                
+                // --- UPDATE LOGIC (Editing an existing message) ---
                 else if (payload.eventType === 'UPDATE') {
+                    const updatedMessage = payload.new;
+                    // Use a data attribute selector (preferred) or the old ID
+                    const existingElement = document.querySelector(`[data-message-id="${updatedMessage.id}"]`); 
+                    
+                    if (existingElement) {
+                        try {
+                            const newElement = renderMessage(updatedMessage);
+                            existingElement.replaceWith(newElement);
+                            console.log(`DEBUG: Successfully updated message ID: ${updatedMessage.id}`);
+                        } catch (e) {
+                            console.error(`DEBUG CRITICAL: Error rendering updated message ID ${updatedMessage.id}:`, e);
+                        }
+                    } else {
+                         // Fallback for an element that might have been missed during a previous load
+                        console.warn(`DEBUG: Could not find element for updated message ID: ${updatedMessage.id}. Triggering refresh.`);
+                        fetchMessages(); 
+                    }
                 }
+                
+                // --- DELETE LOGIC (Removing a message) ---
                 else if (payload.eventType === 'DELETE') {
+                    const deletedMessageId = payload.old.id;
+                    // Use a data attribute selector (preferred) or the old ID
+                    const messageElement = document.querySelector(`[data-message-id="${deletedMessageId}"]`); 
+                    
+                    if (messageElement) {
+                        messageElement.remove();
+                        console.log(`DEBUG: Successfully deleted message ID: ${deletedMessageId}`);
+                    } else {
+                        console.warn(`DEBUG: Could not find element for deleted message ID: ${deletedMessageId}. No action taken.`);
+                    }
                 }
             }
         )

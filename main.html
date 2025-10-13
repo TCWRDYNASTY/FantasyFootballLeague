@@ -843,19 +843,20 @@ body {
 </div>
 <script>
 
-    function logout() {
-    localStorage.removeItem('loggedInUser');
-    alert("Signed Off Successfully!");
-    setTimeout(() => {
-        window.location.href = "index.html"; 
-    }, 1000); 
+
+    function logout() {
+    localStorage.removeItem('loggedInUser');
+    alert("Signed Off Successfully!");
+    setTimeout(() => {
+        window.location.href = "index.html"; 
+    }, 1000); 
 }
 const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
 
-const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null; 
+const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null; 
 if (!supabase) {
-    console.error("Supabase client not initialized. Ensure the Supabase library is loaded.");
+    console.error("Supabase client not initialized. Ensure the Supabase library is loaded.");
 }
 
 
@@ -869,11 +870,11 @@ const gifSearchContainer = document.getElementById('gif-search-container');
 const gifSearchInput = document.getElementById('gif-search-input');
 const gifSearchButton = document.getElementById('gif-search-button');
 const gifResultsContainer = document.getElementById('gif-results');
-const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb'; 
+const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb'; 
 const emojiButton = document.getElementById('emoji-btn');
 const emojiPicker = document.getElementById('emoji-picker');
 const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
-const messageDisplay = document.getElementById('message-display'); 
+const messageDisplay = document.getElementById('message-display'); 
 let username = null;
 let currentUserId = null;
 
@@ -882,627 +883,636 @@ const italicBtn = document.getElementById('italic-btn');
 const underlineBtn = document.getElementById('underline-btn');
 const sizeSelect = document.getElementById('size-select');
 const styleToggleBtn = document.getElementById('style-toggle-btn');
-const styleDropdown = document.getElementById('style-dropdown'); 
+const styleDropdown = document.getElementById('style-dropdown'); 
 
 function populateEmojiPicker() {
-    if (!emojiPicker) return;
-    emojiPicker.innerHTML = ''; 
-    emojis.forEach(emoji => {
-        const emojiBtn = document.createElement('button');
-        emojiBtn.type = 'button';
-        emojiBtn.textContent = emoji;
-        emojiBtn.addEventListener('click', () => {
-            
-            if (messageInput) {
-                
-                document.execCommand('insertText', false, emoji);
-                messageInput.focus();
-            }
-            emojiPicker.classList.add('hidden'); 
-        });
-        emojiPicker.appendChild(emojiBtn);
-    });
+    if (!emojiPicker) return;
+    emojiPicker.innerHTML = ''; 
+    emojis.forEach(emoji => {
+        const emojiBtn = document.createElement('button');
+        emojiBtn.type = 'button';
+        emojiBtn.textContent = emoji;
+        emojiBtn.addEventListener('click', () => {
+            
+            if (messageInput) {
+                
+                document.execCommand('insertText', false, emoji);
+                messageInput.focus();
+            }
+            emojiPicker.classList.add('hidden'); 
+        });
+        emojiPicker.appendChild(emojiBtn);
+    });
 }
 if (emojiButton) {
-    emojiButton.addEventListener('click', () => {
-        if (emojiPicker) emojiPicker.classList.toggle('hidden');
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
-        if (styleDropdown) styleDropdown.classList.add('hidden'); 
-    });
+    emojiButton.addEventListener('click', () => {
+        if (emojiPicker) emojiPicker.classList.toggle('hidden');
+        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
+        if (styleDropdown) styleDropdown.classList.add('hidden'); 
+    });
 }
 
 document.addEventListener('click', (event) => {
-    if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
-        emojiPicker.classList.add('hidden');
-    }
-    if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
-           gifSearchContainer.classList.add('hidden');
-    }
-    if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
-        styleDropdown.classList.add('hidden');
-    }
+    if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
+        emojiPicker.classList.add('hidden');
+    }
+    if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
+           gifSearchContainer.classList.add('hidden');
+    }
+    if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
+        styleDropdown.classList.add('hidden');
+    }
 });
 
 function isLoggedIn() {
-    return localStorage.getItem('loggedInUser') !== null;
+    return localStorage.getItem('loggedInUser') !== null;
 }
 
 function getLoggedInUser() {
-    const userString = localStorage.getItem('loggedInUser');
-    return userString ? JSON.parse(userString) : null;
+    const userString = localStorage.getItem('loggedInUser');
+    return userString ? JSON.parse(userString) : null;
 }
 function setupRealtimeListener() {
-    if (!supabase) {
-        console.error("DEBUG: Supabase client is null. Check initialization.");
-        return;
-    }
-    
-    console.log("DEBUG: Attempting to subscribe to real-time channel.");
-    
-    supabase
-        .channel('messages_changes')
-        .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'messages' },
-            (payload) => {
-                console.log('DEBUG: Realtime change received!', payload);
-                
-                // --- INSERT LOGIC (Adding a new message) ---
-                if (payload.eventType === 'INSERT') {
-                    const newMessage = payload.new;
-                    console.log('DEBUG: Rendering new message object:', newMessage);
-                    
-                    if (!messageDisplay) {
-                        console.error("DEBUG CRITICAL: messageDisplay element is NULL!");
-                        return;
-                    }
-                    try {
-                        const messageElement = renderMessage(newMessage);
-                        if (messageElement instanceof HTMLElement) {
-                            messageDisplay.appendChild(messageElement);
-                            console.log('DEBUG: Successfully appended new message to display.');
-                            
-                            if (messageDisplay) {
-                                messageDisplay.scrollTop = messageDisplay.scrollHeight;
-                            }
-                        } else {
-                            console.error("DEBUG CRITICAL: renderMessage did NOT return a valid HTML element!");
-                        }
-                    } catch (e) {
-                        console.error("DEBUG CRITICAL: Error rendering message:", e);
-                    }
-                }
-                
-                // --- UPDATE LOGIC (Editing an existing message) ---
-                else if (payload.eventType === 'UPDATE') {
-                    const updatedMessage = payload.new;
-                    // Find the existing element using the data-message-id attribute
-                    const existingElement = document.querySelector(`[data-message-id="${updatedMessage.id}"]`); 
-                    
-                    if (existingElement) {
-                        try {
-                            const newElement = renderMessage(updatedMessage);
-                            existingElement.replaceWith(newElement);
-                            console.log(`DEBUG: Successfully updated message ID: ${updatedMessage.id}`);
-                        } catch (e) {
-                            console.error(`DEBUG CRITICAL: Error rendering updated message ID ${updatedMessage.id}:`, e);
-                        }
+    if (!supabase) {
+        console.error("DEBUG: Supabase client is null. Check initialization.");
+        return;
+    }
+    
+    console.log("DEBUG: Attempting to subscribe to real-time channel.");
+    
+    supabase
+        .channel('messages_changes')
+        .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'messages' },
+            (payload) => {
+                console.log('DEBUG: Realtime change received!', payload);
+                
+                // --- INSERT LOGIC (Adding a new message) ---
+                if (payload.eventType === 'INSERT') {
+                    // Check if the message was sent by the current user.
+                    // If it was, we assume fetchMessages() was already called and avoid duplicate append.
+                    // If it was NOT, we append it directly.
+                    if (payload.new.user_id !== currentUserId) {
+                        const newMessage = payload.new;
+                        console.log('DEBUG: Rendering new message object:', newMessage);
+                        
+                        if (!messageDisplay) {
+                            console.error("DEBUG CRITICAL: messageDisplay element is NULL!");
+                            return;
+                        }
+                        try {
+                            const messageElement = renderMessage(newMessage);
+                            if (messageElement instanceof HTMLElement) {
+                                messageDisplay.appendChild(messageElement);
+                                console.log('DEBUG: Successfully appended new message to display.');
+                                
+                                if (messageDisplay) {
+                                    messageDisplay.scrollTop = messageDisplay.scrollHeight;
+                                }
+                            } else {
+                                console.error("DEBUG CRITICAL: renderMessage did NOT return a valid HTML element!");
+                            }
+                        } catch (e) {
+                            console.error("DEBUG CRITICAL: Error rendering message:", e);
+                        }
                     } else {
-                        // Fallback to fetch all messages if the element is not found
-                        console.warn(`DEBUG: Could not find element for updated message ID: ${updatedMessage.id}. Triggering refresh.`);
-                        fetchMessages(); 
+                        console.log('DEBUG: Realtime event ignored as message was sent by self (handled by fetchMessages).');
                     }
-                }
-                
-                // --- DELETE LOGIC (Removing a message) ---
-                else if (payload.eventType === 'DELETE') {
-                    const deletedMessageId = payload.old.id;
-                    // Find the element using the data-message-id attribute
-                    const messageElement = document.querySelector(`[data-message-id="${deletedMessageId}"]`); 
-                    
-                    if (messageElement) {
-                        messageElement.remove();
-                        console.log(`DEBUG: Successfully deleted message ID: ${deletedMessageId}`);
-                    } else {
-                        console.warn(`DEBUG: Could not find element for deleted message ID: ${deletedMessageId}. No action taken.`);
-                    }
-                }
-            }
-        )
-        .subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
-                console.log('DEBUG: Realtime channel successfully subscribed!');
-            } else if (status === 'CHANNEL_ERROR') {
-                console.error('DEBUG: Realtime channel FAILED to subscribe!');
-            }
-        });
+                }
+                
+                // --- UPDATE LOGIC (Editing an existing message) ---
+                else if (payload.eventType === 'UPDATE') {
+                    const updatedMessage = payload.new;
+                    // Find the existing element using the data-message-id attribute
+                    const existingElement = document.querySelector(`[data-message-id="${updatedMessage.id}"]`); 
+                    
+                    if (existingElement) {
+                        try {
+                            const newElement = renderMessage(updatedMessage);
+                            existingElement.replaceWith(newElement);
+                            console.log(`DEBUG: Successfully updated message ID: ${updatedMessage.id}`);
+                        } catch (e) {
+                            console.error(`DEBUG CRITICAL: Error rendering updated message ID ${updatedMessage.id}:`, e);
+                        }
+                    } else {
+                        // Fallback to fetch all messages if the element is not found
+                        console.warn(`DEBUG: Could not find element for updated message ID: ${updatedMessage.id}. Triggering refresh.`);
+                        fetchMessages(); 
+                    }
+                }
+                
+                // --- DELETE LOGIC (Removing a message) ---
+                else if (payload.eventType === 'DELETE') {
+                    const deletedMessageId = payload.old.id;
+                    // Find the element using the data-message-id attribute
+                    const messageElement = document.querySelector(`[data-message-id="${deletedMessageId}"]`); 
+                    
+                    if (messageElement) {
+                        messageElement.remove();
+                        console.log(`DEBUG: Successfully deleted message ID: ${deletedMessageId}`);
+                    } else {
+                        console.warn(`DEBUG: Could not find element for deleted message ID: ${deletedMessageId}. No action taken.`);
+                    }
+                }
+            }
+        )
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                console.log('DEBUG: Realtime channel successfully subscribed!');
+            } else if (status === 'CHANNEL_ERROR') {
+                console.error('DEBUG: Realtime channel FAILED to subscribe!');
+            }
+        });
 }
 
 async function uploadImage() {
-    if (!imageInput || !imageInput.files[0]) {
-        alert("Please select a file."); 
-        return;
-    }
+    if (!imageInput || !imageInput.files[0]) {
+        alert("Please select a file."); 
+        return;
+    }
 
-    const file = imageInput.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "chat-upload-preset");
-    formData.append("api_key", "935271789947252"); 
+    const file = imageInput.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "chat-upload-preset");
+    formData.append("api_key", "935271789947252"); 
 
-    try {
-        const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
-            method: "POST",
-            body: formData
-        });
+    try {
+        const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
+            method: "POST",
+            body: formData
+        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Upload failed:", errorText);
-            alert("❌ Image upload failed. See console for details."); 
-            return;
-        }
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Upload failed:", errorText);
+            alert("❌ Image upload failed. See console for details."); 
+            return;
+        }
 
-        const data = await response.json();
-        const imageUrl = data.secure_url;
-        console.log("Image uploaded to Cloudinary:", imageUrl);
-        // Ensure the message input is cleared *before* sending the message, 
-        // as the image is the primary content here.
-        messageInput.innerHTML = ''; 
-        sendMessage(imageUrl);
-        imageInput.value = ''; // Clear the file input after successful upload
-    } catch (error) {
-        console.error("Image upload error:", error);
-        alert("❌ An unexpected error occurred during upload. See console for details.");
-    }
+        const data = await response.json();
+        const imageUrl = data.secure_url;
+        console.log("Image uploaded to Cloudinary:", imageUrl);
+        // Ensure the message input is cleared *before* sending the message, 
+        // as the image is the primary content here.
+        messageInput.innerHTML = ''; 
+        sendMessage(imageUrl);
+        imageInput.value = ''; // Clear the file input after successful upload
+    } catch (error) {
+        console.error("Image upload error:", error);
+        alert("❌ An unexpected error occurred during upload. See console for details.");
+    }
 }
 
 async function searchGifs(query) {
-    if (!gifResultsContainer) return;
-    
-    if (!query.trim()) {
-        gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">Please enter a search term.</p>';
-        return;
-    }
+    if (!gifResultsContainer) return;
+    
+    if (!query.trim()) {
+        gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">Please enter a search term.</p>';
+        return;
+    }
 
-    const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`;
-    gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">Searching...</p>';
+    const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`;
+    gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">Searching...</p>';
 
-    try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
 
-        if (data.data && data.data.length > 0) {
-            gifResultsContainer.innerHTML = '';
-            data.data.forEach(gif => {
-                const img = document.createElement('img');
-                img.src = gif.images.fixed_width_small.url || gif.images.fixed_width_downsampled.url; 
-                img.alt = gif.title;
-                img.classList.add('gif-result-image');
-                img.addEventListener('click', () => {
-                    sendMessage(gif.images.original.url); 
-                    if (gifSearchContainer) gifSearchContainer.classList.add('hidden');
-                    if (gifSearchInput) gifSearchInput.value = '';
-                    gifResultsContainer.innerHTML = '';
-                });
-                gifResultsContainer.appendChild(img);
-            });
-        } else {
-            gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">No GIFs found for your search.</p>';
-        }
-    } catch (error) {
-        console.error('Error fetching GIFs:', error);
-        gifResultsContainer.innerHTML = '<p style="color:red; text-align: center;">Failed to fetch GIFs.</p>';
-    }
+        if (data.data && data.data.length > 0) {
+            gifResultsContainer.innerHTML = '';
+            data.data.forEach(gif => {
+                const img = document.createElement('img');
+                img.src = gif.images.fixed_width_small.url || gif.images.fixed_width_downsampled.url; 
+                img.alt = gif.title;
+                img.classList.add('gif-result-image');
+                img.addEventListener('click', () => {
+                    sendMessage(gif.images.original.url); 
+                    if (gifSearchContainer) gifSearchContainer.classList.add('hidden');
+                    if (gifSearchInput) gifSearchInput.value = '';
+                    gifResultsContainer.innerHTML = '';
+                });
+                gifResultsContainer.appendChild(img);
+            });
+        } else {
+            gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">No GIFs found for your search.</p>';
+        }
+    } catch (error) {
+        console.error('Error fetching GIFs:', error);
+        gifResultsContainer.innerHTML = '<p style="color:red; text-align: center;">Failed to fetch GIFs.</p>';
+    }
 }
 async function sendMessage(imageUrl = '') {
-    if (!messageInput || !sendButton || !supabase) return;
-    const formattedMessage = messageInput.innerHTML.trim();
+    if (!messageInput || !sendButton || !supabase) return;
+    const formattedMessage = messageInput.innerHTML.trim();
 
-    if (!isLoggedIn() || !username) {
-        alert("Please sign in to chat.");
-        messageInput.disabled = true;
-        sendButton.disabled = true;
-        return;
-    }
+    if (!isLoggedIn() || !username) {
+        alert("Please sign in to chat.");
+        messageInput.disabled = true;
+        sendButton.disabled = true;
+        return;
+    }
 
-    if (formattedMessage === '' && imageUrl === '') { 
-        alert("Message cannot be empty.");
-        return;
-    }
+    if (formattedMessage === '' && imageUrl === '') { 
+        alert("Message cannot be empty.");
+        return;
+    }
 
-    const trimmedUsername = username.trim();
-    const { error } = await supabase
-        .from('messages')
-        .insert([{
-            sender: trimmedUsername,
-            content: formattedMessage,
-            image_url: imageUrl,
-            user_id: currentUserId
-        }]);
+    const trimmedUsername = username.trim();
+    const { error } = await supabase
+        .from('messages')
+        .insert([{
+            sender: trimmedUsername,
+            content: formattedMessage,
+            image_url: imageUrl,
+            user_id: currentUserId
+        }]);
 
-    if (error) {
-        console.error("Error sending message:", error);
-        alert("❌ Failed to send message. Check RLS policy.");
-    } else {
-        // Clear input AFTER successful insert
-        messageInput.innerHTML = '';
+    if (error) {
+        console.error("Error sending message:", error);
+        alert("❌ Failed to send message. Check RLS policy.");
+    } else {
+        // Clear input AFTER successful insert
+        messageInput.innerHTML = '';
         
-        // ⭐ REMOVED: alert("Message successfully posted!"); ⭐
-        // We rely on the real-time listener (setupRealtimeListener) to show the new message.
-        
-        if(boldBtn) boldBtn.classList.remove('active');
-        if(italicBtn) italicBtn.classList.remove('active');
-        if(underlineBtn) underlineBtn.classList.remove('active');
-        if(sizeSelect) sizeSelect.value = '4'; 
-        if(styleDropdown) styleDropdown.classList.add('hidden');
-    }
+        // ⭐ MODIFIED CODE HERE: Call fetchMessages() to display the sender's message instantly. ⭐
+        // This makes the script behave like the first one in terms of self-display.
+        fetchMessages();
+        
+        if(boldBtn) boldBtn.classList.remove('active');
+        if(italicBtn) italicBtn.classList.remove('active');
+        if(underlineBtn) underlineBtn.classList.remove('active');
+        if(sizeSelect) sizeSelect.value = '4'; 
+        if(styleDropdown) styleDropdown.classList.add('hidden');
+    }
 }
 
 /* ==================================================================== */
 /* === delete and edit script=== */
 /* ==================================================================== */
 async function deleteMessage(messageIdToDelete) {
-    if (!supabase) return false;
+    if (!supabase) return false;
 
-    console.log('deleteMessage called with ID:', messageIdToDelete);
-    try {
-        const { error } = await supabase
-            .from('messages')
-            .delete()
-            .eq('id', messageIdToDelete)
-            .eq('user_id', currentUserId);
+    console.log('deleteMessage called with ID:', messageIdToDelete);
+    try {
+        const { error } = await supabase
+            .from('messages')
+            .delete()
+            .eq('id', messageIdToDelete)
+            .eq('user_id', currentUserId);
 
-        if (error) {
-            console.error('Error deleting message from Supabase:', error);
-            alert("❌ Failed to delete the message. Check permissions or ownership.");
-            return false;
-        }
+        if (error) {
+            console.error('Error deleting message from Supabase:', error);
+            alert("❌ Failed to delete the message. Check permissions or ownership.");
+            return false;
+        }
 
-        console.log('Message deleted successfully from Supabase:', messageIdToDelete);
-        return true;
-    } catch (error) {
-        console.error('An unexpected error occurred while deleting from Supabase:', error);
-        alert("❌ An unexpected error occurred during deletion.");
-        return false;
-    }
+        console.log('Message deleted successfully from Supabase:', messageIdToDelete);
+        return true;
+    } catch (error) {
+        console.error('An unexpected error occurred while deleting from Supabase:', error);
+        alert("❌ An unexpected error occurred during deletion.");
+        return false;
+    }
 }
 
 async function handleDeleteButtonClick(messageId) {
-    const success = await deleteMessage(messageId); 
-    if (success) {
-        console.log('Message deleted successfully, real-time listener will update display.');
-        // ⭐ REMOVED: alert("✅ Message deleted successfully!"); ⭐
-        // Rely on the real-time listener to remove the message visually.
-    } else {
-        console.error('Deletion failed.'); 
-    }
+    const success = await deleteMessage(messageId); 
+    if (success) {
+        console.log('Message deleted successfully, real-time listener will update display.');
+        // ⭐ MODIFIED CODE HERE: Call fetchMessages() to instantly update the display. ⭐
+        fetchMessages();
+    } else {
+        console.error('Deletion failed.'); 
+    }
 }
 
 function handleStartEdit(messageId, initialContent) {
-    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
-    if (!messageItem) return;
-    const contentWrapper = messageItem.querySelector('.message-content .message-text');
-    if (!contentWrapper) return;
-    contentWrapper.dataset.originalContent = contentWrapper.innerHTML;
-    contentWrapper.contentEditable = 'true';
-    contentWrapper.focus();
-    contentWrapper.classList.add('editing-active');
-    const optionsBtn = messageItem.querySelector('.message-options-btn');
-    if (optionsBtn) {
-        optionsBtn.style.display = 'none'; 
-        let editControls = messageItem.querySelector('.edit-controls');
-        if (!editControls) {
-            editControls = document.createElement('div');
-            editControls.classList.add('edit-controls');
-            messageItem.querySelector('.message-content').appendChild(editControls);
-        }
-        editControls.innerHTML = '';
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = 'Save';
-        saveBtn.classList.add('save-edit-btn');
-        saveBtn.onclick = () => {
-            
-            const newContent = contentWrapper.innerHTML;
-            handleSaveEdit(messageId, newContent);
-        };
-        editControls.appendChild(saveBtn);
-        const cancelBtn = document.createElement('button');
-        cancelBtn.textContent = '❌ Cancel';
-        cancelBtn.classList.add('cancel-edit-btn');
-        cancelBtn.onclick = () => {
-            handleCancelEdit(messageId);
-        };
-        editControls.appendChild(cancelBtn);
-    }
+    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!messageItem) return;
+    const contentWrapper = messageItem.querySelector('.message-content .message-text');
+    if (!contentWrapper) return;
+    contentWrapper.dataset.originalContent = contentWrapper.innerHTML;
+    contentWrapper.contentEditable = 'true';
+    contentWrapper.focus();
+    contentWrapper.classList.add('editing-active');
+    const optionsBtn = messageItem.querySelector('.message-options-btn');
+    if (optionsBtn) {
+        optionsBtn.style.display = 'none'; 
+        let editControls = messageItem.querySelector('.edit-controls');
+        if (!editControls) {
+            editControls = document.createElement('div');
+            editControls.classList.add('edit-controls');
+            messageItem.querySelector('.message-content').appendChild(editControls);
+        }
+        editControls.innerHTML = '';
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Save';
+        saveBtn.classList.add('save-edit-btn');
+        saveBtn.onclick = () => {
+            
+            const newContent = contentWrapper.innerHTML;
+            handleSaveEdit(messageId, newContent);
+        };
+        editControls.appendChild(saveBtn);
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '❌ Cancel';
+        cancelBtn.classList.add('cancel-edit-btn');
+        cancelBtn.onclick = () => {
+            handleCancelEdit(messageId);
+        };
+        editControls.appendChild(cancelBtn);
+    }
 }
 
 async function handleSaveEdit(messageId, newContent) {
-    const trimmedContent = newContent.trim();
-    if (!trimmedContent) {
-        alert("Message content cannot be empty.");
-        return;
-    }
-    if (!currentUserId) {
-        alert("User session not loaded. Please refresh.");
-        return;
-    }
-    const { error } = await supabase.rpc('update_message', {
-        message_id_in: messageId,
-        new_content_in: trimmedContent,
-        user_id_in: currentUserId
-    });
+    const trimmedContent = newContent.trim();
+    if (!trimmedContent) {
+        alert("Message content cannot be empty.");
+        return;
+    }
+    if (!currentUserId) {
+        alert("User session not loaded. Please refresh.");
+        return;
+    }
+    const { error } = await supabase.rpc('update_message', {
+        message_id_in: messageId,
+        new_content_in: trimmedContent,
+        user_id_in: currentUserId
+    });
 
-    if (error) {
-        console.error('Error updating message:', error.message);
-        alert('Failed to save edit: ' + error.message);
-    } else {
-        // Realtime listener handles the visual update
-        handleCancelEdit(messageId); 
-    }
+    if (error) {
+        console.error('Error updating message:', error.message);
+        alert('Failed to save edit: ' + error.message);
+    } else {
+        // MODIFIED CODE HERE: Call fetchMessages() after saving an edit for instant display
+        fetchMessages();
+        handleCancelEdit(messageId); 
+    }
 }
-        
+        
 function handleCancelEdit(messageId) {
-    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
-    if (!messageItem) return;
+    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!messageItem) return;
 
-    const contentWrapper = messageItem.querySelector('.message-content .message-text');
-    const optionsBtn = messageItem.querySelector('.message-options-btn');
-    const editControls = messageItem.querySelector('.edit-controls'); 
-    if (contentWrapper) {
-        contentWrapper.innerHTML = contentWrapper.dataset.originalContent || contentWrapper.innerHTML;
-        contentWrapper.contentEditable = 'false';
-        contentWrapper.classList.remove('editing-active');
-        delete contentWrapper.dataset.originalContent; 
-    }
+    const contentWrapper = messageItem.querySelector('.message-content .message-text');
+    const optionsBtn = messageItem.querySelector('.message-options-btn');
+    const editControls = messageItem.querySelector('.edit-controls'); 
+    if (contentWrapper) {
+        contentWrapper.innerHTML = contentWrapper.dataset.originalContent || contentWrapper.innerHTML;
+        contentWrapper.contentEditable = 'false';
+        contentWrapper.classList.remove('editing-active');
+        delete contentWrapper.dataset.originalContent; 
+    }
 
-    if (optionsBtn) optionsBtn.style.display = 'block';
-    if (editControls) editControls.remove();
+    if (optionsBtn) optionsBtn.style.display = 'block';
+    if (editControls) editControls.remove();
 }
-  
+  
 function renderMessage(message) {
-    const messageContainer = document.createElement('div');
-    messageContainer.classList.add('message-item');
-    if (username === message.sender) {
-        messageContainer.classList.add('my-message');
-    }
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('message-item');
+    if (username === message.sender) {
+        messageContainer.classList.add('my-message');
+    }
 
-    messageContainer.dataset.messageId = message.id;
+    messageContainer.dataset.messageId = message.id;
 
-    // ===========================================
-    // 1. HEADER CONSTRUCTION (NOW ONLY HOLDS THE EDIT/DELETE BUTTON)
-    // ===========================================
-    const headerEl = document.createElement('div');
-    headerEl.classList.add('message-header');
-    
-    // MESSAGE OPTIONS BUTTON (REMAINS IN HEADER)
-    if (username === message.sender) {
-        const optionsBtn = document.createElement('button');
-        optionsBtn.textContent = '...';
-        optionsBtn.classList.add('message-options-btn');
-        optionsBtn.type = 'button';
-        optionsBtn.id = `message-${message.id}`;
-        optionsBtn.title = 'Click to manage (Edit/Delete) this message';
+    // ===========================================
+    // 1. HEADER CONSTRUCTION (NOW ONLY HOLDS THE EDIT/DELETE BUTTON)
+    // ===========================================
+    const headerEl = document.createElement('div');
+    headerEl.classList.add('message-header');
+    
+    // MESSAGE OPTIONS BUTTON (REMAINS IN HEADER)
+    if (username === message.sender) {
+        const optionsBtn = document.createElement('button');
+        optionsBtn.textContent = '...';
+        optionsBtn.classList.add('message-options-btn');
+        optionsBtn.type = 'button';
+        optionsBtn.id = `message-${message.id}`;
+        optionsBtn.title = 'Click to manage (Edit/Delete) this message';
 
-        optionsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:');
-            if (action) {
-                const standardizedAction = action.toUpperCase().trim();
-                if (standardizedAction === 'D') {
-                    if (confirm('Are you sure you want to delete this message?')) {
-                        handleDeleteButtonClick(message.id);
-                    }
-                } else if (standardizedAction === 'E') {
-                    handleStartEdit(message.id, message.content);
-                } else {
-                    alert('Invalid option selected. Please enter E or D.');
-                }
-            }
-        });
-        headerEl.appendChild(optionsBtn); // The button stays in the header
-    }
+        optionsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:');
+            if (action) {
+                const standardizedAction = action.toUpperCase().trim();
+                if (standardizedAction === 'D') {
+                    if (confirm('Are you sure you want to delete this message?')) {
+                        handleDeleteButtonClick(message.id);
+                    }
+                } else if (standardizedAction === 'E') {
+                    handleStartEdit(message.id, message.content);
+                } else {
+                    alert('Invalid option selected. Please enter E or D.');
+                }
+            }
+        });
+        headerEl.appendChild(optionsBtn); // The button stays in the header
+    }
 
-    messageContainer.appendChild(headerEl);
+    messageContainer.appendChild(headerEl);
 
-    // ===========================================
-    // 2. MESSAGE CONTENT (No Change)
-    // ===========================================
-    const messageContent = document.createElement('div');
-    messageContent.classList.add('message-content');
+    // ===========================================
+    // 2. MESSAGE CONTENT (No Change)
+    // ===========================================
+    const messageContent = document.createElement('div');
+    messageContent.classList.add('message-content');
 
-    if (message.image_url) {
-        const imgEl = document.createElement('img');
-        imgEl.src = message.image_url;
-        imgEl.alt = 'User posted image/GIF';
-        imgEl.classList.add('chat-image');
-        messageContent.appendChild(imgEl);
-    }
+    if (message.image_url) {
+        const imgEl = document.createElement('img');
+        imgEl.src = message.image_url;
+        imgEl.alt = 'User posted image/GIF';
+        imgEl.classList.add('chat-image');
+        messageContent.appendChild(imgEl);
+    }
 
-    if (message.content) {
-        const contentEl = document.createElement('div');
-        contentEl.innerHTML = message.content;
-        contentEl.classList.add('message-text');
-        messageContent.appendChild(contentEl);
-    }
-    messageContainer.appendChild(messageContent);
+    if (message.content) {
+        const contentEl = document.createElement('div');
+        contentEl.innerHTML = message.content;
+        contentEl.classList.add('message-text');
+        messageContent.appendChild(contentEl);
+    }
+    messageContainer.appendChild(messageContent);
 
-    // ===========================================
-    // 3. FOOTER CONSTRUCTION (NOW CONTAINS SENDER NAME + TIMESTAMP)
-    // ===========================================
-    const footerEl = document.createElement('div');
-    footerEl.classList.add('message-footer');
+    // ===========================================
+    // 3. FOOTER CONSTRUCTION (NOW CONTAINS SENDER NAME + TIMESTAMP)
+    // ===========================================
+    const footerEl = document.createElement('div');
+    footerEl.classList.add('message-footer');
 
-    // ADDED: Sender Name is now in the footer
-    const senderEl = document.createElement('span');
-    senderEl.textContent = message.sender;
-    senderEl.classList.add('sender-name');
-    footerEl.appendChild(senderEl);
+    // ADDED: Sender Name is now in the footer
+    const senderEl = document.createElement('span');
+    senderEl.textContent = message.sender;
+    senderEl.classList.add('sender-name');
+    footerEl.appendChild(senderEl);
 
-    // Timestamp follows the sender name
-    const timestampEl = document.createElement('small');
-    const createdAt = new Date(message.created_at);
-    const formattedDate = createdAt.toLocaleDateString();
-    const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    // Adding a separator, since they are now side-by-side
-    timestampEl.textContent = ` ${formattedDate} ${formattedTime}`; 
-    timestampEl.classList.add('timestamp');
+    // Timestamp follows the sender name
+    const timestampEl = document.createElement('small');
+    const createdAt = new Date(message.created_at);
+    const formattedDate = createdAt.toLocaleDateString();
+    const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // Adding a separator, since they are now side-by-side
+    timestampEl.textContent = ` ${formattedDate} ${formattedTime}`; 
+    timestampEl.classList.add('timestamp');
 
-    footerEl.appendChild(timestampEl);
-    messageContainer.appendChild(footerEl);
+    footerEl.appendChild(timestampEl);
+    messageContainer.appendChild(footerEl);
 
-    return messageContainer;
+    return messageContainer;
 }
 
 /* ==================================================================== */
 /* === display script=== */
 /* ==================================================================== */
 async function displayMessages(messages) {
-    if (!messageDisplay) return; 
+    if (!messageDisplay) return; 
 
-    messageDisplay.innerHTML = ''; 
-    
-    if (messages && Array.isArray(messages)) {
-        messages.forEach(msg => {
-            const messageElement = renderMessage(msg);
-            messageDisplay.appendChild(messageElement);
-        });
-        
-        const shouldScroll = messageDisplay.scrollTop + messageDisplay.clientHeight >= messageDisplay.scrollHeight - 50;
-        if (shouldScroll) {
-            messageDisplay.scrollTop = messageDisplay.scrollHeight;
-        }
-    }
+    messageDisplay.innerHTML = ''; 
+    
+    if (messages && Array.isArray(messages)) {
+        messages.forEach(msg => {
+            const messageElement = renderMessage(msg);
+            messageDisplay.appendChild(messageElement);
+        });
+        
+        const shouldScroll = messageDisplay.scrollTop + messageDisplay.clientHeight >= messageDisplay.scrollHeight - 50;
+        if (shouldScroll) {
+            messageDisplay.scrollTop = messageDisplay.scrollHeight;
+        }
+    }
 }
 async function fetchMessages() {
-    // 1. Clear the display container first (Already done in displayMessages, but harmless here)
-    if (messageDisplay) messageDisplay.innerHTML = ''; 
-    const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .order('created_at', { ascending: true }); 
-    if (error) {
-        console.error('Error fetching messages:', error.message);
-        return;
-    }
-    displayMessages(data);   
-    if (messageDisplay) {
-        messageDisplay.scrollTop = messageDisplay.scrollHeight;
-    }
+    // 1. Clear the display container first (Already done in displayMessages, but harmless here)
+    if (messageDisplay) messageDisplay.innerHTML = ''; 
+    const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: true }); 
+    if (error) {
+        console.error('Error fetching messages:', error.message);
+        return;
+    }
+    displayMessages(data);   
+    if (messageDisplay) {
+        messageDisplay.scrollTop = messageDisplay.scrollHeight;
+    }
 }
 if (styleToggleBtn) {
-    styleToggleBtn.addEventListener('click', (event) => {
-        event.stopPropagation(); 
-        if (styleDropdown) styleDropdown.classList.toggle('hidden');
-        if (emojiPicker) emojiPicker.classList.add('hidden'); 
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
-        messageInput.focus(); 
-    });
+    styleToggleBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); 
+        if (styleDropdown) styleDropdown.classList.toggle('hidden');
+        if (emojiPicker) emojiPicker.classList.add('hidden'); 
+        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
+        messageInput.focus(); 
+    });
 }
 if (boldBtn) {
-    boldBtn.addEventListener('click', () => {
-        document.execCommand('bold', false, null);
-        boldBtn.classList.toggle('active', document.queryCommandState('bold'));
-        messageInput.focus();
-    });
+    boldBtn.addEventListener('click', () => {
+        document.execCommand('bold', false, null);
+        boldBtn.classList.toggle('active', document.queryCommandState('bold'));
+        messageInput.focus();
+    });
 }
 
 if (italicBtn) {
-    italicBtn.addEventListener('click', () => {
-        document.execCommand('italic', false, null);
-        italicBtn.classList.toggle('active', document.queryCommandState('italic'));
-        messageInput.focus();
-    });
+    italicBtn.addEventListener('click', () => {
+        document.execCommand('italic', false, null);
+        italicBtn.classList.toggle('active', document.queryCommandState('italic'));
+        messageInput.focus();
+    });
 }
 
 if (underlineBtn) {
-    underlineBtn.addEventListener('click', () => {
-        document.execCommand('underline', false, null);
-        underlineBtn.classList.toggle('active', document.queryCommandState('underline'));
-        messageInput.focus();
-    });
+    underlineBtn.addEventListener('click', () => {
+        document.execCommand('underline', false, null);
+        underlineBtn.classList.toggle('active', document.queryCommandState('underline'));
+        messageInput.focus();
+    });
 }
 
 if (sizeSelect) {
-    sizeSelect.addEventListener('change', (event) => {
-        document.execCommand('fontSize', false, event.target.value); 
-        messageInput.focus();
-    });
+    sizeSelect.addEventListener('change', (event) => {
+        document.execCommand('fontSize', false, event.target.value); 
+        messageInput.focus();
+    });
 }
 if (imageButton) {
-    imageButton.addEventListener('click', () => {
-        if (imageInput) imageInput.click();
-    });
+    imageButton.addEventListener('click', () => {
+        if (imageInput) imageInput.click();
+    });
 }
 if (imageInput) {
-    imageInput.addEventListener('change', uploadImage);
+    imageInput.addEventListener('change', uploadImage);
 }
 if (sendButton) {
-    sendButton.addEventListener('click', () => sendMessage());
+    sendButton.addEventListener('click', () => sendMessage());
 }
 if (gifButton) {
-    gifButton.addEventListener('click', (event) => {
-        event.stopPropagation(); 
-        if (gifSearchContainer) gifSearchContainer.classList.toggle('hidden'); 
-        if (emojiPicker) emojiPicker.classList.add('hidden'); 
-        if (styleDropdown) styleDropdown.classList.add('hidden'); 
-        if (gifSearchContainer && gifSearchContainer.classList.contains('hidden')) {
-            if (gifSearchInput) gifSearchInput.value = '';
-            if (gifResultsContainer) gifResultsContainer.innerHTML = '';
-        }
-    });
+    gifButton.addEventListener('click', (event) => {
+        event.stopPropagation(); 
+        if (gifSearchContainer) gifSearchContainer.classList.toggle('hidden'); 
+        if (emojiPicker) emojiPicker.classList.add('hidden'); 
+        if (styleDropdown) styleDropdown.classList.add('hidden'); 
+        if (gifSearchContainer && gifSearchContainer.classList.contains('hidden')) {
+            if (gifSearchInput) gifSearchInput.value = '';
+            if (gifResultsContainer) gifResultsContainer.innerHTML = '';
+        }
+    });
 }
 if (gifSearchButton) {
-    gifSearchButton.addEventListener('click', () => {
-        const searchTerm = gifSearchInput ? gifSearchInput.value : '';
-        searchGifs(searchTerm);
-    });
+    gifSearchButton.addEventListener('click', () => {
+        const searchTerm = gifSearchInput ? gifSearchInput.value : '';
+        searchGifs(searchTerm);
+    });
 }
 if (gifSearchInput) {
-    gifSearchInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            if (gifSearchButton) gifSearchButton.click();
-        }
-    });
+    gifSearchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            if (gifSearchButton) gifSearchButton.click();
+        }
+    });
 }
 if (messageInput) {
-    messageInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            sendMessage();
-        }
-    });
+    messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
 }
 
 window.addEventListener('load', async () => {
-    if (emojiPicker) populateEmojiPicker();
-    
-    if (isLoggedIn()) {
-        const user = getLoggedInUser();
-        username = user.username;
-        currentUserId = user.id;
-        
-        if (chatBox) chatBox.classList.remove('hidden');
-        if (messageInput) messageInput.disabled = false;
-        if (sendButton) sendButton.disabled = false;
-        if (gifButton) gifButton.disabled = false;
-        if (imageButton) imageButton.disabled = false;
-        if (styleToggleBtn) styleToggleBtn.disabled = false;
-        if (emojiButton) emojiButton.disabled = false;
-        
-        setupRealtimeListener();
+    if (emojiPicker) populateEmojiPicker();
+    
+    if (isLoggedIn()) {
+        const user = getLoggedInUser();
+        username = user.username;
+        currentUserId = user.id;
+        
+        if (chatBox) chatBox.classList.remove('hidden');
+        if (messageInput) messageInput.disabled = false;
+        if (sendButton) sendButton.disabled = false;
+        if (gifButton) gifButton.disabled = false;
+        if (imageButton) imageButton.disabled = false;
+        if (styleToggleBtn) styleToggleBtn.disabled = false;
+        if (emojiButton) emojiButton.disabled = false;
+        
+        setupRealtimeListener();
 
-    } else {
-        if (messageInput) messageInput.disabled = true;
-        if (sendButton) sendButton.disabled = true;
-        if (gifButton) gifButton.disabled = true;
-        if (imageButton) imageButton.disabled = true;
-        if (styleToggleBtn) styleToggleBtn.disabled = true;
-        if (emojiButton) emojiButton.disabled = true; 
-    }
-    fetchMessages();
- 
+    } else {
+        if (messageInput) messageInput.disabled = true;
+        if (sendButton) sendButton.disabled = true;
+        if (gifButton) gifButton.disabled = true;
+        if (imageButton) imageButton.disabled = true;
+        if (styleToggleBtn) styleToggleBtn.disabled = true;
+        if (emojiButton) emojiButton.disabled = true; 
+    }
+    fetchMessages();
+ 
 });
 
 

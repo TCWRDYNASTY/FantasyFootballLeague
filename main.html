@@ -935,57 +935,30 @@ function getLoggedInUser() {
 
 
 function setupRealtimeListener() {
-    if (!supabase) return; // Guard clause
+    if (!supabase) {
+        console.error("DEBUG: Supabase client is null. Check initialization.");
+        return;
+    }
+
+    console.log("DEBUG: Attempting to subscribe to real-time channel.");
+    
     supabase
         .channel('messages_changes')
         .on(
             'postgres_changes',
-            { event: '*', schema: 'public', table: 'messages' }, 
+            { event: '*', schema: 'public', table: 'messages' },
             (payload) => {
-
-                if (payload.eventType === 'INSERT') {
-                    const newMessage = payload.new;
-                    const messageElement = renderMessage(newMessage); 
-                    messageDisplay.appendChild(messageElement);
-                    if (messageDisplay) {
-                        messageDisplay.scrollTop = messageDisplay.scrollHeight;
-                    }
-                    if (currentUserId && currentUserId !== newMessage.user_id) {
-                        showToast(`🔔 New Post from ${newMessage.sender}!`);
-                    }
-                } 
-                
-                // 💡 CORRECTED UPDATE LOGIC
-                else if (payload.eventType === 'UPDATE') {
-                    const updatedMessage = payload.new;
-                    const existingElement = document.getElementById(`message-${updatedMessage.id}`);
-                    
-                    if (existingElement) {
-                        // 1. Get the reference to the old message's position
-                        const oldElement = existingElement;
-                        
-                        // 2. Create the new element with updated data
-                        const newElement = renderMessage(updatedMessage);
-
-                        // 3. Replace the old element with the new one
-                        oldElement.replaceWith(newElement);
-
-                    } else {
-                        // If the element doesn't exist, simply force a full refresh.
-                        fetchMessages(); 
-                    }
-                }
-                
-                else if (payload.eventType === 'DELETE') {
-                    const deletedMessageId = payload.old.id;
-                    const messageElement = document.getElementById(`message-${deletedMessageId}`);
-                    if (messageElement) {
-                        messageElement.remove();
-                    }
-                }
+                console.log('DEBUG: Realtime change received!', payload); 
+                // ... (rest of your logic)
             }
         )
-        .subscribe();
+        .subscribe((status) => { 
+            if (status === 'SUBSCRIBED') {
+                console.log('DEBUG: Realtime channel successfully subscribed!');
+            } else if (status === 'CHANNEL_ERROR') {
+                console.error('DEBUG: Realtime channel FAILED to subscribe!');
+            }
+        });
 }
 
 async function uploadImage() {

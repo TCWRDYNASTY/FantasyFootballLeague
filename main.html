@@ -841,16 +841,17 @@ body {
     </div>
   </div>
 </div>
-<div id="toast-notification"></div>
+
 
 <script>
-function logout() {
+
+    function logout() {
     localStorage.removeItem('loggedInUser');
-    showToast("Signed Off Successfully!");
+    alert("Signed Off Successfully!");
     setTimeout(() => {
         window.location.href = "index.html"; 
     }, 1000); 
-}      
+}
 const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
 
@@ -966,9 +967,6 @@ function setupRealtimeListener() {
                             if (messageDisplay) {
                                 messageDisplay.scrollTop = messageDisplay.scrollHeight;
                             }
-                            if (currentUserId && currentUserId !== newMessage.user_id) {
-                                showToast(`🔔 New Post from ${newMessage.sender}!`);
-                            }
                         } else {
                             console.error("DEBUG CRITICAL: renderMessage did NOT return a valid HTML element!");
                         }
@@ -980,7 +978,7 @@ function setupRealtimeListener() {
                 // --- UPDATE LOGIC (Editing an existing message) ---
                 else if (payload.eventType === 'UPDATE') {
                     const updatedMessage = payload.new;
-                    // Use a data attribute selector (preferred) or the old ID
+                    // Find the existing element using the data-message-id attribute
                     const existingElement = document.querySelector(`[data-message-id="${updatedMessage.id}"]`); 
                     
                     if (existingElement) {
@@ -992,7 +990,7 @@ function setupRealtimeListener() {
                             console.error(`DEBUG CRITICAL: Error rendering updated message ID ${updatedMessage.id}:`, e);
                         }
                     } else {
-                         // Fallback for an element that might have been missed during a previous load
+                         // Fallback to fetch all messages if the element is not found
                         console.warn(`DEBUG: Could not find element for updated message ID: ${updatedMessage.id}. Triggering refresh.`);
                         fetchMessages(); 
                     }
@@ -1001,7 +999,7 @@ function setupRealtimeListener() {
                 // --- DELETE LOGIC (Removing a message) ---
                 else if (payload.eventType === 'DELETE') {
                     const deletedMessageId = payload.old.id;
-                    // Use a data attribute selector (preferred) or the old ID
+                    // Find the element using the data-message-id attribute
                     const messageElement = document.querySelector(`[data-message-id="${deletedMessageId}"]`); 
                     
                     if (messageElement) {
@@ -1024,15 +1022,14 @@ function setupRealtimeListener() {
 
 async function uploadImage() {
     if (!imageInput || !imageInput.files[0]) {
-        showToast("Please select a file.");
+        alert("Please select a file."); 
         return;
     }
 
     const file = imageInput.files[0];
-
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "chat-upload-preset"); 
+    formData.append("upload_preset", "chat-upload-preset");
     formData.append("api_key", "935271789947252"); 
 
     try {
@@ -1044,7 +1041,7 @@ async function uploadImage() {
         if (!response.ok) {
             const errorText = await response.text();
             console.error("Upload failed:", errorText);
-            showToast("❌ Image upload failed.");
+            alert("❌ Image upload failed. See console for details."); 
             return;
         }
 
@@ -1055,7 +1052,7 @@ async function uploadImage() {
         imageInput.value = ''; // Clear the file input after successful upload
     } catch (error) {
         console.error("Image upload error:", error);
-        showToast("❌ An error occurred during upload.");
+        alert("❌ An unexpected error occurred during upload. See console for details.");
     }
 }
 
@@ -1102,14 +1099,14 @@ async function sendMessage(imageUrl = '') {
     const formattedMessage = messageInput.innerHTML.trim();
 
     if (!isLoggedIn() || !username) {
-        showToast("Please sign in to chat.");
+        alert("Please sign in to chat.");
         messageInput.disabled = true;
         sendButton.disabled = true;
         return;
     }
 
     if (formattedMessage === '' && imageUrl === '') { 
-        showToast("Message cannot be empty.");
+        alert("Message cannot be empty.");
         return;
     }
 
@@ -1125,15 +1122,16 @@ async function sendMessage(imageUrl = '') {
 
     if (error) {
         console.error("Error sending message:", error);
-        showToast("❌ Failed to send message. Check RLS policy.");
+        alert("❌ Failed to send message. Check RLS policy.");
     } else {
         messageInput.innerHTML = '';
-        showToast("Message successfully posted!");
+        alert("Message successfully posted!"); 
+        
         if(boldBtn) boldBtn.classList.remove('active');
         if(italicBtn) italicBtn.classList.remove('active');
         if(underlineBtn) underlineBtn.classList.remove('active');
         if(sizeSelect) sizeSelect.value = '4'; 
-        if(styleDropdown) styleDropdown.classList.add('hidden'); // 🎯 Hide the dropdown after sending
+        if(styleDropdown) styleDropdown.classList.add('hidden');
     }
 }
 
@@ -1149,11 +1147,11 @@ async function deleteMessage(messageIdToDelete) {
             .from('messages')
             .delete()
             .eq('id', messageIdToDelete)
-            .eq('user_id', currentUserId); 
+            .eq('user_id', currentUserId);
 
         if (error) {
             console.error('Error deleting message from Supabase:', error);
-            showToast("❌ Failed to delete the message. Check permissions or ownership.");
+            alert("❌ Failed to delete the message. Check permissions or ownership.");
             return false;
         }
 
@@ -1161,7 +1159,7 @@ async function deleteMessage(messageIdToDelete) {
         return true;
     } catch (error) {
         console.error('An unexpected error occurred while deleting from Supabase:', error);
-        showToast("❌ An unexpected error occurred.");
+        alert("❌ An unexpected error occurred during deletion.");
         return false;
     }
 }
@@ -1169,9 +1167,13 @@ async function deleteMessage(messageIdToDelete) {
 async function handleDeleteButtonClick(messageId) {
     const success = await deleteMessage(messageId); 
     if (success) {
-        console.log('Message deleted successfully, refreshing chat.');
-        showToast("✅ Message deleted successfully!");
-        fetchMessages(); 
+        console.log('Message deleted successfully, real-time listener will update display.');
+        alert("✅ Message deleted successfully!");
+        
+        // NOTE: If your real-time listener is correctly set up (which it is now!), 
+        // you often do NOT need to call fetchMessages(). The listener handles it.
+        // I will leave it here as a fallback, but you might comment it out later.
+        // fetchMessages(); 
     } else {
         console.error('Deletion failed.'); 
     }
@@ -1214,9 +1216,6 @@ function handleStartEdit(messageId, initialContent) {
         editControls.appendChild(cancelBtn);
     }
 }
-
-// Assuming currentUserId is available globally, as per your previous code
-// E.g., currentUserId = getLoggedInUser().id;
 
 async function handleSaveEdit(messageId, newContent) {
     const trimmedContent = newContent.trim();
@@ -1805,8 +1804,6 @@ for (const [rosterId, data] of Object.entries(teamMap)) {
         }
 
         fetchTrendingPlayers();
-
-
 
 </script>
 

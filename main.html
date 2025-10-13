@@ -844,6 +844,7 @@ body {
 
 
 <script>
+<script>
 
     function logout() {
     localStorage.removeItem('loggedInUser');
@@ -883,24 +884,24 @@ const boldBtn = document.getElementById('bold-btn');
 const italicBtn = document.getElementById('italic-btn');
 const underlineBtn = document.getElementById('underline-btn');
 const sizeSelect = document.getElementById('size-select');
-const styleToggleBtn = document.getElementById('style-toggle-btn'); // 🎯 NEW: Style toggle button
-const styleDropdown = document.getElementById('style-dropdown');   // 🎯 NEW: Dropdown container
+const styleToggleBtn = document.getElementById('style-toggle-btn');
+const styleDropdown = document.getElementById('style-dropdown'); 
 
 function populateEmojiPicker() {
     if (!emojiPicker) return;
-    emojiPicker.innerHTML = ''; // Clear existing emojis
+    emojiPicker.innerHTML = ''; 
     emojis.forEach(emoji => {
         const emojiBtn = document.createElement('button');
         emojiBtn.type = 'button';
         emojiBtn.textContent = emoji;
         emojiBtn.addEventListener('click', () => {
-            // Use innerHTML and execCommand for emoji insertion
+            
             if (messageInput) {
-                // This ensures the emoji is inserted at the cursor position
+                
                 document.execCommand('insertText', false, emoji);
                 messageInput.focus();
             }
-            emojiPicker.classList.add('hidden'); // Hide picker after selection
+            emojiPicker.classList.add('hidden'); 
         });
         emojiPicker.appendChild(emojiBtn);
     });
@@ -908,8 +909,8 @@ function populateEmojiPicker() {
 if (emojiButton) {
     emojiButton.addEventListener('click', () => {
         if (emojiPicker) emojiPicker.classList.toggle('hidden');
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); // Close others
-        if (styleDropdown) styleDropdown.classList.add('hidden'); // Close others
+        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
+        if (styleDropdown) styleDropdown.classList.add('hidden'); 
     });
 }
 
@@ -990,7 +991,7 @@ function setupRealtimeListener() {
                             console.error(`DEBUG CRITICAL: Error rendering updated message ID ${updatedMessage.id}:`, e);
                         }
                     } else {
-                         // Fallback to fetch all messages if the element is not found
+                        // Fallback to fetch all messages if the element is not found
                         console.warn(`DEBUG: Could not find element for updated message ID: ${updatedMessage.id}. Triggering refresh.`);
                         fetchMessages(); 
                     }
@@ -1048,6 +1049,9 @@ async function uploadImage() {
         const data = await response.json();
         const imageUrl = data.secure_url;
         console.log("Image uploaded to Cloudinary:", imageUrl);
+        // Ensure the message input is cleared *before* sending the message, 
+        // as the image is the primary content here.
+        messageInput.innerHTML = ''; 
         sendMessage(imageUrl);
         imageInput.value = ''; // Clear the file input after successful upload
     } catch (error) {
@@ -1124,8 +1128,11 @@ async function sendMessage(imageUrl = '') {
         console.error("Error sending message:", error);
         alert("❌ Failed to send message. Check RLS policy.");
     } else {
+        // Clear input AFTER successful insert
         messageInput.innerHTML = '';
-        alert("Message successfully posted!"); 
+        
+        // ⭐ REMOVED: alert("Message successfully posted!"); ⭐
+        // We rely on the real-time listener (setupRealtimeListener) to show the new message.
         
         if(boldBtn) boldBtn.classList.remove('active');
         if(italicBtn) italicBtn.classList.remove('active');
@@ -1168,12 +1175,8 @@ async function handleDeleteButtonClick(messageId) {
     const success = await deleteMessage(messageId); 
     if (success) {
         console.log('Message deleted successfully, real-time listener will update display.');
-        alert("✅ Message deleted successfully!");
-        
-        // NOTE: If your real-time listener is correctly set up (which it is now!), 
-        // you often do NOT need to call fetchMessages(). The listener handles it.
-        // I will leave it here as a fallback, but you might comment it out later.
-        // fetchMessages(); 
+        // ⭐ REMOVED: alert("✅ Message deleted successfully!"); ⭐
+        // Rely on the real-time listener to remove the message visually.
     } else {
         console.error('Deletion failed.'); 
     }
@@ -1237,6 +1240,7 @@ async function handleSaveEdit(messageId, newContent) {
         console.error('Error updating message:', error.message);
         alert('Failed to save edit: ' + error.message);
     } else {
+        // Realtime listener handles the visual update
         handleCancelEdit(messageId); 
     }
 }
@@ -1247,7 +1251,7 @@ function handleCancelEdit(messageId) {
 
     const contentWrapper = messageItem.querySelector('.message-content .message-text');
     const optionsBtn = messageItem.querySelector('.message-options-btn');
-    const editControls = messageItem.querySelector('.edit-controls'); // Targets the div created by handleStartEdit
+    const editControls = messageItem.querySelector('.edit-controls'); 
     if (contentWrapper) {
         contentWrapper.innerHTML = contentWrapper.dataset.originalContent || contentWrapper.innerHTML;
         contentWrapper.contentEditable = 'false';
@@ -1274,8 +1278,6 @@ function renderMessage(message) {
     const headerEl = document.createElement('div');
     headerEl.classList.add('message-header');
     
-    // We REMOVE the senderEl creation here.
-
     // MESSAGE OPTIONS BUTTON (REMAINS IN HEADER)
     if (username === message.sender) {
         const optionsBtn = document.createElement('button');
@@ -1393,11 +1395,11 @@ async function fetchMessages() {
 }
 if (styleToggleBtn) {
     styleToggleBtn.addEventListener('click', (event) => {
-        event.stopPropagation(); // Prevents global document listener from immediately closing it
+        event.stopPropagation(); 
         if (styleDropdown) styleDropdown.classList.toggle('hidden');
-        if (emojiPicker) emojiPicker.classList.add('hidden'); // Close others
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); // Close others
-        messageInput.focus(); // Keep focus on the input area
+        if (emojiPicker) emojiPicker.classList.add('hidden'); 
+        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
+        messageInput.focus(); 
     });
 }
 if (boldBtn) {

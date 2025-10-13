@@ -932,27 +932,51 @@ function getLoggedInUser() {
     const userString = localStorage.getItem('loggedInUser');
     return userString ? JSON.parse(userString) : null;
 }
-
-
 function setupRealtimeListener() {
     if (!supabase) {
         console.error("DEBUG: Supabase client is null. Check initialization.");
         return;
     }
-
     console.log("DEBUG: Attempting to subscribe to real-time channel.");
-    
     supabase
         .channel('messages_changes')
         .on(
             'postgres_changes',
             { event: '*', schema: 'public', table: 'messages' },
             (payload) => {
-                console.log('DEBUG: Realtime change received!', payload); 
-                // ... (rest of your logic)
+                console.log('DEBUG: Realtime change received!', payload);
+                if (payload.eventType === 'INSERT') {
+                    const newMessage = payload.new;
+                    console.log('DEBUG: Rendering new message object:', newMessage);
+                    if (!messageDisplay) {
+                        console.error("DEBUG CRITICAL: messageDisplay element is NULL!");
+                        return;
+                    }
+                    try {
+                        const messageElement = renderMessage(newMessage);
+                        if (messageElement instanceof HTMLElement) {
+                            messageDisplay.appendChild(messageElement);
+                            console.log('DEBUG: Successfully appended new message to display.');
+                            if (messageDisplay) {
+                                messageDisplay.scrollTop = messageDisplay.scrollHeight;
+                            }
+                            if (currentUserId && currentUserId !== newMessage.user_id) {
+                                showToast(`🔔 New Post from ${newMessage.sender}!`);
+                            }
+                        } else {
+                            console.error("DEBUG CRITICAL: renderMessage did NOT return a valid HTML element!");
+                        }
+                    } catch (e) {
+                        console.error("DEBUG CRITICAL: Error rendering message:", e);
+                    }
+                }
+                else if (payload.eventType === 'UPDATE') {
+                }
+                else if (payload.eventType === 'DELETE') {
+                }
             }
         )
-        .subscribe((status) => { 
+        .subscribe((status) => {
             if (status === 'SUBSCRIBED') {
                 console.log('DEBUG: Realtime channel successfully subscribed!');
             } else if (status === 'CHANNEL_ERROR') {

@@ -87,7 +87,9 @@ body {
   z-index: 1000;
   padding: 0.5rem;
   box-sizing: border-box;
+  overflow: visible;
 }
+
 .dropbtn {
   background-color: #facc15;
   color: #1e3159;
@@ -103,26 +105,34 @@ body {
 .dropbtn:hover {
   background-color: #e4b500;
 }
+
+/* Prevent dropdown from overflowing viewport */
 .dropdown-content {
   display: none;
   position: absolute;
   top: calc(100% + 0.5rem);
   right: 0;
   background-color: #2e4a80;
-  min-width: 12rem;
   width: max-content;
-  max-width: 90vw;
+  min-width: 12rem;
+  max-width: min(90vw, 300px); /* 👈 prevent overflow */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   z-index: 1001;
   border-radius: 8px;
   padding: 0.5rem;
   border: 2px solid black;
   overflow-wrap: break-word;
+  box-sizing: border-box;
+  overflow-x: hidden; /* 👈 no horizontal scroll */
 }
+
+/* Show dropdown on hover/focus */
 .dropdown:hover .dropdown-content,
 .dropdown:focus-within .dropdown-content {
   display: block;
 }
+
+/* Dropdown links */
 .dropdown-content a {
   color: white;
   padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.75rem, 3vw, 1rem);
@@ -146,19 +156,21 @@ body {
 .dropdown-content a:hover {
   background-color: #3e5a99;
 }
+
+/* Mobile view adjustments */
 @media (max-width: 600px) {
   .dropdown {
     top: 0.5rem;
     right: 0.5rem;
   }
   .dropdown-content {
-    left: 0;
-    right: 0;
-    margin: 0 auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%); /* 👈 centers it on small screens */
     width: 90vw;
+    max-width: 300px;
   }
   .dropbtn {
-    width: auto; /* prevents stretching too wide */
     font-size: 0.9rem;
   }
 }
@@ -443,14 +455,14 @@ body {
 .message-header {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* CRITICAL for placing name and button at ends */
+    justify-content: space-between; 
     width: 100%;
     margin-bottom: 2px;
 }
 
 .sender-name {
     font-size: clamp(0.8rem, 1vw, 0.9rem);
-    font-weight: 600; /* Fixed */
+    font-weight: 600; 
     color: #facc15;
     padding: 0 5px;
 }
@@ -472,47 +484,39 @@ body {
 }
 
 .my-message .message-header {
-    /* Correctly aligns the header elements to the right for user's messages */
     justify-content: flex-end; 
 }
 
 .my-message .sender-name {
-    color: #facc15; /* Correctly forces gold color for sender name */
+    color: #facc15; 
 }
 
 .message-options-btn {
     background: transparent;
     border: none;
-    color: #facc15; /* Gold color */
+    color: #facc15; 
     cursor: pointer;
-    font-size: 1.2rem; /* Reduced size for the header */
+    font-size: 1.2rem; 
     line-height: 1;
     padding: 2px 5px;
-    /* Since it's inline in a flex container, it positions itself correctly */
+
 }
 
-/* --- NEW: Define the container for the timestamp at the bottom --- */
 .message-footer {
     width: 100%;
     display: flex;
-    /* Default: Align timestamp left for others' messages */
     justify-content: flex-start; 
-    padding: 3px 0 0 0; /* Add a little vertical spacing */
+    padding: 3px 0 0 0; 
 }
-
-/* --- ADD THIS: Override for user's messages to push timestamp right --- */
 .my-message .message-footer {
     justify-content: flex-end; 
 }
 
-/* --- UPDATE THIS: Adjust the timestamp for its new position --- */
-/* Your current code: .timestamp { font-size: 1rem; color: #facc15; padding: 0 5px; } */
 .timestamp {
-    /* Making it smaller, as is typical for message details/footers */
     font-size: 0.8rem; 
     color: #facc15; 
     padding: 0 5px;
-    white-space: nowrap; /* Prevents date/time from breaking into two lines */
+    white-space: nowrap;
 }
 
 .chat-image {
@@ -683,6 +687,8 @@ body {
     overflow-y: auto;
   }
 }
+
+    
 @media (max-width: 768px) {
   body {
     padding: 0.5rem;
@@ -747,7 +753,7 @@ body {
     <button class="dropbtn">Menu</button>
     <div class="dropdown-content">
         <a href="https://tcwrdynasty.github.io/members/">League Members</a>
-        <a href="3Hall of Champions.html">Hall of Champions</a>
+        <a href="3HallofChampions.html">Hall of Champions</a>
         <a href="4Flushables.html">Flushables</a>
         <a href="7Records.html">Records & Rankings</a>
         <a href="rookiedraftcountdown.html">Draft Lottery</a>

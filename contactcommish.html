@@ -85,7 +85,6 @@
       border-radius: 6px;
       text-align: center;
       font-weight: bold;
-      /* Allow text wrapping for long error messages */
       word-wrap: break-word; 
       white-space: normal;
     }
@@ -178,27 +177,25 @@
             .from('messages')
             .insert([
                 { 
-                    sender_name: user.username, // Automatically use the logged-in user's name
-                    message_text: messageContent 
+                    sender_name: user.username, // Uses name from logged-in user
+                    // 🚨 CHANGE APPLIED HERE: Assumes your Supabase column is named 'message'
+                    message: messageContent 
                 },
             ]);
 
         if (error) {
             console.error('Supabase message insert error:', error);
             
-            // 🐛 ENHANCED ERROR REPORTING 🐛
-            let errorText = 'Failed to send message.';
+            // Enhanced error reporting
+            let errorText = 'Error: Failed to send message.';
             if (error.message) {
-                 // Supabase often puts the specific error message here (e.g., column not found, RLS issue)
-                errorText += ' Error: ' + error.message; 
+                errorText += ' ' + error.message; 
             } else if (error.code) {
                  errorText += ' Code: ' + error.code;
             }
             
             statusMessage.textContent = errorText;
             statusMessage.classList.add('status-error');
-            
-            // IMPORTANT: Also check your browser's Console for the full error object!
 
         } else {
             console.log('Message sent successfully:', data);

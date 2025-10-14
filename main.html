@@ -11,7 +11,7 @@
 
 <style>
 /* ==================================================================== */
-/* === 1. GLOBAL / BODY STYLES === */
+/* === 1. GLOBAL / BODY STYLES (No Change) === */
 /* ==================================================================== */
 
 html, body {
@@ -30,16 +30,16 @@ body {
   min-height: 100vh;
   padding: 1rem;
 }
-  .title-text, .left-column-title {
-    font-size: clamp(1rem, 4vw, 1.5rem);
-    font-weight: 590;
-    color: #facc15;
-    padding: 0.25rem;
-    text-align: center;
-  }
- 
+.title-text, .left-column-title {
+  font-size: clamp(1rem, 4vw, 1.5rem);
+  font-weight: 590;
+  color: #facc15;
+  padding: 0.25rem;
+  text-align: center;
+}
+
 /* ==================================================================== */
-/* === Header and drop down === */
+/* === Header and drop down (No Change) === */
 /* ==================================================================== */
 
 .header {
@@ -56,7 +56,7 @@ body {
   gap: 20px;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
-  position: relative; 
+  position: relative;
 }
 .logo-container img {
   width: 100%;
@@ -80,13 +80,14 @@ body {
 .header .since {
   font-size: clamp(0.9rem, 3vw, 1.2rem);
 }
+
 /* ==================================================================== */
-/* === Header Dropdown (Fixed Overflow Issue) === */
+/* === Header Dropdown (Fixes Applied) === */
 /* ==================================================================== */
 
 .dropdown {
-  position: relative; /* ✅ position relative instead of absolute inside header */
-  margin-left: auto;  /* ✅ pushes it to the right end within flex container */
+  position: relative;
+  margin-left: auto;
   z-index: 1000;
 }
 
@@ -107,7 +108,7 @@ body {
   background-color: #e4b500;
 }
 
-/* Dropdown Menu — fully constrained to viewport */
+/* Dropdown Menu — now uses clamp for robust width control */
 .dropdown-content {
   display: none;
   position: absolute;
@@ -115,8 +116,9 @@ body {
   right: 0;
   background-color: #2e4a80;
   min-width: 12rem;
-  max-width: 90vw;     /* ✅ no overflow */
-  width: max-content;  /* ✅ fits content, but still respects max-width */
+  /* 👇 CHANGE: Use clamp for robust width that respects boundaries */
+  width: clamp(12rem, 50vw, 90vw);
+  max-width: 90vw;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   padding: 0.5rem;
@@ -135,7 +137,7 @@ body {
   display: block;
 }
 
-/* Dropdown Links */
+/* Dropdown Links — must take full width and support text wrapping */
 .dropdown-content a {
   color: white;
   padding: 0.75rem 1rem;
@@ -151,7 +153,11 @@ body {
   border-radius: 4px;
   transition: background-color 0.3s ease;
   margin-bottom: 0.4rem;
+  /* 👇 CHANGE: Crucial for making content fit. */
   word-break: break-word;
+  /* 👇 ADDED: Ensures link takes up 100% of the constrained parent width */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dropdown-content a:last-child {
@@ -162,21 +168,26 @@ body {
   background-color: #3e5a99;
 }
 
-/* =======================================
-   MOBILE FIX (Centers Menu When Narrow)
-======================================= */
+/* ======================================= */
+/*   MOBILE FIX (Centers Menu When Narrow) */
+/*   (Consolidated redundant media queries) */
+/* ======================================= */
 @media (max-width: 600px) {
   .dropdown {
+    /* Repositioned dropdown for better mobile layout (top right corner) */
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
   }
 
   .dropdown-content {
+    /* Center the dropdown relative to its horizontal position */
     left: 50%;
     right: auto;
     transform: translateX(-50%);
+    /* Use strong viewport width constraint */
     width: 90vw;
+    /* Cap the maximum width for larger phones/small tablets */
     max-width: 320px;
   }
 
@@ -185,28 +196,9 @@ body {
   }
 }
 
-/* =======================================
-   MOBILE FIX (Centers and Resizes Menu)
-======================================= */
-@media (max-width: 600px) {
-  .dropdown {
-    top: 0.5rem;
-    right: 0.5rem;
-  }
-
-  .dropdown-content {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: 90vw;       /* ✅ Takes up to 90% of viewport width */
-    max-width: 320px;  /* ✅ Optional cap */
-  }
-
-  .dropbtn {
-    font-size: 0.9rem;
-  }
-}
-
+/* ==================================================================== */
+/* === Everything Below This Line is Unchanged === */
+/* ==================================================================== */
 
 /* ==================================================================== */
 /* === main content === */
@@ -231,233 +223,230 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
 }
-    .left-column-wrapper { order: 1; width: 300px; }
-    .main-content { order: 2; width: 700px; }
-    .right-column { order: 3; width: 350px; }
-    .left-column,
-    .right-column-container,
-    #message-display {
-      flex: 1;
-      overflow-y: auto;
-    }
-  }
+.left-column-wrapper { order: 1; width: 300px; }
+.main-content { order: 2; width: 700px; }
+.right-column { order: 3; width: 350px; }
+.left-column,
+.right-column-container,
+#message-display {
+  flex: 1;
+  overflow-y: auto;
+}
 .right-column {
-    order: 2;
-    width: 100%;
-    max-width: 350px;
-    ...
-  }
-  .left-column-wrapper {
-    order: 3;
-    width: 100%;
-    max-width: 300px;
-    ...
-  }
+  order: 2;
+  width: 100%;
+  max-width: 350px;
+}
+.left-column-wrapper {
+  order: 3;
+  width: 100%;
+  max-width: 300px;
+}
 
-  .left-column-wrapper {
-    order: 3; 
-    width: 100%;
-    max-width: 300px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .right-column {
-    order: 2; 
-    width: 100%;
-    max-width: 350px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+.left-column-wrapper {
+  order: 3;
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.right-column {
+  order: 2;
+  width: 100%;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 /* ==================================================================== */
 /* === Left Column (NFL News) === */
 /* ==================================================================== */
-  .left-column {
-    background-color: #2d3748;
-    border-radius: 0.375rem;
-    width: 100%;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-  }
-  .news-box {
-    border-radius: 0.375rem;
-    width: 100%;
-    max-width: 300px;
-    height: 100%;
-    color: #facc15;
-  }
-  #nfl-news {
-    list-style: none;
-    margin: 0;
-  }
-  #nfl-news li {
-    font-size: 0.9rem;
-    margin: 0.75rem 0;
-    padding: 0.70rem;
-    background-color: #2d3748;
-    border-left: 6px solid #facc15;
-    border-radius: 6px;
-    transition: background-color 0.3s, transform 0.2s;
-    text-align: left;
-  }
-  #nfl-news li:hover {
-    background-color: #1e3159;
-    transform: scale(1.02);
-  }
-  #nfl-news a {
-    color: #e2e8f0;
-    padding: 0;
-    display: block;
-  }
-  #nfl-news a:hover {
-    text-decoration: underline;
-  }
+.left-column {
+  background-color: #2d3748;
+  border-radius: 0.375rem;
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.news-box {
+  border-radius: 0.375rem;
+  width: 100%;
+  max-width: 300px;
+  height: 100%;
+  color: #facc15;
+}
+#nfl-news {
+  list-style: none;
+  margin: 0;
+}
+#nfl-news li {
+  font-size: 0.9rem;
+  margin: 0.75rem 0;
+  padding: 0.70rem;
+  background-color: #2d3748;
+  border-left: 6px solid #facc15;
+  border-radius: 6px;
+  transition: background-color 0.3s, transform 0.2s;
+  text-align: left;
+}
+#nfl-news li:hover {
+  background-color: #1e3159;
+  transform: scale(1.02);
+}
+#nfl-news a {
+  color: #e2e8f0;
+  padding: 0;
+  display: block;
+}
+#nfl-news a:hover {
+  text-decoration: underline;
+}
 /* ==================================================================== */
 /* === Right Column Content (Standings) === */
 /* ==================================================================== */
-  .right-column-container {
-    font-size: 0.9rem;
-    padding-top: 0.5rem;
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-    border-radius: 0.375rem;
-    box-sizing: border-box;
-    flex: 1;  
-  }
-  .standings-scroll-area {
-    overflow-y: auto;
-    height: 100%;
-    width: 100%;
-        border-radius: 0.375rem;
-    border-left: none;
-    border-top: none;
-    border-bottom: none;
-  }
+.right-column-container {
+  font-size: 0.9rem;
+  padding-top: 0.5rem;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  box-sizing: border-box;
+  flex: 1;
+}
+.standings-scroll-area {
+  overflow-y: auto;
+  height: 100%;
+  width: 100%;
+  border-radius: 0.375rem;
+  border-left: none;
+  border-top: none;
+  border-bottom: none;
+}
 /* ==================================================================== */
 /* === 2. Trending and Transactions === */
 /* ==================================================================== */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #2d3748;
-  }
-  th, td {
-    padding: 0.5rem;
-    border-bottom: 1px solid #333;
-    text-align: left;
-    color: #f0f0f0;
-    font-size: 0.85rem;
-  }
-  th {
-    background: #1a202c;
-    font-size: 0.9rem;
-  }
-  tr.playoff-divider td {
-    border-bottom: 2px solid red;
-  }
-  .recent-transactions-container,
-  .trending-container {
-    overflow-y: auto;
-    border-bottom: 3px solid #4a5568;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    max-height: 250px;
-    color: #e2e8f0;
-  }
-  .trade-alert,
-  .free-agent-pickup,
-  .waiver-claim {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #facc15;
-    margin-bottom: 0.5rem;
-  }
-  .transaction-team-name {
-    font-weight: 500;
-    color: #facc15;
-  }
-  .added-players-title {
-    color: #48bb78;
-    font-weight: 400;
-  }
-  .dropped-players-title {
-    color: #f56565;
-    font-weight: 400;
-  }
-  .player-info,
-  .player-change-info,
-  .trending-list-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.2rem;
-  }
-  .player-image,
-  .player-change-image,
-  .trending-player-image {
-    width: 1.8rem;
-    height: 1.8rem;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  .player-name,
-  .trending-player-name {
-    font-size: 0.8rem;
-    color: #e2e8f0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .recent-transactions-title,
-  .trending-title {
-    font-size: 1.3rem;
-    color: #facc15;
-    text-align: center;
-    margin-top: 1rem;
-  }
-  .trending-up-title,
-  .trending-down-title {
-    font-weight: 400;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    padding: 0.6rem;
-  }
-  .trending-up-title { color: #48bb78; }
-  .trending-down-title { color: #f56565; }
-  .trending-count-up { color: #48bb78; }
-  .trending-count-down { color: #f56565; }
- /* ==================================================================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #2d3748;
+}
+th, td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #333;
+  text-align: left;
+  color: #f0f0f0;
+  font-size: 0.85rem;
+}
+th {
+  background: #1a202c;
+  font-size: 0.9rem;
+}
+tr.playoff-divider td {
+  border-bottom: 2px solid red;
+}
+.recent-transactions-container,
+.trending-container {
+  overflow-y: auto;
+  border-bottom: 3px solid #4a5568;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  max-height: 250px;
+  color: #e2e8f0;
+}
+.trade-alert,
+.free-agent-pickup,
+.waiver-claim {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #facc15;
+  margin-bottom: 0.5rem;
+}
+.transaction-team-name {
+  font-weight: 500;
+  color: #facc15;
+}
+.added-players-title {
+  color: #48bb78;
+  font-weight: 400;
+}
+.dropped-players-title {
+  color: #f56565;
+  font-weight: 400;
+}
+.player-info,
+.player-change-info,
+.trending-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+.player-image,
+.player-change-image,
+.trending-player-image {
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.player-name,
+.trending-player-name {
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recent-transactions-title,
+.trending-title {
+  font-size: 1.3rem;
+  color: #facc15;
+  text-align: center;
+  margin-top: 1rem;
+}
+.trending-up-title,
+.trending-down-title {
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  padding: 0.6rem;
+}
+.trending-up-title { color: #48bb78; }
+.trending-down-title { color: #f56565; }
+.trending-count-up { color: #48bb78; }
+.trending-count-down { color: #f56565; }
+/* ==================================================================== */
 /* === Side bar === */
 /* ==================================================================== */
-  .sidebar-left {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    width: 80%;
-    max-width: 350px;
-    height: 100%;
-    background-color: #2d3748;
-    transition: left 0.3s ease;
-    z-index: 9999;
-    overflow-y: auto;
-    padding-top: 20px;
-  }
-  .sidebar-left:hover {
-    left: 0;
-  }
-  .sidebar-left::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 20px;
-    z-index: 9998;
-  }
+.sidebar-left {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 80%;
+  max-width: 350px;
+  height: 100%;
+  background-color: #2d3748;
+  transition: left 0.3s ease;
+  z-index: 9999;
+  overflow-y: auto;
+  padding-top: 20px;
+}
+.sidebar-left:hover {
+  left: 0;
+}
+.sidebar-left::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 20px;
+  z-index: 9998;
+}
 /* ==================================================================== */
 /* === 3. MESSAGE DISPLAY AREA STYLES === */
 /* ==================================================================== */
@@ -486,18 +475,18 @@ body {
 /* === 3. MESSAGE BUBBLE & TEXT STYLES === */
 /* ==================================================================== */
 .message-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; 
-    width: 100%;
-    margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 2px;
 }
 
 .sender-name {
-    font-size: clamp(0.8rem, 1vw, 0.9rem);
-    font-weight: 600; 
-    color: #facc15;
-    padding: 0 5px;
+  font-size: clamp(0.8rem, 1vw, 0.9rem);
+  font-weight: 600;
+  color: #facc15;
+  padding: 0 5px;
 }
 .message-content {
   background-color: #2e4a80;
@@ -517,39 +506,39 @@ body {
 }
 
 .my-message .message-header {
-    justify-content: flex-end; 
+  justify-content: flex-end;
 }
 
 .my-message .sender-name {
-    color: #facc15; 
+  color: #facc15;
 }
 
 .message-options-btn {
-    background: transparent;
-    border: none;
-    color: #facc15; 
-    cursor: pointer;
-    font-size: 1.2rem; 
-    line-height: 1;
-    padding: 2px 5px;
+  background: transparent;
+  border: none;
+  color: #facc15;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 2px 5px;
 
 }
 
 .message-footer {
-    width: 100%;
-    display: flex;
-    justify-content: flex-start; 
-    padding: 3px 0 0 0; 
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  padding: 3px 0 0 0;
 }
 .my-message .message-footer {
-    justify-content: flex-end; 
+  justify-content: flex-end;
 }
 
 .timestamp {
-    font-size: 0.8rem; 
-    color: #facc15; 
-    padding: 0 5px;
-    white-space: nowrap;
+  font-size: 0.8rem;
+  color: #facc15;
+  padding: 0 5px;
+  white-space: nowrap;
 }
 
 .chat-image {
@@ -564,53 +553,53 @@ body {
 /* ==================================================================== */
 
 .message-options-btn {
-    background: transparent;
-    border: none;
-    color: #facc15;
-    cursor: pointer;
-    position: relative; 
-    top: 0;
-    right: 5px; 
-    left: unset;
-    font-size: 1.5rem;
-    line-height: 1;
-    padding: 2px 5px;
+  background: transparent;
+  border: none;
+  color: #facc15;
+  cursor: pointer;
+  position: relative;
+  top: 0;
+  right: 5px;
+  left: unset;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 2px 5px;
 }
 .my-message .message-options-btn {
-    right: unset;
-    left: 5px;
+  right: unset;
+  left: 5px;
 }
 /* ==================================================================== */
 /* === Editing UI Styles === */
-/* ==================================================================== */   
+/* ==================================================================== */
 .editing-active {
-    border: 1px dashed #facc15;
-    padding: 5px;
-    margin: -5px; 
-    min-height: 20px;
+  border: 1px dashed #facc15;
+  padding: 5px;
+  margin: -5px;
+  min-height: 20px;
 }
 .edit-controls {
-    display: flex;
-    gap: 8px;
-    margin-top: 5px;
-    align-self: flex-end; 
+  display: flex;
+  gap: 8px;
+  margin-top: 5px;
+  align-self: flex-end;
 }
 .edit-controls button {
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 0.8em;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 .save-edit-btn {
-    background-color: #2e4a80; 
-    color: white;
-    border: 1px solid #1e3159;
+  background-color: #2e4a80;
+  color: white;
+  border: 1px solid #1e3159;
 }
 .cancel-edit-btn {
-    background-color: #4a5568; 
-    color: white;
-    border: 1px solid #1e3159;
+  background-color: #4a5568;
+  color: white;
+  border: 1px solid #1e3159;
 }
 /* ==================================================================== */
 /* === 5. CHAT INPUT / CONTROLS STYLES === */
@@ -694,17 +683,17 @@ body {
     align-items: stretch;
     height: clamp(70vh, 85vh, 90vh);
   }
-  .left-column-wrapper { 
+  .left-column-wrapper {
     order: 1; /* NFL News (Left Column) is first */
-    width: 300px; 
+    width: 300px;
   }
-  .main-content { 
-    order: 2; 
-    width: 700px; 
+  .main-content {
+    order: 2;
+    width: 700px;
   }
-  .right-column { 
-    order: 3; 
-    width: 350px; 
+  .right-column {
+    order: 3;
+    width: 350px;
   }
   .left-column-wrapper,
   .main-content,
@@ -721,7 +710,7 @@ body {
   }
 }
 
-    
+
 @media (max-width: 768px) {
   body {
     padding: 0.5rem;

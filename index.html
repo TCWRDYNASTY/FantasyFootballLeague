@@ -6,156 +6,170 @@
     <title>Password TCWR</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <style>
-        /* =========================================
-           Base Layout Styles (Centered)
-        ========================================= */
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #1e3159;
-            color: white;
-            color-scheme: light;
-            font-family: "Courier New", monospace;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+   <style>
+    /* =========================================
+       Base Layout Styles (Perfect Centering)
+    ========================================= */
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        /* =========================================
-           Flex Container for Main Content (Centered Fix Applied)
-        ========================================= */
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #1e3159;
+        color: white;
+        font-family: "Courier New", monospace;
+        padding: 20px;
+        overflow-x: hidden; /* Prevents right-side shift on mobile */
+    }
+
+    /* =========================================
+       Flex Container for Main Content
+    ========================================= */
+    .content-columns {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        gap: 40px;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    /* =========================================
+       Shared Container Styles
+    ========================================= */
+    .image-container {
+        max-width: 400px;
+        width: 100%;
+        padding: 20px;
+        background-color: beige;
+        color: black;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        box-sizing: border-box;
+    }
+
+    /* =========================================
+       Image Styling
+    ========================================= */
+    .image-container img {
+        max-width: 100%;
+        height: auto;
+        border: 2px solid black;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    /* =========================================
+       Password Input Styling
+    ========================================= */
+    #passwordBox {
+        padding: 10px;
+        margin: 10px auto;
+        font-size: 1rem;
+        width: 100%;
+        max-width: 300px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        background-color: white;
+        color: black;
+        display: block;
+    }
+
+    /* =========================================
+       Submit Button Styling
+    ========================================= */
+    #submitButton {
+        padding: 12px 24px;
+        font-size: 1.1em;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease-in-out;
+        width: auto;
+    }
+
+    #submitButton:hover {
+        background-color: #218838;
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* =========================================
+       Typography
+    ========================================= */
+    .main-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0.2em 0;
+        text-align: center;
+    }
+
+    .sub-title {
+        font-size: 1.4rem;
+        margin: 0.2em 0 0.5em 0;
+        text-align: center;
+    }
+
+    /* =========================================
+       Responsive Layout Adjustments
+    ========================================= */
+    @media (max-width: 768px) {
         .content-columns {
-            padding: 1rem;
-            gap: 40px;
-            width: 100%;
-            max-width: 1200px;
-            /* FIX: Centering the container */
-            margin: 0 auto; 
-            box-sizing: border-box;
+            gap: 20px;
+            padding: 0.5rem;
         }
 
-        /* =========================================
-           Shared Container Styles
-        ========================================= */
         .image-container {
-            margin: 0 auto;
-            max-width: 400px;
-            width: 90%;
-            padding: 20px;
-            background-color: beige;
-            color: black;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 90%;
+            width: 100%;
         }
 
-        /* =========================================
-           Image Styling
-        ========================================= */
-        .image-container img {
-            max-width: 100%;
-            height: auto;
-            border: 2px solid black;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        /* =========================================
-           Password Input Styling
-        ========================================= */
         #passwordBox {
-            padding: 10px;
-            margin: 10px auto;
-            font-size: 1rem;
-            width: 80%;
-            max-width: 300px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            background-color: white;
-            color: black;
+            width: 100%;
         }
+    }
 
-        /* =========================================
-           Submit Button Styling
-        ========================================= */
-        #submitButton {
-            padding: 12px 24px;
-            font-size: 1.1em;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease-in-out;
-        }
-
-        #submitButton:hover {
-            background-color: #218838;
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* =========================================
-           Typography (Headings, Paragraphs)
-        ========================================= */
+    @media (max-width: 480px) {
         .main-title {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin: 0.2em 0;
+            font-size: 2rem;
         }
 
         .sub-title {
-            font-size: 1.4rem;
-            margin: 0.2em 0 0.5em 0;
-        }
-        
-        /* =========================================
-           Responsive Layout Adjustments
-        ========================================= */
-        @media (max-width: 768px) {
-            /* Note: .content-columns styling was already simplified */
-            .content-columns {
-                /* Removed unnecessary flex properties here */
-                gap: 20px;
-            }
-            
-            .password-container,
-            .image-container {
-                flex: 1 1 100%;
-                width: 100%;
-            }
-
-            #passwordBox {
-                width: 90%;
-                max-width: none;
-            }
+            font-size: 1.2rem;
         }
 
-        @media (max-width: 480px) {
-            .main-title {
-                font-size: 2rem;
-            }
-
-            .sub-title {
-                font-size: 1.2rem;
-            }
-
-            #submitButton {
-                width: 100%;
-                padding: 15px;
-            }
-            
-            #passwordBox {
-                width: 100%;
-            }
+        .image-container {
+            padding: 15px;
         }
-    </style>
+
+        #submitButton {
+            width: 100%;
+            padding: 15px;
+        }
+
+        #passwordBox {
+            width: 100%;
+        }
+    }
+</style>
+
 </head>
 <body>
     

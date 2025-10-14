@@ -80,13 +80,14 @@ body {
 .header .since {
   font-size: clamp(0.9rem, 3vw, 1.2rem);
 }
+/* ==================================================================== */
+/* === Header Dropdown (Fixed Overflow Issue) === */
+/* ==================================================================== */
+
 .dropdown {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
+  position: relative; /* ✅ position relative instead of absolute inside header */
+  margin-left: auto;  /* ✅ pushes it to the right end within flex container */
   z-index: 1000;
-  padding: 0.5rem;
-  box-sizing: border-box;
 }
 
 .dropbtn {
@@ -106,7 +107,7 @@ body {
   background-color: #e4b500;
 }
 
-/* Dropdown Menu (fixed for overflow) */
+/* Dropdown Menu — fully constrained to viewport */
 .dropdown-content {
   display: none;
   position: absolute;
@@ -114,21 +115,21 @@ body {
   right: 0;
   background-color: #2e4a80;
   min-width: 12rem;
-  max-width: 90vw; /* ✅ Fit inside viewport */
-  width: 100%; /* ✅ Ensure no over-expansion */
+  max-width: 90vw;     /* ✅ no overflow */
+  width: max-content;  /* ✅ fits content, but still respects max-width */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-  z-index: 1001;
   border-radius: 8px;
   padding: 0.5rem;
   border: 2px solid black;
-  box-sizing: border-box;
   overflow-wrap: break-word;
-  word-break: break-word; /* ✅ Ensure long text wraps */
-  white-space: normal; /* ✅ Prevent overflow from nowrap text */
+  word-break: break-word;
+  white-space: normal;
   overflow-x: hidden;
+  box-sizing: border-box;
+  z-index: 1001;
 }
 
-/* Show dropdown on hover or focus */
+/* Show dropdown on hover/focus */
 .dropdown:hover .dropdown-content,
 .dropdown:focus-within .dropdown-content {
   display: block;
@@ -159,6 +160,29 @@ body {
 
 .dropdown-content a:hover {
   background-color: #3e5a99;
+}
+
+/* =======================================
+   MOBILE FIX (Centers Menu When Narrow)
+======================================= */
+@media (max-width: 600px) {
+  .dropdown {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .dropdown-content {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 90vw;
+    max-width: 320px;
+  }
+
+  .dropbtn {
+    font-size: 0.9rem;
+  }
 }
 
 /* =======================================

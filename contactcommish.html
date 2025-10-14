@@ -78,26 +78,6 @@
       border-radius: 6px;
       text-align: center;
     }
-    
-    .status-message {
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 6px;
-      text-align: center;
-      font-weight: bold;
-      word-wrap: break-word; 
-      white-space: normal;
-    }
-
-    .status-success {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    .status-error {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
   </style>
 </head>
 <body>
@@ -107,7 +87,9 @@
     
     <div id="userDisplay"></div>
 
-    <form id="messageForm">
+    <form action="https://formspree.io/f/mdkgeyod" method="POST" id="messageForm">
+      
+      <input type="hidden" name="Sender_Name" id="senderNameInput" value="" />
       
       <label>
         Your Message:
@@ -115,24 +97,13 @@
       </label>
 
       <button type="submit" id="submitBtn">Send</button>
-      
-      <div id="statusMessage" class="status-message" style="display:none;"></div>
     </form>
   </div>
 
 <script>
-    // --- Supabase Setup (Use the same keys as index.html) ---
-    const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-    // --- User and Page Setup ---
     const storedUser = localStorage.getItem('loggedInUser');
     const userDisplay = document.getElementById('userDisplay');
-    const messageForm = document.getElementById('messageForm');
-    const messageTextarea = document.getElementById('messageTextarea');
-    const submitBtn = document.getElementById('submitBtn');
-    const statusMessage = document.getElementById('statusMessage');
+    const senderNameInput = document.getElementById('senderNameInput');
 
     let user = null;
 
@@ -140,78 +111,15 @@
         try {
             user = JSON.parse(storedUser);
             userDisplay.textContent = `Logged in as: ${user.username}`;
+            senderNameInput.value = user.username; 
+            
         } catch (e) {
             console.error("Failed to parse user data, redirecting.");
-            window.location.href = "index.html"; // Redirect if data is corrupted
+            window.location.href = "index.html";
         }
     } else {
-        // If no user is logged in, redirect to the login page
         console.log('No user session found. Redirecting to login.');
         window.location.href = "index.html";
-    }
-    
-    // --- Form Submission Logic ---
-    messageForm.addEventListener('submit', handleMessageSubmit);
-
-    async function handleMessageSubmit(event) {
-        event.preventDefault(); // Stop the default form submission
-
-        const messageContent = messageTextarea.value.trim();
-
-        if (!messageContent) {
-            alert('Please enter a message before sending.');
-            return;
-        }
-
-        // Disable button while submitting
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Sending...';
-        
-        // Show the status message container
-        statusMessage.style.display = 'block';
-        statusMessage.textContent = 'Submitting message...';
-        statusMessage.className = 'status-message'; // Reset classes
-
-        // Data to insert into your Supabase 'messages' table
-        const { data, error } = await supabase
-            .from('messages')
-            .insert([
-                { 
-                    sender_name: user.username, // Uses name from logged-in user
-                    // 🚨 CHANGE APPLIED HERE: Assumes your Supabase column is named 'message'
-                    message: messageContent 
-                },
-            ]);
-
-        if (error) {
-            console.error('Supabase message insert error:', error);
-            
-            // Enhanced error reporting
-            let errorText = 'Error: Failed to send message.';
-            if (error.message) {
-                errorText += ' ' + error.message; 
-            } else if (error.code) {
-                 errorText += ' Code: ' + error.code;
-            }
-            
-            statusMessage.textContent = errorText;
-            statusMessage.classList.add('status-error');
-
-        } else {
-            console.log('Message sent successfully:', data);
-            statusMessage.textContent = 'Message sent successfully! Your name was automatically attached.';
-            statusMessage.classList.add('status-success');
-            messageTextarea.value = ''; // Clear the textarea
-        }
-
-        // Re-enable button
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send';
-        
-        // Optionally clear status message after a few seconds
-        setTimeout(() => {
-             statusMessage.style.display = 'none';
-        }, 5000);
     }
 </script>
 

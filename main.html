@@ -84,11 +84,12 @@ body {
 /* ==================================================================== */
 /* === Header Dropdown (Fixes Applied) === */
 /* ==================================================================== */
-
-.dropdown {
-  position: relative;
-  margin-left: auto;
-  z-index: 1000;
+.dropdown { 
+    position: absolute; 
+    top: 1rem; right: 1rem; 
+    z-index: 1000; 
+    padding: 0.5rem; 
+    box-sizing: border-box; 
 }
 
 .dropbtn {
@@ -115,7 +116,7 @@ body {
   top: calc(100% + 0.5rem);
   right: 0;
   background-color: #2e4a80;
-  min-width: 12rem;
+  min-width: 2rem;
   /* 👇 CHANGE: Use clamp for robust width that respects boundaries */
   width: clamp(12rem, 50vw, 90vw);
   max-width: 90vw;

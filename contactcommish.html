@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Contact Me</title>
- 
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     * {
       box-sizing: border-box;
@@ -43,7 +45,6 @@
       margin-bottom: 15px;
     }
 
-    select,
     textarea {
       width: 100%;
       padding: 10px;
@@ -69,14 +70,31 @@
       background: #555;
     }
 
-    @media (max-width: 480px) {
-      .wrapper {
-        padding: 15px;
-      }
+    #userDisplay {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #333;
+      color: white;
+      border-radius: 6px;
+      text-align: center;
+    }
+    
+    .status-message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: bold;
+    }
 
-      button {
-        font-size: 0.95em;
-      }
+    .status-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status-error {
+      background-color: #f8d7da;
+      color: #721c24;
     }
   </style>
 </head>
@@ -84,37 +102,105 @@
 
   <div class="wrapper">
     <img src="ainteasy.jpeg" alt="easy" class="form-image" />
+    
+    <div id="userDisplay"></div>
 
-    <form action="https://formspree.io/f/mdkgeyod" method="POST">
-      <label>
-        Who This?
-        <select name="recipient" required>
-          <option value="" disabled selected>Select a person</option>
-          <option value="Matt">Matt</option>
-          <option value="Evelyn">Evelyn</option>
-          <option value="Trevor">Trevor</option>
-          <option value="Bonnie">Bonnie</option>
-          <option value="Brian">Brian</option>
-          <option value="Jess">Jess</option>
-          <option value="Sylvester">Sylvester</option>
-          <option value="Nate">Nate</option>
-          <option value="Brad">Brad</option>
-          <option value="An">An</option>
-          <option value="Dianne">Dianne</option>
-          <option value="Brittany">Brittany</option>
-          <option value="Emily">Emily</option>
-          <option value="ANONYMOUS">ANONYMOUS</option>
-        </select>
-      </label>
-
+    <form id="messageForm">
+      
       <label>
         Your Message:
-        <textarea name="message" rows="6" required></textarea>
+        <textarea name="message" id="messageTextarea" rows="6" required></textarea>
       </label>
 
-      <button type="submit">Send</button>
+      <button type="submit" id="submitBtn">Send</button>
+      
+      <div id="statusMessage" class="status-message" style="display:none;"></div>
     </form>
   </div>
+
+<script>
+    // --- Supabase Setup (Use the same keys as index.html) ---
+    const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // --- User and Page Setup ---
+    const storedUser = localStorage.getItem('loggedInUser');
+    const userDisplay = document.getElementById('userDisplay');
+    const messageForm = document.getElementById('messageForm');
+    const messageTextarea = document.getElementById('messageTextarea');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusMessage = document.getElementById('statusMessage');
+
+    let user = null;
+
+    if (storedUser) {
+        try {
+            user = JSON.parse(storedUser);
+            userDisplay.textContent = `Logged in as: ${user.username}`;
+        } catch (e) {
+            console.error("Failed to parse user data, redirecting.");
+            window.location.href = "index.html"; // Redirect if data is corrupted
+        }
+    } else {
+        // If no user is logged in, redirect to the login page
+        console.log('No user session found. Redirecting to login.');
+        window.location.href = "index.html";
+    }
+    
+    // --- Form Submission Logic ---
+    messageForm.addEventListener('submit', handleMessageSubmit);
+
+    async function handleMessageSubmit(event) {
+        event.preventDefault(); // Stop the default form submission
+
+        const messageContent = messageTextarea.value.trim();
+
+        if (!messageContent) {
+            alert('Please enter a message before sending.');
+            return;
+        }
+
+        // Disable button while submitting
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        
+        // Show the status message container
+        statusMessage.style.display = 'block';
+        statusMessage.textContent = 'Submitting message...';
+        statusMessage.className = 'status-message'; // Reset classes
+
+        // Data to insert into your Supabase 'messages' table
+        const { data, error } = await supabase
+            .from('messages')
+            .insert([
+                { 
+                    sender_name: user.username, // Automatically use the logged-in user's name
+                    message_text: messageContent 
+                },
+            ]);
+
+        if (error) {
+            console.error('Supabase message insert error:', error);
+            statusMessage.textContent = 'Error: Failed to send message. Please try again.';
+            statusMessage.classList.add('status-error');
+        } else {
+            console.log('Message sent successfully:', data);
+            statusMessage.textContent = 'Message sent successfully! Your name was automatically attached.';
+            statusMessage.classList.add('status-success');
+            messageTextarea.value = ''; // Clear the textarea
+        }
+
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send';
+        
+        // Optionally clear status message after a few seconds
+        setTimeout(() => {
+             statusMessage.style.display = 'none';
+        }, 5000);
+    }
+</script>
 
 </body>
 </html>

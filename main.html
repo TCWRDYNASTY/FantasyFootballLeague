@@ -87,7 +87,6 @@ body {
   z-index: 1000;
   padding: 0.5rem;
   box-sizing: border-box;
-  overflow: visible;
 }
 
 .dropbtn {
@@ -102,40 +101,43 @@ body {
   white-space: nowrap;
   transition: background-color 0.3s ease;
 }
+
 .dropbtn:hover {
   background-color: #e4b500;
 }
 
-/* Prevent dropdown from overflowing viewport */
+/* Dropdown Menu (fixed for overflow) */
 .dropdown-content {
   display: none;
   position: absolute;
   top: calc(100% + 0.5rem);
   right: 0;
   background-color: #2e4a80;
-  width: max-content;
   min-width: 12rem;
-  max-width: min(90vw, 300px); /* 👈 prevent overflow */
+  max-width: 90vw; /* ✅ Fit inside viewport */
+  width: 100%; /* ✅ Ensure no over-expansion */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   z-index: 1001;
   border-radius: 8px;
   padding: 0.5rem;
   border: 2px solid black;
-  overflow-wrap: break-word;
   box-sizing: border-box;
-  overflow-x: hidden; /* 👈 no horizontal scroll */
+  overflow-wrap: break-word;
+  word-break: break-word; /* ✅ Ensure long text wraps */
+  white-space: normal; /* ✅ Prevent overflow from nowrap text */
+  overflow-x: hidden;
 }
 
-/* Show dropdown on hover/focus */
+/* Show dropdown on hover or focus */
 .dropdown:hover .dropdown-content,
 .dropdown:focus-within .dropdown-content {
   display: block;
 }
 
-/* Dropdown links */
+/* Dropdown Links */
 .dropdown-content a {
   color: white;
-  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.75rem, 3vw, 1rem);
+  padding: 0.75rem 1rem;
   text-decoration: none;
   display: block;
   text-align: center;
@@ -150,30 +152,37 @@ body {
   margin-bottom: 0.4rem;
   word-break: break-word;
 }
+
 .dropdown-content a:last-child {
   margin-bottom: 0;
 }
+
 .dropdown-content a:hover {
   background-color: #3e5a99;
 }
 
-/* Mobile view adjustments */
+/* =======================================
+   MOBILE FIX (Centers and Resizes Menu)
+======================================= */
 @media (max-width: 600px) {
   .dropdown {
     top: 0.5rem;
     right: 0.5rem;
   }
+
   .dropdown-content {
     left: 50%;
     right: auto;
-    transform: translateX(-50%); /* 👈 centers it on small screens */
-    width: 90vw;
-    max-width: 300px;
+    transform: translateX(-50%);
+    width: 90vw;       /* ✅ Takes up to 90% of viewport width */
+    max-width: 320px;  /* ✅ Optional cap */
   }
+
   .dropbtn {
     font-size: 0.9rem;
   }
 }
+
 
 /* ==================================================================== */
 /* === main content === */

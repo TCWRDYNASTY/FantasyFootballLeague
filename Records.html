@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Records & Rankings</title>
+	<link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
 	<style>
@@ -433,6 +434,20 @@
             });
         });
     </script>
+	<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            // FIX: Renamed Service Worker file reference to ensure re-registration
+            navigator.serviceWorker.register('service-worker-2.js') 
+                .then(registration => {
+                    console.log('Service Worker registered!');
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        });
+    }
+</script>
 
 </body>
 </html>

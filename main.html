@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TCWR FANTASY FOOTBALL DY-NASTY</title>
-
+<link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="console.log('Supabase library loaded successfully!');"></script>
@@ -1828,7 +1828,20 @@ for (const [rosterId, data] of Object.entries(teamMap)) {
         fetchTrendingPlayers();
 
 </script>
-
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            // FIX: Renamed Service Worker file reference to ensure re-registration
+            navigator.serviceWorker.register('service-worker-2.js') 
+                .then(registration => {
+                    console.log('Service Worker registered!');
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        });
+    }
+</script>
 </body>
 
 </html>

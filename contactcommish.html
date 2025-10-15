@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Contact Me</title>
-  
+  <link rel="manifest" href="manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
@@ -122,6 +122,19 @@
         window.location.href = "index.html";
     }
 </script>
-
+  <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            // FIX: Renamed Service Worker file reference to ensure re-registration
+            navigator.serviceWorker.register('service-worker-2.js') 
+                .then(registration => {
+                    console.log('Service Worker registered!');
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        });
+    }
+</script>
 </body>
 </html>

@@ -1005,12 +1005,10 @@ tr.playoff-divider td {
             
             setupRealtimeListener();
 
-            // 🌟 NEW: SERVICE WORKER REGISTRATION AND PUSH SUBSCRIPTION 🌟
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('service-worker-2.js') // or 'service-worker.js' if you renamed it
+                navigator.serviceWorker.register('service-worker.js') 
                     .then(registration => {
                         console.log('Service Worker registered!');
-                        // Subscribe user only after successful registration
                         subscribeUserToPush(); 
                     })
                     .catch(error => {
@@ -1019,7 +1017,7 @@ tr.playoff-divider td {
             } else {
                 console.warn('Service Workers are not supported by this browser.');
             }
-            // 🌟 END NEW 🌟
+
 
         } else {
             // ... (existing code to disable chat elements) ...

@@ -885,7 +885,6 @@ const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕',
 const messageDisplay = document.getElementById('message-display'); 
 let username = null;
 let currentUserId = null;
-
 const boldBtn = document.getElementById('bold-btn');
 const italicBtn = document.getElementById('italic-btn');
 const underlineBtn = document.getElementById('underline-btn');
@@ -1010,7 +1009,6 @@ function urlBase64ToUint8Array(base64String) {
         }
     }
 
-
 function setupRealtimeListener() {
     if (!supabase) {
         console.error("DEBUG: Supabase client is null. Check initialization.");
@@ -1060,7 +1058,6 @@ function setupRealtimeListener() {
                     }
                 }
                 
-                // --- UPDATE LOGIC (Editing an existing message) ---
                 else if (payload.eventType === 'UPDATE') {
                     const updatedMessage = payload.new;
                     // Find the existing element using the data-message-id attribute
@@ -1075,13 +1072,11 @@ function setupRealtimeListener() {
                             console.error(`DEBUG CRITICAL: Error rendering updated message ID ${updatedMessage.id}:`, e);
                         }
                     } else {
-                        // Fallback to fetch all messages if the element is not found
                         console.warn(`DEBUG: Could not find element for updated message ID: ${updatedMessage.id}. Triggering refresh.`);
                         fetchMessages(); 
                     }
                 }
                 
-                // --- DELETE LOGIC (Removing a message) ---
                 else if (payload.eventType === 'DELETE') {
                     const deletedMessageId = payload.old.id;
                     // Find the element using the data-message-id attribute
@@ -1133,11 +1128,9 @@ async function uploadImage() {
         const data = await response.json();
         const imageUrl = data.secure_url;
         console.log("Image uploaded to Cloudinary:", imageUrl);
-        // Ensure the message input is cleared *before* sending the message, 
-        // as the image is the primary content here.
         messageInput.innerHTML = ''; 
         sendMessage(imageUrl);
-        imageInput.value = ''; // Clear the file input after successful upload
+        imageInput.value = ''; 
     } catch (error) {
         console.error("Image upload error:", error);
         alert("❌ An unexpected error occurred during upload. See console for details.");
@@ -1212,11 +1205,7 @@ async function sendMessage(imageUrl = '') {
         console.error("Error sending message:", error);
         alert("❌ Failed to send message. Check RLS policy.");
     } else {
-        // Clear input AFTER successful insert
         messageInput.innerHTML = '';
-        
-        // ⭐ MODIFIED CODE HERE: Call fetchMessages() to display the sender's message instantly. ⭐
-        // This makes the script behave like the first one in terms of self-display.
         fetchMessages();
         
         if(boldBtn) boldBtn.classList.remove('active');
@@ -1260,7 +1249,6 @@ async function handleDeleteButtonClick(messageId) {
     const success = await deleteMessage(messageId); 
     if (success) {
         console.log('Message deleted successfully, real-time listener will update display.');
-        // ⭐ MODIFIED CODE HERE: Call fetchMessages() to instantly update the display. ⭐
         fetchMessages();
     } else {
         console.error('Deletion failed.'); 
@@ -1325,7 +1313,6 @@ async function handleSaveEdit(messageId, newContent) {
         console.error('Error updating message:', error.message);
         alert('Failed to save edit: ' + error.message);
     } else {
-        // MODIFIED CODE HERE: Call fetchMessages() after saving an edit for instant display
         fetchMessages();
         handleCancelEdit(messageId); 
     }
@@ -1364,7 +1351,6 @@ function renderMessage(message) {
     const headerEl = document.createElement('div');
     headerEl.classList.add('message-header');
     
-    // MESSAGE OPTIONS BUTTON (REMAINS IN HEADER)
     if (username === message.sender) {
         const optionsBtn = document.createElement('button');
         optionsBtn.textContent = '...';
@@ -1389,7 +1375,7 @@ function renderMessage(message) {
                 }
             }
         });
-        headerEl.appendChild(optionsBtn); // The button stays in the header
+        headerEl.appendChild(optionsBtn);
     }
 
     messageContainer.appendChild(headerEl);
@@ -1421,25 +1407,18 @@ function renderMessage(message) {
     // ===========================================
     const footerEl = document.createElement('div');
     footerEl.classList.add('message-footer');
-
-    // ADDED: Sender Name is now in the footer
     const senderEl = document.createElement('span');
     senderEl.textContent = message.sender;
     senderEl.classList.add('sender-name');
     footerEl.appendChild(senderEl);
-
-    // Timestamp follows the sender name
     const timestampEl = document.createElement('small');
     const createdAt = new Date(message.created_at);
     const formattedDate = createdAt.toLocaleDateString();
     const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    // Adding a separator, since they are now side-by-side
     timestampEl.textContent = ` ${formattedDate} ${formattedTime}`; 
     timestampEl.classList.add('timestamp');
-
     footerEl.appendChild(timestampEl);
     messageContainer.appendChild(footerEl);
-
     return messageContainer;
 }
 
@@ -1464,7 +1443,6 @@ async function displayMessages(messages) {
     }
 }
 async function fetchMessages() {
-    // 1. Clear the display container first (Already done in displayMessages, but harmless here)
     if (messageDisplay) messageDisplay.innerHTML = ''; 
     const { data, error } = await supabase
         .from('messages')
@@ -1571,21 +1549,24 @@ window.addEventListener('load', async () => {
         const user = getLoggedInUser();
         username = user.username;
         currentUserId = user.id;
-        
-        if (chatBox) chatBox.classList.remove('hidden');
-        if (messageInput) messageInput.disabled = false;
-        if (sendButton) sendButton.disabled = false;
-        if (gifButton) gifButton.disabled = false;
-        if (imageButton) imageButton.disabled = false;
-        if (styleToggleBtn) styleToggleBtn.disabled = false;
-        if (emojiButton) emojiButton.disabled = false;
-        
-        setupRealtimeListener();
+        
+        // Code to enable chat elements when logged in
+        if (chatBox) chatBox.classList.remove('hidden');
+        if (messageInput) messageInput.disabled = false;
+        if (sendButton) sendButton.disabled = false;
+        if (gifButton) gifButton.disabled = false;
+        if (imageButton) imageButton.disabled = false;
+        if (styleToggleBtn) styleToggleBtn.disabled = false;
+        if (emojiButton) emojiButton.disabled = false;
+        
+        setupRealtimeListener();
 
-if ('serviceWorker' in navigator) {
+        // 🌟 SERVICE WORKER REGISTRATION (Correctly nested inside isLoggedIn) 🌟
+        if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js') 
                 .then(registration => {
                     console.log('Service Worker registered!');
+                    // Only subscribe if registration is successful
                     subscribeUserToPush(); 
                 })
                 .catch(error => {
@@ -1595,7 +1576,7 @@ if ('serviceWorker' in navigator) {
             console.warn('Service Workers are not supported by this browser.');
         }
 
-    } 
+    }
 
     else {
         if (messageInput) messageInput.disabled = true;
@@ -1608,8 +1589,6 @@ if ('serviceWorker' in navigator) {
     
     fetchMessages(); 
 });
-
-
 /* ==================================================================== */
 /* === ESPN
 /* ==================================================================== */

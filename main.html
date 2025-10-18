@@ -864,14 +864,22 @@ tr.playoff-divider td {
         console.error("Supabase client not initialized. Ensure the Supabase library is loaded.");
     }
 
-    // --- NEW PUSH NOTIFICATION CONSTANTS ---
     const VAPID_PUBLIC_KEY = 'BL2Gg2Bp-psAlTw2mKbAZ2Hid77IRyiQaeYJXFWEy2I4znv58nLU2qfgJ-YArQ_istfoZF0S-L3_hxx9QJ94ono'; 
-
-    // --- EXISTING DOM ELEMENT AND CHAT CONSTANTS ---
     const messageInput = document.getElementById('message-input');
-    // ... all other existing DOM elements and constants (sendButton, imageInput, GIPHY_API_KEY, etc.)
     const sendButton = document.getElementById('send-btn');
-    // ... (Your other constants) ...
+    const imageButton = document.getElementById('image-btn');
+    const imageInput = document.getElementById("image-input");
+    const chatBox = document.getElementById('chat-box');
+    const gifButton = document.getElementById('gif-btn');
+    const gifSearchContainer = document.getElementById('gif-search-container');
+    const gifSearchInput = document.getElementById('gif-search-input');
+    const gifSearchButton = document.getElementById('gif-search-button');
+    const gifResultsContainer = document.getElementById('gif-results');
+    const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb'; 
+    const emojiButton = document.getElementById('emoji-btn');
+    const emojiPicker = document.getElementById('emoji-picker');
+    const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
+    const messageDisplay = document.getElementById('message-display'); 
     let username = null;
     let currentUserId = null;
 

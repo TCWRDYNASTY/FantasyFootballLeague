@@ -15,12 +15,10 @@ const urlsToCache = [
   'rookiedraftcountdown.html',
   'style.css',
   'DYNASTYLOGO.jpeg',
-  // --- CORRECTED LINES BELOW ---
-  'Subject.jpeg', // Corrected quotes and removed trailing comma
+  'Subject.jpeg',
   'ainteasy.jpeg',
-  'trophy3.jpeg', // Corrected starting quote
+  'trophy3.jpeg',
   'wildlifeentrance.jpeg',
-  // --- Audio and Icons ---
   'prizewheel.mp3',
   'magic word.mp3',
   'camp-fire.mp3',
@@ -73,47 +71,58 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// -------------------------------------------------------------
 // --- 2. PUSH RECEIVER LOGIC (CRITICAL FOR NOTIFICATIONS) ---
+// -------------------------------------------------------------
 
 self.addEventListener('push', (event) => {
-  // Receives the payload and displays the notification
-  const data = event.data ? event.data.json() : { 
-    title: 'New Notification', 
-    body: 'You have a new message!' 
-  };
-  
-  console.log('[Service Worker] Push received with data:', data);
+    // Attempt to parse the payload sent from your Supabase Edge Function
+    let payload = event.data ? event.data.json() : {};
+    
+    // The payload should contain the message row: {user_id, content, sender, etc.}
+    const title = payload.sender || 'New Message Received'; 
+    const bodyText = payload.content || 'Tap to view the latest chat.';
 
-  const title = data.title || 'Notification';
-  const options = {
-    body: data.body || 'You have a new notification!',
-    icon: data.icon || '/tcwr-192.png', 
-    badge: data.badge || '/tcwr-192.png', 
-    data: { 
-      url: data.url || '/' 
-    }
-  };
+    console.log('[Service Worker] Push received with payload:', payload);
 
-  event.waitUntil(self.registration.showNotification(title, options));
+    const options = {
+        body: bodyText,
+        // Ensure this icon path is correct
+        icon: '/tcwr-icon-192.png', 
+        badge: '/tcwr-icon-192.png',
+        vibrate: [100, 50, 100],
+        data: { 
+            // This URL will be used when the notification is clicked
+            url: '/dynastychat.html' 
+        }
+    };
+
+    // Show the notification to the user
+    event.waitUntil(self.registration.showNotification(title, options));
 });
 
+// ---------------------------------------------
 // --- 3. NOTIFICATION CLICK LOGIC ---
+// ---------------------------------------------
 
 self.addEventListener('notificationclick', (event) => {
-  // Handles clicks on the displayed notification
-  event.notification.close();
+    // Handles clicks on the displayed notification
+    event.notification.close();
 
-  const urlToOpen = event.notification.data.url || '/'; 
+    // Use the URL saved in the notification's data field
+    const urlToOpen = event.notification.data.url || '/'; 
 
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((windowClients) => {
-      let matchingClient = windowClients.find(wc => wc.url.endsWith(urlToOpen));
-      
-      if (matchingClient) {
-        return matchingClient.focus();
-      } else {
-        return clients.openWindow(urlToOpen);
-      }
-    })
-  );
+    event.waitUntil(
+        clients.matchAll({ type: 'window' }).then((windowClients) => {
+            let matchingClient = windowClients.find(wc => wc.url.endsWith(urlToOpen));
+            
+            // If the chat window is already open, focus it
+            if (matchingClient) {
+                return matchingClient.focus();
+            } else {
+                // Otherwise, open a new window to the chat page
+                return clients.openWindow(urlToOpen);
+            }
+        })
+    );
 });

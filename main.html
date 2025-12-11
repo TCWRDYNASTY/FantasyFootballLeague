@@ -1178,10 +1178,12 @@ async function sendMessage(imageUrl = '') {
     if (!messageInput || !sendButton || !supabase) return;
     const formattedMessage = messageInput.innerHTML.
 
- /* ==================================================================== */
-/* === ESPN
 /* ==================================================================== */
-const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
+/* === ESPN News Fetch Function === */
+/* ==================================================================== */
+
+function fetchNflNews() {
+    const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
     const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
     fetch(proxyUrl)
@@ -1211,6 +1213,7 @@ const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
           list.innerHTML = '<li>Failed to load news feed.</li>';
         }
       });
+}
 
 /* ==================================================================== */
 /* === Sleeper

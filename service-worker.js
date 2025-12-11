@@ -1,32 +1,37 @@
 const CACHE_NAME = 'tcwr-main-v2'; 
 
 const urlsToCache = [
-  './',
-  'index.html',
-  'manifest.json',
-  'service-worker.js', 
-  'bylaws.html',
-  'Flushables.html',
-  'HallofChampions.html',
-  'Records.html',
-  'contactcommish.html',
-  'dynastychat.html',
-  'main.html',
-  'rookiedraftcountdown.html',
-  'style.css',
-  'DYNASTYLOGO.jpeg',
-  'Subject.jpeg',
-  'ainteasy.jpeg',
-  'trophy3.jpeg',
-  'wildlifeentrance.jpeg',
-  'prizewheel.mp3',
-  'magic word.mp3',
-  'camp-fire.mp3',
-  'tcwr-icon-192.png',
-  'tcwr-icon-512.png'
+  '/', // Root path for index.html or default page
+  '/index.html',
+  '/manifest.json',
+  '/service-worker.js', 
+  '/Bylaws.html',
+  '/Flushables.html',
+  '/HallofChampions.html',
+  '/Records.html',
+  '/contactcommish.html',
+  '/dynastychat.html',
+  '/main.html',
+  '/rookiedraftcountdown.html',
+  '/style.css',
+  
+  // Images 
+  '/DYNASTYLOGO.jpeg',
+  '/Subject.jpeg',
+  '/ainteasy.jpeg',
+  '/thehomies.jpeg', 
+  '/trophy3.jpeg',
+  
+  // Audio
+  '/prizewheel.mp3', // I assume prizewheel.mp3 is correct, if not, adjust
+  '/magic word.mp3', // Note: Check if the space is causing issues
+  '/camp-fire.mp3',
+  
+  // Icons
+  '/tcwr-icon-192.png',
+  '/tcwr-icon-512.png'
 ];
 
-// --- 1. CACHING/OFFLINE LOGIC ---
 
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Install event received, beginning caching.');

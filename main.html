@@ -1454,12 +1454,12 @@ tr.playoff-divider td {
 
             populateEmojiPicker();
             setupRealtimeListener();
-            await fetchMessages(); // Load existing messages
+            await fetchMessages();
 
-            // You must register your service worker file (e.g., 'sw.js') for push to work
+    
             if ('serviceWorker' in navigator) {
                 try {
-                    await navigator.serviceWorker.register('sw.js');
+                    await navigator.serviceWorker.register('service-worker.js');
                     subscribeUserToPush(); 
                 } catch (error) {
                     console.error('Service Worker registration failed:', error);

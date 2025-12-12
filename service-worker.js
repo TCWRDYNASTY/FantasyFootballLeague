@@ -1,7 +1,7 @@
 const CACHE_NAME = 'tcwr-main-v2'; 
 
 const urlsToCache = [
-  '/', // Root path for index.html or default page
+  '/', 
   '/index.html',
   '/manifest.json',
   '/service-worker.js', 
@@ -13,7 +13,7 @@ const urlsToCache = [
   '/dynastychat.html',
   '/main.html',
   '/rookiedraftcountdown.html',
-  '/style.css',
+  // REMOVED: '/style.css' (Add back ONLY if file exists)
   
   // Images 
   '/DYNASTYLOGO.jpeg',
@@ -23,8 +23,8 @@ const urlsToCache = [
   '/trophy3.jpeg',
   
   // Audio
-  '/prizewheel.mp3', // I assume prizewheel.mp3 is correct, if not, adjust
-  '/magic word.mp3', // Note: Check if the space is causing issues
+  // REMOVED: '/prizewheel.mp3' (Not in file list)
+  '/magicword.mp3', // FIX: Corrected filename (removed space)
   '/camp-fire.mp3',
   
   // Icons

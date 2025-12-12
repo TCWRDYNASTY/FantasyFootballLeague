@@ -1079,58 +1079,59 @@ async function fetchMessages() {
         messageDisplay.scrollTop = messageDisplay.scrollHeight;
     }
 }
-    async function sendMessage(mediaUrl = '') {
-        if (!messageInput || !supabase || !currentUserId || !username) {
-            console.error("Missing prerequisites for sendMessage: Input, Supabase, User ID, or Username.");
-            alert("Cannot send message. User session or required elements are missing.");
-            return;
-        }
 
-        // Get the HTML content from the contenteditable div or use the media URL
-        const messageContent = mediaUrl || messageInput.innerHTML.trim();
-        
-        if (!messageContent) return; 
-
-        // Clear the input immediately
-        messageInput.innerHTML = ''; 
-        
-        const newMessage = {
-            user_id: currentUserId,
-            sender_name: username, // Save the current username with the message
-            content: messageContent 
-        };
-
-        // 1. Insert the message into the 'messages' table
-        const { data: insertedData, error } = await supabase
-            .from('messages')
-            .insert([newMessage])
-            .select();
-
-        if (error) {
-            console.error('Error sending message:', error);
-            alert("❌ Failed to send message. See console for details.");
-            // Restore content if send failed and it wasn't media
-            if (!mediaUrl) messageInput.innerHTML = messageContent; 
-            return;
-        }
-
-        // 2. Optimistic Update (Display the message immediately)
-        if (insertedData && insertedData.length > 0) {
-            const sentMessage = insertedData[0];
-            sentMessage.sender_name = username; 
-            
-            const messageElement = renderMessage(sentMessage);
-            if (messageElement instanceof HTMLElement && messageDisplay) {
-                messageDisplay.appendChild(messageElement);
-                messageDisplay.scrollTop = messageDisplay.scrollHeight;
-            }
-        }
+async function sendMessage(mediaUrl = '') {
+    if (!messageInput || !supabase || !currentUserId || !username) {
+        console.error("Missing prerequisites for sendMessage: Input, Supabase, User ID, or Username.");
+        alert("Cannot send message. User session or required elements are missing.");
+        return;
     }
 
+    // Get the HTML content from the contenteditable div or use the media URL
+    const messageContent = mediaUrl || messageInput.innerHTML.trim();
+    
+    if (!messageContent) return; 
 
-    /**
-     * Applies bold, italic, underline, or size to selected text in the contenteditable div.
-     */
+    // Clear the input immediately
+    messageInput.innerHTML = ''; 
+    
+    const newMessage = {
+        user_id: currentUserId,
+        // FIX IS HERE: Change sender_name to the correct DB column name 'sender'
+        sender: username, 
+        content: messageContent 
+    };
+
+    // 1. Insert the message into the 'messages' table
+    const { data: insertedData, error } = await supabase
+        .from('messages')
+        .insert([newMessage])
+        .select();
+
+    if (error) {
+        console.error('Error sending message:', error);
+        alert("❌ Failed to send message. See console for details.");
+        // Restore content if send failed and it wasn't media
+        if (!mediaUrl) messageInput.innerHTML = messageContent; 
+        return;
+    }
+
+    // 2. Optimistic Update (Display the message immediately)
+    if (insertedData && insertedData.length > 0) {
+        const sentMessage = insertedData[0];
+        // NOTE: The insertedData will now have the 'sender' property, 
+        // not 'sender_name'. We update the optimistic display property here 
+        // to ensure it works with renderMessage.
+        sentMessage.sender_name = username; 
+        
+        const messageElement = renderMessage(sentMessage);
+        if (messageElement instanceof HTMLElement && messageDisplay) {
+            messageDisplay.appendChild(messageElement);
+            messageDisplay.scrollTop = messageDisplay.scrollHeight;
+        }
+    }
+}
+    
     function applyStyle(style, value = null) {
         if (!messageInput) return;
         messageInput.focus();

@@ -1050,10 +1050,11 @@ async function fetchMessages() {
     // 1. SELECT FIX: Correctly joining the 'users' table and pulling 'assigned_name'
     const { data: messages, error } = await supabase
         .from('messages')
-        .select(`
-            *,
-            sender:user_id!users(assigned_name)
-        `) 
+       .select(`
+    *,
+    sender:users(assigned_name)
+`)
+        
         .order('created_at', { ascending: true })
         .limit(100); 
 

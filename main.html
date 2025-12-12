@@ -1044,21 +1044,14 @@ tr.playoff-divider td {
         return messageContainer;
     }
 
-
-    /**
-     * Fetches historical messages from Supabase and populates the chat display.
-     * REQUIRED for initial chat load.
-     */
-  async function fetchMessages() {
+async function fetchMessages() {
     if (!supabase || !messageDisplay) return;
 
-    // Fetch messages and explicitly join the 'profiles' table via the 'user_id' foreign key
+    // FIX: Using the alias 'sender' for the join column 'user_id'
     const { data: messages, error } = await supabase
         .from('messages')
         .select(`
             *,
-            // FIX: Use 'sender:user_id(username)' to join the profiles table via the user_id column
-            // and alias the resulting joined object as 'sender' in the returned data.
             sender:user_id(username) 
         `) 
         .order('created_at', { ascending: true })
@@ -1066,35 +1059,25 @@ tr.playoff-divider td {
 
     if (error) {
         console.error('Error fetching messages:', error);
-        messageDisplay.innerHTML = '<p class="text-red-500">Error loading messages.</p>';
+        messageDisplay.innerHTML = '<p class="text-red-500">Error loading messages (Check Supabase RLS and Schema).</p>';
         return;
     }
 
-    messageDisplay.innerHTML = ''; // Clear existing messages
+    messageDisplay.innerHTML = ''; 
     
     if (messages) {
         messages.forEach(message => {
-            // FIX: Access the username using the 'sender' alias we defined above
+            // FIX: Access the username using the 'sender' alias
             message.sender_name = message.sender?.username || 'User'; 
             
-            // If message.sender is null, it means the foreign key was invalid/deleted, 
-            // so message.sender_name will be 'User'.
-
             const messageElement = renderMessage(message);
             if (messageElement instanceof HTMLElement) {
                 messageDisplay.appendChild(messageElement);
             }
         });
-        // Scroll to the bottom after loading all messages
         messageDisplay.scrollTop = messageDisplay.scrollHeight;
     }
 }
-
-
-    /**
-     * Sends the message content (text/formatted HTML or image/GIF URL) to Supabase.
-     * FIX: Completed the function which was previously cut short.
-     */
     async function sendMessage(mediaUrl = '') {
         if (!messageInput || !supabase || !currentUserId || !username) {
             console.error("Missing prerequisites for sendMessage: Input, Supabase, User ID, or Username.");

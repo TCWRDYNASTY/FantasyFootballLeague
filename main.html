@@ -1047,37 +1047,32 @@ tr.playoff-divider td {
 async function fetchMessages() {
     if (!supabase || !messageDisplay) return;
 
-    // 1. SELECT FIX: Correctly joining the 'users' table and pulling 'assigned_name'
+    // --- TEMPORARILY REMOVING THE JOIN TO ISOLATE THE ISSUE ---
     const { data: messages, error } = await supabase
         .from('messages')
-        .select(`
-            *,
-            sender:users(assigned_name)
-        `)
+        .select('*') // ONLY select the base message columns
         .order('created_at', { ascending: true })
         .limit(100); 
 
-    // --- DEBUG LOGS ADDED ---
+    // --- DEBUG LOGS ---
     if (error) {
-        console.error('ERROR FETCHING MESSAGES (400/RLS):', error);
-        messageDisplay.innerHTML = `<p class="text-red-500">Error loading messages: ${error.message}. Check RLS.</p>`;
+        console.error('ERROR FETCHING MESSAGES:', error);
         return;
     }
     
     if (!messages || messages.length === 0) {
-        console.warn('SUCCESSFUL FETCH, BUT NO MESSAGES RETURNED. Check RLS on the messages table, or if the table is empty.');
-        messageDisplay.innerHTML = `<p class="text-gray-500">No messages found. Start the chat!</p>`;
+        console.warn('STILL NO MESSAGES. The RLS policy for the MESSAGES table SELECT operation is the problem.');
     } else {
-        console.log(`Successfully fetched ${messages.length} messages.`, messages);
+        console.log(`SUCCESS! BASE MESSAGES FETCHED (${messages.length}). Join is the issue.`, messages);
     }
-
 
     messageDisplay.innerHTML = ''; 
     
     if (messages) {
         messages.forEach(message => {
-            // 2. ACCESS FIX: Must use 'assigned_name' to retrieve the data
-            message.sender_name = message.sender?.assigned_name || 'User'; 
+            // Since the join is gone, we cannot rely on message.sender.assigned_name
+            // We fall back to the raw 'sender' column (assuming it's your username)
+            message.sender_name = message.sender || 'Unknown User (JOIN FAILED)'; 
             
             const messageElement = renderMessage(message);
             if (messageElement instanceof HTMLElement) {
@@ -1087,7 +1082,6 @@ async function fetchMessages() {
         messageDisplay.scrollTop = messageDisplay.scrollHeight;
     }
 }
-
 async function sendMessage(mediaUrl = '') {
     if (!messageInput || !supabase || !currentUserId || !username) {
         console.error("Missing prerequisites for sendMessage: Input, Supabase, User ID, or Username.");
@@ -1099,18 +1093,14 @@ async function sendMessage(mediaUrl = '') {
     const messageContent = mediaUrl || messageInput.innerHTML.trim();
     
     if (!messageContent) return; 
-
-    // Clear the input immediately
     messageInput.innerHTML = ''; 
     
     const newMessage = {
         user_id: currentUserId,
-        // FIX IS HERE: Change sender_name to the correct DB column name 'sender'
         sender: username, 
         content: messageContent 
     };
 
-    // 1. Insert the message into the 'messages' table
     const { data: insertedData, error } = await supabase
         .from('messages')
         .insert([newMessage])
@@ -1124,12 +1114,8 @@ async function sendMessage(mediaUrl = '') {
         return;
     }
 
-    // 2. Optimistic Update (Display the message immediately)
     if (insertedData && insertedData.length > 0) {
         const sentMessage = insertedData[0];
-        // NOTE: The insertedData will now have the 'sender' property, 
-        // not 'sender_name'. We update the optimistic display property here 
-        // to ensure it works with renderMessage.
         sentMessage.sender_name = username; 
         
         const messageElement = renderMessage(sentMessage);

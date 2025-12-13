@@ -1415,51 +1415,63 @@ async function sendMessage(mediaUrl = '') {
         });
     }
 
-    document.addEventListener('click', (event) => {
-        // Hide popups when clicking outside
-        if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
-            emojiPicker.classList.add('hidden');
-        }
-        if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
-            gifSearchContainer.classList.add('hidden');
-        }
-        if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
-            styleDropdown.classList.add('hidden');
-        }
-    });
+document.addEventListener('click', (event) => {
+        // Hide popups when clicking outside
+        if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
+            emojiPicker.classList.add('hidden');
+        }
+        if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
+            gifSearchContainer.classList.add('hidden');
+        }
+        if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
+            styleDropdown.classList.add('hidden');
+        }
+    });
 
 
-    // --- Initialization on Load ---
+    // --- Initialization on Load ---
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        const loggedInUser = getLoggedInUser();
+    document.addEventListener('DOMContentLoaded', async () => {
+        const loggedInUser = getLoggedInUser();
 
-        if (loggedInUser && loggedInUser.id) {
-            currentUserId = loggedInUser.id;
-            username = loggedInUser.username;
-            console.log(`User initialized: ID=${currentUserId}, Name=${username}`);
+        if (loggedInUser && loggedInUser.id) {
+            currentUserId = loggedInUser.id;
+            username = loggedInUser.username;
+            console.log(`User initialized: ID=${currentUserId}, Name=${username}`);
 
-            populateEmojiPicker();
-            setupRealtimeListener();
-            await fetchMessages();
+            // 🛑 START OF ADDED CODE TO ENABLE BUTTONS 🛑
+            const buttonsToEnable = [
+                document.getElementById('send-btn'),
+                document.getElementById('emoji-btn'),
+                document.getElementById('gif-btn'),
+                document.getElementById('image-btn') // Assuming 'image-btn' is your upload image button ID
+            ].filter(btn => btn !== null);
 
+            buttonsToEnable.forEach(btn => {
+                btn.removeAttribute('disabled');
+            });
+            // 🛑 END OF ADDED CODE 🛑
+
+            populateEmojiPicker();
+            setupRealtimeListener();
+            await fetchMessages();
+
+    
+            if ('serviceWorker' in navigator) {
+                try {
+                    await navigator.serviceWorker.register('service-worker.js');
+                    subscribeUserToPush(); 
+                } catch (error) {
+                    console.error('Service Worker registration failed:', error);
+                }
+            }
+        } else {
+            // Redirect or handle unauthenticated state
+            console.error("No logged in user found. Redirecting to index.html...");
+            // window.location.href = "index.html"; // Uncomment if you want automatic redirect
+        }
+    });
     
-            if ('serviceWorker' in navigator) {
-                try {
-                    await navigator.serviceWorker.register('service-worker.js');
-                    subscribeUserToPush(); 
-                } catch (error) {
-                    console.error('Service Worker registration failed:', error);
-                }
-            }
-        } else {
-            // Redirect or handle unauthenticated state
-            console.error("No logged in user found. Redirecting to index.html...");
-            // window.location.href = "index.html"; // Uncomment if you want automatic redirect
-        }
-    });
-
-
 /* ==================================================================== */
 /* === Sleeper & ESPN Data Initialization (Combined)
 /* ==================================================================== */

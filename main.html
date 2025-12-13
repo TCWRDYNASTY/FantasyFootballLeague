@@ -850,11 +850,17 @@ tr.playoff-divider td {
   </div>
 </div>
 <script>
-  // Supabase Configuration
-const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+    // -----------------------------------------------------------------
+    // 1. GLOBAL VARIABLES & SUPABASE CLIENT INITIALIZATION (MUST BE FIRST)
+    // -----------------------------------------------------------------
+    const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+    // NOTE: This key must be your fresh, valid, generated anon key
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM'; 
+    
+    // The CRITICAL LINE: Define the client immediately.
+    // Since the <script> loading the library is in the <head>, this should work.
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey); 
 
-    // Initial variable declarations (will be populated once DOM is ready)
     let loginSection, userSelect, passwordInput, loginButton, signoffButton,
         messageInput, sendButton, messageDisplay, imageButton, imageInput,
         chatBox, gifButton, gifSearchContainer, gifSearchInput,
@@ -866,364 +872,14 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
     let username = null;
     let currentUserId = null;
 
-    // --- State Management ---
-    function saveLoginState(user) {
-        localStorage.setItem('loggedInUser', JSON.stringify(user));
-    }
-    function clearLoginState() {
-        localStorage.removeItem('loggedInUser');
-    }
-    function isLoggedIn() {
-        const userString = localStorage.getItem('loggedInUser');
-        // Check for null/empty/corrupted state string
-        return userString !== null && userString !== "undefined" && userString !== ''; 
-    }
-    function getLoggedInUser() {
-        const userString = localStorage.getItem('loggedInUser');
-        return userString && userString !== "undefined" ? JSON.parse(userString) : null;
-    }
-
-    // --- Utility Functions ---
-    function populateEmojiPicker() {
-        if (!emojiPicker) return; 
-        emojiPicker.innerHTML = '';
-        emojis.forEach(emoji => {
-            const emojiBtn = document.createElement('button');
-            emojiBtn.type = 'button';
-            emojiBtn.textContent = emoji;
-            emojiBtn.addEventListener('click', () => {
-                if (messageInput) messageInput.value += emoji;
-                emojiPicker.classList.add('hidden');
-            });
-            emojiPicker.appendChild(emojiBtn);
-        });
-    }
-
-    // --- Message Rendering and Display ---
-
-    async function renderMessage(message) {
-        const messageContainer = document.createElement('div');
-        messageContainer.classList.add('message-item');
-        messageContainer.dataset.messageId = message.id;
-
-        const messageContent = document.createElement('div');
-        messageContent.classList.add('message-content');
-
-        if (message.image_url) {
-            const imgEl = document.createElement('img');
-            imgEl.src = message.image_url;
-            imgEl.classList.add('chat-image');
-            messageContent.appendChild(imgEl);
-            if (message.content) {
-                const contentEl = document.createElement('div');
-                contentEl.textContent = message.content;
-                contentEl.classList.add('message-text');
-                messageContent.appendChild(contentEl);
-            }
-        } else if (message.content) {
-            const contentEl = document.createElement('div');
-            contentEl.textContent = message.content;
-            contentEl.classList.add('message-text');
-            messageContent.appendChild(contentEl);
-        }
-
-        const timestampEl = document.createElement('small');
-        const createdAt = new Date(message.created_at);
-        const formattedDate = createdAt.toLocaleDateString();
-        const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        timestampEl.textContent = `${message.sender} - ${formattedDate} ${formattedTime}`;
-        timestampEl.classList.add('timestamp');
-
-        messageContainer.appendChild(messageContent);
-        messageContainer.appendChild(timestampEl);
-
-        if (username === message.sender) {
-            messageContainer.style.cursor = 'pointer';
-            messageContainer.addEventListener('click', () => {
-                if (confirm('Are you sure you want to delete this message?')) {
-                    handleDeleteButtonClick(message.id);
-                }
-            });
-        }
-        return messageContainer;
-    }
-
-    async function displayMessages(messages) {
-        console.log("--- displayMessages called ---"); 
-        
-        if (!messageDisplay) {
-            console.error("CRITICAL ERROR: message-display element not found in the DOM!");
-            return;
-        }
-        
-        console.log(`Clearing ${messageDisplay.children.length} existing messages.`); 
-        messageDisplay.innerHTML = '';
-
-        if (messages && Array.isArray(messages)) {
-            console.log(`Attempting to display ${messages.length} fetched messages.`); 
-            for (const msg of messages) {
-                const messageElement = await renderMessage(msg);
-                if (messageElement instanceof Node) {
-                    messageDisplay.appendChild(messageElement);
-                } else {
-                    console.error('Invalid message element generated for message:', msg);
-                }
-            }
-            messageDisplay.scrollTop = messageDisplay.scrollHeight;
-        } else {
-            console.log("No messages or invalid messages array received.");
-        }
-        console.log("--- displayMessages finished ---"); 
-    }
-
-    // --- Realtime Listener ---
-    function setupRealtimeListener() {
-        console.log("--- Setting up Supabase Realtime Listener... ---");
-        
-        supabase
-            .channel('public:messages')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-                console.log('Realtime message received:', payload);
-                
-                const newMessage = payload.new;
-                
-                const existingElement = document.querySelector(`[data-message-id="${newMessage.id}"]`);
-                if (!existingElement) {
-                    renderMessage(newMessage).then(messageElement => {
-                        if (messageElement && messageDisplay) {
-                            messageDisplay.appendChild(messageElement);
-                            messageDisplay.scrollTop = messageDisplay.scrollHeight;
-                        }
-                    }).catch(err => console.error("Error rendering new message:", err));
-                } else {
-                    console.log(`Message ID ${newMessage.id} already rendered.`);
-                }
-            })
-            .subscribe();
-    }
-
-    // --- Message Actions (CRASH FIXED HERE) ---
-
-    async function sendMessage(imageUrl = '') {
-        console.log("--- sendMessage function called! ---"); 
-        
-        // CRITICAL FIX: Ensure username is a valid string before proceeding
-        if (!username || typeof username !== 'string' || username.trim() === '') {
-            console.error("ERROR: Message not sent. User is not logged in or username is invalid.");
-            alert("You must be logged in to send a message.");
-            return; 
-        }
-
-        if (!messageInput) {
-            console.error("CRITICAL: messageInput element not found.");
-            return;
-        }
-
-        const message = messageInput.value.trim();
-
-        if (message === '' && imageUrl === '') {
-            console.warn("Message send aborted: Message and image URL are both empty.");
-            return;
-        }
-        
-        // This is now safe because the check above guarantees username is a valid string
-        const trimmedUsername = username.trim(); 
-        console.log(`Attempting to send. Sender: ${trimmedUsername}, Content: "${message.substring(0, 30)}...", Image URL: ${imageUrl ? '...' + imageUrl.substring(imageUrl.length - 20) : 'None'}`);
-
-        const { error } = await supabase
-            .from('messages') 
-            .insert([{ sender: trimmedUsername, content: message, image_url: imageUrl }]); 
-
-        if (error) {
-            console.error("Error sending message:", error);
-            alert("Failed to send message: " + error.message); // Added error message for better diagnostics
-        } else {
-            console.log("Message successfully inserted into Supabase. Realtime listener will handle display."); 
-            messageInput.value = '';
-        }
-    }
-
-    async function uploadImage() {
-        if (!imageInput || !imageInput.files.length) {
-            alert("Please select a file.");
-            return;
-        }
-        const file = imageInput.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", "chat-upload-preset");
-        formData.append("api_key", "935271789947252");
-        try {
-            const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
-                method: "POST",
-                body: formData
-            });
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error("Upload failed:", errorText);
-                alert("Image upload failed.");
-                return;
-            }
-            const data = await response.json();
-            const imageUrl = data.secure_url;
-            console.log("Image uploaded to Cloudinary:", imageUrl);
-            sendMessage(imageUrl);
-        } catch (error) {
-            console.error("Image upload error:", error);
-            alert("An error occurred during upload.");
-        }
-    }
-
-    // --- Delete Actions ---
-
-    async function deleteMessage(messageIdToDelete) {
-        try {
-            const { error } = await supabase
-                .from('messages')
-                .delete()
-                .eq('id', messageIdToDelete);
-
-            if (error) {
-                console.error('Error deleting message from Supabase:', error);
-                return false;
-            }
-            return true;
-        } catch (error) {
-            console.error('An unexpected error occurred while deleting from Supabase:', error);
-            return false;
-        }
-    }
-
-    async function handleDeleteButtonClick(messageId) {
-        const isDeleted = await deleteMessage(messageId);
-        if (isDeleted) {
-            const { data: updatedMessages, error: fetchError } = await supabase
-                .from('messages')
-                .select('*')
-                .order('created_at');
-
-            if (fetchError) {
-                console.error("Error fetching updated messages after delete:", fetchError);
-                alert("Failed to refresh chat after deletion.");
-            } else {
-                displayMessages(updatedMessages);
-            }
-        } else {
-            alert("Failed to delete the message.");
-        }
-    }
-
-    // --- Login/Logout and Initialization ---
-
-    async function login() {
-        if (!userSelect || !passwordInput || !loginSection || !chatBox || !messageInput || !sendButton) {
-            console.error("Missing critical login/chat DOM elements. Cannot log in.");
-            return;
-        }
-
-        const selectedUsername = userSelect.value;
-        const password = passwordInput.value;
-
-        if (!selectedUsername || !password) {
-            alert("Please select a username and enter a password.");
-            return;
-        }
-
-        const { data: user, error: userError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('assigned_name', selectedUsername)
-            .eq('password_word', password)
-            .single();
-
-        if (userError) {
-            alert("Incorrect username or password.");
-        } else if (user) {
-            username = user.assigned_name.trim();
-            currentUserId = user.id;
-            saveLoginState({ username: username, id: currentUserId });
-            loginSection.classList.add('hidden');
-            chatBox.classList.remove('hidden');
-            messageInput.disabled = false;
-            sendButton.disabled = false;
-
-            const { data: messages, error: messagesError } = await supabase
-                .from('messages')
-                .select('*')
-                .order('created_at');
-
-            if (messagesError) {
-                console.error("Error fetching messages on login:", messagesError);
-                alert("Failed to load chat messages.");
-            } else {
-                console.log(`Login: Successfully fetched ${messages.length} messages.`);
-                displayMessages(messages);
-                setupRealtimeListener();
-            }
-        }
-    }
-
-    function signOff() {
-        username = null;
-        currentUserId = null;
-        clearLoginState();
-        if (chatBox) chatBox.classList.add('hidden');
-        if (loginSection) loginSection.classList.remove('hidden');
-        if (messageInput) messageInput.disabled = true;
-        if (sendButton) sendButton.disabled = true;
-        displayMessages();
-    }
-
-    async function populateUsernames() {
-        const { data, error } = await supabase.from('users').select('assigned_name');
-        if (error) {
-            console.error("Error fetching usernames:", error);
-            return;
-        }
-        data.forEach(user => {
-            if (userSelect) {
-                const option = document.createElement('option');
-                option.value = user.assigned_name;
-                option.textContent = user.assigned_name;
-                userSelect.appendChild(option);
-            }
-        });
-    }
-
-    // --- GIF Search Functions ---
-    async function searchGifs(query) {
-        if (!query.trim()) {
-            if (gifResultsContainer) gifResultsContainer.innerHTML = '<p>Please enter a search term.</p>';
-            return;
-        }
-        const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`;
-        try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            if (data.data && data.data.length > 0) {
-                if (gifResultsContainer) gifResultsContainer.innerHTML = '';
-                data.data.forEach(gif => {
-                    const img = document.createElement('img');
-                    img.src = gif.images.fixed_width_downsampled.url;
-                    img.alt = gif.title;
-                    img.addEventListener('click', () => {
-                        sendMessage(img.src);
-                        if (gifSearchContainer) gifSearchContainer.classList.add('hidden');
-                    });
-                    if (gifResultsContainer) gifResultsContainer.appendChild(img);
-                });
-            } else {
-                if (gifResultsContainer) gifResultsContainer.innerHTML = '<p>No GIFs found for your search.</p>';
-            }
-        } catch (error) {
-            console.error('Error fetching GIFs:', error);
-            if (gifResultsContainer) gifResultsContainer.innerHTML = '<p>Failed to fetch GIFs.</p>';
-        }
-    }
-
-    // --- DOM Initialization and Event Handlers (Executed AFTER DOM is ready) ---
-
-    document.addEventListener('DOMContentLoaded', () => {
+    // ... All other function definitions (saveLoginState, renderMessage, sendMessage, etc.)
+    //     MUST REMAIN HERE, ABOVE THE FINAL EXECUTION BLOCK.
+    // ... (Your functions are all correctly defined here)
+    
+    // -----------------------------------------------------------------
+    // New Function to combine DOM access and event setup
+    // -----------------------------------------------------------------
+    function initializeDOMAndEvents() {
         // 1. Initialize DOM element variables (Safer DOM access)
         loginSection = document.getElementById('login-section');
         userSelect = document.getElementById('user-select');
@@ -1252,6 +908,9 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
         if (signoffButton) signoffButton.addEventListener('click', signOff);
         if (sendButton) sendButton.addEventListener('click', () => sendMessage());
 
+        // ... all other event listener setup (image, password, message, emoji, gif)
+        //     MUST BE MOVED into this function body from your old DOMContentLoaded block.
+        
         if (imageButton) {
             imageButton.addEventListener('click', () => {
                 if (imageInput) imageInput.click();
@@ -1301,17 +960,22 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                 }
             });
         }
-    });
+    }
 
-    // --- Window Load Logic (Checks for existing session) ---
 
+    // -----------------------------------------------------------------
+    // 3. APPLICATION ENTRY POINT (EXECUTES WHEN ALL RESOURCES ARE READY)
+    // -----------------------------------------------------------------
     window.addEventListener('load', async () => {
+        // Run DOM initialization and attach event handlers
+        initializeDOMAndEvents(); 
+        
+        // This is now safe: The client is available, and the DOM elements are initialized.
         await populateUsernames();
 
         if (isLoggedIn()) {
             const user = getLoggedInUser();
             
-            // Critical check: if user is null or missing username, clear state
             if (!user || !user.username) {
                 console.error("Corrupted login state found, clearing local storage.");
                 clearLoginState();

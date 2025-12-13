@@ -1098,7 +1098,6 @@ function getCleanMessageContent(inputElement) {
 // ====================================================================
 // === CORE CHAT FUNCTION: sendMessage (with session fix) ===
 // ====================================================================
-
 async function sendMessage(mediaUrl = '') {
     if (!messageInput || !supabase) {
         console.error("Missing core prerequisites (Input or Supabase).");
@@ -1106,8 +1105,10 @@ async function sendMessage(mediaUrl = '') {
     }
 
     // 🛑 CRITICAL FIX: Ensure the Supabase client knows the user immediately before sending
-    // This loads the active session and ensures the RLS check has the necessary token.
     const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    // 🚩 DIAGNOSTIC LINE ADDED FOR THE NEXT STEP 🚩
+    console.log("AUTH CHECK: User Status:", user ? "LOGGED IN" : "LOGGED OUT", user);
 
     if (authError || !user) {
         console.error("User not authenticated for sending message. RLS will fail.", authError);
@@ -1116,8 +1117,8 @@ async function sendMessage(mediaUrl = '') {
     }
 
     // Update global variables to use the live session data for safety
+    // This ensures currentUserId and username are fresh.
     currentUserId = user.id;
-    // Fallback for username if local storage was lost
     username = username || user.user_metadata.username || 'ChatUser';
 
     if (!currentUserId || !username) {
@@ -1148,7 +1149,6 @@ async function sendMessage(mediaUrl = '') {
         console.error('Error sending message:', error);
         alert("❌ Failed to send message. See console for details. (Likely RLS failure)");
         
-        // Restore content on failure if it wasn't media
         if (!mediaUrl) messageInput.innerHTML = messageContent; 
         return;
     }

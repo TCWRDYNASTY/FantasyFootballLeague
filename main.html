@@ -852,325 +852,206 @@ tr.playoff-divider td {
 <script>
 
 
-    function logout() {
-    localStorage.removeItem('loggedInUser');
-    alert("Signed Off Successfully!");
-    setTimeout(() => {
-        window.location.href = "index.html"; 
-    }, 1000); 
-}
-const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+<script>
+        // Audio playback logic
+        const backgroundAudio = document.getElementById('background-audio');
 
-const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null; 
-if (!supabase) {
-    console.error("Supabase client not initialized. Ensure the Supabase library is loaded.");
-}
+        // Attempt to play audio immediately.
+        // Modern browsers often block autoplay until user interaction.
+        // We'll also add an event listener for a user gesture.
+        function playAudio() {
+            const playPromise = backgroundAudio.play();
 
-const VAPID_PUBLIC_KEY = 'BL2Gg2Bp-psAlTw2mKbAZ2Hid77IRyiQaeYJXFWEy2I4znv58nLU2qfgJ-YArQ_istfoZF0S-L3_hxx9QJ94ono'; 
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Autoplay started!
+                    console.log("Audio autoplayed successfully.");
+                }).catch(error => {
+                    // Autoplay was prevented. Show a message or a play button.
+                    console.warn("Audio autoplay prevented:", error);
+                    // Optionally, you could add a visible play button here
+                    // if the audio fails to play.
+                });
+            }
+        }
 
-const messageInput = document.getElementById('message-input');
-const sendButton = document.getElementById('send-ban');
-const imageButton = document.getElementById('image-btn');
-const imageInput = document.getElementById("image-input");
-const chatBox = document.getElementById('chat-box');
-const gifButton = document.getElementById('gif-btn');
-const gifSearchContainer = document.getElementById('gif-search-container');
-const gifSearchInput = document.getElementById('gif-search-input');
-const gifSearchButton = document.getElementById('gif-search-button');
-const gifResultsContainer = document.getElementById('gif-results');
-const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb'; 
-const emojiButton = document.getElementById('emoji-btn');
-const emojiPicker = document.getElementById('emoji-picker');
-const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
-const messageDisplay = document.getElementById('message-display'); 
-let username = null;
-let currentUserId = null;
-const boldBtn = document.getElementById('bold-btn');
-const italicBtn = document.getElementById('italic-btn');
-const underlineBtn = document.getElementById('underline-btn');
-const sizeSelect = document.getElementById('size-select');
-const styleToggleBtn = document.getElementById('style-toggle-btn');
-const styleDropdown = document.getElementById('style-dropdown'); 
+        // Try to play audio when the document is fully loaded
+        document.addEventListener('DOMContentLoaded', playAudio);
 
-function populateEmojiPicker() {
-    if (!emojiPicker) return;
-    emojiPicker.innerHTML = ''; 
-    emojis.forEach(emoji => {
-        const emojiBtn = document.createElement('button');
-        emojiBtn.type = 'button';
-        emojiBtn.textContent = emoji;
-        emojiBtn.addEventListener('click', () => {
-            
-            if (messageInput) {
-                
-                document.execCommand('insertText', false, emoji);
-                messageInput.focus();
-            }
-            emojiPicker.classList.add('hidden'); 
-        });
-        emojiPicker.appendChild(emojiBtn);
-    });
-}
-if (emojiButton) {
-    emojiButton.addEventListener('click', () => {
-        if (emojiPicker) emojiPicker.classList.toggle('hidden');
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
-        if (styleDropdown) styleDropdown.classList.add('hidden'); 
-    });
-}
-
-document.addEventListener('click', (event) => {
-    if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
-        emojiPicker.classList.add('hidden');
-    }
-    if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
-           gifSearchContainer.classList.add('hidden');
-    }
-    if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
-        styleDropdown.classList.add('hidden');
-    }
-});
-
-function isLoggedIn() {
-    return localStorage.getItem('loggedInUser') !== null;
-}
-
-function getLoggedInUser() {
-    const userString = localStorage.getItem('loggedInUser');
-    return userString ? JSON.parse(userString) : null;
-}
+        // Also try to play audio on the first user interaction (e.g., a click anywhere)
+        // This is a common workaround for browser autoplay policies.
+        document.addEventListener('click', playAudio, { once: true });
+        // { once: true } ensures the listener is removed after the first click.
 
 
-function urlBase64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-        const rawData = window.atob(base64);
-        const outputArray = new Uint8Array(rawData.length);
-        for (let i = 0; i < rawData.length; ++i) {
-            outputArray[i] = rawData.charCodeAt(i);
-        }
-        return outputArray;
-    }
+        const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    async function saveSubscriptionToSupabase(subscription) {
-        const { endpoint, keys } = subscription.toJSON();
-        const { p256dh, auth } = keys;
+        // DOM element references - Ensure chatBox is declared here
+        const loginSection = document.getElementById('login-section');
+        const userSelect = document.getElementById('user-select');
+        const passwordInput = document.getElementById('password-input');
+        const loginButton = document.getElementById('login-btn');
+        const signoffButton = document.getElementById('sign-off-btn');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-btn');
+        const messageDisplay = document.getElementById('message-display');
+        const imageButton = document.getElementById('image-btn');
+        const imageInput = document.getElementById("image-input");
+        const chatBox = document.getElementById('chat-box'); // Moved this line up
+        const gifButton = document.getElementById('gif-btn');
+        const gifSearchContainer = document.getElementById('gif-search-container');
+        const gifSearchInput = document.getElementById('gif-search-input');
+        const gifSearchButton = document.getElementById('gif-search-button');
+        const gifResultsContainer = document.getElementById('gif-results');
+        const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb';
+        const emojiButton = document.getElementById('emoji-btn');
+        const emojiPicker = document.getElementById('emoji-picker');
+        const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
 
-        // Use the globally available 'supabase' client
-        const { data: { user } } = await supabase.auth.getUser(); 
-        
-        if (!user) {
-            console.error("User not logged in. Cannot save subscription.");
-            return;
-        }
+        function populateEmojiPicker() {
+            emojiPicker.innerHTML = ''; // Clear existing emojis
 
-        const { error } = await supabase
-            .from('push_subscriptions')
-            .upsert({ user_id: user.id, endpoint, p256dh, auth }, { onConflict: 'user_id' });
+            emojis.forEach(emoji => {
+                const emojiBtn = document.createElement('button');
+                emojiBtn.type = 'button';
+                emojiBtn.textContent = emoji;
+                emojiBtn.addEventListener('click', () => {
+                    messageInput.value += emoji;
+                    emojiPicker.classList.add('hidden'); // Hide picker after selection
+                });
+                emojiPicker.appendChild(emojiBtn);
+            });
+        }
 
-        if (error) {
-            console.error('Error saving subscription to Supabase:', error);
-        } else {
-            console.log('Subscription successfully saved to Supabase!');
-        }
-    }
+        populateEmojiPicker();
 
-    async function subscribeUserToPush() {
-        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-            console.warn('Push messaging is not supported.');
-            return;
-        }
 
-        try {
-            const registration = await navigator.serviceWorker.ready;
-            const existingSubscription = await registration.pushManager.getSubscription();
-            if (existingSubscription) {
-                console.log('User already subscribed to push.');
-                return; 
-            }
+        emojiButton.addEventListener('click', () => {
+            emojiPicker.classList.toggle('hidden');
+        });
 
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') {
-                console.warn('Notification permission denied by user.');
-                return;
-            }
+        document.addEventListener('click', (event) => {
+            if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
+                emojiPicker.classList.add('hidden');
+            }
+        });
 
-            const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: applicationServerKey
-            });
 
-            console.log('New push subscription created:', subscription);
-            await saveSubscriptionToSupabase(subscription);
+        console.log("Emoji button listener attached:", emojiButton);
+        let username = null;
+        let currentUserId = null;
 
-        } catch (err) {
-            console.error('An error occurred during push subscription:', err);
-        }
-    }
+        function saveLoginState(user) {
+            localStorage.setItem('loggedInUser', JSON.stringify(user));
+        }
 
-function setupRealtimeListener() {
-    if (!supabase) {
-        console.error("DEBUG: Supabase client is null. Check initialization.");
-        return;
-    }
-    
-    console.log("DEBUG: Attempting to subscribe to real-time channel.");
-    
-    supabase
-        .channel('messages_changes')
-        .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'messages' },
-            (payload) => {
-                console.log('DEBUG: Realtime change received!', payload);
-                
-                // --- INSERT LOGIC (Adding a new message) ---
-                if (payload.eventType === 'INSERT') {
-                    const newMessage = payload.new;
-                    console.log('DEBUG: Rendering new message object:', newMessage);
-                    
-                    if (!messageDisplay) {
-                        console.error("DEBUG CRITICAL: messageDisplay element is NULL!");
-                        return;
-                    }
-                    try {
-                        const messageElement = renderMessage(newMessage);
-                        if (messageElement instanceof HTMLElement) {
-                            messageDisplay.appendChild(messageElement);
-                            console.log('DEBUG: Successfully appended new message to display.');
-                            
-                            if (messageDisplay) {
-                                // Scroll to bottom when a new message arrives
-                                messageDisplay.scrollTop = messageDisplay.scrollHeight;
-                            }
-                        } else {
-                            console.error("DEBUG CRITICAL: renderMessage did NOT return a valid HTML element!");
-                        }
-                    } catch (e) {
-                        console.error("DEBUG CRITICAL: Error rendering message:", e);
-                    }
-                }
-                
-                else if (payload.eventType === 'UPDATE') {
-                    const updatedMessage = payload.new;
-                    // Find the existing element using the data-message-id attribute
-                    const existingElement = document.querySelector(`[data-message-id="${updatedMessage.id}"]`); 
-                    
-                    if (existingElement) {
-                        try {
-                            const newElement = renderMessage(updatedMessage);
-                            existingElement.replaceWith(newElement);
-                            console.log(`DEBUG: Successfully updated message ID: ${updatedMessage.id}`);
-                        } catch (e) {
-                            console.error(`DEBUG CRITICAL: Error rendering updated message ID ${updatedMessage.id}:`, e);
-                        }
-                    } else {
-                        console.warn(`DEBUG: Could not find element for updated message ID: ${updatedMessage.id}. Triggering refresh.`);
-                        fetchMessages(); 
-                    }
-                }
-                
-                else if (payload.eventType === 'DELETE') {
-                    const deletedMessageId = payload.old.id;
-                    // Find the element using the data-message-id attribute
-                    const messageElement = document.querySelector(`[data-message-id="${deletedMessageId}"]`); 
-                    
-                    if (messageElement) {
-                        messageElement.remove();
-                        console.log(`DEBUG: Successfully deleted message ID: ${deletedMessageId}`);
-                    } else {
-                        console.warn(`DEBUG: Could not find element for deleted message ID: ${deletedMessageId}. No action taken.`);
-                    }
-                }
-            }
-        )
-        .subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
-                console.log('DEBUG: Realtime channel successfully subscribed!');
-            } else if (status === 'CHANNEL_ERROR') {
-                console.error('DEBUG: Realtime channel FAILED to subscribe!');
-            }
-        });
-}
+        function clearLoginState() {
+            localStorage.removeItem('loggedInUser');
+        }
 
-async function uploadImage() {
-    if (!imageInput || !imageInput.files[0]) {
-        alert("Please select a file."); 
-        return;
-    }
+        function isLoggedIn() {
+            return localStorage.getItem('loggedInUser') !== null;
+        }
 
-    const file = imageInput.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "chat-upload-preset");
-    formData.append("api_key", "935271789947252"); 
+        function getLoggedInUser() {
+            const userString = localStorage.getItem('loggedInUser');
+            return userString ? JSON.parse(userString) : null;
+        }
 
-    try {
-        const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
-            method: "POST",
-            body: formData
-        });
+        async function uploadImage() {
+            const file = imageInput.files[0];
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Upload failed:", errorText);
-            alert("❌ Image upload failed. See console for details."); 
-            return;
-        }
+            if (!file) {
+                alert("Please select a file.");
+                return;
+            }
 
-        const data = await response.json();
-        const imageUrl = data.secure_url;
-        console.log("Image uploaded to Cloudinary:", imageUrl);
-        messageInput.innerHTML = ''; 
-        sendMessage(imageUrl);
-        imageInput.value = ''; 
-    } catch (error) {
-        console.error("Image upload error:", error);
-        alert("❌ An unexpected error occurred during upload. See console for details.");
-    }
-}
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", "chat-upload-preset");
+            formData.append("api_key", "935271789947252");
 
-async function searchGifs(query) {
-    if (!gifResultsContainer) return;
-    
-    if (!query.trim()) {
-        gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">Please enter a search term.</p>';
-        return;
-    }
+            try {
+                const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
+                    method: "POST",
+                    body: formData
+                });
 
-    const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`;
-    gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">Searching...</p>';
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Upload failed:", errorText);
+                    alert("Image upload failed.");
+                    return;
+                }
 
-    try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
+                const data = await response.json();
+                const imageUrl = data.secure_url;
+                console.log("Image uploaded to Cloudinary:", imageUrl);
+                sendMessage(imageUrl);
+            } catch (error) {
+                console.error("Image upload error:", error);
+                alert("An error occurred during upload.");
+            }
+        }
 
-        if (data.data && data.data.length > 0) {
-            gifResultsContainer.innerHTML = '';
-            data.data.forEach(gif => {
-                const img = document.createElement('img');
-                img.src = gif.images.fixed_width_small.url || gif.images.fixed_width_downsampled.url; 
-                img.alt = gif.title;
-                img.classList.add('gif-result-image');
-                img.addEventListener('click', () => {
-                    sendMessage(gif.images.original.url); 
-                    if (gifSearchContainer) gifSearchContainer.classList.add('hidden');
-                    if (gifSearchInput) gifSearchInput.value = '';
-                    gifResultsContainer.innerHTML = '';
-                });
-                gifResultsContainer.appendChild(img);
-            });
-        } else {
-            gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">No GIFs found for your search.</p>';
-        }
-    } catch (error) {
-        console.error('Error fetching GIFs:', error);
-        gifResultsContainer.innerHTML = '<p style="color:red; text-align: center;">Failed to fetch GIFs.</p>';
-    }
-}
-  async function sendMessage(imageUrl = '') {
+
+        async function searchGifs(query) {
+            if (!query.trim()) {
+                gifResultsContainer.innerHTML = '<p>Please enter a search term.</p>';
+                return;
+            }
+
+            const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`; // Adjust limit as needed
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.data && data.data.length > 0) {
+                    gifResultsContainer.innerHTML = '';
+                    data.data.forEach(gif => {
+                        const img = document.createElement('img');
+                        img.src = gif.images.fixed_width_downsampled.url; // Use a smaller size for display
+                        img.alt = gif.title;
+                        img.addEventListener('click', () => {
+                            sendMessage(img.src); // Send the GIF URL as a message
+                            gifSearchContainer.classList.add('hidden'); // Hide the search container
+                        });
+                        gifResultsContainer.appendChild(img);
+                    });
+                } else {
+                    gifResultsContainer.innerHTML = '<p>No GIFs found for your search.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching GIFs:', error);
+                gifResultsContainer.innerHTML = '<p>Failed to fetch GIFs.</p>';
+            }
+        }
+
+        // ADDED THIS EVENT LISTENER HERE
+        gifButton.addEventListener('click', () => {
+            console.log("GIF button clicked!"); // This is for testing
+            console.log("gifSearchContainer element:", gifSearchContainer);
+            gifSearchContainer.style.display = gifSearchContainer.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // ADDED THIS EVENT LISTENER HERE
+        gifSearchButton.addEventListener('click', () => {
+            const searchTerm = gifSearchInput.value;
+            searchGifs(searchTerm);
+        });
+
+        // ADDED THIS EVENT LISTENER HERE
+        gifSearchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                gifSearchButton.click();
+            }
+        });
+
+
+        async function sendMessage(imageUrl = '') {
             const message = messageInput.value.trim(); // Get the message from the input and trim whitespace
             if ((message === '' && imageUrl === '') || !username) {
                 return;
@@ -1189,392 +1070,257 @@ async function searchGifs(query) {
                 // Optionally, you can fetch and display messages here if you want to update immediately
                 fetchMessages(); // Assuming you have a fetchMessages function
             }
-  }
-/* ==================================================================== */
-/* === delete and edit script=== */
-/* ==================================================================== */
-async function deleteMessage(messageIdToDelete) {
-    if (!supabase) return false;
+        }
 
-    console.log('deleteMessage called with ID:', messageIdToDelete);
-    try {
-        const { error } = await supabase
-            .from('messages')
-            .delete()
-            .eq('id', messageIdToDelete)
-            // Ensure the message can only be deleted by the original sender
-            .eq('user_id', currentUserId);
+        async function fetchMessages() {
+            const { data: messages, error: messagesError } = await supabase
+                .from('messages')
+                .select('*')
+                .order('created_at');
 
-        if (error) {
-            console.error('Error deleting message from Supabase:', error);
-            alert("❌ Failed to delete the message. Check permissions or ownership.");
-            return false;
-        }
+            if (messagesError) {
+                console.error("Error fetching messages:", messagesError);
+                alert("Failed to load chat messages.");
+            } else {
+                displayMessages(messages);
+            }
+        }
 
-        console.log('Message deleted successfully from Supabase:', messageIdToDelete);
-        return true;
-    } catch (error) {
-        console.error('An unexpected error occurred while deleting from Supabase:', error);
-        alert("❌ An unexpected error occurred during deletion.");
-        return false;
-    }
-}
+        async function login() {
+            const selectedUsername = userSelect.value;
+            const password = passwordInput.value;
 
-/**
- * Optimized handleDeleteButtonClick: Removed redundant fetchMessages() call. 
- * Real-time listener handles the removal of the message element.
- */
-async function handleDeleteButtonClick(messageId) {
-    const success = await deleteMessage(messageId); 
-    if (success) {
-        console.log('Message deleted successfully, real-time listener will update display.');
-        // Removed fetchMessages() call here.
-    } else {
-        console.error('Deletion failed.'); 
-    }
-}
+            if (!selectedUsername || !password) {
+                alert("Please select a username and enter a password.");
+                return;
+            }
 
-function handleStartEdit(messageId, initialContent) {
-    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
-    if (!messageItem) return;
-    const contentWrapper = messageItem.querySelector('.message-content .message-text');
-    if (!contentWrapper) return;
-    contentWrapper.dataset.originalContent = contentWrapper.innerHTML;
-    contentWrapper.contentEditable = 'true';
-    contentWrapper.focus();
-    contentWrapper.classList.add('editing-active');
-    const optionsBtn = messageItem.querySelector('.message-options-btn');
-    if (optionsBtn) {
-        optionsBtn.style.display = 'none'; 
-        let editControls = messageItem.querySelector('.edit-controls');
-        if (!editControls) {
-            editControls = document.createElement('div');
-            editControls.classList.add('edit-controls');
-            // Append controls after the message content wrapper
-            messageItem.querySelector('.message-content').appendChild(editControls);
-        }
-        editControls.innerHTML = '';
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = 'Save';
-        saveBtn.classList.add('save-edit-btn');
-        saveBtn.onclick = () => {
-            
-            const newContent = contentWrapper.innerHTML;
-            handleSaveEdit(messageId, newContent);
-        };
-        editControls.appendChild(saveBtn);
-        const cancelBtn = document.createElement('button');
-        cancelBtn.textContent = '❌ Cancel';
-        cancelBtn.classList.add('cancel-edit-btn');
-        cancelBtn.onclick = () => {
-            handleCancelEdit(messageId);
-        };
-        editControls.appendChild(cancelBtn);
-    }
-}
+            const { data: user, error: userError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('assigned_name', selectedUsername)
+                .eq('password_word', password)
+                .single();
 
-async function handleSaveEdit(messageId, newContent) {
-    const trimmedContent = newContent.trim();
-    if (!trimmedContent) {
-        alert("Message content cannot be empty.");
-        return;
-    }
-    if (!currentUserId) {
-        alert("User session not loaded. Please refresh.");
-        return;
-    }
-    
-    // Assumes you have an RPC (Stored Procedure) named 'update_message' in Supabase
-    const { error } = await supabase.rpc('update_message', {
-        message_id_in: messageId,
-        new_content_in: trimmedContent,
-        user_id_in: currentUserId
-    });
+            if (userError) {
+                alert("Incorrect username or password.");
+            } else if (user) {
+                username = user.assigned_name.trim();
+                currentUserId = user.id;
+                saveLoginState({ username: username, id: currentUserId });
+                loginSection.classList.add('hidden');
+                chatBox.classList.remove('hidden');
+                messageInput.disabled = false;
+                sendButton.disabled = false;
 
-    if (error) {
-        console.error('Error updating message:', error.message);
-        alert('Failed to save edit: ' + error.message);
-    } else {
-        // Real-time listener handles the update render, we just clean up the UI
-        handleCancelEdit(messageId); 
-    }
-}
-        
-function handleCancelEdit(messageId) {
-    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
-    if (!messageItem) return;
+                const { data: messages, error: messagesError } = await supabase
+                    .from('messages')
+                    .select('*')
+                    .order('created_at');
 
-    const contentWrapper = messageItem.querySelector('.message-content .message-text');
-    const optionsBtn = messageItem.querySelector('.message-options-btn');
-    const editControls = messageItem.querySelector('.edit-controls'); 
-    if (contentWrapper) {
-        // Restore original content if available, otherwise keep current
-        contentWrapper.innerHTML = contentWrapper.dataset.originalContent || contentWrapper.innerHTML;
-        contentWrapper.contentEditable = 'false';
-        contentWrapper.classList.remove('editing-active');
-        delete contentWrapper.dataset.originalContent; 
-    }
+                if (messagesError) {
+                    console.error("Error fetching messages:", messagesError);
+                    alert("Failed to load chat messages.");
+                } else {
+                    displayMessages(messages);
+                }
+            }
+        }
 
-    if (optionsBtn) optionsBtn.style.display = 'block';
-    if (editControls) editControls.remove();
-}
-  
-function renderMessage(message) {
-    const messageContainer = document.createElement('div');
-    messageContainer.classList.add('message-item');
-    if (username === message.sender) {
-        messageContainer.classList.add('my-message');
-    }
+        async function renderMessage(message) {
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message-item');
+            messageContainer.dataset.messageId = message.id;
 
-    messageContainer.dataset.messageId = message.id;
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('message-content');
 
-    // ===========================================
-    // 1. HEADER CONSTRUCTION (Edit/Delete Button)
-    // ===========================================
-    const headerEl = document.createElement('div');
-    headerEl.classList.add('message-header');
-    
-    if (username === message.sender) {
-        const optionsBtn = document.createElement('button');
-        optionsBtn.textContent = '...';
-        optionsBtn.classList.add('message-options-btn');
-        optionsBtn.type = 'button';
-        optionsBtn.id = `message-${message.id}`;
-        optionsBtn.title = 'Click to manage (Edit/Delete) this message';
+            if (message.image_url) {
+                const imgEl = document.createElement('img');
+                imgEl.src = message.image_url;
+                imgEl.classList.add('chat-image');
+                messageContent.appendChild(imgEl);
+                if (message.content) {
+                    const contentEl = document.createElement('div');
+                    contentEl.textContent = message.content;
+                    contentEl.classList.add('message-text');
+                    messageContent.appendChild(contentEl);
+                }
+            } else if (message.content) {
+                const contentEl = document.createElement('div');
+                contentEl.textContent = message.content;
+                contentEl.classList.add('message-text');
+                messageContent.appendChild(contentEl);
+            }
 
-        optionsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:');
-            if (action) {
-                const standardizedAction = action.toUpperCase().trim();
-                if (standardizedAction === 'D') {
-                    if (confirm('Are you sure you want to delete this message?')) {
-                        handleDeleteButtonClick(message.id);
-                    }
-                } else if (standardizedAction === 'E') {
-                    // Check if message content exists before attempting to edit
-                    if (message.content) {
-                        handleStartEdit(message.id, message.content);
-                    } else {
-                         alert('Cannot edit image-only messages.');
-                    }
-                } else {
-                    alert('Invalid option selected. Please enter E or D.');
-                }
-            }
-        });
-        headerEl.appendChild(optionsBtn);
-    }
+            const timestampEl = document.createElement('small');
+            const createdAt = new Date(message.created_at);
+            const formattedDate = createdAt.toLocaleDateString();
+            const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            timestampEl.textContent = `${message.sender} - ${formattedDate} ${formattedTime}`;
+            timestampEl.classList.add('timestamp');
 
-    messageContainer.appendChild(headerEl);
+            messageContainer.appendChild(messageContent);
+            messageContainer.appendChild(timestampEl);
 
-    // ===========================================
-    // 2. MESSAGE CONTENT
-    // ===========================================
-    const messageContent = document.createElement('div');
-    messageContent.classList.add('message-content');
+            // Check if the user can delete this message
+            if (username === message.sender) {
+                console.log(`User ${username} can delete message ID: ${message.id}`);
+                messageContainer.style.cursor = 'pointer';
+                messageContainer.addEventListener('click', () => {
+                    console.log(`Message ID ${message.id} clicked for deletion.`);
+                    if (confirm('Are you sure you want to delete this message?')) {
+                        console.log(`Confirmation given for message ID: ${message.id}`);
+                        handleDeleteButtonClick(message.id);
+                    } else {
+                        console.log(`Deletion cancelled for message ID: ${message.id}`);
+                    }
+                });
+            } else {
+                console.log(`User ${username} cannot delete message ID: ${message.id} (sender: ${message.sender})`);
+            }
 
-    if (message.image_url) {
-        const imgEl = document.createElement('img');
-        imgEl.src = message.image_url;
-        imgEl.alt = 'User posted image/GIF';
-        imgEl.classList.add('chat-image');
-        messageContent.appendChild(imgEl);
-    }
+            return messageContainer;
+        }
 
-    if (message.content) {
-        const contentEl = document.createElement('div');
-        contentEl.innerHTML = message.content;
-        contentEl.classList.add('message-text');
-        messageContent.appendChild(contentEl);
-    }
-    messageContainer.appendChild(messageContent);
+        async function displayMessages(messages) {
+            const messageDisplay = document.getElementById('message-display');
+            messageDisplay.innerHTML = ''; // This line is crucial for clearing existing messages
 
-    // ===========================================
-    // 3. FOOTER CONSTRUCTION (Sender Name + Timestamp)
-    // ===========================================
-    const footerEl = document.createElement('div');
-    footerEl.classList.add('message-footer');
-    const senderEl = document.createElement('span');
-    senderEl.textContent = message.sender;
-    senderEl.classList.add('sender-name');
-    footerEl.appendChild(senderEl);
-    const timestampEl = document.createElement('small');
-    const createdAt = new Date(message.created_at);
-    const formattedDate = createdAt.toLocaleDateString();
-    const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    timestampEl.textContent = ` ${formattedDate} ${formattedTime}`; 
-    timestampEl.classList.add('timestamp');
-    footerEl.appendChild(timestampEl);
-    messageContainer.appendChild(footerEl);
-    return messageContainer;
-}
+            if (messages && Array.isArray(messages)) {
+                for (const msg of messages) {
+                    const messageElement = await renderMessage(msg);
+                    if (messageElement instanceof Node) {
+                        messageDisplay.appendChild(messageElement);
+                    } else {
+                        console.error('Invalid message element:', messageElement, msg);
+                    }
+                }
+                messageDisplay.scrollTop = messageDisplay.scrollHeight;
+            } else {
+                console.log("No messages or invalid messages array received.");
+            }
+        }
 
-/* ==================================================================== */
-/* === display script=== */
-/* ==================================================================== */
-async function displayMessages(messages) {
-    if (!messageDisplay) return; 
+        async function deleteMessage(messageIdToDelete) {
+            console.log('deleteMessage called with ID:', messageIdToDelete);
+            try {
+                const { data, error } = await supabase
+                    .from('messages')
+                    .delete()
+                    .eq('id', messageIdToDelete);
 
-    messageDisplay.innerHTML = ''; 
-    
-    if (messages && Array.isArray(messages)) {
-        messages.forEach(msg => {
-            const messageElement = renderMessage(msg);
-            messageDisplay.appendChild(messageElement);
-        });
-        
-        // Always scroll to bottom on the initial load/fetch
-        messageDisplay.scrollTop = messageDisplay.scrollHeight;
-    }
-}
+                console.log('Supabase delete response - Data:', data, 'Error:', error);
 
-async function fetchMessages() {
-    if (messageDisplay) messageDisplay.innerHTML = ''; 
-    const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .order('created_at', { ascending: true }); 
-    if (error) {
-        console.error('Error fetching messages:', error.message);
-        return;
-    }
-    displayMessages(data); 
-}
-if (styleToggleBtn) {
-    styleToggleBtn.addEventListener('click', (event) => {
-        event.stopPropagation(); 
-        if (styleDropdown) styleDropdown.classList.toggle('hidden');
-        if (emojiPicker) emojiPicker.classList.add('hidden'); 
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
-        messageInput.focus(); 
-    });
-}
-if (boldBtn) {
-    boldBtn.addEventListener('click', () => {
-        document.execCommand('bold', false, null);
-        boldBtn.classList.toggle('active', document.queryCommandState('bold'));
-        messageInput.focus();
-    });
-}
+                if (error) {
+                    console.error('Error deleting message from Supabase:', error);
+                    return false;
+                }
 
-if (italicBtn) {
-    italicBtn.addEventListener('click', () => {
-        document.execCommand('italic', false, null);
-        italicBtn.classList.toggle('active', document.queryCommandState('italic'));
-        messageInput.focus();
-    });
-}
+                console.log('Message deleted successfully from Supabase:', messageIdToDelete);
+                return true;
 
-if (underlineBtn) {
-    underlineBtn.addEventListener('click', () => {
-        document.execCommand('underline', false, null);
-        underlineBtn.classList.toggle('active', document.queryCommandState('underline'));
-        messageInput.focus();
-    });
-}
+            } catch (error) {
+                console.error('An unexpected error occurred while deleting from Supabase:', error);
+                return false;
+            }
+        }
 
-if (sizeSelect) {
-    sizeSelect.addEventListener('change', (event) => {
-        // Use a <font> tag to apply size; value 1-7 in execCommand
-        document.execCommand('fontSize', false, event.target.value); 
-        messageInput.focus();
-    });
-}
-if (imageButton) {
-    imageButton.addEventListener('click', () => {
-        if (imageInput) imageInput.click();
-    });
-}
-if (imageInput) {
-    imageInput.addEventListener('change', uploadImage);
-}
-if (sendButton) {
-    sendButton.addEventListener('click', () => sendMessage());
-}
-if (gifButton) {
-    gifButton.addEventListener('click', (event) => {
-        event.stopPropagation(); 
-        if (gifSearchContainer) gifSearchContainer.classList.toggle('hidden'); 
-        if (emojiPicker) emojiPicker.classList.add('hidden'); 
-        if (styleDropdown) styleDropdown.classList.add('hidden'); 
-        if (gifSearchContainer && gifSearchContainer.classList.contains('hidden')) {
-            if (gifSearchInput) gifSearchInput.value = '';
-            if (gifResultsContainer) gifResultsContainer.innerHTML = '';
-        }
-    });
-}
-if (gifSearchButton) {
-    gifSearchButton.addEventListener('click', () => {
-        const searchTerm = gifSearchInput ? gifSearchInput.value : '';
-        searchGifs(searchTerm);
-    });
-}
-if (gifSearchInput) {
-    gifSearchInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            if (gifSearchButton) gifSearchButton.click();
-        }
-    });
-}
-if (messageInput) {
-    messageInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            sendMessage();
-        }
-    });
-}
+        async function handleDeleteButtonClick(messageId) {
+            console.log('handleDeleteButtonClick called with ID:', messageId);
+            const isDeleted = await deleteMessage(messageId);
+            console.log('isDeleted:', isDeleted);
+            if (isDeleted) {
+                console.log('Message deletion successful, refreshing messages.');
+                const { data: updatedMessages, error: fetchError } = await supabase
+                    .from('messages')
+                    .select('*')
+                    .neq('id', messageId) // Explicitly exclude the deleted message ID
+                    .order('created_at');
 
-window.addEventListener('load', async () => {
-    if (emojiPicker) populateEmojiPicker();
-    
-    if (isLoggedIn()) {
-        const user = getLoggedInUser();
-        username = user.username;
-        currentUserId = user.id;
-        
-        // Code to enable chat elements when logged in
-        if (chatBox) chatBox.classList.remove('hidden');
-        if (messageInput) messageInput.disabled = false;
-        if (sendButton) sendButton.disabled = false;
-        if (gifButton) gifButton.disabled = false;
-        if (imageButton) imageButton.disabled = false;
-        if (styleToggleBtn) styleToggleBtn.disabled = false;
-        if (emojiButton) emojiButton.disabled = false;
-        
-        setupRealtimeListener();
+                if (fetchError) {
+                    console.error("Error fetching updated messages after delete:", fetchError);
+                    alert("Failed to refresh chat after deletion.");
+                } else {
+                    console.log('Updated messages after delete (excluding deleted):', updatedMessages); // Debug log
+                    displayMessages(updatedMessages);
+                }
+            } else {
+                alert("Failed to delete the message.");
+            }
+        }
 
-        // SERVICE WORKER REGISTRATION
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js') 
-                .then(registration => {
-                    console.log('Service Worker registered!');
-                    // Only subscribe if registration is successful
-                    subscribeUserToPush(); 
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
-                });
-        } else {
-            console.warn('Service Workers are not supported by this browser.');
-        }
+        function signOff() {
+            username = null;
+            currentUserId = null;
+            clearLoginState();
+            chatBox.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+            displayMessages();
+        }
 
-    }
+        loginButton.addEventListener('click', login);
+        signoffButton.addEventListener('click', signOff);
+        sendButton.addEventListener('click', () => sendMessage());
 
-    else {
-        if (messageInput) messageInput.disabled = true;
-        if (sendButton) sendButton.disabled = true;
-        if (gifButton) gifButton.disabled = true;
-        if (imageButton) imageButton.disabled = true;
-        if (styleToggleBtn) styleToggleBtn.disabled = true;
-        if (emojiButton) emojiButton.disabled = true; 
-    }
-    
-    // Initial fetch to load historical messages
-    fetchMessages(); 
-});
+
+
+        imageButton.addEventListener('click', () => {
+            imageInput.click();
+        });
+
+
+        document.getElementById("image-input").addEventListener("change", uploadImage);
+
+        async function populateUsernames() {
+            const { data, error } = await supabase.from('users').select('assigned_name');
+            if (error) {
+                console.error("Error fetching usernames:", error);
+                return;
+            }
+
+            data.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.assigned_name;
+                option.textContent = user.assigned_name;
+                userSelect.appendChild(option);
+            });
+        }
+
+        window.addEventListener('load', async () => {
+            await populateUsernames();
+
+            if (isLoggedIn()) {
+                const user = getLoggedInUser();
+                username = user.username;
+                currentUserId = user.id;
+                loginSection.classList.add('hidden');
+                chatBox.classList.remove('hidden');
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+
+                const { data: messages, error: messagesError } = await supabase
+                    .from('messages')
+                    .select('*')
+                    .order('created_at');
+                if (messagesError) {
+                    console.error("Error fetching messages:", messagesError);
+                }
+                else {
+                    displayMessages(messages);
+                }
+            }
+        });
+
+        passwordInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                loginButton.click();
+
+            }
+        });
+ 
 
 
     /* ==================================================================== */

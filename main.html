@@ -1170,7 +1170,6 @@ async function searchGifs(query) {
         gifResultsContainer.innerHTML = '<p style="color:red; text-align: center;">Failed to fetch GIFs.</p>';
     }
 }
-
 async function sendMessage(imageUrl = '') {
     if (!messageInput || !sendButton || !supabase) return;
 
@@ -1189,7 +1188,7 @@ async function sendMessage(imageUrl = '') {
         return;
     }
 
-    // 🌟 1. CRITICAL ADDITION: Get the secure, current user ID from the active session 🌟
+    // 🌟 1. CRITICAL: Get the secure, current user ID from the active session 🌟
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -1210,15 +1209,22 @@ async function sendMessage(imageUrl = '') {
             sender: trimmedUsername,
             content: formattedMessage,
             image_url: imageUrl,
-            user_id: userIdToSend // <-- 2. Use the guaranteed correct ID here!
+            user_id: userIdToSend // <-- Use the guaranteed correct ID here!
         }]);
 
     if (error) {
-        // Now this error is highly likely to be the RLS policy failing due to the ID mismatch
-        console.error("Error sending message:", error);
-        alert("❌ Failed to send message. Check RLS policy.");
+        // 🚨 CRITICAL CHANGE: Aggressive logging to expose the hidden database error 🚨
+        console.error("--------------------------------------------");
+        console.error("!!! DB INSERT FAILURE DETECTED !!!");
+        console.error("Supabase Error Object:", error);
+        console.error("Error Code (PostgreSQL):", error.code); 
+        console.error("Error Message:", error.message);
+        console.error("--------------------------------------------");
+        
+        alert("❌ DB INSERT FAILED. CHECK CONSOLE FOR THE SUPABASE ERROR OBJECT.");
     } else {
         // SUCCESS: Clear input and reset styles. 
+        console.log("--- DB INSERT SUCCESS --- Message sent and cleared input!");
         messageInput.innerHTML = '';
         
         if(boldBtn) boldBtn.classList.remove('active');

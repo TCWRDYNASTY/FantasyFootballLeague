@@ -850,475 +850,516 @@ tr.playoff-divider td {
   </div>
 </div>
 <script>
-        // Audio playback logic
-        const backgroundAudio = document.getElementById('background-audio');
+    // Audio playback logic (No changes here)
+    const backgroundAudio = document.getElementById('background-audio');
 
-        // Attempt to play audio immediately.
-        // Modern browsers often block autoplay until user interaction.
-        // We'll also add an event listener for a user gesture.
-        function playAudio() {
-            const playPromise = backgroundAudio.play();
-
-            if (playPromise !== undefined) {
-                playPromise.then(_ => {
-                    // Autoplay started!
-                    console.log("Audio autoplayed successfully.");
-                }).catch(error => {
-                    // Autoplay was prevented. Show a message or a play button.
-                    console.warn("Audio autoplay prevented:", error);
-                    // Optionally, you could add a visible play button here
-                    // if the audio fails to play.
-                });
-            }
-        }
-
-        // Try to play audio when the document is fully loaded
-        document.addEventListener('DOMContentLoaded', playAudio);
-
-        // Also try to play audio on the first user interaction (e.g., a click anywhere)
-        // This is a common workaround for browser autoplay policies.
-        document.addEventListener('click', playAudio, { once: true });
-        // { once: true } ensures the listener is removed after the first click.
-
-
-        const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-        // DOM element references - Ensure chatBox is declared here
-        const loginSection = document.getElementById('login-section');
-        const userSelect = document.getElementById('user-select');
-        const passwordInput = document.getElementById('password-input');
-        const loginButton = document.getElementById('login-btn');
-        const signoffButton = document.getElementById('sign-off-btn');
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-btn');
-        const messageDisplay = document.getElementById('message-display');
-        const imageButton = document.getElementById('image-btn');
-        const imageInput = document.getElementById("image-input");
-        const chatBox = document.getElementById('chat-box'); // Moved this line up
-        const gifButton = document.getElementById('gif-btn');
-        const gifSearchContainer = document.getElementById('gif-search-container');
-        const gifSearchInput = document.getElementById('gif-search-input');
-        const gifSearchButton = document.getElementById('gif-search-button');
-        const gifResultsContainer = document.getElementById('gif-results');
-        const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb';
-        const emojiButton = document.getElementById('emoji-btn');
-        const emojiPicker = document.getElementById('emoji-picker');
-        const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
-
-        function populateEmojiPicker() {
-            emojiPicker.innerHTML = ''; // Clear existing emojis
-
-            emojis.forEach(emoji => {
-                const emojiBtn = document.createElement('button');
-                emojiBtn.type = 'button';
-                emojiBtn.textContent = emoji;
-                emojiBtn.addEventListener('click', () => {
-                    messageInput.value += emoji;
-                    emojiPicker.classList.add('hidden'); // Hide picker after selection
-                });
-                emojiPicker.appendChild(emojiBtn);
+    function playAudio() {
+        const playPromise = backgroundAudio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                console.log("Audio autoplayed successfully.");
+            }).catch(error => {
+                console.warn("Audio autoplay prevented:", error);
             });
         }
+    }
 
-        populateEmojiPicker();
+    document.addEventListener('DOMContentLoaded', playAudio);
+    document.addEventListener('click', playAudio, { once: true });
 
+    // Supabase Configuration (No changes here)
+    const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        emojiButton.addEventListener('click', () => {
-            emojiPicker.classList.toggle('hidden');
-        });
+    // DOM element references (No changes here, but ensure IDs match HTML)
+    const loginSection = document.getElementById('login-section');
+    const userSelect = document.getElementById('user-select');
+    const passwordInput = document.getElementById('password-input');
+    const loginButton = document.getElementById('login-btn');
+    const signoffButton = document.getElementById('sign-off-btn');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-btn');
+    const messageDisplay = document.getElementById('message-display'); // Global reference
+    const imageButton = document.getElementById('image-btn');
+    const imageInput = document.getElementById("image-input");
+    const chatBox = document.getElementById('chat-box');
+    const gifButton = document.getElementById('gif-btn');
+    const gifSearchContainer = document.getElementById('gif-search-container');
+    const gifSearchInput = document.getElementById('gif-search-input');
+    const gifSearchButton = document.getElementById('gif-search-button');
+    const gifResultsContainer = document.getElementById('gif-results');
+    const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb';
+    const emojiButton = document.getElementById('emoji-btn');
+    const emojiPicker = document.getElementById('emoji-picker');
+    const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
 
-        document.addEventListener('click', (event) => {
-            if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
+    // Emoji functions (No changes here)
+    function populateEmojiPicker() {
+        emojiPicker.innerHTML = '';
+        emojis.forEach(emoji => {
+            const emojiBtn = document.createElement('button');
+            emojiBtn.type = 'button';
+            emojiBtn.textContent = emoji;
+            emojiBtn.addEventListener('click', () => {
+                messageInput.value += emoji;
                 emojiPicker.classList.add('hidden');
-            }
+            });
+            emojiPicker.appendChild(emojiBtn);
         });
-
-
-        console.log("Emoji button listener attached:", emojiButton);
-        let username = null;
-        let currentUserId = null;
-
-        function saveLoginState(user) {
-            localStorage.setItem('loggedInUser', JSON.stringify(user));
+    }
+    populateEmojiPicker();
+    emojiButton.addEventListener('click', () => {
+        emojiPicker.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (event) => {
+        if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
+            emojiPicker.classList.add('hidden');
         }
+    });
 
-        function clearLoginState() {
-            localStorage.removeItem('loggedInUser');
+    console.log("Emoji button listener attached:", emojiButton);
+    let username = null;
+    let currentUserId = null;
+
+    // Login State Management (No changes here)
+    function saveLoginState(user) {
+        localStorage.setItem('loggedInUser', JSON.stringify(user));
+    }
+    function clearLoginState() {
+        localStorage.removeItem('loggedInUser');
+    }
+    function isLoggedIn() {
+        return localStorage.getItem('loggedInUser') !== null;
+    }
+    function getLoggedInUser() {
+        const userString = localStorage.getItem('loggedInUser');
+        return userString ? JSON.parse(userString) : null;
+    }
+
+    // Image Upload (No changes here)
+    async function uploadImage() {
+        const file = imageInput.files[0];
+        if (!file) {
+            alert("Please select a file.");
+            return;
         }
-
-        function isLoggedIn() {
-            return localStorage.getItem('loggedInUser') !== null;
-        }
-
-        function getLoggedInUser() {
-            const userString = localStorage.getItem('loggedInUser');
-            return userString ? JSON.parse(userString) : null;
-        }
-
-        async function uploadImage() {
-            const file = imageInput.files[0];
-
-            if (!file) {
-                alert("Please select a file.");
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "chat-upload-preset");
+        formData.append("api_key", "935271789947252");
+        try {
+            const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
+                method: "POST",
+                body: formData
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Upload failed:", errorText);
+                alert("Image upload failed.");
                 return;
             }
-
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("upload_preset", "chat-upload-preset");
-            formData.append("api_key", "935271789947252");
-
-            try {
-                const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
-                    method: "POST",
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error("Upload failed:", errorText);
-                    alert("Image upload failed.");
-                    return;
-                }
-
-                const data = await response.json();
-                const imageUrl = data.secure_url;
-                console.log("Image uploaded to Cloudinary:", imageUrl);
-                sendMessage(imageUrl);
-            } catch (error) {
-                console.error("Image upload error:", error);
-                alert("An error occurred during upload.");
-            }
+            const data = await response.json();
+            const imageUrl = data.secure_url;
+            console.log("Image uploaded to Cloudinary:", imageUrl);
+            sendMessage(imageUrl);
+        } catch (error) {
+            console.error("Image upload error:", error);
+            alert("An error occurred during upload.");
         }
+    }
 
-
-        async function searchGifs(query) {
-            if (!query.trim()) {
-                gifResultsContainer.innerHTML = '<p>Please enter a search term.</p>';
-                return;
-            }
-
-            const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`; // Adjust limit as needed
-
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-
-                if (data.data && data.data.length > 0) {
-                    gifResultsContainer.innerHTML = '';
-                    data.data.forEach(gif => {
-                        const img = document.createElement('img');
-                        img.src = gif.images.fixed_width_downsampled.url; // Use a smaller size for display
-                        img.alt = gif.title;
-                        img.addEventListener('click', () => {
-                            sendMessage(img.src); // Send the GIF URL as a message
-                            gifSearchContainer.classList.add('hidden'); // Hide the search container
-                        });
-                        gifResultsContainer.appendChild(img);
+    // GIF Search (No changes here)
+    async function searchGifs(query) {
+        if (!query.trim()) {
+            gifResultsContainer.innerHTML = '<p>Please enter a search term.</p>';
+            return;
+        }
+        const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`;
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            if (data.data && data.data.length > 0) {
+                gifResultsContainer.innerHTML = '';
+                data.data.forEach(gif => {
+                    const img = document.createElement('img');
+                    img.src = gif.images.fixed_width_downsampled.url;
+                    img.alt = gif.title;
+                    img.addEventListener('click', () => {
+                        sendMessage(img.src);
+                        gifSearchContainer.classList.add('hidden');
                     });
-                } else {
-                    gifResultsContainer.innerHTML = '<p>No GIFs found for your search.</p>';
-                }
-            } catch (error) {
-                console.error('Error fetching GIFs:', error);
-                gifResultsContainer.innerHTML = '<p>Failed to fetch GIFs.</p>';
-            }
-        }
-
-        // ADDED THIS EVENT LISTENER HERE
-        gifButton.addEventListener('click', () => {
-            console.log("GIF button clicked!"); // This is for testing
-            console.log("gifSearchContainer element:", gifSearchContainer);
-            gifSearchContainer.style.display = gifSearchContainer.style.display === 'none' ? 'block' : 'none';
-        });
-
-        // ADDED THIS EVENT LISTENER HERE
-        gifSearchButton.addEventListener('click', () => {
-            const searchTerm = gifSearchInput.value;
-            searchGifs(searchTerm);
-        });
-
-        // ADDED THIS EVENT LISTENER HERE
-        gifSearchInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                gifSearchButton.click();
-            }
-        });
-
-
-        async function sendMessage(imageUrl = '') {
-            const message = messageInput.value.trim(); // Get the message from the input and trim whitespace
-            if ((message === '' && imageUrl === '') || !username) {
-                return;
-            }
-            const trimmedUsername = username ? username.trim() : null; // Define trimmedUsername here
-
-            const { error } = await supabase // Use the supabase client
-                .from('messages') // Specify the table name
-                .insert([{ sender: trimmedUsername, content: message, image_url: imageUrl }]); // The data to insert
-
-            if (error) {
-                console.error("Error sending message:", error);
-                alert("Failed to send message.");
+                    gifResultsContainer.appendChild(img);
+                });
             } else {
-                messageInput.value = '';
-                // Optionally, you can fetch and display messages here if you want to update immediately
-                fetchMessages(); // Assuming you have a fetchMessages function
+                gifResultsContainer.innerHTML = '<p>No GIFs found for your search.</p>';
             }
+        } catch (error) {
+            console.error('Error fetching GIFs:', error);
+            gifResultsContainer.innerHTML = '<p>Failed to fetch GIFs.</p>';
+        }
+    }
+
+    gifButton.addEventListener('click', () => {
+        console.log("GIF button clicked!");
+        gifSearchContainer.style.display = gifSearchContainer.style.display === 'none' ? 'block' : 'none';
+    });
+    gifSearchButton.addEventListener('click', () => {
+        const searchTerm = gifSearchInput.value;
+        searchGifs(searchTerm);
+    });
+    gifSearchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            gifSearchButton.click();
+        }
+    });
+
+    // =======================================================
+    // 📢 CORE CHAT FUNCTIONS - UPDATED FOR DIAGNOSTICS/REALTIME
+    // =======================================================
+
+    /**
+     * @NEW: Realtime Listener function
+     * Subscribes to new messages and adds them to the display instantly.
+     */
+    function setupRealtimeListener() {
+        console.log("--- Setting up Supabase Realtime Listener... ---");
+        
+        supabase
+            .channel('public:messages')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+                console.log('Realtime message received:', payload);
+                
+                const newMessage = payload.new;
+                
+                // Check if the message is already rendered (important to avoid duplicate render on self-send)
+                const existingElement = document.querySelector(`[data-message-id="${newMessage.id}"]`);
+                if (!existingElement) {
+                    renderMessage(newMessage).then(messageElement => {
+                        if (messageElement && messageDisplay) {
+                            messageDisplay.appendChild(messageElement);
+                            messageDisplay.scrollTop = messageDisplay.scrollHeight; // Scroll to bottom
+                        }
+                    }).catch(err => console.error("Error rendering new message:", err));
+                } else {
+                    console.log(`Message ID ${newMessage.id} already rendered.`);
+                }
+            })
+            .subscribe();
+    }
+
+
+    /**
+     * @UPDATED: sendMessage function
+     * Added diagnostics and removed redundant fetchMessages call.
+     */
+    async function sendMessage(imageUrl = '') {
+        console.log("--- sendMessage function called! ---"); 
+        
+        const message = messageInput.value.trim();
+
+        if ((message === '' && imageUrl === '') || !username) {
+            console.warn("Message send aborted: Either message/image is empty or username is null.");
+            return;
+        }
+        
+        const trimmedUsername = username ? username.trim() : null; 
+        console.log(`Attempting to send. Sender: ${trimmedUsername}, Content: "${message.substring(0, 30)}...", Image URL: ${imageUrl ? '...' + imageUrl.substring(imageUrl.length - 20) : 'None'}`);
+
+        const { error } = await supabase
+            .from('messages') 
+            .insert([{ sender: trimmedUsername, content: message, image_url: imageUrl }]); 
+
+        if (error) {
+            console.error("Error sending message:", error);
+            alert("Failed to send message.");
+        } else {
+            console.log("Message successfully inserted into Supabase. Realtime listener will handle display."); 
+            messageInput.value = '';
+            // REMOVED fetchMessages(): Realtime listener handles display
+        }
+    }
+
+    // fetchMessages is kept for initial load logic (No changes here)
+    async function fetchMessages() {
+        const { data: messages, error: messagesError } = await supabase
+            .from('messages')
+            .select('*')
+            .order('created_at');
+
+        if (messagesError) {
+            console.error("Error fetching messages:", messagesError);
+            alert("Failed to load chat messages.");
+        } else {
+            displayMessages(messages);
+        }
+    }
+
+    /**
+     * @UPDATED: login function
+     * Added diagnostics and the Realtime listener call.
+     */
+    async function login() {
+        const selectedUsername = userSelect.value;
+        const password = passwordInput.value;
+
+        if (!selectedUsername || !password) {
+            alert("Please select a username and enter a password.");
+            return;
         }
 
-        async function fetchMessages() {
+        const { data: user, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('assigned_name', selectedUsername)
+            .eq('password_word', password)
+            .single();
+
+        if (userError) {
+            alert("Incorrect username or password.");
+        } else if (user) {
+            username = user.assigned_name.trim();
+            currentUserId = user.id;
+            saveLoginState({ username: username, id: currentUserId });
+            loginSection.classList.add('hidden');
+            chatBox.classList.remove('hidden');
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+
+            // Fetch history messages
             const { data: messages, error: messagesError } = await supabase
                 .from('messages')
                 .select('*')
                 .order('created_at');
 
             if (messagesError) {
-                console.error("Error fetching messages:", messagesError);
+                console.error("Error fetching messages on login:", messagesError);
                 alert("Failed to load chat messages.");
             } else {
+                console.log(`Login: Successfully fetched ${messages.length} messages.`); // <-- DIAGNOSTIC LOG
                 displayMessages(messages);
+                setupRealtimeListener(); // <-- START LISTENER
             }
         }
+    }
 
-        async function login() {
-            const selectedUsername = userSelect.value;
-            const password = passwordInput.value;
+    // renderMessage (No changes here, remains an async function)
+    async function renderMessage(message) {
+        // ... (The rest of your renderMessage function is unchanged)
+        const messageContainer = document.createElement('div');
+        messageContainer.classList.add('message-item');
+        messageContainer.dataset.messageId = message.id;
 
-            if (!selectedUsername || !password) {
-                alert("Please select a username and enter a password.");
-                return;
-            }
+        const messageContent = document.createElement('div');
+        messageContent.classList.add('message-content');
 
-            const { data: user, error: userError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('assigned_name', selectedUsername)
-                .eq('password_word', password)
-                .single();
-
-            if (userError) {
-                alert("Incorrect username or password.");
-            } else if (user) {
-                username = user.assigned_name.trim();
-                currentUserId = user.id;
-                saveLoginState({ username: username, id: currentUserId });
-                loginSection.classList.add('hidden');
-                chatBox.classList.remove('hidden');
-                messageInput.disabled = false;
-                sendButton.disabled = false;
-
-                const { data: messages, error: messagesError } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .order('created_at');
-
-                if (messagesError) {
-                    console.error("Error fetching messages:", messagesError);
-                    alert("Failed to load chat messages.");
-                } else {
-                    displayMessages(messages);
-                }
-            }
-        }
-
-        async function renderMessage(message) {
-            const messageContainer = document.createElement('div');
-            messageContainer.classList.add('message-item');
-            messageContainer.dataset.messageId = message.id;
-
-            const messageContent = document.createElement('div');
-            messageContent.classList.add('message-content');
-
-            if (message.image_url) {
-                const imgEl = document.createElement('img');
-                imgEl.src = message.image_url;
-                imgEl.classList.add('chat-image');
-                messageContent.appendChild(imgEl);
-                if (message.content) {
-                    const contentEl = document.createElement('div');
-                    contentEl.textContent = message.content;
-                    contentEl.classList.add('message-text');
-                    messageContent.appendChild(contentEl);
-                }
-            } else if (message.content) {
+        if (message.image_url) {
+            const imgEl = document.createElement('img');
+            imgEl.src = message.image_url;
+            imgEl.classList.add('chat-image');
+            messageContent.appendChild(imgEl);
+            if (message.content) {
                 const contentEl = document.createElement('div');
                 contentEl.textContent = message.content;
                 contentEl.classList.add('message-text');
                 messageContent.appendChild(contentEl);
             }
-
-            const timestampEl = document.createElement('small');
-            const createdAt = new Date(message.created_at);
-            const formattedDate = createdAt.toLocaleDateString();
-            const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            timestampEl.textContent = `${message.sender} - ${formattedDate} ${formattedTime}`;
-            timestampEl.classList.add('timestamp');
-
-            messageContainer.appendChild(messageContent);
-            messageContainer.appendChild(timestampEl);
-
-            // Check if the user can delete this message
-            if (username === message.sender) {
-                console.log(`User ${username} can delete message ID: ${message.id}`);
-                messageContainer.style.cursor = 'pointer';
-                messageContainer.addEventListener('click', () => {
-                    console.log(`Message ID ${message.id} clicked for deletion.`);
-                    if (confirm('Are you sure you want to delete this message?')) {
-                        console.log(`Confirmation given for message ID: ${message.id}`);
-                        handleDeleteButtonClick(message.id);
-                    } else {
-                        console.log(`Deletion cancelled for message ID: ${message.id}`);
-                    }
-                });
-            } else {
-                console.log(`User ${username} cannot delete message ID: ${message.id} (sender: ${message.sender})`);
-            }
-
-            return messageContainer;
+        } else if (message.content) {
+            const contentEl = document.createElement('div');
+            contentEl.textContent = message.content;
+            contentEl.classList.add('message-text');
+            messageContent.appendChild(contentEl);
         }
 
-        async function displayMessages(messages) {
-            const messageDisplay = document.getElementById('message-display');
-            messageDisplay.innerHTML = ''; // This line is crucial for clearing existing messages
+        const timestampEl = document.createElement('small');
+        const createdAt = new Date(message.created_at);
+        const formattedDate = createdAt.toLocaleDateString();
+        const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        timestampEl.textContent = `${message.sender} - ${formattedDate} ${formattedTime}`;
+        timestampEl.classList.add('timestamp');
 
-            if (messages && Array.isArray(messages)) {
-                for (const msg of messages) {
-                    const messageElement = await renderMessage(msg);
-                    if (messageElement instanceof Node) {
-                        messageDisplay.appendChild(messageElement);
-                    } else {
-                        console.error('Invalid message element:', messageElement, msg);
-                    }
+        messageContainer.appendChild(messageContent);
+        messageContainer.appendChild(timestampEl);
+
+        if (username === message.sender) {
+            messageContainer.style.cursor = 'pointer';
+            messageContainer.addEventListener('click', () => {
+                if (confirm('Are you sure you want to delete this message?')) {
+                    handleDeleteButtonClick(message.id);
                 }
-                messageDisplay.scrollTop = messageDisplay.scrollHeight;
-            } else {
-                console.log("No messages or invalid messages array received.");
-            }
-        }
-
-        async function deleteMessage(messageIdToDelete) {
-            console.log('deleteMessage called with ID:', messageIdToDelete);
-            try {
-                const { data, error } = await supabase
-                    .from('messages')
-                    .delete()
-                    .eq('id', messageIdToDelete);
-
-                console.log('Supabase delete response - Data:', data, 'Error:', error);
-
-                if (error) {
-                    console.error('Error deleting message from Supabase:', error);
-                    return false;
-                }
-
-                console.log('Message deleted successfully from Supabase:', messageIdToDelete);
-                return true;
-
-            } catch (error) {
-                console.error('An unexpected error occurred while deleting from Supabase:', error);
-                return false;
-            }
-        }
-
-        async function handleDeleteButtonClick(messageId) {
-            console.log('handleDeleteButtonClick called with ID:', messageId);
-            const isDeleted = await deleteMessage(messageId);
-            console.log('isDeleted:', isDeleted);
-            if (isDeleted) {
-                console.log('Message deletion successful, refreshing messages.');
-                const { data: updatedMessages, error: fetchError } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .neq('id', messageId) // Explicitly exclude the deleted message ID
-                    .order('created_at');
-
-                if (fetchError) {
-                    console.error("Error fetching updated messages after delete:", fetchError);
-                    alert("Failed to refresh chat after deletion.");
-                } else {
-                    console.log('Updated messages after delete (excluding deleted):', updatedMessages); // Debug log
-                    displayMessages(updatedMessages);
-                }
-            } else {
-                alert("Failed to delete the message.");
-            }
-        }
-
-        function signOff() {
-            username = null;
-            currentUserId = null;
-            clearLoginState();
-            chatBox.classList.add('hidden');
-            loginSection.classList.remove('hidden');
-            messageInput.disabled = true;
-            sendButton.disabled = true;
-            displayMessages();
-        }
-
-        loginButton.addEventListener('click', login);
-        signoffButton.addEventListener('click', signOff);
-        sendButton.addEventListener('click', () => sendMessage());
-
-
-
-        imageButton.addEventListener('click', () => {
-            imageInput.click();
-        });
-
-
-        document.getElementById("image-input").addEventListener("change", uploadImage);
-
-        async function populateUsernames() {
-            const { data, error } = await supabase.from('users').select('assigned_name');
-            if (error) {
-                console.error("Error fetching usernames:", error);
-                return;
-            }
-
-            data.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user.assigned_name;
-                option.textContent = user.assigned_name;
-                userSelect.appendChild(option);
             });
         }
+        return messageContainer;
+    }
 
-        window.addEventListener('load', async () => {
-            await populateUsernames();
+    /**
+     * @UPDATED: displayMessages function
+     * Added comprehensive diagnostics.
+     */
+    async function displayMessages(messages) {
+        const messageDisplay = document.getElementById('message-display'); // Local reference for safety/diagnostics
+        console.log("--- displayMessages called ---"); 
+        
+        if (!messageDisplay) {
+            console.error("CRITICAL ERROR: message-display element not found in the DOM!"); // <-- CRITICAL DIAGNOSTIC
+            return;
+        }
+        
+        console.log(`Clearing ${messageDisplay.children.length} existing messages.`); 
+        messageDisplay.innerHTML = ''; // This line is crucial for clearing existing messages
 
-            if (isLoggedIn()) {
-                const user = getLoggedInUser();
-                username = user.username;
-                currentUserId = user.id;
-                loginSection.classList.add('hidden');
-                chatBox.classList.remove('hidden');
-                messageInput.disabled = false;
-                sendButton.disabled = false;
-
-                const { data: messages, error: messagesError } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .order('created_at');
-                if (messagesError) {
-                    console.error("Error fetching messages:", messagesError);
-                }
-                else {
-                    displayMessages(messages);
+        if (messages && Array.isArray(messages)) {
+            console.log(`Attempting to display ${messages.length} fetched messages.`); 
+            for (const msg of messages) {
+                const messageElement = await renderMessage(msg);
+                if (messageElement instanceof Node) {
+                    messageDisplay.appendChild(messageElement);
+                } else {
+                    console.error('Invalid message element generated for message:', msg);
                 }
             }
-        });
+            messageDisplay.scrollTop = messageDisplay.scrollHeight;
+        } else {
+            console.log("No messages or invalid messages array received.");
+        }
+        console.log("--- displayMessages finished ---"); 
+    }
 
-        passwordInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                loginButton.click();
+    // deleteMessage (No changes here)
+    async function deleteMessage(messageIdToDelete) {
+        // ... (The rest of your deleteMessage function is unchanged)
+        console.log('deleteMessage called with ID:', messageIdToDelete);
+        try {
+            const { data, error } = await supabase
+                .from('messages')
+                .delete()
+                .eq('id', messageIdToDelete);
 
+            console.log('Supabase delete response - Data:', data, 'Error:', error);
+
+            if (error) {
+                console.error('Error deleting message from Supabase:', error);
+                return false;
             }
-        });
- 
 
+            console.log('Message deleted successfully from Supabase:', messageIdToDelete);
+            return true;
+
+        } catch (error) {
+            console.error('An unexpected error occurred while deleting from Supabase:', error);
+            return false;
+        }
+    }
+
+    // handleDeleteButtonClick (No changes here, but relies on fetchMessages)
+    async function handleDeleteButtonClick(messageId) {
+        console.log('handleDeleteButtonClick called with ID:', messageId);
+        const isDeleted = await deleteMessage(messageId);
+        console.log('isDeleted:', isDeleted);
+        if (isDeleted) {
+            console.log('Message deletion successful, refreshing messages.');
+            // This is still needed for the delete function as Supabase Realtime typically doesn't handle DELETE events without extra config
+            const { data: updatedMessages, error: fetchError } = await supabase
+                .from('messages')
+                .select('*')
+                .neq('id', messageId)
+                .order('created_at');
+
+            if (fetchError) {
+                console.error("Error fetching updated messages after delete:", fetchError);
+                alert("Failed to refresh chat after deletion.");
+            } else {
+                console.log('Updated messages after delete (excluding deleted):', updatedMessages); 
+                displayMessages(updatedMessages);
+            }
+        } else {
+            alert("Failed to delete the message.");
+        }
+    }
+
+    // signOff (No changes here)
+    function signOff() {
+        username = null;
+        currentUserId = null;
+        clearLoginState();
+        chatBox.classList.add('hidden');
+        loginSection.classList.remove('hidden');
+        messageInput.disabled = true;
+        sendButton.disabled = true;
+        displayMessages();
+    }
+
+    // Event Listeners (No changes here)
+    loginButton.addEventListener('click', login);
+    signoffButton.addEventListener('click', signOff);
+    sendButton.addEventListener('click', () => sendMessage());
+    imageButton.addEventListener('click', () => {
+        imageInput.click();
+    });
+    document.getElementById("image-input").addEventListener("change", uploadImage);
+
+    // populateUsernames (No changes here)
+    async function populateUsernames() {
+        const { data, error } = await supabase.from('users').select('assigned_name');
+        if (error) {
+            console.error("Error fetching usernames:", error);
+            return;
+        }
+        data.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.assigned_name;
+            option.textContent = user.assigned_name;
+            userSelect.appendChild(option);
+        });
+    }
+
+    /**
+     * @UPDATED: window.load listener
+     * Added diagnostics and the Realtime listener call.
+     */
+    window.addEventListener('load', async () => {
+        await populateUsernames();
+
+        if (isLoggedIn()) {
+            const user = getLoggedInUser();
+            username = user.username;
+            currentUserId = user.id;
+            loginSection.classList.add('hidden');
+            chatBox.classList.remove('hidden');
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+
+            // Fetch history messages
+            const { data: messages, error: messagesError } = await supabase
+                .from('messages')
+                .select('*')
+                .order('created_at');
+
+            if (messagesError) {
+                console.error("Error fetching messages on load:", messagesError);
+            }
+            else {
+                console.log(`Window Load: Successfully fetched ${messages.length} messages.`); // <-- DIAGNOSTIC LOG
+                displayMessages(messages);
+                setupRealtimeListener(); // <-- START LISTENER
+            }
+        }
+    });
+
+    // Enter key listener for login (No changes here)
+    passwordInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            loginButton.click();
+        }
+    });
+
+    // ADDED: Enter key listener for sending message
+    messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // Prevents a new line in the input
+            sendMessage();
+        }
+    });
 
 </script>
 </body>

@@ -850,29 +850,13 @@ tr.playoff-divider td {
   </div>
 </div>
 <script>
-    // Audio playback logic (No changes here)
-    const backgroundAudio = document.getElementById('background-audio');
-
-    function playAudio() {
-        const playPromise = backgroundAudio.play();
-        if (playPromise !== undefined) {
-            playPromise.then(_ => {
-                console.log("Audio autoplayed successfully.");
-            }).catch(error => {
-                console.warn("Audio autoplay prevented:", error);
-            });
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', playAudio);
-    document.addEventListener('click', playAudio, { once: true });
-
-    // Supabase Configuration (No changes here)
+    // Supabase Configuration
     const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    // DOM element references (No changes here, but ensure IDs match HTML)
+    // --- DOM element references ---
+    // NOTE: Removed 'backgroundAudio' reference
     const loginSection = document.getElementById('login-section');
     const userSelect = document.getElementById('user-select');
     const passwordInput = document.getElementById('password-input');
@@ -880,7 +864,7 @@ tr.playoff-divider td {
     const signoffButton = document.getElementById('sign-off-btn');
     const messageInput = document.getElementById('message-input');
     const sendButton = document.getElementById('send-btn');
-    const messageDisplay = document.getElementById('message-display'); // Global reference
+    const messageDisplay = document.getElementById('message-display'); 
     const imageButton = document.getElementById('image-btn');
     const imageInput = document.getElementById("image-input");
     const chatBox = document.getElementById('chat-box');
@@ -893,28 +877,35 @@ tr.playoff-divider td {
     const emojiButton = document.getElementById('emoji-btn');
     const emojiPicker = document.getElementById('emoji-picker');
     const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
-
-    // Emoji functions (No changes here)
+    
+    // --- Utility and State ---
     function populateEmojiPicker() {
+        if (!emojiPicker) return; 
         emojiPicker.innerHTML = '';
         emojis.forEach(emoji => {
             const emojiBtn = document.createElement('button');
             emojiBtn.type = 'button';
             emojiBtn.textContent = emoji;
             emojiBtn.addEventListener('click', () => {
-                messageInput.value += emoji;
+                if (messageInput) messageInput.value += emoji;
                 emojiPicker.classList.add('hidden');
             });
             emojiPicker.appendChild(emojiBtn);
         });
     }
     populateEmojiPicker();
-    emojiButton.addEventListener('click', () => {
-        emojiPicker.classList.toggle('hidden');
-    });
+
+    if (emojiButton) {
+        emojiButton.addEventListener('click', () => {
+            if (emojiPicker) emojiPicker.classList.toggle('hidden');
+        });
+    }
+
     document.addEventListener('click', (event) => {
-        if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
-            emojiPicker.classList.add('hidden');
+        if (emojiPicker && emojiButton) {
+            if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
+                emojiPicker.classList.add('hidden');
+            }
         }
     });
 
@@ -922,7 +913,6 @@ tr.playoff-divider td {
     let username = null;
     let currentUserId = null;
 
-    // Login State Management (No changes here)
     function saveLoginState(user) {
         localStorage.setItem('loggedInUser', JSON.stringify(user));
     }
@@ -937,13 +927,13 @@ tr.playoff-divider td {
         return userString ? JSON.parse(userString) : null;
     }
 
-    // Image Upload (No changes here)
+    // --- Media Uploads and Search ---
     async function uploadImage() {
-        const file = imageInput.files[0];
-        if (!file) {
+        if (!imageInput || !imageInput.files.length) {
             alert("Please select a file.");
             return;
         }
+        const file = imageInput.files[0];
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", "chat-upload-preset");
@@ -969,10 +959,9 @@ tr.playoff-divider td {
         }
     }
 
-    // GIF Search (No changes here)
     async function searchGifs(query) {
         if (!query.trim()) {
-            gifResultsContainer.innerHTML = '<p>Please enter a search term.</p>';
+            if (gifResultsContainer) gifResultsContainer.innerHTML = '<p>Please enter a search term.</p>';
             return;
         }
         const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`;
@@ -980,48 +969,48 @@ tr.playoff-divider td {
             const response = await fetch(apiUrl);
             const data = await response.json();
             if (data.data && data.data.length > 0) {
-                gifResultsContainer.innerHTML = '';
+                if (gifResultsContainer) gifResultsContainer.innerHTML = '';
                 data.data.forEach(gif => {
                     const img = document.createElement('img');
                     img.src = gif.images.fixed_width_downsampled.url;
                     img.alt = gif.title;
                     img.addEventListener('click', () => {
                         sendMessage(img.src);
-                        gifSearchContainer.classList.add('hidden');
+                        if (gifSearchContainer) gifSearchContainer.classList.add('hidden');
                     });
-                    gifResultsContainer.appendChild(img);
+                    if (gifResultsContainer) gifResultsContainer.appendChild(img);
                 });
             } else {
-                gifResultsContainer.innerHTML = '<p>No GIFs found for your search.</p>';
+                if (gifResultsContainer) gifResultsContainer.innerHTML = '<p>No GIFs found for your search.</p>';
             }
         } catch (error) {
             console.error('Error fetching GIFs:', error);
-            gifResultsContainer.innerHTML = '<p>Failed to fetch GIFs.</p>';
+            if (gifResultsContainer) gifResultsContainer.innerHTML = '<p>Failed to fetch GIFs.</p>';
         }
     }
 
-    gifButton.addEventListener('click', () => {
-        console.log("GIF button clicked!");
-        gifSearchContainer.style.display = gifSearchContainer.style.display === 'none' ? 'block' : 'none';
-    });
-    gifSearchButton.addEventListener('click', () => {
-        const searchTerm = gifSearchInput.value;
-        searchGifs(searchTerm);
-    });
-    gifSearchInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-            gifSearchButton.click();
-        }
-    });
+    if (gifButton && gifSearchContainer) {
+        gifButton.addEventListener('click', () => {
+            console.log("GIF button clicked!");
+            gifSearchContainer.style.display = gifSearchContainer.style.display === 'none' ? 'block' : 'none';
+        });
+    }
 
-    // =======================================================
-    // 📢 CORE CHAT FUNCTIONS - UPDATED FOR DIAGNOSTICS/REALTIME
-    // =======================================================
+    if (gifSearchButton && gifSearchInput) {
+        gifSearchButton.addEventListener('click', () => {
+            const searchTerm = gifSearchInput.value;
+            searchGifs(searchTerm);
+        });
+        gifSearchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                gifSearchButton.click();
+            }
+        });
+    }
 
-    /**
-     * @NEW: Realtime Listener function
-     * Subscribes to new messages and adds them to the display instantly.
-     */
+    // --- Chat Logic ---
+
     function setupRealtimeListener() {
         console.log("--- Setting up Supabase Realtime Listener... ---");
         
@@ -1032,13 +1021,12 @@ tr.playoff-divider td {
                 
                 const newMessage = payload.new;
                 
-                // Check if the message is already rendered (important to avoid duplicate render on self-send)
                 const existingElement = document.querySelector(`[data-message-id="${newMessage.id}"]`);
                 if (!existingElement) {
                     renderMessage(newMessage).then(messageElement => {
                         if (messageElement && messageDisplay) {
                             messageDisplay.appendChild(messageElement);
-                            messageDisplay.scrollTop = messageDisplay.scrollHeight; // Scroll to bottom
+                            messageDisplay.scrollTop = messageDisplay.scrollHeight;
                         }
                     }).catch(err => console.error("Error rendering new message:", err));
                 } else {
@@ -1048,18 +1036,19 @@ tr.playoff-divider td {
             .subscribe();
     }
 
-
-    /**
-     * @UPDATED: sendMessage function
-     * Added diagnostics and removed redundant fetchMessages call.
-     */
+    // UPDATED: Contains diagnostic logs and no fetchMessages call
     async function sendMessage(imageUrl = '') {
         console.log("--- sendMessage function called! ---"); 
         
+        if (!messageInput) {
+            console.error("CRITICAL: messageInput element not found.");
+            return;
+        }
+
         const message = messageInput.value.trim();
 
         if ((message === '' && imageUrl === '') || !username) {
-            console.warn("Message send aborted: Either message/image is empty or username is null.");
+            console.warn("Message send aborted: Either message/image is empty or user is not logged in.");
             return;
         }
         
@@ -1076,11 +1065,9 @@ tr.playoff-divider td {
         } else {
             console.log("Message successfully inserted into Supabase. Realtime listener will handle display."); 
             messageInput.value = '';
-            // REMOVED fetchMessages(): Realtime listener handles display
         }
     }
 
-    // fetchMessages is kept for initial load logic (No changes here)
     async function fetchMessages() {
         const { data: messages, error: messagesError } = await supabase
             .from('messages')
@@ -1095,11 +1082,12 @@ tr.playoff-divider td {
         }
     }
 
-    /**
-     * @UPDATED: login function
-     * Added diagnostics and the Realtime listener call.
-     */
     async function login() {
+        if (!userSelect || !passwordInput || !loginSection || !chatBox || !messageInput || !sendButton) {
+            console.error("Missing critical login/chat DOM elements.");
+            return;
+        }
+
         const selectedUsername = userSelect.value;
         const password = passwordInput.value;
 
@@ -1126,7 +1114,6 @@ tr.playoff-divider td {
             messageInput.disabled = false;
             sendButton.disabled = false;
 
-            // Fetch history messages
             const { data: messages, error: messagesError } = await supabase
                 .from('messages')
                 .select('*')
@@ -1136,16 +1123,14 @@ tr.playoff-divider td {
                 console.error("Error fetching messages on login:", messagesError);
                 alert("Failed to load chat messages.");
             } else {
-                console.log(`Login: Successfully fetched ${messages.length} messages.`); // <-- DIAGNOSTIC LOG
+                console.log(`Login: Successfully fetched ${messages.length} messages.`);
                 displayMessages(messages);
-                setupRealtimeListener(); // <-- START LISTENER
+                setupRealtimeListener();
             }
         }
     }
 
-    // renderMessage (No changes here, remains an async function)
     async function renderMessage(message) {
-        // ... (The rest of your renderMessage function is unchanged)
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('message-item');
         messageContainer.dataset.messageId = message.id;
@@ -1192,21 +1177,17 @@ tr.playoff-divider td {
         return messageContainer;
     }
 
-    /**
-     * @UPDATED: displayMessages function
-     * Added comprehensive diagnostics.
-     */
+    // UPDATED: Contains diagnostic logs
     async function displayMessages(messages) {
-        const messageDisplay = document.getElementById('message-display'); // Local reference for safety/diagnostics
         console.log("--- displayMessages called ---"); 
         
         if (!messageDisplay) {
-            console.error("CRITICAL ERROR: message-display element not found in the DOM!"); // <-- CRITICAL DIAGNOSTIC
+            console.error("CRITICAL ERROR: message-display element not found in the DOM!");
             return;
         }
         
         console.log(`Clearing ${messageDisplay.children.length} existing messages.`); 
-        messageDisplay.innerHTML = ''; // This line is crucial for clearing existing messages
+        messageDisplay.innerHTML = '';
 
         if (messages && Array.isArray(messages)) {
             console.log(`Attempting to display ${messages.length} fetched messages.`); 
@@ -1225,9 +1206,7 @@ tr.playoff-divider td {
         console.log("--- displayMessages finished ---"); 
     }
 
-    // deleteMessage (No changes here)
     async function deleteMessage(messageIdToDelete) {
-        // ... (The rest of your deleteMessage function is unchanged)
         console.log('deleteMessage called with ID:', messageIdToDelete);
         try {
             const { data, error } = await supabase
@@ -1251,14 +1230,12 @@ tr.playoff-divider td {
         }
     }
 
-    // handleDeleteButtonClick (No changes here, but relies on fetchMessages)
     async function handleDeleteButtonClick(messageId) {
         console.log('handleDeleteButtonClick called with ID:', messageId);
         const isDeleted = await deleteMessage(messageId);
-        console.log('isDeleted:', isDeleted);
         if (isDeleted) {
             console.log('Message deletion successful, refreshing messages.');
-            // This is still needed for the delete function as Supabase Realtime typically doesn't handle DELETE events without extra config
+            
             const { data: updatedMessages, error: fetchError } = await supabase
                 .from('messages')
                 .select('*')
@@ -1277,28 +1254,34 @@ tr.playoff-divider td {
         }
     }
 
-    // signOff (No changes here)
     function signOff() {
         username = null;
         currentUserId = null;
         clearLoginState();
-        chatBox.classList.add('hidden');
-        loginSection.classList.remove('hidden');
-        messageInput.disabled = true;
-        sendButton.disabled = true;
+        if (chatBox) chatBox.classList.add('hidden');
+        if (loginSection) loginSection.classList.remove('hidden');
+        if (messageInput) messageInput.disabled = true;
+        if (sendButton) sendButton.disabled = true;
         displayMessages();
     }
 
-    // Event Listeners (No changes here)
-    loginButton.addEventListener('click', login);
-    signoffButton.addEventListener('click', signOff);
-    sendButton.addEventListener('click', () => sendMessage());
-    imageButton.addEventListener('click', () => {
-        imageInput.click();
-    });
-    document.getElementById("image-input").addEventListener("change", uploadImage);
+    // --- Event Listener Registration (All conditional) ---
 
-    // populateUsernames (No changes here)
+    if (loginButton) loginButton.addEventListener('click', login);
+    if (signoffButton) signoffButton.addEventListener('click', signOff);
+    if (sendButton) sendButton.addEventListener('click', () => sendMessage());
+
+    if (imageButton) {
+        imageButton.addEventListener('click', () => {
+            if (imageInput) imageInput.click();
+        });
+    }
+
+    if (imageInput) {
+        imageInput.addEventListener("change", uploadImage);
+    }
+    
+    // --- Initial Load Logic ---
     async function populateUsernames() {
         const { data, error } = await supabase.from('users').select('assigned_name');
         if (error) {
@@ -1306,17 +1289,15 @@ tr.playoff-divider td {
             return;
         }
         data.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.assigned_name;
-            option.textContent = user.assigned_name;
-            userSelect.appendChild(option);
+            if (userSelect) {
+                const option = document.createElement('option');
+                option.value = user.assigned_name;
+                option.textContent = user.assigned_name;
+                userSelect.appendChild(option);
+            }
         });
     }
 
-    /**
-     * @UPDATED: window.load listener
-     * Added diagnostics and the Realtime listener call.
-     */
     window.addEventListener('load', async () => {
         await populateUsernames();
 
@@ -1324,12 +1305,11 @@ tr.playoff-divider td {
             const user = getLoggedInUser();
             username = user.username;
             currentUserId = user.id;
-            loginSection.classList.add('hidden');
-            chatBox.classList.remove('hidden');
-            messageInput.disabled = false;
-            sendButton.disabled = false;
+            if (loginSection) loginSection.classList.add('hidden');
+            if (chatBox) chatBox.classList.remove('hidden');
+            if (messageInput) messageInput.disabled = false;
+            if (sendButton) sendButton.disabled = false;
 
-            // Fetch history messages
             const { data: messages, error: messagesError } = await supabase
                 .from('messages')
                 .select('*')
@@ -1339,27 +1319,30 @@ tr.playoff-divider td {
                 console.error("Error fetching messages on load:", messagesError);
             }
             else {
-                console.log(`Window Load: Successfully fetched ${messages.length} messages.`); // <-- DIAGNOSTIC LOG
+                console.log(`Window Load: Successfully fetched ${messages.length} messages.`);
                 displayMessages(messages);
-                setupRealtimeListener(); // <-- START LISTENER
+                setupRealtimeListener();
             }
         }
     });
 
-    // Enter key listener for login (No changes here)
-    passwordInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-            loginButton.click();
-        }
-    });
-
-    // ADDED: Enter key listener for sending message
-    messageInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault(); // Prevents a new line in the input
-            sendMessage();
-        }
-    });
+    if (passwordInput && loginButton) {
+        passwordInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                loginButton.click();
+            }
+        });
+    }
+    
+    // Enter key listener for sending message (made conditional)
+    if (messageInput) {
+        messageInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault(); // Prevents a new line in the input
+                sendMessage();
+            }
+        });
+    }
 
 </script>
 </body>

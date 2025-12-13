@@ -854,32 +854,32 @@ tr.playoff-divider td {
 
 <script>
 /* ============================
-   CORE USER FUNCTIONS
+   CORE USER FUNCTIONS
 ============================ */
 
 function isLoggedIn() {
-    return localStorage.getItem('loggedInUser') !== null;
+    return localStorage.getItem('loggedInUser') !== null;
 }
 
 function getLoggedInUser() {
-    const userString = localStorage.getItem('loggedInUser');
-    return userString ? JSON.parse(userString) : null;
+    const userString = localStorage.getItem('loggedInUser');
+    return userString ? JSON.parse(userString) : null;
 }
 
 function logout() {
-    localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('loggedInUser');
 
-    if (messageInput) messageInput.disabled = true;
-    if (sendButton) sendButton.disabled = true;
-    if (gifButton) gifButton.disabled = true;
+    if (messageInput) messageInput.disabled = true;
+    if (sendButton) sendButton.disabled = true;
+    if (gifButton) gifButton.disabled = true;
 
-    setTimeout(() => {
-        window.location.href = "index.html";
-    }, 500);
+    setTimeout(() => {
+        window.location.href = "index.html";
+    }, 500);
 }
 
 /* ============================
-   SUPABASE SETUP
+   SUPABASE SETUP
 ============================ */
 
 const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
@@ -887,7 +887,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 /* ============================
-   DOM ELEMENTS
+   DOM ELEMENTS
 ============================ */
 
 const messageInput = document.getElementById('message-input');
@@ -905,223 +905,262 @@ const emojiPicker = document.getElementById('emoji-picker');
 const messageDisplay = document.getElementById('message-display');
 
 /* ============================
-   EMOJI LOGIC
+   EMOJI LOGIC
 ============================ */
 
 const emojis = ['😀','😂','😍','👍','🤔','🎉','❤️','☕','🍕','🚀'];
 
 function populateEmojiPicker() {
-    if (!emojiPicker) return;
-    emojiPicker.innerHTML = '';
+    if (!emojiPicker) return;
+    emojiPicker.innerHTML = '';
 
-    emojis.forEach(emoji => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = emoji;
-        btn.addEventListener('click', () => {
-            messageInput.innerText += emoji;
-            emojiPicker.classList.add('hidden');
-        });
-        emojiPicker.appendChild(btn);
-    });
+    emojis.forEach(emoji => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = emoji;
+        btn.addEventListener('click', () => {
+            messageInput.innerText += emoji;
+            emojiPicker.classList.add('hidden');
+        });
+        emojiPicker.appendChild(btn);
+    });
 }
 
 /* ============================
-   SAFE MESSAGE HELPERS
+   SAFE MESSAGE HELPERS
 ============================ */
 
 function getMessageText() {
-    if (!messageInput) return '';
+    if (!messageInput) return '';
 
-    if (typeof messageInput.value === 'string') {
-        return messageInput.value.trim();
-    }
+    if (typeof messageInput.value === 'string') {
+        return messageInput.value.trim();
+    }
 
-    return (messageInput.innerText || messageInput.textContent || '').trim();
+    return (messageInput.innerText || messageInput.textContent || '').trim();
 }
 
 function clearMessageInput() {
-    if (!messageInput) return;
+    if (!messageInput) return;
 
-    if (typeof messageInput.value === 'string') {
-        messageInput.value = '';
-    } else {
-        messageInput.innerText = '';
-    }
+    if (typeof messageInput.value === 'string') {
+        messageInput.value = '';
+    } else {
+        messageInput.innerText = '';
+    }
 }
 
 /* ============================
-   SEND MESSAGE
+   SEND MESSAGE
 ============================ */
 
 async function sendMessage(imageUrl = '') {
-    const message = getMessageText();
-    const user = getLoggedInUser();
+    const message = getMessageText();
+    const user = getLoggedInUser();
 
-    if (!user || !user.username || !user.id) {
-        alert("Please sign in to chat.");
-        return;
-    }
+    if (!user || !user.username || !user.id) {
+        alert("Please sign in to chat.");
+        return;
+    }
 
-    if (!message && !imageUrl) {
-        alert("Message cannot be empty.");
-        return;
-    }
+    if (!message && !imageUrl) {
+        alert("Message cannot be empty.");
+        return;
+    }
 
-    const { error } = await supabase
-        .from('messages')
-        .insert([{
-            sender: user.username.trim(),
-            content: message,
-            image_url: imageUrl,
-            user_id: user.id
-        }]);
+    const { error } = await supabase
+        .from('messages')
+        .insert([{
+            sender: user.username.trim(),
+            content: message,
+            image_url: imageUrl,
+            user_id: user.id
+        }]);
 
-    if (error) {
-        console.error("Send error:", error);
-        alert("❌ Failed to send message.");
-        return;
-    }
+    if (error) {
+        console.error("Send error:", error);
+        alert("❌ Failed to send message.");
+        return;
+    }
 
-    clearMessageInput();
+    clearMessageInput();
 }
 
 /* ============================
-   IMAGE UPLOAD (CLOUDINARY)
+   IMAGE UPLOAD (CLOUDINARY)
 ============================ */
 
 imageButton?.addEventListener('click', () => imageInput.click());
 
 imageInput?.addEventListener('change', async () => {
-    const file = imageInput.files[0];
-    if (!file) return;
+    const file = imageInput.files[0];
+    if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'chat-upload-preset');
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'chat-upload-preset');
 
-    const res = await fetch(
-        'https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload',
-        { method: 'POST', body: formData }
-    );
+    const res = await fetch(
+        'https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload',
+        { method: 'POST', body: formData }
+    );
 
-    const data = await res.json();
-    sendMessage(data.secure_url);
+    const data = await res.json();
+    sendMessage(data.secure_url);
 });
 
 /* ============================
-   GIF SEARCH (GIPHY)
+   GIF SEARCH (GIPHY)
 ============================ */
 
 gifButton?.addEventListener('click', e => {
-    e.stopPropagation();
-    gifSearchContainer.style.display =
-        gifSearchContainer.style.display === 'block' ? 'none' : 'block';
+    e.stopPropagation();
+    gifSearchContainer.style.display =
+        gifSearchContainer.style.display === 'block' ? 'none' : 'block';
 });
 
 gifSearchButton?.addEventListener('click', async () => {
-    const query = gifSearchInput.value.trim();
-    if (!query) return;
+    const query = gifSearchInput.value.trim();
+    if (!query) return;
 
-    const res = await fetch(
-        `https://api.giphy.com/v1/gifs/search?api_key=YOUR_GIPHY_KEY&q=${encodeURIComponent(query)}`
-    );
-    const data = await res.json();
+    const res = await fetch(
+        `https://api.giphy.com/v1/gifs/search?api_key=YOUR_GIPHY_KEY&q=${encodeURIComponent(query)}`
+    );
+    const data = await res.json();
 
-    gifResultsContainer.innerHTML = '';
-    data.data.forEach(gif => {
-        const img = document.createElement('img');
-        img.src = gif.images.fixed_width_downsampled.url;
-        img.addEventListener('click', () => {
-            sendMessage(img.src);
-            gifSearchContainer.style.display = 'none';
-            gifSearchInput.value = '';
-            gifResultsContainer.innerHTML = '';
-        });
-        gifResultsContainer.appendChild(img);
-    });
+    gifResultsContainer.innerHTML = '';
+    data.data.forEach(gif => {
+        const img = document.createElement('img');
+        img.src = gif.images.fixed_width_downsampled.url;
+        img.addEventListener('click', () => {
+            sendMessage(img.src);
+            gifSearchContainer.style.display = 'none';
+            gifSearchInput.value = '';
+            gifResultsContainer.innerHTML = '';
+        });
+        gifResultsContainer.appendChild(img);
+    });
 });
 
 /* ============================
-   EVENT LISTENERS
+   EVENT LISTENERS
 ============================ */
 
 sendButton?.addEventListener('click', () => sendMessage());
 
 emojiButton?.addEventListener('click', e => {
-    e.stopPropagation();
-    emojiPicker.classList.toggle('hidden');
+    e.stopPropagation();
+    emojiPicker.classList.toggle('hidden');
 });
 
 messageInput?.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
 });
 
 document.addEventListener('click', e => {
-    if (!emojiPicker.contains(e.target) && e.target !== emojiButton) {
-        emojiPicker.classList.add('hidden');
-    }
-    if (!gifSearchContainer.contains(e.target) && e.target !== gifButton) {
-        gifSearchContainer.style.display = 'none';
-    }
+    if (!emojiPicker.contains(e.target) && e.target !== emojiButton) {
+        emojiPicker.classList.add('hidden');
+    }
+    if (!gifSearchContainer.contains(e.target) && e.target !== gifButton) {
+        gifSearchContainer.style.display = 'none';
+    }
 });
 
 /* ============================
-   REALTIME + FETCH
+   REALTIME + FETCH
 ============================ */
 
 function setupRealtimeListener() {
-    supabase
-        .channel('messages_changes')
-        .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'messages' },
-            fetchMessages
-        )
-        .subscribe();
+    supabase
+        .channel('messages_changes')
+        .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'messages' },
+            fetchMessages
+        )
+        .subscribe();
 }
 
 async function fetchMessages() {
-    const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .order('created_at', { ascending: true });
+    const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: true });
 
-    if (error) {
-        console.error(error);
-        return;
-    }
+    if (error) {
+        console.error(error);
+        return;
+    }
 
-    messageDisplay.innerHTML = '';
-    for (const msg of data) {
-        const el = await renderMessage(msg);
-        messageDisplay.appendChild(el);
-    }
+    messageDisplay.innerHTML = '';
+    for (const msg of data) {
+        const el = await renderMessage(msg);
+        messageDisplay.appendChild(el);
+    }
 
-    messageDisplay.scrollTop = messageDisplay.scrollHeight;
+    messageDisplay.scrollTop = messageDisplay.scrollHeight;
 }
 
 /* ============================
-   INIT
+   MESSAGE RENDERING
+============================ */
+
+async function renderMessage(message) {
+    const user = getLoggedInUser();
+    const currentUsername = user ? user.username : null;
+    
+    // Convert timestamp to human-readable format
+    const createdAt = new Date(message.created_at);
+    const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('message-item');
+    messageContainer.dataset.messageId = message.id;
+
+    // Build the inner content
+    let innerHTML = '';
+    
+    // Add image/GIF if present
+    if (message.image_url) {
+        innerHTML += `<img src="${message.image_url}" class="chat-image" alt="User submitted image/gif">`;
+    }
+    
+    // Add text content if present
+    if (message.content) {
+        innerHTML += `<div class="message-text">${message.content}</div>`;
+    }
+    
+    // Add sender and timestamp
+    innerHTML += `<small class="timestamp">${message.sender} - ${formattedTime}</small>`;
+
+    messageContainer.innerHTML = innerHTML;
+
+    // Add logic here to enable deleting your own messages (optional)
+    // if (currentUsername === message.sender) {
+    //     // ... delete listener logic
+    // }
+
+    return messageContainer;
+}
+
+/* ============================
+   INIT
 ============================ */
 
 window.addEventListener('load', () => {
-    populateEmojiPicker();
+    populateEmojiPicker();
 
-    if (getLoggedInUser()) {
-        chatBox?.classList.remove('hidden');
-        setupRealtimeListener();
-        fetchMessages();
-    } else {
-        chatBox?.classList.add('hidden');
-    }
+    if (getLoggedInUser()) {
+        chatBox?.classList.remove('hidden');
+        setupRealtimeListener();
+        fetchMessages();
+    } else {
+        chatBox?.classList.add('hidden');
+    }
 });
 </script>
-
-      </body>
-</html>
 
 

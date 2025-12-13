@@ -7,7 +7,9 @@
 <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-   
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
 
 <style>
 /* ==================================================================== */
@@ -855,10 +857,10 @@ tr.playoff-divider td {
     // -----------------------------------------------------------------
     const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
     // IMPORTANT: Make absolutely sure this key is the valid NEWLY GENERATED ANON KEY
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM'; 
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
     
     // CRITICAL FIX: Define the client immediately. This line needs window.supabase to exist.
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey); 
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     let loginSection, userSelect, passwordInput, loginButton, signoffButton,
         messageInput, sendButton, messageDisplay, imageButton, imageInput,
@@ -1229,6 +1231,8 @@ tr.playoff-divider td {
     // 2. DOM INITIALIZATION AND EVENT HANDLERS
     // -----------------------------------------------------------------
     function initializeDOMAndEvents() {
+        console.log("--- initializeDOMAndEvents starting ---"); // DEBUG
+
         // 1. Initialize DOM element variables
         loginSection = document.getElementById('login-section');
         userSelect = document.getElementById('user-select');
@@ -1248,6 +1252,11 @@ tr.playoff-divider td {
         gifResultsContainer = document.getElementById('gif-results');
         emojiButton = document.getElementById('emoji-btn');
         emojiPicker = document.getElementById('emoji-picker');
+
+        // DEBUG: Log the element to confirm it was found
+        console.log("Element Check: emojiButton:", emojiButton);
+        console.log("Element Check: loginButton:", loginButton);
+
 
         // 2. Populate Emojis
         populateEmojiPicker();
@@ -1285,7 +1294,8 @@ tr.playoff-divider td {
         }
         document.addEventListener('click', (event) => {
             if (emojiPicker && emojiButton) {
-                if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
+                // Check if the click is outside the picker and the button itself
+                if (!emojiPicker.contains(event.target) && event.target !== emojiButton && !emojiButton.contains(event.target)) {
                     emojiPicker.classList.add('hidden');
                 }
             }
@@ -1294,7 +1304,8 @@ tr.playoff-divider td {
         // GIF Listeners
         if (gifButton && gifSearchContainer) {
             gifButton.addEventListener('click', () => {
-                gifSearchContainer.style.display = gifSearchContainer.style.display === 'none' ? 'block' : 'none';
+                // Toggle display property directly if the button is found
+                gifSearchContainer.style.display = (gifSearchContainer.style.display === 'none' || gifSearchContainer.style.display === '') ? 'block' : 'none';
             });
         }
         if (gifSearchButton && gifSearchInput) {
@@ -1306,6 +1317,8 @@ tr.playoff-divider td {
                 }
             });
         }
+        
+        console.log("--- initializeDOMAndEvents finished ---"); // DEBUG
     }
 
 
@@ -1313,6 +1326,7 @@ tr.playoff-divider td {
     // 3. APPLICATION ENTRY POINT (Runs when DOM is safe to manipulate)
     // -----------------------------------------------------------------
     async function startApp() {
+        console.log("--- startApp running (DOM is ready) ---"); // DEBUG
         initializeDOMAndEvents(); 
         
         // This runs after DOM elements are ready, fixing the TypeError
@@ -1351,8 +1365,6 @@ tr.playoff-divider td {
 
     // Call the application start function when the DOM is ready
     document.addEventListener('DOMContentLoaded', startApp);
-
-</script>
+                </script>
 </body>
-
 </html>

@@ -1013,8 +1013,9 @@ tr.playoff-divider td {
     async function sendMessage(imageUrl = '') { 
         console.log("--- sendMessage function called! ---"); 
         
+        // **SAFETY CHECK ADDED/IMPROVED HERE**
         if (!username || typeof username !== 'string' || username.trim() === '') {
-            console.error("ERROR: Message not sent. User is not logged in or username is invalid.");
+            console.error("ERROR: Message not sent. User is not logged in or username is invalid (username:", username, ")");
             alert("You must be logged in to send a message.");
             return; 
         }
@@ -1365,6 +1366,6 @@ tr.playoff-divider td {
 
     // Call the application start function when the DOM is ready
     document.addEventListener('DOMContentLoaded', startApp);
-                </script>
+</script>
 </body>
 </html>

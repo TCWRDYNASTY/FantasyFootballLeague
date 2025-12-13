@@ -905,6 +905,27 @@ const emojiPicker = document.getElementById('emoji-picker');
 const messageDisplay = document.getElementById('message-display');
 
 /* ============================
+   EMOJI LOGIC
+============================ */
+
+const emojis = ['😀','😂','😍','👍','🤔','🎉','❤️','☕','🍕','🚀'];
+
+function populateEmojiPicker() {
+    if (!emojiPicker) return;
+    emojiPicker.innerHTML = '';
+    emojis.forEach(e => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = e;
+        btn.onclick = () => {
+            messageInput.innerText += e;
+            emojiPicker.classList.add('hidden');
+        };
+        emojiPicker.appendChild(btn);
+    });
+}
+
+/* ============================
    SAFE MESSAGE HELPERS
 ============================ */
 
@@ -952,7 +973,7 @@ async function sendMessage(imageUrl = '') {
         }]);
 
     if (error) {
-        console.error("Send error:", error);
+        console.error(error);
         alert("❌ Failed to send message.");
         return;
     }
@@ -961,55 +982,69 @@ async function sendMessage(imageUrl = '') {
 }
 
 /* ============================
-   FETCH + RENDER
+   IMAGE UPLOAD
 ============================ */
 
-async function fetchMessages() {
-    const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .order('created_at', { ascending: true });
+imageButton?.addEventListener('click', () => imageInput.click());
 
-    if (error) {
-        messageDisplay.innerHTML = '<p style="color:red;">Error loading messages</p>';
-        return;
-    }
+imageInput?.addEventListener('change', async () => {
+    const file = imageInput.files[0];
+    if (!file) return;
 
-    messageDisplay.innerHTML = '';
-    data.forEach(msg => {
-        const el = document.createElement('div');
-        el.className = 'message-item';
-        el.innerHTML = `
-            ${msg.image_url ? `<img src="${msg.image_url}" class="chat-image">` : ''}
-            ${msg.content ? `<div class="message-text">${msg.content}</div>` : ''}
-            <small>${msg.sender}</small>
-        `;
-        messageDisplay.appendChild(el);
-    });
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'chat-upload-preset');
 
-    messageDisplay.scrollTop = messageDisplay.scrollHeight;
-}
+    const res = await fetch(
+        'https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload',
+        { method: 'POST', body: formData }
+    );
+
+    const data = await res.json();
+    sendMessage(data.secure_url);
+});
 
 /* ============================
-   REALTIME
+   GIF SEARCH
 ============================ */
 
-function setupRealtimeListener() {
-    supabase
-        .channel('messages_changes')
-        .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'messages' },
-            fetchMessages
-        )
-        .subscribe();
-}
+gifButton?.addEventListener('click', e => {
+    e.stopPropagation();
+    gifSearchContainer.style.display =
+        gifSearchContainer.style.display === 'block' ? 'none' : 'block';
+});
+
+gifSearchButton?.addEventListener('click', async () => {
+    const q = gifSearchInput.value.trim();
+    if (!q) return;
+
+    const res = await fetch(
+        `https://api.giphy.com/v1/gifs/search?api_key=YOUR_GIPHY_KEY&q=${encodeURIComponent(q)}`
+    );
+    const data = await res.json();
+
+    gifResultsContainer.innerHTML = '';
+    data.data.forEach(gif => {
+        const img = document.createElement('img');
+        img.src = gif.images.fixed_width.url;
+        img.onclick = () => {
+            sendMessage(img.src);
+            gifSearchContainer.style.display = 'none';
+        };
+        gifResultsContainer.appendChild(img);
+    });
+});
 
 /* ============================
    EVENT LISTENERS
 ============================ */
 
-sendButton?.addEventListener('click', () => sendMessage());
+sendButton?.addEventListener('click', sendMessage);
+
+emojiButton?.addEventListener('click', e => {
+    e.stopPropagation();
+    emojiPicker.classList.toggle('hidden');
+});
 
 messageInput?.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1018,26 +1053,26 @@ messageInput?.addEventListener('keydown', e => {
     }
 });
 
+document.addEventListener('click', () => {
+    emojiPicker?.classList.add('hidden');
+    gifSearchContainer?.style.display = 'none';
+});
+
 /* ============================
    INIT
 ============================ */
 
 window.addEventListener('load', () => {
-    const user = getLoggedInUser();
+    populateEmojiPicker();
 
-    if (user) {
+    if (getLoggedInUser()) {
         chatBox?.classList.remove('hidden');
-        messageInput.disabled = false;
-        sendButton.disabled = false;
-        gifButton.disabled = false;
-        imageButton.disabled = false;
-
-        setupRealtimeListener();
-        fetchMessages();
+        setupRealtimeListener?.();
     } else {
         chatBox?.classList.add('hidden');
     }
 });
 </script>
+
     </body>
 </html>

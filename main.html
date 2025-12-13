@@ -1095,12 +1095,37 @@ function getCleanMessageContent(inputElement) {
     return textContent;
 }
     
+// ====================================================================
+// === CORE CHAT FUNCTION: sendMessage (with session fix) ===
+// ====================================================================
+
 async function sendMessage(mediaUrl = '') {
-    if (!messageInput || !supabase || !currentUserId || !username) {
-        console.error("Missing prerequisites for sendMessage: Input, Supabase, User ID, or Username.");
-        alert("Cannot send message. User session or required elements are missing.");
+    if (!messageInput || !supabase) {
+        console.error("Missing core prerequisites (Input or Supabase).");
         return;
     }
+
+    // 🛑 CRITICAL FIX: Ensure the Supabase client knows the user immediately before sending
+    // This loads the active session and ensures the RLS check has the necessary token.
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        console.error("User not authenticated for sending message. RLS will fail.", authError);
+        alert("Cannot send message. Authentication failed. Please log in again.");
+        return;
+    }
+
+    // Update global variables to use the live session data for safety
+    currentUserId = user.id;
+    // Fallback for username if local storage was lost
+    username = username || user.user_metadata.username || 'ChatUser';
+
+    if (!currentUserId || !username) {
+        console.error("Missing User ID or Name even after checking live session.");
+        alert("Cannot send message. User identity is missing.");
+        return;
+    }
+
     const cleanTextContent = getCleanMessageContent(messageInput);
     const messageContent = mediaUrl || cleanTextContent;
     if (!messageContent) return; 
@@ -1109,8 +1134,8 @@ async function sendMessage(mediaUrl = '') {
     messageInput.innerHTML = '';
     
     const newMessage = {
-        user_id: currentUserId,
-        sender: username, 
+        user_id: currentUserId, // Use the ID loaded from the live session
+        sender: username, // Use the name from the session/globals
         content: messageContent 
     };
 
@@ -1121,7 +1146,7 @@ async function sendMessage(mediaUrl = '') {
 
     if (error) {
         console.error('Error sending message:', error);
-        alert("❌ Failed to send message. See console for details.");
+        alert("❌ Failed to send message. See console for details. (Likely RLS failure)");
         
         // Restore content on failure if it wasn't media
         if (!mediaUrl) messageInput.innerHTML = messageContent; 

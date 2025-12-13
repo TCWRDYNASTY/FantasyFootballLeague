@@ -1429,48 +1429,66 @@ document.addEventListener('click', (event) => {
     });
 
 
-    // --- Initialization on Load ---
+   // --- Initialization on Load ---
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        const loggedInUser = getLoggedInUser();
+document.addEventListener('DOMContentLoaded', async () => {
+    // 🛑 STEP 1: FORCE SUPABASE TO LOAD THE SESSION
+    // This is the crucial line to fix the session: null error
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    // This line attempts to get user details from local storage/cookies (your existing function)
+    const loggedInUser = getLoggedInUser();
 
-        if (loggedInUser && loggedInUser.id) {
-            currentUserId = loggedInUser.id;
-            username = loggedInUser.username;
-            console.log(`User initialized: ID=${currentUserId}, Name=${username}`);
+    // We check if either the custom function found a user OR Supabase found a session
+    if (loggedInUser && loggedInUser.id || session) {
+        
+        // Determine the User ID and Username for the chat
+        if (session && !loggedInUser) {
+             currentUserId = session.user.id; 
+             // IMPORTANT: Since loggedInUser failed, 'username' might still be missing.
+             // You need to ensure your 'username' variable is set somewhere (e.g., from a cookie/storage).
+             // If username is null here, the message will fail due to a missing sender name.
+        } else if (loggedInUser) {
+             currentUserId = loggedInUser.id;
+             username = loggedInUser.username;
+        } else {
+             console.error("User or Session found, but unable to retrieve ID/Name.");
+             return;
+        }
 
-            // 🛑 START OF ADDED CODE TO ENABLE BUTTONS 🛑
-            const buttonsToEnable = [
-                document.getElementById('send-btn'),
-                document.getElementById('emoji-btn'),
-                document.getElementById('gif-btn'),
-                document.getElementById('image-btn') // Assuming 'image-btn' is your upload image button ID
-            ].filter(btn => btn !== null);
+        console.log(`User initialized: ID=${currentUserId}, Name=${username}`);
 
-            buttonsToEnable.forEach(btn => {
-                btn.removeAttribute('disabled');
-            });
-            // 🛑 END OF ADDED CODE 🛑
+        // 🛑 START OF BUTTON ENABLING LOGIC 🛑
+        const buttonsToEnable = [
+            document.getElementById('send-btn'),
+            document.getElementById('emoji-btn'),
+            document.getElementById('gif-btn'),
+            document.getElementById('image-btn')
+        ].filter(btn => btn !== null);
 
-            populateEmojiPicker();
-            setupRealtimeListener();
-            await fetchMessages();
+        buttonsToEnable.forEach(btn => {
+            btn.removeAttribute('disabled');
+        });
+        // 🛑 END OF BUTTON ENABLING LOGIC 🛑
+        
+        populateEmojiPicker();
+        setupRealtimeListener();
+        await fetchMessages();
 
-    
-            if ('serviceWorker' in navigator) {
-                try {
-                    await navigator.serviceWorker.register('service-worker.js');
-                    subscribeUserToPush(); 
-                } catch (error) {
-                    console.error('Service Worker registration failed:', error);
-                }
-            }
-        } else {
-            // Redirect or handle unauthenticated state
-            console.error("No logged in user found. Redirecting to index.html...");
-            // window.location.href = "index.html"; // Uncomment if you want automatic redirect
-        }
-    });
+        if ('serviceWorker' in navigator) {
+            try {
+                await navigator.serviceWorker.register('service-worker.js');
+                subscribeUserToPush();
+            } catch (error) {
+                console.error('Service Worker registration failed:', error);
+            }
+        }
+    } else {
+        // Redirect or handle unauthenticated state
+        console.error("No logged in user found or session failed to load. Redirecting to index.html...");
+        // window.location.href = "index.html"; 
+    }
+});
     
 /* ==================================================================== */
 /* === Sleeper & ESPN Data Initialization (Combined)

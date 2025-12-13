@@ -877,8 +877,9 @@ tr.playoff-divider td {
     const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb'; 
 
     // DOM Elements
+    // NOTE: 'sendButton' is defined as 'send-btn' here, matching your HTML
     const messageInput = document.getElementById('message-input');
-    const sendButton = document.getElementById('send-btn');
+    const sendButton = document.getElementById('send-btn'); 
     const imageButton = document.getElementById('image-btn');
     const imageInput = document.getElementById("image-input");
     const chatBox = document.getElementById('chat-box'); // Note: This is unused but kept for reference
@@ -932,16 +933,15 @@ tr.playoff-divider td {
         const { endpoint, keys } = subscription.toJSON();
         const { p256dh, auth } = keys;
 
-        const { data: { user } } = await supabase.auth.getUser(); 
-        
-        if (!user) {
-            console.error("User not logged in. Cannot save subscription.");
+        // --- FIX: USE currentUserId directly as it's set in DOMContentLoaded ---
+        if (!currentUserId) {
+            console.error("User ID not set. Cannot save subscription.");
             return;
         }
 
         const { error } = await supabase
             .from('push_subscriptions')
-            .upsert({ user_id: user.id, endpoint, p256dh, auth }, { onConflict: 'endpoint' });
+            .upsert({ user_id: currentUserId, endpoint, p256dh, auth }, { onConflict: 'endpoint' });
 
         if (error) {
             console.error('Error saving subscription to Supabase:', error);
@@ -961,6 +961,8 @@ tr.playoff-divider td {
             const existingSubscription = await registration.pushManager.getSubscription();
             if (existingSubscription) {
                 console.log('User already subscribed to push.');
+                // Optionally re-save to update if needed, but return for now to avoid redundant work.
+                // await saveSubscriptionToSupabase(existingSubscription); 
                 return; 
             }
 
@@ -1072,7 +1074,8 @@ async function fetchMessages() {
         messages.forEach(message => {
             // Since the join is gone, we cannot rely on message.sender.assigned_name
             // We fall back to the raw 'sender' column (assuming it's your username)
-            message.sender_name = message.sender || 'Unknown User (JOIN FAILED)'; 
+            // Note: In a production app, you would fetch the username separately here or include it in RLS/policy.
+            message.sender_name = message.sender || 'Unknown User'; 
             
             const messageElement = renderMessage(message);
             if (messageElement instanceof HTMLElement) {
@@ -1101,6 +1104,8 @@ async function sendMessage(mediaUrl = '') {
     const cleanTextContent = getCleanMessageContent(messageInput);
     const messageContent = mediaUrl || cleanTextContent;
     if (!messageContent) return; 
+    
+    // Clear the input BEFORE the await call
     messageInput.innerHTML = '';
     
     const newMessage = {
@@ -1117,7 +1122,8 @@ async function sendMessage(mediaUrl = '') {
     if (error) {
         console.error('Error sending message:', error);
         alert("❌ Failed to send message. See console for details.");
-       
+        
+        // Restore content on failure if it wasn't media
         if (!mediaUrl) messageInput.innerHTML = messageContent; 
         return;
     }
@@ -1170,7 +1176,7 @@ async function sendMessage(mediaUrl = '') {
                         // Only render messages sent by others (own messages are handled by sendMessage for speed)
                         if (payload.new.user_id !== currentUserId) {
                             const newMessage = payload.new;
-                            newMessage.sender_name = newMessage.profiles?.username || 'Guest'; // Set name for rendering
+                            newMessage.sender_name = newMessage.sender || 'Guest'; // Use fallback 'sender' column
                             
                             if (messageDisplay) {
                                 try {
@@ -1194,6 +1200,7 @@ async function sendMessage(mediaUrl = '') {
                         
                         if (existingElement) {
                             try {
+                                updatedMessage.sender_name = updatedMessage.sender || 'Unknown User';
                                 const newElement = renderMessage(updatedMessage);
                                 existingElement.replaceWith(newElement);
                                 console.log(`DEBUG: Successfully updated message ID: ${updatedMessage.id}`);
@@ -1383,13 +1390,22 @@ async function sendMessage(mediaUrl = '') {
     // --- Text Formatting Listeners ---
 
     if (boldBtn) {
-        boldBtn.addEventListener('click', () => applyStyle('bold'));
+        boldBtn.addEventListener('click', () => {
+            applyStyle('bold');
+            if(boldBtn) boldBtn.classList.toggle('active', document.queryCommandState('bold'));
+        });
     }
     if (italicBtn) {
-        italicBtn.addEventListener('click', () => applyStyle('italic'));
+        italicBtn.addEventListener('click', () => {
+            applyStyle('italic');
+            if(italicBtn) italicBtn.classList.toggle('active', document.queryCommandState('italic'));
+        });
     }
     if (underlineBtn) {
-        underlineBtn.addEventListener('click', () => applyStyle('underline'));
+        underlineBtn.addEventListener('click', () => {
+            applyStyle('underline');
+            if(underlineBtn) underlineBtn.classList.toggle('active', document.queryCommandState('underline'));
+        });
     }
     if (sizeSelect) {
         sizeSelect.addEventListener('change', (e) => applyStyle('fontSize', e.target.value));
@@ -1416,46 +1432,45 @@ async function sendMessage(mediaUrl = '') {
     }
 
 document.addEventListener('click', (event) => {
-        // Hide popups when clicking outside
-        if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
-            emojiPicker.classList.add('hidden');
-        }
-        if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
-            gifSearchContainer.classList.add('hidden');
-        }
-        if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
-            styleDropdown.classList.add('hidden');
-        }
-    });
+        // Hide popups when clicking outside
+        if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
+            emojiPicker.classList.add('hidden');
+        }
+        if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
+            gifSearchContainer.classList.add('hidden');
+        }
+        if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
+            styleDropdown.classList.add('hidden');
+        }
+    });
 
 
-   // --- Initialization on Load ---
+    // --- Initialization on Load ---
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 🛑 STEP 1: FORCE SUPABASE TO LOAD THE SESSION
-    // This is the crucial line to fix the session: null error
+    // 🛑 STEP 1: FORCE SUPABASE TO LOAD THE SESSION (CRUCIAL FIX)
     const { data: { session } } = await supabase.auth.getSession();
     
-    // This line attempts to get user details from local storage/cookies (your existing function)
+    // Attempt to get user details from local storage (your existing function)
     const loggedInUser = getLoggedInUser();
+    let userFound = false;
 
-    // We check if either the custom function found a user OR Supabase found a session
-    if (loggedInUser && loggedInUser.id || session) {
-        
-        // Determine the User ID and Username for the chat
-        if (session && !loggedInUser) {
-             currentUserId = session.user.id; 
-             // IMPORTANT: Since loggedInUser failed, 'username' might still be missing.
-             // You need to ensure your 'username' variable is set somewhere (e.g., from a cookie/storage).
-             // If username is null here, the message will fail due to a missing sender name.
-        } else if (loggedInUser) {
-             currentUserId = loggedInUser.id;
-             username = loggedInUser.username;
-        } else {
-             console.error("User or Session found, but unable to retrieve ID/Name.");
-             return;
-        }
+    // STEP 2: Determine User Identity
+    if (loggedInUser && loggedInUser.id) {
+        currentUserId = loggedInUser.id;
+        username = loggedInUser.username;
+        userFound = true;
+    } else if (session && session.user && session.user.id) {
+        // Fallback: If localStorage failed but Supabase session exists
+        currentUserId = session.user.id;
+        // WARNING: Supabase sessions often don't include custom fields like 'username' directly.
+        // We set a placeholder or rely on your 'profiles' RLS policy if needed.
+        // For now, let's try to get a username from the session metadata or a default.
+        username = session.user.user_metadata.username || 'ChatUser'; 
+        userFound = true;
+    }
 
+    if (userFound) {
         console.log(`User initialized: ID=${currentUserId}, Name=${username}`);
 
         // 🛑 START OF BUTTON ENABLING LOGIC 🛑
@@ -1463,11 +1478,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('send-btn'),
             document.getElementById('emoji-btn'),
             document.getElementById('gif-btn'),
-            document.getElementById('image-btn')
-        ].filter(btn => btn !== null);
+            document.getElementById('image-btn'),
+            document.getElementById('message-input'),
+            document.getElementById('style-toggle-btn'), // Added missing button/input
+        ].filter(el => el !== null);
 
-        buttonsToEnable.forEach(btn => {
-            btn.removeAttribute('disabled');
+        buttonsToEnable.forEach(el => {
+             // For buttons, use removeAttribute('disabled'). For the message input, ensure contentEditable is true or similar.
+             if (el.tagName === 'DIV' && el.id === 'message-input') {
+                 el.contentEditable = 'true';
+             } else {
+                 el.removeAttribute('disabled');
+             }
         });
         // 🛑 END OF BUTTON ENABLING LOGIC 🛑
         
@@ -1475,6 +1497,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setupRealtimeListener();
         await fetchMessages();
 
+        // 🌟 SERVICE WORKER REGISTRATION 🌟
         if ('serviceWorker' in navigator) {
             try {
                 await navigator.serviceWorker.register('service-worker.js');
@@ -1484,9 +1507,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     } else {
-        // Redirect or handle unauthenticated state
-        console.error("No logged in user found or session failed to load. Redirecting to index.html...");
-        // window.location.href = "index.html"; 
+        // Handle unauthenticated state (Disable buttons and potentially redirect)
+        console.error("No logged in user found or session failed to load. Chat features disabled.");
+        
+        const elementsToDisable = [
+            document.getElementById('send-btn'),
+            document.getElementById('emoji-btn'),
+            document.getElementById('gif-btn'),
+            document.getElementById('image-btn'),
+            document.getElementById('message-input'),
+            document.getElementById('style-toggle-btn'),
+        ].filter(el => el !== null);
+
+        elementsToDisable.forEach(el => {
+             if (el.tagName === 'DIV' && el.id === 'message-input') {
+                 el.contentEditable = 'false';
+             } else {
+                 el.setAttribute('disabled', 'disabled');
+             }
+        });
     }
 });
     

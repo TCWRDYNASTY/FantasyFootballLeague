@@ -1050,19 +1050,27 @@ async function fetchMessages() {
     // 1. SELECT FIX: Correctly joining the 'users' table and pulling 'assigned_name'
     const { data: messages, error } = await supabase
         .from('messages')
-       .select(`
-    *,
-    sender:users(assigned_name)
-`)
-        
+        .select(`
+            *,
+            sender:users(assigned_name)
+        `)
         .order('created_at', { ascending: true })
         .limit(100); 
 
+    // --- DEBUG LOGS ADDED ---
     if (error) {
-        console.error('Error fetching messages:', error);
+        console.error('ERROR FETCHING MESSAGES (400/RLS):', error);
         messageDisplay.innerHTML = `<p class="text-red-500">Error loading messages: ${error.message}. Check RLS.</p>`;
         return;
     }
+    
+    if (!messages || messages.length === 0) {
+        console.warn('SUCCESSFUL FETCH, BUT NO MESSAGES RETURNED. Check RLS on the messages table, or if the table is empty.');
+        messageDisplay.innerHTML = `<p class="text-gray-500">No messages found. Start the chat!</p>`;
+    } else {
+        console.log(`Successfully fetched ${messages.length} messages.`, messages);
+    }
+
 
     messageDisplay.innerHTML = ''; 
     

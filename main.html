@@ -1098,72 +1098,47 @@ function getCleanMessageContent(inputElement) {
 // ====================================================================
 // === CORE CHAT FUNCTION: sendMessage (with session fix) ===
 // ====================================================================
-async function sendMessage(mediaUrl = '') {
-    if (!messageInput || !supabase) {
-        console.error("Missing core prerequisites (Input or Supabase).");
-        return;
-    }
+async function sendMessage(imageUrl = '') {
+    if (!messageInput || !sendButton || !supabase) return;
+    const formattedMessage = messageInput.innerHTML.trim();
 
-    // 🛑 CRITICAL FIX: Ensure the Supabase client knows the user immediately before sending
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (!isLoggedIn() || !username) {
+        alert("Please sign in to chat.");
+        messageInput.disabled = true;
+        sendButton.disabled = true;
+        return;
+    }
 
-    // 🚩 DIAGNOSTIC LINE ADDED FOR THE NEXT STEP 🚩
-    console.log("AUTH CHECK: User Status:", user ? "LOGGED IN" : "LOGGED OUT", user);
+    if (formattedMessage === '' && imageUrl === '') { 
+        alert("Message cannot be empty.");
+        return;
+    }
 
-    if (authError || !user) {
-        console.error("User not authenticated for sending message. RLS will fail.", authError);
-        alert("Cannot send message. Authentication failed. Please log in again.");
-        return;
-    }
+    const trimmedUsername = username.trim();
+    const { error } = await supabase
+        .from('messages')
+        .insert([{
+            sender: trimmedUsername,
+            content: formattedMessage,
+            image_url: imageUrl,
+            user_id: currentUserId
+        }]);
 
-    // Update global variables to use the live session data for safety
-    // This ensures currentUserId and username are fresh.
-    currentUserId = user.id;
-    username = username || user.user_metadata.username || 'ChatUser';
-
-    if (!currentUserId || !username) {
-        console.error("Missing User ID or Name even after checking live session.");
-        alert("Cannot send message. User identity is missing.");
-        return;
-    }
-
-    const cleanTextContent = getCleanMessageContent(messageInput);
-    const messageContent = mediaUrl || cleanTextContent;
-    if (!messageContent) return; 
-    
-    // Clear the input BEFORE the await call
-    messageInput.innerHTML = '';
-    
-    const newMessage = {
-        user_id: currentUserId, // Use the ID loaded from the live session
-        sender: username, // Use the name from the session/globals
-        content: messageContent 
-    };
-
-    const { data: insertedData, error } = await supabase
-        .from('messages')
-        .insert([newMessage])
-        .select();
-
-    if (error) {
-        console.error('Error sending message:', error);
-        alert("❌ Failed to send message. See console for details. (Likely RLS failure)");
-        
-        if (!mediaUrl) messageInput.innerHTML = messageContent; 
-        return;
-    }
-
-    if (insertedData && insertedData.length > 0) {
-        const sentMessage = insertedData[0];
-        sentMessage.sender_name = username; 
-        
-        const messageElement = renderMessage(sentMessage);
-        if (messageElement instanceof HTMLElement && messageDisplay) {
-            messageDisplay.appendChild(messageElement);
-            messageDisplay.scrollTop = messageDisplay.scrollHeight;
-        }
-    }
+    if (error) {
+        console.error("Error sending message:", error);
+        alert("❌ Failed to send message. Check RLS policy.");
+    } else {
+        messageInput.innerHTML = '';
+        fetchMessages();
+        
+        if(boldBtn) boldBtn.classList.remove('active');
+        if(italicBtn) italicBtn.classList.remove('active');
+        if(underlineBtn) underlineBtn.classList.remove('active');
+        if(sizeSelect) sizeSelect.value = '4'; 
+        if(styleDropdown) styleDropdown.classList.add('hidden');
+    }
 }
+
     
     function applyStyle(style, value = null) {
         if (!messageInput) return;

@@ -852,7 +852,7 @@ tr.playoff-divider td {
 <script>
     // Supabase Configuration
     const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z2NqGB5BTP3hAtk63pOnZiSckf7BM'; // Updated key for example stability
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z2NqGB5BTP3hAtk63pOnZiSckf7BM'; 
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     // Initial variable declarations (will be populated once DOM is ready)
@@ -876,7 +876,8 @@ tr.playoff-divider td {
     }
     function isLoggedIn() {
         const userString = localStorage.getItem('loggedInUser');
-        return userString !== null && userString !== "undefined"; // Added check for "undefined" string
+        // Check for null/empty/corrupted state string
+        return userString !== null && userString !== "undefined" && userString !== ''; 
     }
     function getLoggedInUser() {
         const userString = localStorage.getItem('loggedInUser');
@@ -1002,7 +1003,7 @@ tr.playoff-divider td {
             .subscribe();
     }
 
-    // --- Message Actions (FIXED: Added robust username check) ---
+    // --- Message Actions (CRASH FIXED HERE) ---
 
     async function sendMessage(imageUrl = '') {
         console.log("--- sendMessage function called! ---"); 
@@ -1026,6 +1027,7 @@ tr.playoff-divider td {
             return;
         }
         
+        // This is now safe because the check above guarantees username is a valid string
         const trimmedUsername = username.trim(); 
         console.log(`Attempting to send. Sender: ${trimmedUsername}, Content: "${message.substring(0, 30)}...", Image URL: ${imageUrl ? '...' + imageUrl.substring(imageUrl.length - 20) : 'None'}`);
 
@@ -1035,7 +1037,7 @@ tr.playoff-divider td {
 
         if (error) {
             console.error("Error sending message:", error);
-            alert("Failed to send message.");
+            alert("Failed to send message: " + error.message); // Added error message for better diagnostics
         } else {
             console.log("Message successfully inserted into Supabase. Realtime listener will handle display."); 
             messageInput.value = '';
@@ -1309,6 +1311,14 @@ tr.playoff-divider td {
 
         if (isLoggedIn()) {
             const user = getLoggedInUser();
+            
+            // Critical check: if user is null or missing username, clear state
+            if (!user || !user.username) {
+                console.error("Corrupted login state found, clearing local storage.");
+                clearLoginState();
+                return;
+            }
+
             username = user.username;
             currentUserId = user.id;
 

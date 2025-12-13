@@ -851,6 +851,7 @@ tr.playoff-divider td {
     </div>
   </div>
 </div>
+
 <script>
 /* ============================
    CORE USER FUNCTIONS
@@ -912,14 +913,15 @@ const emojis = ['😀','😂','😍','👍','🤔','🎉','❤️','☕','🍕',
 function populateEmojiPicker() {
     if (!emojiPicker) return;
     emojiPicker.innerHTML = '';
-    emojis.forEach(e => {
+
+    emojis.forEach(emoji => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.textContent = e;
-        btn.onclick = () => {
-            messageInput.innerText += e;
+        btn.textContent = emoji;
+        btn.addEventListener('click', () => {
+            messageInput.innerText += emoji;
             emojiPicker.classList.add('hidden');
-        };
+        });
         emojiPicker.appendChild(btn);
     });
 }
@@ -930,18 +932,22 @@ function populateEmojiPicker() {
 
 function getMessageText() {
     if (!messageInput) return '';
-    return (
-        messageInput.value ??
-        messageInput.innerText ??
-        messageInput.textContent ??
-        ''
-    ).trim();
+
+    if (typeof messageInput.value === 'string') {
+        return messageInput.value.trim();
+    }
+
+    return (messageInput.innerText || messageInput.textContent || '').trim();
 }
 
 function clearMessageInput() {
     if (!messageInput) return;
-    if ('value' in messageInput) messageInput.value = '';
-    else messageInput.innerText = '';
+
+    if (typeof messageInput.value === 'string') {
+        messageInput.value = '';
+    } else {
+        messageInput.innerText = '';
+    }
 }
 
 /* ============================
@@ -972,7 +978,7 @@ async function sendMessage(imageUrl = '') {
         }]);
 
     if (error) {
-        console.error(error);
+        console.error("Send error:", error);
         alert("❌ Failed to send message.");
         return;
     }
@@ -981,7 +987,7 @@ async function sendMessage(imageUrl = '') {
 }
 
 /* ============================
-   IMAGE UPLOAD
+   IMAGE UPLOAD (CLOUDINARY)
 ============================ */
 
 imageButton?.addEventListener('click', () => imageInput.click());
@@ -1004,7 +1010,7 @@ imageInput?.addEventListener('change', async () => {
 });
 
 /* ============================
-   GIF SEARCH
+   GIF SEARCH (GIPHY)
 ============================ */
 
 gifButton?.addEventListener('click', e => {
@@ -1014,22 +1020,24 @@ gifButton?.addEventListener('click', e => {
 });
 
 gifSearchButton?.addEventListener('click', async () => {
-    const q = gifSearchInput.value.trim();
-    if (!q) return;
+    const query = gifSearchInput.value.trim();
+    if (!query) return;
 
     const res = await fetch(
-        `https://api.giphy.com/v1/gifs/search?api_key=YOUR_GIPHY_KEY&q=${encodeURIComponent(q)}`
+        `https://api.giphy.com/v1/gifs/search?api_key=YOUR_GIPHY_KEY&q=${encodeURIComponent(query)}`
     );
     const data = await res.json();
 
     gifResultsContainer.innerHTML = '';
     data.data.forEach(gif => {
         const img = document.createElement('img');
-        img.src = gif.images.fixed_width.url;
-        img.onclick = () => {
+        img.src = gif.images.fixed_width_downsampled.url;
+        img.addEventListener('click', () => {
             sendMessage(img.src);
             gifSearchContainer.style.display = 'none';
-        };
+            gifSearchInput.value = '';
+            gifResultsContainer.innerHTML = '';
+        });
         gifResultsContainer.appendChild(img);
     });
 });
@@ -1038,7 +1046,7 @@ gifSearchButton?.addEventListener('click', async () => {
    EVENT LISTENERS
 ============================ */
 
-sendButton?.addEventListener('click', sendMessage);
+sendButton?.addEventListener('click', () => sendMessage());
 
 emojiButton?.addEventListener('click', e => {
     e.stopPropagation();
@@ -1052,10 +1060,49 @@ messageInput?.addEventListener('keydown', e => {
     }
 });
 
-document.addEventListener('click', () => {
-    emojiPicker?.classList.add('hidden');
-    gifSearchContainer?.style.display = 'none';
+document.addEventListener('click', e => {
+    if (!emojiPicker.contains(e.target) && e.target !== emojiButton) {
+        emojiPicker.classList.add('hidden');
+    }
+    if (!gifSearchContainer.contains(e.target) && e.target !== gifButton) {
+        gifSearchContainer.style.display = 'none';
+    }
 });
+
+/* ============================
+   REALTIME + FETCH
+============================ */
+
+function setupRealtimeListener() {
+    supabase
+        .channel('messages_changes')
+        .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'messages' },
+            fetchMessages
+        )
+        .subscribe();
+}
+
+async function fetchMessages() {
+    const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    messageDisplay.innerHTML = '';
+    for (const msg of data) {
+        const el = await renderMessage(msg);
+        messageDisplay.appendChild(el);
+    }
+
+    messageDisplay.scrollTop = messageDisplay.scrollHeight;
+}
 
 /* ============================
    INIT
@@ -1066,14 +1113,15 @@ window.addEventListener('load', () => {
 
     if (getLoggedInUser()) {
         chatBox?.classList.remove('hidden');
-        setupRealtimeListener?.();
+        setupRealtimeListener();
+        fetchMessages();
     } else {
         chatBox?.classList.add('hidden');
     }
 });
 </script>
 
-
-
-    </body>
+      </body>
 </html>
+
+

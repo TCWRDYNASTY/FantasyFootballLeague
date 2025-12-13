@@ -1170,85 +1170,26 @@ async function searchGifs(query) {
         gifResultsContainer.innerHTML = '<p style="color:red; text-align: center;">Failed to fetch GIFs.</p>';
     }
 }
-async function sendMessage(imageUrl = '') {
-    // 🚨 CRITICAL DEBUG LINE: Does this appear when you click Send? 🚨
-    console.log("--- sendMessage function called! (STEP 1) ---"); 
-    
-    if (!messageInput || !sendButton || !supabase) {
-        console.error("Initialization Error: Missing required elements.");
-        return;
-    }
+  async function sendMessage(imageUrl = '') {
+            const message = messageInput.value.trim(); // Get the message from the input and trim whitespace
+            if ((message === '' && imageUrl === '') || !username) {
+                return;
+            }
+            const trimmedUsername = username ? username.trim() : null; // Define trimmedUsername here
 
-    // messageInput.innerHTML.trim() is correct for getting HTML content from contentEditable
-    const formattedMessage = messageInput.innerHTML.trim(); 
+            const { error } = await supabase // Use the supabase client
+                .from('messages') // Specify the table name
+                .insert([{ sender: trimmedUsername, content: message, image_url: imageUrl }]); // The data to insert
 
-    // --- CHECK 1: Login/Username ---
-    if (!isLoggedIn() || !username) {
-        console.warn("STEP 2: User not logged in or username missing. Returning.");
-        alert("Please sign in to chat.");
-        messageInput.disabled = true;
-        sendButton.disabled = true;
-        return;
-    }
-
-    // --- CHECK 2: Empty Message ---
-    if (formattedMessage === '' && imageUrl === '') { 
-        console.warn("STEP 2: Message content is empty. Returning.");
-        alert("Message cannot be empty.");
-        return;
-    }
-
-    // --- CHECK 3: Authentication Retrieval ---
-    // 🌟 1. CRITICAL: Get the secure, current user ID from the active session 🌟
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-        console.error("STEP 3: Authentication Error:", authError);
-        alert("Authentication required to send message.");
-        return;
-    }
-    
-    // The ID that MUST match the RLS check (auth.uid())
-    const userIdToSend = user.id; 
-
-    // -----------------------------------------------------------------------------------
-
-    const trimmedUsername = username.trim();
-
-    console.log("STEP 4: Attempting DB INSERT."); // Log right before the network call
-
-    const { error } = await supabase
-        .from('messages')
-        .insert([{
-            sender: trimmedUsername,
-            content: formattedMessage,
-            image_url: imageUrl,
-            user_id: userIdToSend // <-- Use the guaranteed correct ID here!
-        }]);
-
-    if (error) {
-        // 🚨 Aggressive logging will catch the error code here (if the request completed) 🚨
-        console.error("--------------------------------------------");
-        console.error("!!! DB INSERT FAILURE DETECTED (STEP 5) !!!");
-        console.error("Supabase Error Object:", error);
-        console.error("Error Code (PostgreSQL):", error.code); 
-        console.error("Error Message:", error.message);
-        console.error("--------------------------------------------");
-        
-        alert("❌ DB INSERT FAILED. CHECK CONSOLE FOR THE SUPABASE ERROR OBJECT.");
-    } else {
-        // SUCCESS: Clear input and reset styles. 
-        console.log("STEP 5: DB INSERT SUCCESS! Clearing input.");
-        messageInput.innerHTML = '';
-        
-        if(boldBtn) boldBtn.classList.remove('active');
-        if(italicBtn) italicBtn.classList.remove('active');
-        if(underlineBtn) underlineBtn.classList.remove('active');
-        if(sizeSelect) sizeSelect.value = '4'; 
-        if(styleDropdown) styleDropdown.classList.add('hidden');
-    }
-}
-
+            if (error) {
+                console.error("Error sending message:", error);
+                alert("Failed to send message.");
+            } else {
+                messageInput.value = '';
+                // Optionally, you can fetch and display messages here if you want to update immediately
+                fetchMessages(); // Assuming you have a fetchMessages function
+            }
+  }
 /* ==================================================================== */
 /* === delete and edit script=== */
 /* ==================================================================== */

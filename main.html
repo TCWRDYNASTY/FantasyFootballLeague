@@ -862,13 +862,23 @@ tr.playoff-divider td {
         }, 1000); 
     }
 
-    // Supabase Configuration
-    const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
-    const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null; 
-    if (!supabase) {
-        console.error("Supabase client not initialized. Ensure the Supabase library is loaded.");
-    }
+ // Supabase Configuration
+const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+
+const supabase = window.supabase 
+    ? window.supabase.createClient(supabaseUrl, supabaseKey, { // <-- Added the options block here
+        auth: {
+            autoRefreshToken: true,
+            persistSession: true, // Crucial: Ensures it checks local storage
+            detectSessionInUrl: true,
+        }
+    }) 
+    : null;
+
+if (!supabase) {
+    console.error("Supabase client not initialized. Ensure the Supabase library is loaded.");
+}
 
     // Push Notification Key
     const VAPID_PUBLIC_KEY = 'BL2Gg2Bp-psAlTw2mKbAZ2Hid77IRyiQaeYJXFWEy2I4znv58nLU2qfgJ-YArQ_istfoZF0S-L3_hxx9QJ94ono'; 

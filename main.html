@@ -947,10 +947,7 @@ if (!supabase) {
             viewCountElement.textContent = 'N/A';
         }
     }
-    
-    trackAndDisplayViewCount();
-    setupViewCounterRealtimeListener();
-
+ 
 function setupViewCounterRealtimeListener() {
     if (!supabase) return;
 
@@ -1515,23 +1512,20 @@ if (messageInput) {
     });
 }
 
-// --- INITIALIZATION ---
 window.addEventListener('load', async () => {
+    trackAndDisplayViewCount();
+    setupViewCounterRealtimeListener();
     if (emojiPicker) populateEmojiPicker();
-    
     if (isLoggedIn()) {
         const user = getLoggedInUser();
         username = user.username;
-        currentUserId = user.id;
-        
+        currentUserId = user.id;  
         if (chatBox) chatBox.classList.remove('hidden');
         if (messageInput) messageInput.disabled = false;
         if (sendButton) sendButton.disabled = false;
         if (gifButton) gifButton.disabled = false;
         if (imageButton) imageButton.disabled = false;
-        // <<< ADDED: Enable the Style Toggle Button >>>
         if (styleToggleBtn) styleToggleBtn.disabled = false;
-        // <<< ADDED: Enable the Emoji Button >>>
         if (emojiButton) emojiButton.disabled = false;
         
         setupRealtimeListener();
@@ -1541,9 +1535,7 @@ window.addEventListener('load', async () => {
         if (sendButton) sendButton.disabled = true;
         if (gifButton) gifButton.disabled = true;
         if (imageButton) imageButton.disabled = true;
-        // <<< ADDED: Ensure Style Toggle Button is disabled when logged out >>>
         if (styleToggleBtn) styleToggleBtn.disabled = true;
-        // <<< ADDED: Ensure Emoji Button is disabled when logged out >>>
         if (emojiButton) emojiButton.disabled = true; 
     }
     fetchMessages();

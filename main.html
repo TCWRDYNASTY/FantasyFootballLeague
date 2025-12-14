@@ -529,10 +529,13 @@ body {
   justify-content: flex-end;
 }
 
-.my-message .sender-name {
-    color: #cbd5e0 !important;
+    .message-header .sender-name {
+    font-size: clamp(0.8rem, 1vw, 0.9rem);
+    font-weight: 900;
+    color: #cbd5e0 !important; /* LIGHT GREY FOR EVERYONE */
+    padding: 0 5px;
 }
-
+    
 .chat-image {
   max-width: 100%;
   height: auto;
@@ -547,12 +550,12 @@ body {
 .delete-message-btn {
   background: none;
   border: none;
-  color: white !important; 
+  color: #facc15 !important;
   font-size: 1.5em;
   font-weight: 900;
   cursor: pointer;
   position: absolute;
-  top: 0px; 
+  top: 0px; 
   right: 5px;
 }
 
@@ -1284,7 +1287,9 @@ if (username === message.sender) {
         deleteBtn.textContent = '...'; 
        deleteBtn.classList.add('delete-message-btn');
         deleteBtn.type = 'button';
-
+deleteBtn.style.color = '#facc15';  
+        deleteBtn.style.fontSize = '1.5em';
+        deleteBtn.style.fontWeight = '900'; 
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation(); 
             const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:'); 

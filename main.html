@@ -917,14 +917,11 @@ if (!supabase) {
             console.error('Supabase client is not initialized!');
             return;
         }
-
         const viewCountElement = document.getElementById(VIEW_COUNT_ELEMENT_ID);
-
         if (!viewCountElement) {
             console.warn(`View count element not found with ID: ${VIEW_COUNT_ELEMENT_ID}`);
             return;
         }
-
         try {
             const { error: rpcError } = await supabase.rpc('increment_view', {
                 page_slug: PAGE_SLUG
@@ -937,9 +934,13 @@ if (!supabase) {
                 .from('page_views')
                 .select('count')
                 .eq('slug', PAGE_SLUG)
-                .single();
+                .maybeSingle();
 
             if (fetchError) throw fetchError;
+            if (data === null) {
+                viewCountElement.textContent = '0';
+                return;
+            }
             viewCountElement.textContent = data.count.toLocaleString();
 
         } catch (error) {

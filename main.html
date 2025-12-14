@@ -854,22 +854,42 @@ tr.playoff-divider td {
 
 <script>
 
-    function logout() {
-    localStorage.removeItem('loggedInUser');
-    alert("Signed Off Successfully!");
-    setTimeout(() => {
-        window.location.href = "index.html"; 
-    }, 1000); 
+/* ==================================================================== */
+/* === GLOBAL SETUP & CONSTANTS === */
+/* ==================================================================== */
+
+function logout() {
+    // Note: Logging out of Supabase should clear the session, 
+    // but we'll keep the local storage clear for your existing logic
+    localStorage.removeItem('loggedInUser');
+    
+    // Use the Supabase client to sign out officially
+    if (supabase) {
+        supabase.auth.signOut().then(() => {
+            alert("Signed Off Successfully!");
+            setTimeout(() => {
+                window.location.href = "index.html"; 
+            }, 1000); 
+        }).catch(err => {
+            console.error('Supabase sign out error:', err);
+            alert("Signed Off Successfully, but Supabase sign-out failed.");
+            window.location.href = "index.html";
+        });
+    } else {
+        alert("Signed Off Successfully!");
+        window.location.href = "index.html";
+    }
 }
+
 const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
 
-const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null; 
+const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null; 
 if (!supabase) {
-    console.error("Supabase client not initialized. Ensure the Supabase library is loaded.");
+    console.error("Supabase client not initialized. Ensure the Supabase library is loaded.");
 }
 
-const VAPID_PUBLIC_KEY = 'BL2Gg2Bp-psAlTw2mKbAZ2Hid77IRyiQaeYJXFWEy2I4znv58nLU2qfgJ-YArQ_istfoZF0S-L3_hxx9QJ94ono'; 
+const VAPID_PUBLIC_KEY = 'BL2Gg2Bp-psAlTw2mKbAZ2Hid77IRyiQaeYJXFWEy2I4znf58nLU2qfgJ-YArQ_istfoZF0S-L3_hxx9QJ94ono'; 
 
 const messageInput = document.getElementById('message-input');
 const sendButton = document.getElementById('send-ban');
@@ -881,11 +901,11 @@ const gifSearchContainer = document.getElementById('gif-search-container');
 const gifSearchInput = document.getElementById('gif-search-input');
 const gifSearchButton = document.getElementById('gif-search-button');
 const gifResultsContainer = document.getElementById('gif-results');
-const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb'; 
+const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb'; 
 const emojiButton = document.getElementById('emoji-btn');
 const emojiPicker = document.getElementById('emoji-picker');
 const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
-const messageDisplay = document.getElementById('message-display'); 
+const messageDisplay = document.getElementById('message-display'); 
 let username = null;
 let currentUserId = null;
 const boldBtn = document.getElementById('bold-btn');
@@ -893,494 +913,538 @@ const italicBtn = document.getElementById('italic-btn');
 const underlineBtn = document.getElementById('underline-btn');
 const sizeSelect = document.getElementById('size-select');
 const styleToggleBtn = document.getElementById('style-toggle-btn');
-const styleDropdown = document.getElementById('style-dropdown'); 
+const styleDropdown = document.getElementById('style-dropdown'); 
 
-function populateEmojiPicker() {
-    if (!emojiPicker) return;
-    emojiPicker.innerHTML = ''; 
-    emojis.forEach(emoji => {
-        const emojiBtn = document.createElement('button');
-        emojiBtn.type = 'button';
-        emojiBtn.textContent = emoji;
-        emojiBtn.addEventListener('click', () => {
-            
-            if (messageInput) {
-                
-                document.execCommand('insertText', false, emoji);
-                messageInput.focus();
-            }
-            emojiPicker.classList.add('hidden'); 
-        });
-        emojiPicker.appendChild(emojiBtn);
-    });
-}
-if (emojiButton) {
-    emojiButton.addEventListener('click', () => {
-        if (emojiPicker) emojiPicker.classList.toggle('hidden');
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
-        if (styleDropdown) styleDropdown.classList.add('hidden'); 
-    });
-}
+/* ==================================================================== */
+/* === AUTHENTICATION & SESSION MANAGEMENT (CRITICAL FIX) === */
+/* ==================================================================== */
 
-document.addEventListener('click', (event) => {
-    if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
-        emojiPicker.classList.add('hidden');
-    }
-    if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
-           gifSearchContainer.classList.add('hidden');
-    }
-    if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
-        styleDropdown.classList.add('hidden');
-    }
-});
-
-function isLoggedIn() {
-    return localStorage.getItem('loggedInUser') !== null;
-}
-
+// Simplified user check (now only pulls from LocalStorage for username, 
+// the official Supabase session is used for currentUserId)
 function getLoggedInUser() {
-    const userString = localStorage.getItem('loggedInUser');
-    return userString ? JSON.parse(userString) : null;
+    const userString = localStorage.getItem('loggedInUser');
+    return userString ? JSON.parse(userString) : null;
 }
 
+function updateChatUI(isLoggedIn) {
+    if (isLoggedIn) {
+        if (chatBox) chatBox.classList.remove('hidden');
+        if (messageInput) messageInput.disabled = false;
+        if (sendButton) sendButton.disabled = false;
+        if (gifButton) gifButton.disabled = false;
+        if (imageButton) imageButton.disabled = false;
+        if (styleToggleBtn) styleToggleBtn.disabled = false;
+        if (emojiButton) emojiButton.disabled = false;
+    } else {
+        if (chatBox) chatBox.classList.add('hidden'); // Optional: hide chat for logged-out users
+        if (messageInput) messageInput.disabled = true;
+        if (sendButton) sendButton.disabled = true;
+        if (gifButton) gifButton.disabled = true;
+        if (imageButton) imageButton.disabled = true;
+        if (styleToggleBtn) styleToggleBtn.disabled = true;
+        if (emojiButton) emojiButton.disabled = true;
+    }
+}
+
+async function initializeChat() {
+    if (emojiPicker) populateEmojiPicker();
+    
+    // --- Official Supabase Auth Listener ---
+    supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+            // User is signed in. Set currentUserId and check LocalStorage for username.
+            currentUserId = session.user.id;
+            
+            // Check local storage for the saved username (assuming you save it there after sign-up/in)
+            const userLocalData = getLoggedInUser(); 
+            username = userLocalData ? userLocalData.username : session.user.email; // Fallback to email
+
+            console.log(`DEBUG: User signed in. ID: ${currentUserId}, Username: ${username}`);
+            
+            updateChatUI(true);
+            setupRealtimeListener();
+            fetchMessages();
+            
+            // CRITICAL FIX: Only call push subscription logic AFTER the user is confirmed logged in
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('service-worker.js') 
+                    .then(registration => {
+                        console.log('Service Worker registered!');
+                        subscribeUserToPush(); 
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            } else {
+                console.warn('Service Workers are not supported by this browser.');
+            }
+
+        } else if (event === 'SIGNED_OUT' || !session) {
+            // User is signed out. Clear all session data.
+            currentUserId = null;
+            username = null;
+            updateChatUI(false);
+            // Optionally clear messages on sign out
+            if (messageDisplay) messageDisplay.innerHTML = '';
+            
+            // Re-fetch messages (will only show public messages if RLS allows)
+            fetchMessages(); 
+        }
+    });
+    
+    // Fetch initial messages while waiting for auth state change to ensure content is visible quickly.
+    // The auth listener will call fetchMessages again upon login.
+    fetchMessages(); 
+}
+
+/* ==================================================================== */
+/* === PUSH NOTIFICATION FUNCTIONS (Updated saveSubscription) === */
+/* ==================================================================== */
 
 function urlBase64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-        const rawData = window.atob(base64);
-        const outputArray = new Uint8Array(rawData.length);
-        for (let i = 0; i < rawData.length; ++i) {
-            outputArray[i] = rawData.charCodeAt(i);
-        }
-        return outputArray;
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
     }
-
-    async function saveSubscriptionToSupabase(subscription) {
-        const { endpoint, keys } = subscription.toJSON();
-        const { p256dh, auth } = keys;
-
-        // Use the globally available 'supabase' client
-        const { data: { user } } = await supabase.auth.getUser(); 
-        
-        if (!user) {
-            console.error("User not logged in. Cannot save subscription.");
-            return;
-        }
-
-        const { error } = await supabase
-            .from('push_subscriptions')
-            .upsert({ user_id: user.id, endpoint, p256dh, auth }, { onConflict: 'user_id' });
-
-        if (error) {
-            console.error('Error saving subscription to Supabase:', error);
-        } else {
-            console.log('Subscription successfully saved to Supabase!');
-        }
-    }
-
-    async function subscribeUserToPush() {
-        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-            console.warn('Push messaging is not supported.');
-            return;
-        }
-
-        try {
-            const registration = await navigator.serviceWorker.ready;
-            const existingSubscription = await registration.pushManager.getSubscription();
-            if (existingSubscription) {
-                console.log('User already subscribed to push.');
-                return; 
-            }
-
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') {
-                console.warn('Notification permission denied by user.');
-                return;
-            }
-
-            const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: applicationServerKey
-            });
-
-            console.log('New push subscription created:', subscription);
-            await saveSubscriptionToSupabase(subscription);
-
-        } catch (err) {
-            console.error('An error occurred during push subscription:', err);
-        }
-    }
-
-function setupRealtimeListener() {
-    if (!supabase) {
-        console.error("DEBUG: Supabase client is null. Check initialization.");
-        return;
-    }
-    
-    console.log("DEBUG: Attempting to subscribe to real-time channel.");
-    
-    supabase
-        .channel('messages_changes')
-        .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'messages' },
-            (payload) => {
-                console.log('DEBUG: Realtime change received!', payload);
-                
-                // --- INSERT LOGIC (Adding a new message) ---
-                if (payload.eventType === 'INSERT') {
-                    // Check if the message was sent by the current user.
-                    // If it was, we assume fetchMessages() was already called and avoid duplicate append.
-                    // If it was NOT, we append it directly.
-                    if (payload.new.user_id !== currentUserId) {
-                        const newMessage = payload.new;
-                        console.log('DEBUG: Rendering new message object:', newMessage);
-                        
-                        if (!messageDisplay) {
-                            console.error("DEBUG CRITICAL: messageDisplay element is NULL!");
-                            return;
-                        }
-                        try {
-                            const messageElement = renderMessage(newMessage);
-                            if (messageElement instanceof HTMLElement) {
-                                messageDisplay.appendChild(messageElement);
-                                console.log('DEBUG: Successfully appended new message to display.');
-                                
-                                if (messageDisplay) {
-                                    messageDisplay.scrollTop = messageDisplay.scrollHeight;
-                                }
-                            } else {
-                                console.error("DEBUG CRITICAL: renderMessage did NOT return a valid HTML element!");
-                            }
-                        } catch (e) {
-                            console.error("DEBUG CRITICAL: Error rendering message:", e);
-                        }
-                    } else {
-                        console.log('DEBUG: Realtime event ignored as message was sent by self (handled by fetchMessages).');
-                    }
-                }
-                
-                else if (payload.eventType === 'UPDATE') {
-                    const updatedMessage = payload.new;
-                    // Find the existing element using the data-message-id attribute
-                    const existingElement = document.querySelector(`[data-message-id="${updatedMessage.id}"]`); 
-                    
-                    if (existingElement) {
-                        try {
-                            const newElement = renderMessage(updatedMessage);
-                            existingElement.replaceWith(newElement);
-                            console.log(`DEBUG: Successfully updated message ID: ${updatedMessage.id}`);
-                        } catch (e) {
-                            console.error(`DEBUG CRITICAL: Error rendering updated message ID ${updatedMessage.id}:`, e);
-                        }
-                    } else {
-                        console.warn(`DEBUG: Could not find element for updated message ID: ${updatedMessage.id}. Triggering refresh.`);
-                        fetchMessages(); 
-                    }
-                }
-
-                    // --- DELETE LOGIC (CRITICAL FIX: REMOVED DUPLICATE AND ENSURED FALLBACK) ---
-                else if (payload.eventType === 'DELETE') {
-                    const deletedMessageId = payload.old.id;
-                    // Find the element using the data-message-id attribute
-                    const messageElement = document.querySelector(`[data-message-id="${deletedMessageId}"]`); 
-                    
-                    if (messageElement) {
-                        messageElement.remove();
-                        console.log(`DEBUG: Successfully removed message ID: ${deletedMessageId} from DOM.`);
-                    } else {
-                        console.warn(`DEBUG: Could not find element for deleted message ID: ${deletedMessageId}. Forcing full refresh.`);
-                        fetchMessages();  // FALLBACK: If DOM removal fails, force a full data refresh
-                    }
-                }
-            }
-        )
-        .subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
-                console.log('DEBUG: Realtime channel successfully subscribed!');
-            } else if (status === 'CHANNEL_ERROR') {
-                console.error('DEBUG: Realtime channel FAILED to subscribe!');
-            }
-        });
+    return outputArray;
 }
 
+// CRITICAL FIX: This function now uses the global currentUserId set by the auth listener
+async function saveSubscriptionToSupabase(subscription) {
+    const { endpoint, keys } = subscription.toJSON();
+    const { p256dh, auth } = keys;
+
+    // Check the global variable instead of calling supabase.auth.getUser() again
+    if (!currentUserId) {
+        console.error("User ID not loaded. Cannot save subscription.");
+        return;
+    }
+
+    const { error } = await supabase
+        .from('push_subscriptions')
+        .upsert({ user_id: currentUserId, endpoint, p256dh, auth }, { onConflict: 'user_id' });
+
+    if (error) {
+        console.error('Error saving subscription to Supabase:', error);
+    } else {
+        console.log('Subscription successfully saved to Supabase!');
+    }
+}
+
+async function subscribeUserToPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.warn('Push messaging is not supported.');
+        return;
+    }
+
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const existingSubscription = await registration.pushManager.getSubscription();
+        if (existingSubscription) {
+            console.log('User already subscribed to push. Checking if subscription is saved...');
+            // Even if subscribed, ensure it's saved to the database.
+            await saveSubscriptionToSupabase(existingSubscription);
+            return; 
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            console.warn('Notification permission denied by user.');
+            return;
+        }
+
+        const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+        const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: applicationServerKey
+        });
+
+        console.log('New push subscription created:', subscription);
+        await saveSubscriptionToSupabase(subscription);
+
+    } catch (err) {
+        console.error('An error occurred during push subscription:', err);
+    }
+}
+
+/* ==================================================================== */
+/* === REAL-TIME LISTENER (No change, uses global currentUserId) === */
+/* ==================================================================== */
+
+function setupRealtimeListener() {
+    if (!supabase) {
+        console.error("DEBUG: Supabase client is null. Check initialization.");
+        return;
+    }
+    
+    console.log("DEBUG: Attempting to subscribe to real-time channel.");
+    
+    supabase
+        .channel('messages_changes')
+        .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'messages' },
+            (payload) => {
+                console.log('DEBUG: Realtime change received!', payload);
+                
+                // --- INSERT LOGIC ---
+                if (payload.eventType === 'INSERT') {
+                    if (payload.new.user_id !== currentUserId) {
+                        const newMessage = payload.new;
+                        console.log('DEBUG: Rendering new message object:', newMessage);
+                        
+                        if (!messageDisplay) {
+                            console.error("DEBUG CRITICAL: messageDisplay element is NULL!");
+                            return;
+                        }
+                        try {
+                            const messageElement = renderMessage(newMessage);
+                            if (messageElement instanceof HTMLElement) {
+                                messageDisplay.appendChild(messageElement);
+                                console.log('DEBUG: Successfully appended new message to display.');
+                                
+                                if (messageDisplay) {
+                                    messageDisplay.scrollTop = messageDisplay.scrollHeight;
+                                }
+                            } else {
+                                console.error("DEBUG CRITICAL: renderMessage did NOT return a valid HTML element!");
+                            }
+                        } catch (e) {
+                            console.error("DEBUG CRITICAL: Error rendering message:", e);
+                        }
+                    } else {
+                        console.log('DEBUG: Realtime event ignored as message was sent by self (handled by fetchMessages).');
+                    }
+                }
+                
+                // --- UPDATE LOGIC ---
+                else if (payload.eventType === 'UPDATE') {
+                    const updatedMessage = payload.new;
+                    const existingElement = document.querySelector(`[data-message-id="${updatedMessage.id}"]`); 
+                    
+                    if (existingElement) {
+                        try {
+                            const newElement = renderMessage(updatedMessage);
+                            existingElement.replaceWith(newElement);
+                            console.log(`DEBUG: Successfully updated message ID: ${updatedMessage.id}`);
+                        } catch (e) {
+                            console.error(`DEBUG CRITICAL: Error rendering updated message ID ${updatedMessage.id}:`, e);
+                        }
+                    } else {
+                        console.warn(`DEBUG: Could not find element for updated message ID: ${updatedMessage.id}. Triggering refresh.`);
+                        fetchMessages(); 
+                    }
+                }
+
+                // --- DELETE LOGIC ---
+                else if (payload.eventType === 'DELETE') {
+                    const deletedMessageId = payload.old.id;
+                    const messageElement = document.querySelector(`[data-message-id="${deletedMessageId}"]`); 
+                    
+                    if (messageElement) {
+                        messageElement.remove();
+                        console.log(`DEBUG: Successfully removed message ID: ${deletedMessageId} from DOM.`);
+                    } else {
+                        console.warn(`DEBUG: Could not find element for deleted message ID: ${deletedMessageId}. Forcing full refresh.`);
+                        fetchMessages(); 
+                    }
+                }
+            }
+        )
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                console.log('DEBUG: Realtime channel successfully subscribed!');
+            } else if (status === 'CHANNEL_ERROR') {
+                console.error('DEBUG: Realtime channel FAILED to subscribe!');
+            }
+        });
+}
+
+/* ==================================================================== */
+/* === IMAGE/GIF/MESSAGE SENDING (No change, uses global currentUserId) === */
+/* ==================================================================== */
+
 async function uploadImage() {
-    if (!imageInput || !imageInput.files[0]) {
-        alert("Please select a file."); 
-        return;
-    }
+    if (!imageInput || !imageInput.files[0]) {
+        alert("Please select a file."); 
+        return;
+    }
 
-    const file = imageInput.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "chat-upload-preset");
-    formData.append("api_key", "935271789947252"); 
+    const file = imageInput.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "chat-upload-preset");
+    formData.append("api_key", "935271789947252"); 
 
-    try {
-        const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
-            method: "POST",
-            body: formData
-        });
+    try {
+        const response = await fetch("https://api.cloudinary.com/v1_1/dvcorzsyt/image/upload", {
+            method: "POST",
+            body: formData
+        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Upload failed:", errorText);
-            alert("❌ Image upload failed. See console for details."); 
-            return;
-        }
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Upload failed:", errorText);
+            alert("❌ Image upload failed. See console for details."); 
+            return;
+        }
 
-        const data = await response.json();
-        const imageUrl = data.secure_url;
-        console.log("Image uploaded to Cloudinary:", imageUrl);
-        messageInput.innerHTML = ''; 
-        sendMessage(imageUrl);
-        imageInput.value = ''; 
-    } catch (error) {
-        console.error("Image upload error:", error);
-        alert("❌ An unexpected error occurred during upload. See console for details.");
-    }
+        const data = await response.json();
+        const imageUrl = data.secure_url;
+        console.log("Image uploaded to Cloudinary:", imageUrl);
+        messageInput.innerHTML = ''; 
+        sendMessage(imageUrl);
+        imageInput.value = ''; 
+    } catch (error) {
+        console.error("Image upload error:", error);
+        alert("❌ An unexpected error occurred during upload. See console for details.");
+    }
 }
 
 async function searchGifs(query) {
-    if (!gifResultsContainer) return;
-    
-    if (!query.trim()) {
-        gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">Please enter a search term.</p>';
-        return;
-    }
+    if (!gifResultsContainer) return;
+    
+    if (!query.trim()) {
+        gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">Please enter a search term.</p>';
+        return;
+    }
 
-    const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`;
-    gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">Searching...</p>';
+    const apiUrl = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=10`;
+    gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">Searching...</p>';
 
-    try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
 
-        if (data.data && data.data.length > 0) {
-            gifResultsContainer.innerHTML = '';
-            data.data.forEach(gif => {
-                const img = document.createElement('img');
-                img.src = gif.images.fixed_width_small.url || gif.images.fixed_width_downsampled.url; 
-                img.alt = gif.title;
-                img.classList.add('gif-result-image');
-                img.addEventListener('click', () => {
-                    sendMessage(gif.images.original.url); 
-                    if (gifSearchContainer) gifSearchContainer.classList.add('hidden');
-                    if (gifSearchInput) gifSearchInput.value = '';
-                    gifResultsContainer.innerHTML = '';
-                });
-                gifResultsContainer.appendChild(img);
-            });
-        } else {
-            gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">No GIFs found for your search.</p>';
-        }
-    } catch (error) {
-        console.error('Error fetching GIFs:', error);
-        gifResultsContainer.innerHTML = '<p style="color:red; text-align: center;">Failed to fetch GIFs.</p>';
-    }
+        if (data.data && data.data.length > 0) {
+            gifResultsContainer.innerHTML = '';
+            data.data.forEach(gif => {
+                const img = document.createElement('img');
+                img.src = gif.images.fixed_width_small.url || gif.images.fixed_width_downsampled.url; 
+                img.alt = gif.title;
+                img.classList.add('gif-result-image');
+                img.addEventListener('click', () => {
+                    sendMessage(gif.images.original.url); 
+                    if (gifSearchContainer) gifSearchContainer.classList.add('hidden');
+                    if (gifSearchInput) gifSearchInput.value = '';
+                    gifResultsContainer.innerHTML = '';
+                });
+                gifResultsContainer.appendChild(img);
+            });
+        } else {
+            gifResultsContainer.innerHTML = '<p style="color:#e2e8f0; text-align: center;">No GIFs found for your search.</p>';
+        }
+    } catch (error) {
+        console.error('Error fetching GIFs:', error);
+        gifResultsContainer.innerHTML = '<p style="color:red; text-align: center;">Failed to fetch GIFs.</p>';
+    }
 }
+
 async function sendMessage(imageUrl = '') {
-    if (!messageInput || !sendButton || !supabase) return;
-    const formattedMessage = messageInput.innerHTML.trim();
+    if (!messageInput || !sendButton || !supabase) return;
+    const formattedMessage = messageInput.innerHTML.trim();
 
-    if (!isLoggedIn() || !username) {
-        alert("Please sign in to chat.");
-        messageInput.disabled = true;
-        sendButton.disabled = true;
-        return;
-    }
+    if (!currentUserId || !username) { // Check official Supabase state
+        alert("Please sign in to chat.");
+        messageInput.disabled = true;
+        sendButton.disabled = true;
+        return;
+    }
 
-    if (formattedMessage === '' && imageUrl === '') { 
-        alert("Message cannot be empty.");
-        return;
-    }
+    if (formattedMessage === '' && imageUrl === '') { 
+        alert("Message cannot be empty.");
+        return;
+    }
 
-    const trimmedUsername = username.trim();
-    const { error } = await supabase
-        .from('messages')
-        .insert([{
-            sender: trimmedUsername,
-            content: formattedMessage,
-            image_url: imageUrl,
-            user_id: currentUserId
-        }]);
+    const trimmedUsername = username.trim();
+    const { error } = await supabase
+        .from('messages')
+        .insert([{
+            sender: trimmedUsername,
+            content: formattedMessage,
+            image_url: imageUrl,
+            user_id: currentUserId
+        }]);
 
-    if (error) {
-        console.error("Error sending message:", error);
-        alert("❌ Failed to send message. Check RLS policy.");
-    } else {
-        messageInput.innerHTML = '';
-        fetchMessages();
-        
-        if(boldBtn) boldBtn.classList.remove('active');
-        if(italicBtn) italicBtn.classList.remove('active');
-        if(underlineBtn) underlineBtn.classList.remove('active');
-        if(sizeSelect) sizeSelect.value = '4'; 
-        if(styleDropdown) styleDropdown.classList.add('hidden');
-    }
+    if (error) {
+        console.error("Error sending message:", error);
+        alert("❌ Failed to send message. Check RLS policy.");
+    } else {
+        messageInput.innerHTML = '';
+        fetchMessages(); // Triggers a UI refresh for the sender
+        
+        if(boldBtn) boldBtn.classList.remove('active');
+        if(italicBtn) italicBtn.classList.remove('active');
+        if(underlineBtn) underlineBtn.classList.remove('active');
+        if(sizeSelect) sizeSelect.value = '4'; 
+        if(styleDropdown) styleDropdown.classList.add('hidden');
+    }
 }
 
 /* ==================================================================== */
-/* === delete and edit script=== */
+/* === DELETE AND EDIT SCRIPT === */
 /* ==================================================================== */
+
 async function deleteMessage(messageIdToDelete) {
-    if (!supabase) return false;
-    console.log(`DEBUG: Deleting msg ID: ${messageIdToDelete} for User ID: ${currentUserId}`);
-    console.log('deleteMessage called with ID:', messageIdToDelete);
-    try {
-        const { error } = await supabase
-            .from('messages')
-            .delete()
-            .eq('id', messageIdToDelete)
-            .eq('user_id', currentUserId);
+    if (!supabase) return false;
+    console.log(`DEBUG: Deleting msg ID: ${messageIdToDelete} for User ID: ${currentUserId}`);
+    console.log('deleteMessage called with ID:', messageIdToDelete);
+    try {
+        const { error } = await supabase
+            .from('messages')
+            .delete()
+            .eq('id', messageIdToDelete)
+            .eq('user_id', currentUserId);
 
-        if (error) {
-            console.error('Error deleting message from Supabase:', error);
-            alert("❌ Failed to delete the message. Check permissions or ownership.");
-            return false;
-        }
+        if (error) {
+            console.error('Error deleting message from Supabase:', error);
+            alert("❌ Failed to delete the message. Check permissions or ownership.");
+            return false;
+        }
 
-        console.log('Message deleted successfully from Supabase:', messageIdToDelete);
-        // Deletion succeeded. The real-time listener will now handle UI removal.
-        return true;
-    } catch (error) {
-        console.error('An unexpected error occurred while deleting from Supabase:', error);
-        alert("❌ An unexpected error occurred during deletion.");
-        return false;
-    }
+        console.log('Message deleted successfully from Supabase:', messageIdToDelete);
+        return true;
+    } catch (error) {
+        console.error('An unexpected error occurred while deleting from Supabase:', error);
+        alert("❌ An unexpected error occurred during deletion.");
+        return false;
+    }
 }
 
 
 async function handleDeleteButtonClick(messageId) {
-    const success = await deleteMessage(messageId); 
-    if (success) {
-        console.log('Message deleted successfully. Real-time listener will remove it from display.');
-        // REMOVED: fetchMessages() - the realtime listener handles it faster and more efficiently.
-    } else {
-        console.error('Deletion failed.'); 
-    }
+    const success = await deleteMessage(messageId); 
+    if (success) {
+        console.log('Message deleted successfully. Real-time listener will remove it from display.');
+    } else {
+        console.error('Deletion failed.'); 
+    }
 }
 
-function handleStartEdit(messageId, initialContent) {
-    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
-    if (!messageItem) return;
-    const contentWrapper = messageItem.querySelector('.message-content .message-text');
-    if (!contentWrapper) return;
-    contentWrapper.dataset.originalContent = contentWrapper.innerHTML;
-    contentWrapper.contentEditable = 'true';
-    contentWrapper.focus();
-    contentWrapper.classList.add('editing-active');
-    const optionsBtn = messageItem.querySelector('.message-options-btn');
-    if (optionsBtn) {
-        optionsBtn.style.display = 'none'; 
-        let editControls = messageItem.querySelector('.edit-controls');
-        if (!editControls) {
-            editControls = document.createElement('div');
-            editControls.classList.add('edit-controls');
-            messageItem.querySelector('.message-content').appendChild(editControls);
-        }
-        editControls.innerHTML = '';
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = 'Save';
-        saveBtn.classList.add('save-edit-btn');
-        saveBtn.onclick = () => {
-            
-            const newContent = contentWrapper.innerHTML;
-            handleSaveEdit(messageId, newContent);
-        };
-        editControls.appendChild(saveBtn);
-        const cancelBtn = document.createElement('button');
-        cancelBtn.textContent = '❌ Cancel';
-        cancelBtn.classList.add('cancel-edit-btn');
-        cancelBtn.onclick = () => {
-            handleCancelEdit(messageId);
-        };
-        editControls.appendChild(cancelBtn);
-    }
+function handleStartEdit(messageId) { // Removed initialContent argument as it's not used
+    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!messageItem) return;
+    // CRITICAL FIX FOR EDITING: The class name needs to be correct for the element being edited
+    const contentWrapper = messageItem.querySelector('.message-content-text'); 
+    if (!contentWrapper) return;
+    
+    // Check if we are already in the editing state (e.g., if contentEditable is true)
+    if (contentWrapper.contentEditable === 'true') return;
+    
+    contentWrapper.dataset.originalContent = contentWrapper.innerHTML;
+    contentWrapper.contentEditable = 'true';
+    contentWrapper.focus();
+    contentWrapper.classList.add('editing-active');
+    
+    const headerEl = messageItem.querySelector('.message-header');
+    if (!headerEl) return;
+
+    // Remove the '...' options button and add the Save/Cancel controls
+    const controlsContainer = headerEl.querySelector('.message-controls');
+    if (controlsContainer) {
+        controlsContainer.innerHTML = ''; // Clear original buttons
+        
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Save';
+        saveBtn.classList.add('save-edit-btn');
+        saveBtn.onclick = () => {
+            const newContent = contentWrapper.innerHTML;
+            handleSaveEdit(messageId, newContent);
+        };
+        controlsContainer.appendChild(saveBtn);
+        
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '❌ Cancel';
+        cancelBtn.classList.add('cancel-edit-btn');
+        cancelBtn.onclick = () => {
+            handleCancelEdit(messageId);
+        };
+        controlsContainer.appendChild(cancelBtn);
+    }
 }
 
-function handleStartEdit(messageId, initialContent) {
-    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
-    if (!messageItem) return;
-    const contentWrapper = messageItem.querySelector('.message-content .message-text');
-    if (!contentWrapper) return;
-    contentWrapper.dataset.originalContent = contentWrapper.innerHTML;
-    contentWrapper.contentEditable = 'true';
-    contentWrapper.focus();
-    contentWrapper.classList.add('editing-active');
-    const optionsBtn = messageItem.querySelector('.message-options-btn');
-    if (optionsBtn) {
-        optionsBtn.style.display = 'none'; 
-        let editControls = messageItem.querySelector('.edit-controls');
-        if (!editControls) {
-            editControls = document.createElement('div');
-            editControls.classList.add('edit-controls');
-            messageItem.querySelector('.message-content').appendChild(editControls);
-        }
-        editControls.innerHTML = '';
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = 'Save';
-        saveBtn.classList.add('save-edit-btn');
-        saveBtn.onclick = () => {
-            
-            const newContent = contentWrapper.innerHTML;
-            handleSaveEdit(messageId, newContent);
-        };
-        editControls.appendChild(saveBtn);
-        const cancelBtn = document.createElement('button');
-        cancelBtn.textContent = '❌ Cancel';
-        cancelBtn.classList.add('cancel-edit-btn');
-        cancelBtn.onclick = () => {
-            handleCancelEdit(messageId);
-        };
-        editControls.appendChild(cancelBtn);
-    }
-}
 
 async function handleSaveEdit(messageId, newContent) {
-    const trimmedContent = newContent.trim();
-    if (!trimmedContent) {
-        alert("Message content cannot be empty.");
-        return;
-    }
-    if (!currentUserId) {
-        alert("User session not loaded. Please refresh.");
-        return;
-    }
-    const { error } = await supabase.rpc('update_message', {
-        message_id_in: messageId,
-        new_content_in: trimmedContent,
-        user_id_in: currentUserId
-    });
+    const trimmedContent = newContent.trim();
+    if (!trimmedContent) {
+        alert("Message content cannot be empty.");
+        return;
+    }
+    if (!currentUserId) {
+        alert("User session not loaded. Please refresh.");
+        return;
+    }
+    
+    // Check if the content actually changed (optional, but good practice)
+    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+    const contentWrapper = messageItem.querySelector('.message-content-text');
+    if (contentWrapper && contentWrapper.dataset.originalContent === trimmedContent) {
+        // Nothing changed, just cancel the edit
+        return handleCancelEdit(messageId);
+    }
+    
+    const { error } = await supabase.rpc('update_message', {
+        message_id_in: messageId,
+        new_content_in: trimmedContent,
+        user_id_in: currentUserId
+    });
 
-    if (error) {
-        console.error('Error updating message:', error.message);
-        alert('Failed to save edit: ' + error.message);
-    } else {
-        fetchMessages();
-        handleCancelEdit(messageId); 
-    }
+    if (error) {
+        console.error('Error updating message:', error.message);
+        alert('Failed to save edit: ' + error.message);
+    } else {
+        // Successful save, the Real-time listener will trigger fetchMessages/replace DOM
+        handleCancelEdit(messageId, true); // Use the logic to restore controls after successful save
+    }
 }
-        
-function handleCancelEdit(messageId) {
-    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
-    if (!messageItem) return;
+        
+function handleCancelEdit(messageId, saved = false) {
+    const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!messageItem) return;
 
-    const contentWrapper = messageItem.querySelector('.message-content .message-text');
-    const optionsBtn = messageItem.querySelector('.message-options-btn');
-    const editControls = messageItem.querySelector('.edit-controls'); 
-    if (contentWrapper) {
-        contentWrapper.innerHTML = contentWrapper.dataset.originalContent || contentWrapper.innerHTML;
-        contentWrapper.contentEditable = 'false';
-        contentWrapper.classList.remove('editing-active');
-        delete contentWrapper.dataset.originalContent; 
-    }
+    // Use the correct class selector
+    const contentWrapper = messageItem.querySelector('.message-content-text');
+    const controlsContainer = messageItem.querySelector('.message-controls'); 
+    
+    if (contentWrapper) {
+        // Only restore original content if the edit was cancelled, not saved
+        if (!saved) {
+            contentWrapper.innerHTML = contentWrapper.dataset.originalContent || contentWrapper.innerHTML;
+        }
+        contentWrapper.contentEditable = 'false';
+        contentWrapper.classList.remove('editing-active');
+        delete contentWrapper.dataset.originalContent; 
+    }
 
-    if (optionsBtn) optionsBtn.style.display = 'block';
-    if (editControls) editControls.remove();
+    if (controlsContainer) {
+        // Restore the original options button if the edit was canceled (not saved)
+        if (!saved) {
+            // This is complex, so for simplicity, we rely on renderMessage being called 
+            // by fetchMessages (which is called on update/delete).
+            // For a pure cancel, we can call fetchMessages(), but a direct button restore is better.
+            
+            // Simpler approach: call renderMessage on the single message after a cancel (if not saved)
+            // But since fetchMessages is cheap for a small chat, let's keep it simple:
+            if (!saved) {
+                // If the user cancelled, we need to manually restore the UI state, 
+                // but since the original options logic is inside renderMessage, let's just 
+                // re-render the single element by calling fetchMessages for now. 
+                // A full re-render on cancel is easier than rebuilding the options button manually.
+                fetchMessages(); 
+            }
+        }
+    }
+    // Note: The previous handleCancelEdit logic was tied to a now-removed .edit-controls div, 
+    // the logic has been adjusted to clean up the .message-controls container instead.
 }
-  
+  
+/* ==================================================================== */
+/* === UI RENDERING & DISPLAY (Corrected class in previous step) === */
+/* ==================================================================== */
+
 function renderMessage(message) {
     const messageContainer = document.createElement('div');
     messageContainer.classList.add('message-item');
@@ -1391,6 +1455,8 @@ function renderMessage(message) {
     messageContainer.dataset.messageId = message.id;
     const headerEl = document.createElement('div');
     headerEl.classList.add('message-header');
+    
+    // The controls container where '...' or 'Save/Cancel' buttons go
     const controlsContainer = document.createElement('div');
     controlsContainer.classList.add('message-controls');
 
@@ -1412,6 +1478,7 @@ function renderMessage(message) {
                         handleDeleteButtonClick(message.id);
                     }
                 } else if (standardizedAction === 'E') {
+                    // CRITICAL: Call handleStartEdit without initialContent argument
                     handleStartEdit(message.id); 
                 } else {
                     alert('Invalid option selected. Please enter E or D.');
@@ -1436,7 +1503,7 @@ function renderMessage(message) {
 
     if (message.content) {
         const contentEl = document.createElement('div');
-        contentEl.classList.add('message-content-text'); 
+        contentEl.classList.add('message-content-text'); // Corrected class
         
         contentEl.innerHTML = message.content;
         messageContent.appendChild(contentEl);
@@ -1460,184 +1527,187 @@ function renderMessage(message) {
     const createdAt = new Date(message.created_at);
     const formattedDate = createdAt.toLocaleDateString();
     const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    timestampEl.textContent = ` ${formattedDate} ${formattedTime}`; 
+    timestampEl.textContent = ` ${formattedDate} ${formattedTime}`; 
     timestampEl.classList.add('timestamp');
     footerEl.appendChild(timestampEl);
     messageContainer.appendChild(footerEl);
     
     return messageContainer;
 }
-/* ==================================================================== */
-/* === display script=== */
-/* ==================================================================== */
-async function displayMessages(messages) {
-    if (!messageDisplay) return; 
 
-    messageDisplay.innerHTML = ''; 
-    
-    if (messages && Array.isArray(messages)) {
-        messages.forEach(msg => {
-            const messageElement = renderMessage(msg);
-            messageDisplay.appendChild(messageElement);
-        });
-        
-        const shouldScroll = messageDisplay.scrollTop + messageDisplay.clientHeight >= messageDisplay.scrollHeight - 50;
-        if (shouldScroll) {
-            messageDisplay.scrollTop = messageDisplay.scrollHeight;
-        }
-    }
+/* ==================================================================== */
+/* === MESSAGE FETCHING & DOM MANIPULATION === */
+/* ==================================================================== */
+
+async function displayMessages(messages) {
+    if (!messageDisplay) return; 
+
+    messageDisplay.innerHTML = ''; 
+    
+    if (messages && Array.isArray(messages)) {
+        messages.forEach(msg => {
+            const messageElement = renderMessage(msg);
+            messageDisplay.appendChild(messageElement);
+        });
+        
+        const shouldScroll = messageDisplay.scrollTop + messageDisplay.clientHeight >= messageDisplay.scrollHeight - 50;
+        if (shouldScroll) {
+            messageDisplay.scrollTop = messageDisplay.scrollHeight;
+        }
+    }
 }
+
 async function fetchMessages() {
-    if (messageDisplay) messageDisplay.innerHTML = ''; 
-    const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .order('created_at', { ascending: true }); 
-    if (error) {
-        console.error('Error fetching messages:', error.message);
-        return;
-    }
-    displayMessages(data);   
-    if (messageDisplay) {
-        messageDisplay.scrollTop = messageDisplay.scrollHeight;
-    }
+    // Note: Do not clear display here to prevent flickering. displayMessages() handles the clear.
+    const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: true }); 
+    if (error) {
+        console.error('Error fetching messages:', error.message);
+        return;
+    }
+    displayMessages(data);    
+    if (messageDisplay) {
+        messageDisplay.scrollTop = messageDisplay.scrollHeight;
+    }
 }
+
+/* ==================================================================== */
+/* === EVENT LISTENERS AND INITIALIZATION === */
+/* ==================================================================== */
+
+function populateEmojiPicker() {
+    if (!emojiPicker) return;
+    emojiPicker.innerHTML = ''; 
+    emojis.forEach(emoji => {
+        const emojiBtn = document.createElement('button');
+        emojiBtn.type = 'button';
+        emojiBtn.textContent = emoji;
+        emojiBtn.addEventListener('click', () => {
+            
+            if (messageInput) {
+                
+                document.execCommand('insertText', false, emoji);
+                messageInput.focus();
+            }
+            emojiPicker.classList.add('hidden'); 
+        });
+        emojiPicker.appendChild(emojiBtn);
+    });
+}
+
+// Event delegation for closing dropdowns
+document.addEventListener('click', (event) => {
+    if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
+        emojiPicker.classList.add('hidden');
+    }
+    if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
+           gifSearchContainer.classList.add('hidden');
+    }
+    if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
+        styleDropdown.classList.add('hidden');
+    }
+});
+
+if (emojiButton) {
+    emojiButton.addEventListener('click', () => {
+        if (emojiPicker) emojiPicker.classList.toggle('hidden');
+        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
+        if (styleDropdown) styleDropdown.classList.add('hidden'); 
+    });
+}
+
 if (styleToggleBtn) {
-    styleToggleBtn.addEventListener('click', (event) => {
-        event.stopPropagation(); 
-        if (styleDropdown) styleDropdown.classList.toggle('hidden');
-        if (emojiPicker) emojiPicker.classList.add('hidden'); 
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
-        messageInput.focus(); 
-    });
+    styleToggleBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); 
+        if (styleDropdown) styleDropdown.classList.toggle('hidden');
+        if (emojiPicker) emojiPicker.classList.add('hidden'); 
+        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
+        messageInput.focus(); 
+    });
 }
 if (boldBtn) {
-    boldBtn.addEventListener('click', () => {
-        document.execCommand('bold', false, null);
-        boldBtn.classList.toggle('active', document.queryCommandState('bold'));
-        messageInput.focus();
-    });
+    boldBtn.addEventListener('click', () => {
+        document.execCommand('bold', false, null);
+        boldBtn.classList.toggle('active', document.queryCommandState('bold'));
+        messageInput.focus();
+    });
 }
 
 if (italicBtn) {
-    italicBtn.addEventListener('click', () => {
-        document.execCommand('italic', false, null);
-        italicBtn.classList.toggle('active', document.queryCommandState('italic'));
-        messageInput.focus();
-    });
+    italicBtn.addEventListener('click', () => {
+        document.execCommand('italic', false, null);
+        italicBtn.classList.toggle('active', document.queryCommandState('italic'));
+        messageInput.focus();
+    });
 }
 
 if (underlineBtn) {
-    underlineBtn.addEventListener('click', () => {
-        document.execCommand('underline', false, null);
-        underlineBtn.classList.toggle('active', document.queryCommandState('underline'));
-        messageInput.focus();
-    });
+    underlineBtn.addEventListener('click', () => {
+        document.execCommand('underline', false, null);
+        underlineBtn.classList.toggle('active', document.queryCommandState('underline'));
+        messageInput.focus();
+    });
 }
 
 if (sizeSelect) {
-    sizeSelect.addEventListener('change', (event) => {
-        document.execCommand('fontSize', false, event.target.value); 
-        messageInput.focus();
-    });
+    sizeSelect.addEventListener('change', (event) => {
+        document.execCommand('fontSize', false, event.target.value); 
+        messageInput.focus();
+    });
 }
 if (imageButton) {
-    imageButton.addEventListener('click', () => {
-        if (imageInput) imageInput.click();
-    });
+    imageButton.addEventListener('click', () => {
+        if (imageInput) imageInput.click();
+    });
 }
 if (imageInput) {
-    imageInput.addEventListener('change', uploadImage);
+    imageInput.addEventListener('change', uploadImage);
 }
 if (sendButton) {
-    sendButton.addEventListener('click', () => sendMessage());
+    sendButton.addEventListener('click', () => sendMessage());
 }
 if (gifButton) {
-    gifButton.addEventListener('click', (event) => {
-        event.stopPropagation(); 
-        if (gifSearchContainer) gifSearchContainer.classList.toggle('hidden'); 
-        if (emojiPicker) emojiPicker.classList.add('hidden'); 
-        if (styleDropdown) styleDropdown.classList.add('hidden'); 
-        if (gifSearchContainer && gifSearchContainer.classList.contains('hidden')) {
-            if (gifSearchInput) gifSearchInput.value = '';
-            if (gifResultsContainer) gifResultsContainer.innerHTML = '';
-        }
-    });
+    gifButton.addEventListener('click', (event) => {
+        event.stopPropagation(); 
+        if (gifSearchContainer) gifSearchContainer.classList.toggle('hidden'); 
+        if (emojiPicker) emojiPicker.classList.add('hidden'); 
+        if (styleDropdown) styleDropdown.classList.add('hidden'); 
+        if (gifSearchContainer && gifSearchContainer.classList.contains('hidden')) {
+            if (gifSearchInput) gifSearchInput.value = '';
+            if (gifResultsContainer) gifResultsContainer.innerHTML = '';
+        }
+    });
 }
 if (gifSearchButton) {
-    gifSearchButton.addEventListener('click', () => {
-        const searchTerm = gifSearchInput ? gifSearchInput.value : '';
-        searchGifs(searchTerm);
-    });
+    gifSearchButton.addEventListener('click', () => {
+        const searchTerm = gifSearchInput ? gifSearchInput.value : '';
+        searchGifs(searchTerm);
+    });
 }
 if (gifSearchInput) {
-    gifSearchInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            if (gifSearchButton) gifSearchButton.click();
-        }
-    });
+    gifSearchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            if (gifSearchButton) gifSearchButton.click();
+        }
+    });
 }
 if (messageInput) {
-    messageInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            sendMessage();
-        }
-    });
+    messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
 }
 
-window.addEventListener('load', async () => {
-    if (emojiPicker) populateEmojiPicker();
-    
-    if (isLoggedIn()) {
-        const user = getLoggedInUser();
-        username = user.username;
-        currentUserId = user.id;
-        
-        // Code to enable chat elements when logged in
-        if (chatBox) chatBox.classList.remove('hidden');
-        if (messageInput) messageInput.disabled = false;
-        if (sendButton) sendButton.disabled = false;
-        if (gifButton) gifButton.disabled = false;
-        if (imageButton) imageButton.disabled = false;
-        if (styleToggleBtn) styleToggleBtn.disabled = false;
-        if (emojiButton) emojiButton.disabled = false;
-
-        
-        setupRealtimeListener();
-
-        // 🌟 SERVICE WORKER REGISTRATION (Correctly nested inside isLoggedIn) 🌟
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js') 
-                .then(registration => {
-                    console.log('Service Worker registered!');
-                    // Only subscribe if registration is successful
-                    subscribeUserToPush(); 
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
-                });
-        } else {
-            console.warn('Service Workers are not supported by this browser.');
-        }
-
-    }
-
-    else {
-        if (messageInput) messageInput.disabled = true;
-        if (sendButton) sendButton.disabled = true;
-        if (gifButton) gifButton.disabled = true;
-        if (imageButton) imageButton.disabled = true;
-        if (styleToggleBtn) styleToggleBtn.disabled = true;
-        if (emojiButton) emojiButton.disabled = true; 
-    }
-    
-    fetchMessages(); 
-});
+// 🌟 CRITICAL CHANGE: Call the new initialization function 🌟
+window.addEventListener('load', initializeChat);
 
 
-</script>
+            </script>
 </body>
 
 </html>

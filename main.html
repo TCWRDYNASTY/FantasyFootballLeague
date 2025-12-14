@@ -742,6 +742,32 @@ body {
 .hidden {
   display: none !important;
 }
+
+/* --- View Counter Styling --- */
+.view-counter-box {
+    /* Container Styling */
+    margin-top: 1rem;
+    padding: 0.75rem 0.5rem; /* Increased vertical padding */
+    text-align: center;
+    
+    /* Background and Border */
+    background-color: #2d3748; /* Dark subtle background */
+    border: 1px solid #4a5568; 
+    border-radius: 6px;
+    color: #e2e8f0; /* Light text for readability */
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+/* Styling for the actual number */
+#page-view-count {
+    /* Use your thematic color and make it stand out */
+    color: #facc15; /* Your thematic yellow/gold color */
+    font-size: 1.5rem; /* Larger font size */
+    font-weight: 900; /* Extra bold */
+    display: inline-block; /* Allows spacing adjustments */
+    padding: 0 5px; /* slight padding around the number */
+}
 </style>
 
 </head>
@@ -762,17 +788,11 @@ body {
         <div id="trending-down"></div>
     </div>
 
-    <div style="
-        margin-top: 1rem; 
-        padding: 0.5rem; 
-        text-align: center; 
-        color: #facc15; 
-        font-size: 0.9rem;
-        border-top: 1px solid #4a5568; 
-    ">
-        <span id="page-view-count" style="font-weight: bold;">...</span> 
-        times.
-    </div>
+ <div class="view-counter-box">
+    This page has been viewed 
+    <span id="page-view-count">...</span> 
+    times.
+</div>
     </div>
 
 <div class="header">

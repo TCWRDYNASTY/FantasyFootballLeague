@@ -1248,8 +1248,10 @@ async function deleteMessage(messageIdToDelete) {
     }
 }
 /* ==================================================================== */
-/* === delete and edit script=== */
+/* === delete and edit script (CLEANED) === */
 /* ==================================================================== */
+// NOTE: I removed the duplicate definition here
+
 async function deleteMessage(messageIdToDelete) {
     if (!supabase) return false;
 
@@ -1268,6 +1270,7 @@ async function deleteMessage(messageIdToDelete) {
         }
 
         console.log('Message deleted successfully from Supabase:', messageIdToDelete);
+        // Deletion succeeded. The real-time listener will now handle UI removal.
         return true;
     } catch (error) {
         console.error('An unexpected error occurred while deleting from Supabase:', error);
@@ -1276,11 +1279,12 @@ async function deleteMessage(messageIdToDelete) {
     }
 }
 
+
 async function handleDeleteButtonClick(messageId) {
     const success = await deleteMessage(messageId); 
     if (success) {
-        console.log('Message deleted successfully, real-time listener will update display.');
-        fetchMessages();
+        console.log('Message deleted successfully. Real-time listener will remove it from display.');
+        // REMOVED: fetchMessages() - the realtime listener handles it faster and more efficiently.
     } else {
         console.error('Deletion failed.'); 
     }

@@ -1073,19 +1073,27 @@ async function sendMessage(imageUrl = '') {
     }
 
     const trimmedUsername = username.trim();
-    const { error } = await supabase
+    const { data, error } = await supabase
         .from('messages')
         .insert([{
             sender: trimmedUsername,
             content: formattedMessage,
             image_url: imageUrl,
             user_id: currentUserId
-        }]);
+        }])
+        .select()
+        .single();
 
     if (error) {
         console.error("Error sending message:", error);
     } else {
         messageInput.innerHTML = '';
+        if (data && messageDisplay) {
+            const messageElement = renderMessage(data);
+            messageDisplay.appendChild(messageElement);
+            messageDisplay.scrollTop = messageDisplay.scrollHeight; // Scroll to the bottom
+        }
+
         if(boldBtn) boldBtn.classList.remove('active');
         if(italicBtn) italicBtn.classList.remove('active');
         if(underlineBtn) underlineBtn.classList.remove('active');

@@ -1113,20 +1113,15 @@ async function deleteMessage(messageIdToDelete) {
         const { error } = await supabase
             .from('messages')
             .delete()
-            .eq('id', messageIdToDelete)
-            .eq('user_id', currentUserId); 
-
+            .eq('id', messageIdToDelete);
         if (error) {
             console.error('Error deleting message from Supabase:', error);
-            showToast("❌ Failed to delete the message. Check permissions or ownership.");
             return false;
         }
-
         console.log('Message deleted successfully from Supabase:', messageIdToDelete);
         return true;
     } catch (error) {
         console.error('An unexpected error occurred while deleting from Supabase:', error);
-        showToast("❌ An unexpected error occurred.");
         return false;
     }
 }

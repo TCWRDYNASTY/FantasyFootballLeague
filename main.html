@@ -1106,18 +1106,20 @@ async function sendMessage(imageUrl = '') {
 /* === delete and edit script=== */
 /* ==================================================================== */
 async function deleteMessage(messageIdToDelete) {
-    if (!supabase) return false;
+    if (!supabase || !currentUserId) return false;
 
     console.log('deleteMessage called with ID:', messageIdToDelete);
     try {
-        const { error } = await supabase
-            .from('messages')
-            .delete()
-            .eq('id', messageIdToDelete);
+        const { error } = await supabase.rpc('delete_message_by_owner', {
+            message_id_in: messageIdToDelete,
+            user_id_in: currentUserId
+        });
+
         if (error) {
-            console.error('Error deleting message from Supabase:', error);
+            console.error('Error deleting message from Supabase:', error.message);
             return false;
         }
+
         console.log('Message deleted successfully from Supabase:', messageIdToDelete);
         return true;
     } catch (error) {

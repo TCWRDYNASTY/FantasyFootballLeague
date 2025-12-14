@@ -1382,91 +1382,91 @@ function handleCancelEdit(messageId) {
 }
   
 function renderMessage(message) {
-    const messageContainer = document.createElement('div');
-    messageContainer.classList.add('message-item');
-    if (username === message.sender) {
-        messageContainer.classList.add('my-message');
-    }
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('message-item');
+    if (username === message.sender) {
+        messageContainer.classList.add('my-message');
+    }
 
-    messageContainer.dataset.messageId = message.id;
+    messageContainer.dataset.messageId = message.id;
+    const headerEl = document.createElement('div');
+    headerEl.classList.add('message-header');
+    const controlsContainer = document.createElement('div');
+    controlsContainer.classList.add('message-controls');
 
-    // ===========================================
-    // 1. HEADER CONSTRUCTION (NOW ONLY HOLDS THE EDIT/DELETE BUTTON)
-    // ===========================================
-    const headerEl = document.createElement('div');
-    headerEl.classList.add('message-header');
-    
-    if (username === message.sender) {
-        const optionsBtn = document.createElement('button');
-        optionsBtn.textContent = '...';
-        optionsBtn.classList.add('message-options-btn');
-        optionsBtn.type = 'button';
-        optionsBtn.id = `message-${message.id}`;
-        optionsBtn.title = 'Click to manage (Edit/Delete) this message';
+    if (username === message.sender) {
+        const optionsBtn = document.createElement('button');
+        optionsBtn.textContent = '...';
+        optionsBtn.classList.add('message-options-btn');
+        optionsBtn.type = 'button';
+        optionsBtn.id = `message-${message.id}`;
+        optionsBtn.title = 'Click to manage (Edit/Delete) this message';
 
-        optionsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:');
-            if (action) {
-                const standardizedAction = action.toUpperCase().trim();
-                if (standardizedAction === 'D') {
-                    if (confirm('Are you sure you want to delete this message?')) {
-                        handleDeleteButtonClick(message.id);
-                    }
-                } else if (standardizedAction === 'E') {
-                    handleStartEdit(message.id, message.content);
-                } else {
-                    alert('Invalid option selected. Please enter E or D.');
-                }
-            }
-        });
-        headerEl.appendChild(optionsBtn);
-    }
+        optionsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const action = prompt('Would you like to (E)dit or (D)elete this message? Enter E or D:');
+            if (action) {
+                const standardizedAction = action.toUpperCase().trim();
+                if (standardizedAction === 'D') {
+                    if (confirm('Are you sure you want to delete this message?')) {
+                        handleDeleteButtonClick(message.id);
+                    }
+                } else if (standardizedAction === 'E') {
+                    handleStartEdit(message.id); 
+                } else {
+                    alert('Invalid option selected. Please enter E or D.');
+                }
+            }
+        });
+        controlsContainer.appendChild(optionsBtn);
+    }
+    headerEl.appendChild(controlsContainer); 
 
-    messageContainer.appendChild(headerEl);
+    messageContainer.appendChild(headerEl);
+    const messageContent = document.createElement('div');
+    messageContent.classList.add('message-content');
 
-    // ===========================================
-    // 2. MESSAGE CONTENT (No Change)
-    // ===========================================
-    const messageContent = document.createElement('div');
-    messageContent.classList.add('message-content');
+    if (message.image_url) {
+        const imgEl = document.createElement('img');
+        imgEl.src = message.image_url;
+        imgEl.alt = 'User posted image/GIF';
+        imgEl.classList.add('chat-image');
+        messageContent.appendChild(imgEl);
+    }
 
-    if (message.image_url) {
-        const imgEl = document.createElement('img');
-        imgEl.src = message.image_url;
-        imgEl.alt = 'User posted image/GIF';
-        imgEl.classList.add('chat-image');
-        messageContent.appendChild(imgEl);
-    }
+    if (message.content) {
+        const contentEl = document.createElement('div');
+        contentEl.classList.add('message-content-text'); 
+        
+        contentEl.innerHTML = message.content;
+        messageContent.appendChild(contentEl);
+    }
 
-    if (message.content) {
-        const contentEl = document.createElement('div');
-        contentEl.innerHTML = message.content;
-        contentEl.classList.add('message-text');
-        messageContent.appendChild(contentEl);
-    }
-    messageContainer.appendChild(messageContent);
-
-    // ===========================================
-    // 3. FOOTER CONSTRUCTION (NOW CONTAINS SENDER NAME + TIMESTAMP)
-    // ===========================================
-    const footerEl = document.createElement('div');
-    footerEl.classList.add('message-footer');
-    const senderEl = document.createElement('span');
-    senderEl.textContent = message.sender;
-    senderEl.classList.add('sender-name');
-    footerEl.appendChild(senderEl);
-    const timestampEl = document.createElement('small');
-    const createdAt = new Date(message.created_at);
-    const formattedDate = createdAt.toLocaleDateString();
-    const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    timestampEl.textContent = ` ${formattedDate} ${formattedTime}`; 
-    timestampEl.classList.add('timestamp');
-    footerEl.appendChild(timestampEl);
-    messageContainer.appendChild(footerEl);
-    return messageContainer;
+    if (message.edit) {
+        const editedSpan = document.createElement('span');
+        editedSpan.textContent = '(Edited)';
+        editedSpan.classList.add('edited-label');
+        messageContent.appendChild(editedSpan);
+    }
+    
+    messageContainer.appendChild(messageContent);
+    const footerEl = document.createElement('div');
+    footerEl.classList.add('message-footer');
+    const senderEl = document.createElement('span');
+    senderEl.textContent = message.sender;
+    senderEl.classList.add('sender-name');
+    footerEl.appendChild(senderEl);
+    const timestampEl = document.createElement('small');
+    const createdAt = new Date(message.created_at);
+    const formattedDate = createdAt.toLocaleDateString();
+    const formattedTime = createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    timestampEl.textContent = ` ${formattedDate} ${formattedTime}`; 
+    timestampEl.classList.add('timestamp');
+    footerEl.appendChild(timestampEl);
+    messageContainer.appendChild(footerEl);
+    
+    return messageContainer;
 }
-
 /* ==================================================================== */
 /* === display script=== */
 /* ==================================================================== */

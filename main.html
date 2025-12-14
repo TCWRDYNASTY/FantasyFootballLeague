@@ -1030,35 +1030,35 @@ function setupRealtimeListener() {
                 
                 // --- INSERT LOGIC (Adding a new message) ---
                 if (payload.eventType === 'INSERT') {
-                    // Check if the message was sent by the current user.
-                    // If it was, we assume fetchMessages() was already called and avoid duplicate append.
-                    // If it was NOT, we append it directly.
-                    if (payload.new.user_id !== currentUserId) {
-                        const newMessage = payload.new;
-                        console.log('DEBUG: Rendering new message object:', newMessage);
-                        
-                        if (!messageDisplay) {
-                            console.error("DEBUG CRITICAL: messageDisplay element is NULL!");
-                            return;
-                        }
-                        try {
-                            const messageElement = renderMessage(newMessage);
-                            if (messageElement instanceof HTMLElement) {
-                                messageDisplay.appendChild(messageElement);
-                                console.log('DEBUG: Successfully appended new message to display.');
-                                
-                                if (messageDisplay) {
-                                    messageDisplay.scrollTop = messageDisplay.scrollHeight;
-                                }
-                            } else {
-                                console.error("DEBUG CRITICAL: renderMessage did NOT return a valid HTML element!");
-                            }
-                        } catch (e) {
-                            console.error("DEBUG CRITICAL: Error rendering message:", e);
-                        }
-                    } else {
-                        console.log('DEBUG: Realtime event ignored as message was sent by self (handled by fetchMessages).');
-                    }
+                    // Check if the message was sent by the current user.
+                    // If it was, we assume fetchMessages() was already called and avoid duplicate append.
+                    // If it was NOT, we append it directly.
+                    if (payload.new.user_id !== currentUserId) {
+                        const newMessage = payload.new;
+                        console.log('DEBUG: Rendering new message object:', newMessage);
+                        
+                        if (!messageDisplay) {
+                            console.error("DEBUG CRITICAL: messageDisplay element is NULL!");
+                            return;
+                        }
+                        try {
+                            const messageElement = renderMessage(newMessage);
+                            if (messageElement instanceof HTMLElement) {
+                                messageDisplay.appendChild(messageElement);
+                                console.log('DEBUG: Successfully appended new message to display.');
+                                
+                                if (messageDisplay) {
+                                    messageDisplay.scrollTop = messageDisplay.scrollHeight;
+                                }
+                            } else {
+                                console.error("DEBUG CRITICAL: renderMessage did NOT return a valid HTML element!");
+                            }
+                        } catch (e) {
+                            console.error("DEBUG CRITICAL: Error rendering message:", e);
+                        }
+                    } else {
+                        console.log('DEBUG: Realtime event ignored as message was sent by self (handled by fetchMessages).');
+                    }
                 }
                 
                 else if (payload.eventType === 'UPDATE') {
@@ -1079,7 +1079,8 @@ function setupRealtimeListener() {
                         fetchMessages(); 
                     }
                 }
-                
+
+                    // --- DELETE LOGIC (CRITICAL FIX: REMOVED DUPLICATE AND ENSURED FALLBACK) ---
                 else if (payload.eventType === 'DELETE') {
                     const deletedMessageId = payload.old.id;
                     // Find the element using the data-message-id attribute
@@ -1087,9 +1088,10 @@ function setupRealtimeListener() {
                     
                     if (messageElement) {
                         messageElement.remove();
-                        console.log(`DEBUG: Successfully deleted message ID: ${deletedMessageId}`);
+                        console.log(`DEBUG: Successfully removed message ID: ${deletedMessageId} from DOM.`);
                     } else {
-                        console.warn(`DEBUG: Could not find element for deleted message ID: ${deletedMessageId}. No action taken.`);
+                        console.warn(`DEBUG: Could not find element for deleted message ID: ${deletedMessageId}. Forcing full refresh.`);
+                        fetchMessages();  // FALLBACK: If DOM removal fails, force a full data refresh
                     }
                 }
             }
@@ -1224,37 +1226,7 @@ async function sendMessage(imageUrl = '') {
 /* ==================================================================== */
 async function deleteMessage(messageIdToDelete) {
     if (!supabase) return false;
-
-    console.log('deleteMessage called with ID:', messageIdToDelete);
-    try {
-        const { error } = await supabase
-            .from('messages')
-            .delete()
-            .eq('id', messageIdToDelete)
-            .eq('user_id', currentUserId);
-
-        if (error) {
-            console.error('Error deleting message from Supabase:', error);
-            alert("❌ Failed to delete the message. Check permissions or ownership.");
-            return false;
-        }
-
-        console.log('Message deleted successfully from Supabase:', messageIdToDelete);
-        return true;
-    } catch (error) {
-        console.error('An unexpected error occurred while deleting from Supabase:', error);
-        alert("❌ An unexpected error occurred during deletion.");
-        return false;
-    }
-}
-/* ==================================================================== */
-/* === delete and edit script (CLEANED) === */
-/* ==================================================================== */
-// NOTE: I removed the duplicate definition here
-
-async function deleteMessage(messageIdToDelete) {
-    if (!supabase) return false;
-
+    console.log(`DEBUG: Deleting msg ID: ${messageIdToDelete} for User ID: ${currentUserId}`);
     console.log('deleteMessage called with ID:', messageIdToDelete);
     try {
         const { error } = await supabase
@@ -1631,6 +1603,7 @@ window.addEventListener('load', async () => {
         if (imageButton) imageButton.disabled = false;
         if (styleToggleBtn) styleToggleBtn.disabled = false;
         if (emojiButton) emojiButton.disabled = false;
+
         
         setupRealtimeListener();
 

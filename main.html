@@ -1127,17 +1127,15 @@ async function deleteMessage(messageIdToDelete) {
     }
 }
 
-async function handleDeleteButtonClick(messageId) {
+    async function handleDeleteButtonClick(messageId) {
     const success = await deleteMessage(messageId); 
     if (success) {
         console.log('Message deleted successfully, refreshing chat.');
-        showToast("✅ Message deleted successfully!");
         fetchMessages(); 
     } else {
         console.error('Deletion failed.'); 
     }
 }
-
 function handleStartEdit(messageId, initialContent) {
     // 1. Find the specific message item in the chat display
     const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);

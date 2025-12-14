@@ -456,6 +456,25 @@ body {
     z-index: 9998;
   }
 
+.view-counter-box {
+    margin-top: 1rem;
+    padding: 0.75rem 0.5rem; 
+    text-align: center;
+    background-color: #2d3748; 
+    border: 1px solid #4a5568; 
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+#page-view-count {
+    color: #facc15; 
+    font-size: 1.5rem; 
+    font-weight: 900; 
+    display: inline-block; 
+    padding: 0 5px;
+}
 /* ==================================================================== */
 /* === 3. MESSAGE DISPLAY AREA STYLES === */
 /* ==================================================================== */
@@ -743,37 +762,10 @@ body {
   display: none !important;
 }
 
-/* --- View Counter Styling --- */
-.view-counter-box {
-    /* Container Styling */
-    margin-top: 1rem;
-    padding: 0.75rem 0.5rem; /* Increased vertical padding */
-    text-align: center;
-    
-    /* Background and Border */
-    background-color: #2d3748; /* Dark subtle background */
-    border: 1px solid #4a5568; 
-    border-radius: 6px;
-    color: #e2e8f0; /* Light text for readability */
-    font-size: 0.95rem;
-    line-height: 1.2;
-}
-
-/* Styling for the actual number */
-#page-view-count {
-    /* Use your thematic color and make it stand out */
-    color: #facc15; /* Your thematic yellow/gold color */
-    font-size: 1.5rem; /* Larger font size */
-    font-weight: 900; /* Extra bold */
-    display: inline-block; /* Allows spacing adjustments */
-    padding: 0 5px; /* slight padding around the number */
-}
 </style>
-
 </head>
 
 <body class="body">
-
 <div class="sidebar-left">
     <h2 class="recent-transactions-title">Recent Transactions</h2>
     <div class="recent-transactions-container">
@@ -1562,6 +1554,39 @@ window.addEventListener('load', async () => {
  
 });
 
+/* ==================================================================== */
+/* === ESPN
+/* ==================================================================== */
+const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
+    const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+    fetch(proxyUrl)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        const list = document.getElementById('nfl-news');
+        if (list) {
+          list.innerHTML = '';
+          data.items.slice(0, 5).forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a><small>${new Date(item.pubDate).toLocaleDateString()}</small>`;
+            list.appendChild(li);
+          });
+        } else {
+          console.error('Element with ID "nfl-news" not found.');
+        }
+      })
+      .catch(error => {
+        console.error('There was a problem fetching or processing the RSS feed:', error);
+        const list = document.getElementById('nfl-news');
+        if (list) {
+          list.innerHTML = '<li>Failed to load news feed.</li>';
+        }
+      });
 </script>
 </body>
 </html>

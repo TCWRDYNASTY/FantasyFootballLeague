@@ -1195,8 +1195,6 @@ function handleStartEdit(messageId, initialContent) {
         editControls.appendChild(cancelBtn);
     }
 }
-
-    // You previously showed this, but make sure it's placed BEFORE renderMessage:
 async function handleSaveEdit(messageId, newContent) {
     const trimmedContent = newContent.trim();
     if (!trimmedContent) {
@@ -1205,20 +1203,19 @@ async function handleSaveEdit(messageId, newContent) {
     }
     const { error } = await supabase.rpc('update_message', {
         message_id_in: messageId,
-        new_content_in: trimmedContent
+        new_content_in: trimmedContent,
+        user_id_in: currentUserId
     });
+    
     if (error) {
         console.error('Error updating message:', error.message);
-        alert('Failed to save edit: ' + error.message);
+        alert('Failed to save edit: ' + error.message); 
     } else {
         console.log('Message updated successfully.');
-        // This is crucial: revert the editing UI after a successful save
         handleCancelEdit(messageId); 
-        fetchMessages(); // Refresh chat to show the update if Realtime isn't used for UPDATEs
+        fetchMessages(); 
     }
 }
-    
-// NOTE: You MUST also add the handleCancelEdit function to your script!
 function handleCancelEdit(messageId) {
     const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
     if (!messageItem) return;

@@ -749,19 +749,32 @@ body {
 <body class="body">
 
 <div class="sidebar-left">
-    <h2 class="recent-transactions-title">Recent Transactions</h2>
-    <div class="recent-transactions-container">
-        <div class="transaction-list">
-            <ul id="transaction-list" class="transaction-list"></ul>
-        </div>
-    </div>
+    <h2 class="recent-transactions-title">Recent Transactions</h2>
+    <div class="recent-transactions-container">
+        <div class="transaction-list">
+            <ul id="transaction-list" class="transaction-list"></ul>
+        </div>
+    </div>
 
-    <h2 class="trending-title">Trending Players</h2>
-    <div id="trending-container" class="trending-container">
-        <div id="trending-up"></div>
-        <div id="trending-down"></div>
+    <h2 class="trending-title">Trending Players</h2>
+    <div id="trending-container" class="trending-container">
+        <div id="trending-up"></div>
+        <div id="trending-down"></div>
+    </div>
+
+    <div style="
+        margin-top: 1rem; 
+        padding: 0.5rem; 
+        text-align: center; 
+        color: #facc15; 
+        font-size: 0.9rem;
+        border-top: 1px solid #4a5568; 
+    ">
+        This page has been viewed 
+        <span id="page-view-count" style="font-weight: bold;">...</span> 
+        times.
     </div>
-</div>
+    
 
 <div class="header">
     <div class="logo-container">
@@ -878,24 +891,91 @@ body {
     </div>
   </div>
 </div>
-<div id="toast-notification"></div>
+
 
 <script>
 function logout() {
-    localStorage.removeItem('loggedInUser');
-    showToast("Signed Off Successfully!");
-    setTimeout(() => {
-        window.location.href = "index.html"; 
-    }, 1000); 
-}      
+    localStorage.removeItem('loggedInUser');
+    setTimeout(() => {
+        window.location.href = "index.html"; 
+    }, 1000); 
+}      
 const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
 
-const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null; 
+let supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null; 
+
 if (!supabase) {
-    console.error("Supabase client not initialized. Ensure the Supabase library is loaded.");
+    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 }
 
+    const VIEW_COUNT_ELEMENT_ID = 'page-view-count';
+    const PAGE_SLUG = window.location.pathname;
+
+    async function trackAndDisplayViewCount() {
+        if (typeof supabase === 'undefined') {
+            console.error('Supabase client is not initialized!');
+            return;
+        }
+
+        const viewCountElement = document.getElementById(VIEW_COUNT_ELEMENT_ID);
+
+        if (!viewCountElement) {
+            console.warn(`View count element not found with ID: ${VIEW_COUNT_ELEMENT_ID}`);
+            return;
+        }
+
+        try {
+            const { error: rpcError } = await supabase.rpc('increment_view', {
+                page_slug: PAGE_SLUG
+            });
+
+            if (rpcError) {
+                console.error('RPC Error during view increment:', rpcError.message);
+            }
+            const { data, error: fetchError } = await supabase
+                .from('page_views')
+                .select('count')
+                .eq('slug', PAGE_SLUG)
+                .single();
+
+            if (fetchError) throw fetchError;
+            viewCountElement.textContent = data.count.toLocaleString();
+
+        } catch (error) {
+            console.error('General Error in view tracking:', error.message);
+            viewCountElement.textContent = 'N/A';
+        }
+    }
+    
+    trackAndDisplayViewCount();
+    setupViewCounterRealtimeListener();
+
+function setupViewCounterRealtimeListener() {
+    if (!supabase) return;
+
+    const viewCountElement = document.getElementById('page-view-count');
+    if (!viewCountElement) return;
+
+    const channel = supabase.channel('page_views_realtime');
+
+    channel.on(
+        'postgres_changes',
+        { 
+            event: 'UPDATE', 
+            schema: 'public', 
+            table: 'page_views',
+            filter: `slug=eq.${PAGE_SLUG}` 
+        },
+        (payload) => {
+            console.log('Realtime View Count Update:', payload);
+            if (payload.new && payload.new.count !== undefined) {
+                viewCountElement.textContent = payload.new.count.toLocaleString();
+            }
+        }
+    )
+    .subscribe();
+}
 
 const messageInput = document.getElementById('message-input');
 const sendButton = document.getElementById('send-btn');
@@ -907,11 +987,11 @@ const gifSearchContainer = document.getElementById('gif-search-container');
 const gifSearchInput = document.getElementById('gif-search-input');
 const gifSearchButton = document.getElementById('gif-search-button');
 const gifResultsContainer = document.getElementById('gif-results');
-const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb'; 
+const GIPHY_API_KEY = 'kFPA6nurJ8kmV2VtcF6FR2mUrxZYuiRb'; 
 const emojiButton = document.getElementById('emoji-btn');
 const emojiPicker = document.getElementById('emoji-picker');
 const emojis = ['😀', '😂', '😍', '👍', '🤔', '🎉', '❤️', '☕', '🍕', '🚀', '🌟', '😎', '😴', '😭', '😡', '🙏', '👏', '👋', '🐶', '🐱'];
-const messageDisplay = document.getElementById('message-display'); 
+const messageDisplay = document.getElementById('message-display'); 
 let username = null;
 let currentUserId = null;
 
@@ -919,90 +999,89 @@ const boldBtn = document.getElementById('bold-btn');
 const italicBtn = document.getElementById('italic-btn');
 const underlineBtn = document.getElementById('underline-btn');
 const sizeSelect = document.getElementById('size-select');
-const styleToggleBtn = document.getElementById('style-toggle-btn'); // 🎯 NEW: Style toggle button
-const styleDropdown = document.getElementById('style-dropdown');   // 🎯 NEW: Dropdown container
-
+const styleToggleBtn = document.getElementById('style-toggle-btn'); 
+const styleDropdown = document.getElementById('style-dropdown');   
 function populateEmojiPicker() {
-    if (!emojiPicker) return;
-    emojiPicker.innerHTML = ''; // Clear existing emojis
-    emojis.forEach(emoji => {
-        const emojiBtn = document.createElement('button');
-        emojiBtn.type = 'button';
-        emojiBtn.textContent = emoji;
-        emojiBtn.addEventListener('click', () => {
-            // Use innerHTML and execCommand for emoji insertion
-            if (messageInput) {
-                // This ensures the emoji is inserted at the cursor position
-                document.execCommand('insertText', false, emoji);
-                messageInput.focus();
-            }
-            emojiPicker.classList.add('hidden'); // Hide picker after selection
-        });
-        emojiPicker.appendChild(emojiBtn);
-    });
+    if (!emojiPicker) return;
+    emojiPicker.innerHTML = ''; // Clear existing emojis
+    emojis.forEach(emoji => {
+        const emojiBtn = document.createElement('button');
+        emojiBtn.type = 'button';
+        emojiBtn.textContent = emoji;
+        emojiBtn.addEventListener('click', () => {
+            // Use innerHTML and execCommand for emoji insertion
+            if (messageInput) {
+                // This ensures the emoji is inserted at the cursor position
+                document.execCommand('insertText', false, emoji);
+                messageInput.focus();
+            }
+            emojiPicker.classList.add('hidden'); // Hide picker after selection
+        });
+        emojiPicker.appendChild(emojiBtn);
+    });
 }
 if (emojiButton) {
-    emojiButton.addEventListener('click', () => {
-        if (emojiPicker) emojiPicker.classList.toggle('hidden');
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); // Close others
-        if (styleDropdown) styleDropdown.classList.add('hidden'); // Close others
-    });
+    emojiButton.addEventListener('click', () => {
+        if (emojiPicker) emojiPicker.classList.toggle('hidden');
+        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); // Close others
+        if (styleDropdown) styleDropdown.classList.add('hidden'); // Close others
+    });
 }
 
 document.addEventListener('click', (event) => {
-    if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
-        emojiPicker.classList.add('hidden');
-    }
-    if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
-           gifSearchContainer.classList.add('hidden');
-    }
-    if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
-        styleDropdown.classList.add('hidden');
-    }
+    if (emojiPicker && emojiButton && !emojiPicker.contains(event.target) && event.target !== emojiButton) {
+        emojiPicker.classList.add('hidden');
+    }
+    if (gifSearchContainer && gifButton && !gifSearchContainer.contains(event.target) && event.target !== gifButton && event.target !== gifSearchButton) {
+           gifSearchContainer.classList.add('hidden');
+    }
+    if (styleDropdown && styleToggleBtn && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
+        styleDropdown.classList.add('hidden');
+    }
 });
 
 function isLoggedIn() {
-    return localStorage.getItem('loggedInUser') !== null;
+    return localStorage.getItem('loggedInUser') !== null;
 }
 
 function getLoggedInUser() {
-    const userString = localStorage.getItem('loggedInUser');
-    return userString ? JSON.parse(userString) : null;
+    const userString = localStorage.getItem('loggedInUser');
+    return userString ? JSON.parse(userString) : null;
 }
 
 
 function setupRealtimeListener() {
-    if (!supabase) return; // Guard clause
-    supabase
-        .channel('messages_changes')
-        .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'messages' }, 
-            (payload) => {
+    if (!supabase) return; // Guard clause
+    supabase
+        .channel('messages_changes')
+        .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'messages' }, 
+            (payload) => {
 
-                if (payload.eventType === 'INSERT') {
-                    const newMessage = payload.new;
-                    const messageElement = renderMessage(newMessage); 
-                    messageDisplay.appendChild(messageElement);
-                    if (messageDisplay) {
-                        messageDisplay.scrollTop = messageDisplay.scrollHeight;
-                    }
-                    if (currentUserId && currentUserId !== newMessage.user_id) {
-                        showToast(`🔔 New Post from ${newMessage.sender}!`);
-                    }
-                } 
-                
-                else if (payload.eventType === 'DELETE') {
-                    const deletedMessageId = payload.old.id;
-                    const messageElement = document.getElementById(`message-${deletedMessageId}`);
-                    if (messageElement) {
-                        messageElement.remove();
-                    }
-                }
-            }
-        )
-        .subscribe();
+                if (payload.eventType === 'INSERT') {
+                    const newMessage = payload.new;
+                    const messageElement = renderMessage(newMessage); 
+                    messageDisplay.appendChild(messageElement);
+                    if (messageDisplay) {
+                        messageDisplay.scrollTop = messageDisplay.scrollHeight;
+                    }
+                    if (currentUserId && currentUserId !== newMessage.user_id) {
+                    }
+                } 
+                
+                else if (payload.eventType === 'DELETE') {
+                    const deletedMessageId = payload.old.id;
+                    const messageElement = document.getElementById(`message-${deletedMessageId}`);
+                    if (messageElement) {
+                        messageElement.remove();
+                    }
+                }
+            }
+        )
+        .subscribe();
 }
+
 
 async function uploadImage() {
     if (!imageInput || !imageInput.files[0]) {
@@ -1471,9 +1550,6 @@ window.addEventListener('load', async () => {
  
 });
 
-
 </script>
-
 </body>
-
 </html>

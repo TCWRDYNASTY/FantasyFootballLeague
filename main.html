@@ -1142,48 +1142,29 @@ async function deleteMessage(messageIdToDelete) {
     }
 }
 function handleStartEdit(messageId, initialContent) {
-    // 1. Find the specific message item in the chat display
     const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
     if (!messageItem) return;
-
-    // 2. Find the content wrapper (the div holding the text)
-    // NOTE: If you have an image, you might need to adjust this selector!
     const contentWrapper = messageItem.querySelector('.message-content .message-text');
     if (!contentWrapper) return;
-
-    // 3. Store the original content for cancellation/reset purposes
     contentWrapper.dataset.originalContent = contentWrapper.innerHTML;
-
-    // 4. Make the content editable and focus
     contentWrapper.contentEditable = 'true';
     contentWrapper.focus();
-
-    // 5. Add visual cues
     contentWrapper.classList.add('editing-active');
-
-    // 6. Replace the '...' options button with Save and Cancel buttons (COMPLETED LOGIC)
-    
-    // Find the current options button (the one that calls this function)
-    const optionsBtn = messageItem.querySelector('.message-options-btn');
+    const optionsBtn = messageItem.querySelector('.delete-message-btn');
     if (optionsBtn) {
-        optionsBtn.style.display = 'none'; // Temporarily hide the '...' button
-
-        // Create a container for the new buttons
+        optionsBtn.style.display = 'none';
         let editControls = messageItem.querySelector('.edit-controls');
         if (!editControls) {
             editControls = document.createElement('div');
             editControls.classList.add('edit-controls');
-            // Append controls near the message text or header (adjust placement as needed)
             messageItem.querySelector('.message-content').appendChild(editControls);
         }
-        editControls.innerHTML = ''; // Clear previous controls if any
-        
-        // --- Save Button ---
+        editControls.innerHTML = ''; 
+
         const saveBtn = document.createElement('button');
         saveBtn.textContent = '💾 Save';
         saveBtn.classList.add('save-edit-btn');
         saveBtn.onclick = () => {
-            // Call your existing handleSaveEdit function
             const newContent = contentWrapper.innerHTML;
             handleSaveEdit(messageId, newContent);
         };
@@ -1194,12 +1175,12 @@ function handleStartEdit(messageId, initialContent) {
         cancelBtn.textContent = '❌ Cancel';
         cancelBtn.classList.add('cancel-edit-btn');
         cancelBtn.onclick = () => {
-            // Restore original content and revert
             handleCancelEdit(messageId);
         };
         editControls.appendChild(cancelBtn);
     }
 }
+    
 async function handleSaveEdit(messageId, newContent) {
     const trimmedContent = newContent.trim();
     if (!trimmedContent) {
@@ -1221,22 +1202,19 @@ async function handleSaveEdit(messageId, newContent) {
         fetchMessages(); 
     }
 }
+    
 function handleCancelEdit(messageId) {
     const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
     if (!messageItem) return;
 
     const contentWrapper = messageItem.querySelector('.message-content .message-text');
-    const optionsBtn = messageItem.querySelector('.message-options-btn');
+   const optionsBtn = messageItem.querySelector('.delete-message-btn');
     const editControls = messageItem.querySelector('.edit-controls');
-
-    // 1. Revert content and remove editing state
     if (contentWrapper) {
         contentWrapper.innerHTML = contentWrapper.dataset.originalContent || contentWrapper.innerHTML;
         contentWrapper.contentEditable = 'false';
         contentWrapper.classList.remove('editing-active');
     }
-
-    // 2. Show original options button and remove edit controls
     if (optionsBtn) optionsBtn.style.display = 'block';
     if (editControls) editControls.remove();
 }

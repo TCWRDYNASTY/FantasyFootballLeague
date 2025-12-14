@@ -1058,19 +1058,17 @@ async function searchGifs(query) {
         gifResultsContainer.innerHTML = '<p style="color:red; text-align: center;">Failed to fetch GIFs.</p>';
     }
 }
+
 async function sendMessage(imageUrl = '') {
     if (!messageInput || !sendButton || !supabase) return;
     const formattedMessage = messageInput.innerHTML.trim();
-
     if (!isLoggedIn() || !username) {
-        showToast("Please sign in to chat.");
         messageInput.disabled = true;
         sendButton.disabled = true;
         return;
     }
 
     if (formattedMessage === '' && imageUrl === '') { 
-        showToast("Message cannot be empty.");
         return;
     }
 
@@ -1086,15 +1084,13 @@ async function sendMessage(imageUrl = '') {
 
     if (error) {
         console.error("Error sending message:", error);
-        showToast("❌ Failed to send message. Check RLS policy.");
     } else {
         messageInput.innerHTML = '';
-        showToast("Message successfully posted!");
         if(boldBtn) boldBtn.classList.remove('active');
         if(italicBtn) italicBtn.classList.remove('active');
         if(underlineBtn) underlineBtn.classList.remove('active');
         if(sizeSelect) sizeSelect.value = '4'; 
-        if(styleDropdown) styleDropdown.classList.add('hidden'); // 🎯 Hide the dropdown after sending
+        if(styleDropdown) styleDropdown.classList.add('hidden');
     }
 }
 

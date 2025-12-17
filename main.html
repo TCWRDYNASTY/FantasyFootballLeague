@@ -89,102 +89,6 @@ body {
   font-size: clamp(0.9rem, 3vw, 1.2rem);
 }
 
-/* --- Dropdown Menu (Stable + Responsive) --- */
-.dropdown {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 1000;
-  padding: 0.5rem;
-  box-sizing: border-box;
-}
-
-.dropbtn {
-  background-color: #facc15;
-  color: #1e3159;
-  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.75rem, 3vw, 1rem);
-  font-size: clamp(0.9rem, 2vw, 1rem);
-  border: none;
-  cursor: pointer;
-  border-radius: 6px;
-  font-weight: bold;
-  white-space: nowrap;
-  transition: background-color 0.3s ease;
-}
-
-.dropbtn:hover {
-  background-color: #e4b500;
-}
-
-/* Dropdown Content */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  background-color: #2e4a80;
-  min-width: 12rem;
-  width: max-content;
-  max-width: 90vw;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-  z-index: 1001;
-  border-radius: 8px;
-  padding: 0.5rem;
-  border: 2px solid black;
-  overflow-wrap: break-word;
-}
-
-.dropdown:hover .dropdown-content,
-.dropdown:focus-within .dropdown-content {
-  display: block;
-}
-
-.dropdown-content a {
-  color: white;
-  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.75rem, 3vw, 1rem);
-  text-decoration: none;
-  display: block;
-  text-align: center;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  font-size: clamp(0.85rem, 2vw, 1rem);
-  background-color: #2e4a80;
-  border-left: 2px solid black;
-  border-bottom: 2px solid black;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-  margin-bottom: 0.4rem;
-  word-break: break-word;
-}
-
-.dropdown-content a:last-child {
-  margin-bottom: 0;
-}
-
-.dropdown-content a:hover {
-  background-color: #3e5a99;
-}
-
-/* --- Mobile Adjustments --- */
-@media (max-width: 600px) {
-  .dropdown {
-    top: 0.5rem;
-    right: 0.5rem;
-  }
-
-  .dropdown-content {
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    width: 90vw;
-  }
-
-  .dropbtn {
-    width: auto; /* prevents stretching too wide */
-    font-size: 0.9rem;
-  }
-}
-
 /* ==================================================================== */
 /* === main content === */
 /* ==================================================================== */
@@ -425,37 +329,74 @@ body {
   .trending-count-up { color: #48bb78; }
   .trending-count-down { color: #f56565; }
 
-
  /* ==================================================================== */
 /* === Side bar === */
 /* ==================================================================== */
 
-  .sidebar-left {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    width: 80%;
-    max-width: 350px;
-    height: 100%;
-    background-color: #2d3748;
-    transition: left 0.3s ease;
-    z-index: 9999;
-    overflow-y: auto;
-    padding-top: 20px;
-  }
-  .sidebar-left:hover {
-    left: 0;
-  }
-  .sidebar-left::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 20px;
-    z-index: 9998;
-  }
+.sidebar-left {
+  position: fixed;
+  top: 0;
+  left: -100%; 
+  width: 80%;
+  max-width: 350px;
+  height: 100%;
+  background-color: #2d3748;
+  transition: left 0.3s ease;
+  z-index: 9999;
+  overflow-y: auto;
+  padding-top: 20px;
+}
 
+.sidebar-left.active {
+  left: 0;
+}
+
+.menu-toggle {
+  display: block;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 10000;
+  background: #2d3748;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+@media (min-width: 768px) {
+  .menu-toggle { display: none; }
+  .sidebar-left:hover { left: 0; }
+}
+
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.sidebar-nav a {
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #e2e8f0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #4a5568;
+    transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-nav a:hover {
+    background-color: #4a5568;
+    color: #facc15; 
+}
+
+.sidebar-nav a.sign-off {
+    color: #fc8181;
+    border-bottom: none;
+}
+    
 .view-counter-box {
     margin-top: 1rem;
     padding: 0.75rem 0.5rem; 
@@ -767,26 +708,30 @@ body {
 </head>
 
 <body class="body">
-<div class="sidebar-left">
-    <h2 class="recent-transactions-title">Recent Transactions</h2>
-    <div class="recent-transactions-container">
-        <div class="transaction-list">
-            <ul id="transaction-list" class="transaction-list"></ul>
-        </div>
-    </div>
 
-    <h2 class="trending-title">Trending Players</h2>
-    <div id="trending-container" class="trending-container">
-        <div id="trending-up"></div>
-        <div id="trending-down"></div>
-    </div>
+    <button class="menu-toggle" id="mobileMenuBtn">☰ Menu</button>
+    
+    <div class="sidebar-left">
+        <nav class="sidebar-nav">
+            <a href="https://tcwrdynasty.github.io/members/">League Members</a>
+            <a href="3Hall of Champions.html">Hall of Champions</a>
+            <a href="4Flushables.html">Flushables</a>
+            <a href="7Records.html">Records & Rankings</a>
+            <a href="rookiedraftcountdown.html">Draft Lottery</a>
+            <a href="https://tcwrdynasty.github.io/games/">Games!</a>
+            <a href="8Bylaws.html">Constitution</a>
+            <a href="contactcommish.html">Contact Commish</a>
+            <a href="https://sleeper.com/login">Sleeper</a>
+            <a href="index.html" onclick="logout();" class="sign-off">Sign Off</a>
+        </nav>
 
- <div class="view-counter-box">
-    This page has been viewed 
-    <span id="page-view-count">...</span> 
-    times.
-</div>
+        <div class="view-counter-box">
+            This page has been viewed 
+            <span id="page-view-count">...</span> 
+            times.
+        </div>
     </div>
+
 
 <div class="header">
     <div class="logo-container">
@@ -798,23 +743,6 @@ body {
         <p class="since">Since 2023</p>
     </div>
 </div>
-
-<div class="dropdown">
-    <button class="dropbtn">Menu</button>
-    <div class="dropdown-content">
-        <a href="https://tcwrdynasty.github.io/members/">League Members</a>
-        <a href="3Hall of Champions.html">Hall of Champions</a>
-        <a href="4Flushables.html">Flushables</a>
-        <a href="7Records.html">Records & Rankings</a>
-        <a href="rookiedraftcountdown.html">Draft Lottery</a>
-        <a href="https://tcwrdynasty.github.io/games/">Games!</a>
-        <a href="8Bylaws.html">Constitution</a>
-        <a href="contactcommish.html">Contact Commish</a>
-        <a href="https://sleeper.com/login">Sleeper</a>
-        <a href="index.html" onclick="logout();">Sign Off</a>
-    </div>
-</div>
-
 
 <div class="main-content-wrapper">
 
@@ -1007,19 +935,17 @@ const styleToggleBtn = document.getElementById('style-toggle-btn');
 const styleDropdown = document.getElementById('style-dropdown');   
 function populateEmojiPicker() {
     if (!emojiPicker) return;
-    emojiPicker.innerHTML = ''; // Clear existing emojis
+    emojiPicker.innerHTML = ''; 
     emojis.forEach(emoji => {
         const emojiBtn = document.createElement('button');
         emojiBtn.type = 'button';
         emojiBtn.textContent = emoji;
         emojiBtn.addEventListener('click', () => {
-            // Use innerHTML and execCommand for emoji insertion
             if (messageInput) {
-                // This ensures the emoji is inserted at the cursor position
                 document.execCommand('insertText', false, emoji);
                 messageInput.focus();
             }
-            emojiPicker.classList.add('hidden'); // Hide picker after selection
+            emojiPicker.classList.add('hidden'); 
         });
         emojiPicker.appendChild(emojiBtn);
     });
@@ -1027,8 +953,8 @@ function populateEmojiPicker() {
 if (emojiButton) {
     emojiButton.addEventListener('click', () => {
         if (emojiPicker) emojiPicker.classList.toggle('hidden');
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); // Close others
-        if (styleDropdown) styleDropdown.classList.add('hidden'); // Close others
+        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
+        if (styleDropdown) styleDropdown.classList.add('hidden'); 
     });
 }
 
@@ -1117,7 +1043,7 @@ async function uploadImage() {
         const imageUrl = data.secure_url;
         console.log("Image uploaded to Cloudinary:", imageUrl);
         sendMessage(imageUrl);
-        imageInput.value = ''; // Clear the file input after successful upload
+        imageInput.value = ''; 
     } catch (error) {
         console.error("Image upload error:", error);
         showToast("❌ An error occurred during upload.");

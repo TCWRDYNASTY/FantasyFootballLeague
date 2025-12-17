@@ -329,7 +329,7 @@ body {
   .trending-count-up { color: #48bb78; }
   .trending-count-down { color: #f56565; }
 
- /* ==================================================================== */
+/* ==================================================================== */
 /* === Side bar === */
 /* ==================================================================== */
 
@@ -348,7 +348,7 @@ body {
 }
 
 .sidebar-left.active {
-  left: 0;
+  left: 0 !important;
 }
 
 .menu-toggle {
@@ -356,21 +356,15 @@ body {
   position: fixed;
   top: 15px;
   left: 15px;
-  z-index: 10000;
+  z-index: 10001;
   background: #2d3748;
-  color: white;
-  border: none;
-  padding: 10px;
+  color: #facc15; 
+  border: 1px solid #4a5568;
+  padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-weight: bold;
 }
-
-@media (min-width: 768px) {
-  .menu-toggle { display: none; }
-  .sidebar-left:hover { left: 0; }
-}
-
 
 .sidebar-nav {
     display: flex;
@@ -396,7 +390,24 @@ body {
     color: #fc8181;
     border-bottom: none;
 }
-    
+
+@media (min-width: 768px) {
+  .menu-toggle { 
+    display: none; 
+  }
+  .sidebar-left:hover { 
+    left: 0; 
+  }
+  .sidebar-left::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 20px; 
+    z-index: 9998;
+  }
+}    
 .view-counter-box {
     margin-top: 1rem;
     padding: 0.75rem 0.5rem; 

@@ -965,7 +965,7 @@ async function subscribeToPush() {
         };
 
         const { error } = await supabase
-            .from('subscriptions')
+            .from('push_subscriptions')
             .upsert(payload, { onConflict: 'endpoint' });
 
         if (error) console.error('Error saving subscription to Supabase:', error);

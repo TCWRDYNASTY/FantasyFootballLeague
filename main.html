@@ -1367,35 +1367,32 @@ async function fetchMessages() {
 /* === Event listeners=== */
 /* ==================================================================== */
 
-// --- Sidebar Toggle ---
+// --- DEFINE THE SIDEBAR VARIABLES FIRST ---
+const menuBtn = document.getElementById('mobileMenuBtn');
+const sidebar = document.querySelector('.sidebar-left');
+
+// --- Sidebar Toggle Logic ---
 if (menuBtn) {
     menuBtn.addEventListener('click', (event) => {
-        event.stopPropagation(); // Prevents the global click listener from closing it immediately
+        event.stopPropagation(); 
         if (sidebar) {
             sidebar.classList.toggle('active');
             
-            // If opening the sidebar, close other open menus
+            // Close other menus if sidebar is opening
             if (sidebar.classList.contains('active')) {
-                if (styleDropdown) styleDropdown.classList.add('hidden');
-                if (emojiPicker) emojiPicker.classList.add('hidden');
-                if (gifSearchContainer) gifSearchContainer.classList.add('hidden');
+                if (typeof styleDropdown !== 'undefined' && styleDropdown) styleDropdown.classList.add('hidden');
+                if (typeof emojiPicker !== 'undefined' && emojiPicker) emojiPicker.classList.add('hidden');
             }
         }
     });
 }
 
-// --- Global Click Listener (Closes Sidebar/Dropdowns when clicking outside) ---
+// --- Global Click Listener ---
 document.addEventListener('click', (event) => {
-    // Close sidebar if clicking outside of it
     if (sidebar && sidebar.classList.contains('active')) {
         if (!sidebar.contains(event.target) && event.target !== menuBtn) {
             sidebar.classList.remove('active');
         }
-    }
-    
-    // Close style dropdown if clicking outside
-    if (styleDropdown && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
-        styleDropdown.classList.add('hidden');
     }
 });
 

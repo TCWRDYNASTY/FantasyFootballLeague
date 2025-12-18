@@ -1545,6 +1545,7 @@ window.addEventListener('load', async () => {
         subscribeToPush();
 
     } else {
+        console.log("LOGIN CHECK: No user found.");
         if (messageInput) messageInput.disabled = true;
         if (sendButton) sendButton.disabled = true;
         if (gifButton) gifButton.disabled = true;

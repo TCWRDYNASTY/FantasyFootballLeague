@@ -172,17 +172,22 @@
 </style>
 
 </head>
-<body>
-    
+
     <div class="content-columns">
-        <div class="image-container">
-            <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
-            <p class="main-title">TCWR Dy-NASTY</p>
-            <p class="sub-title">Fantasy Football League</p>
-            <p><input id="passwordBox" type="password" placeholder="Enter Password" onkeypress="handleKeyPress(event)" /></p>
-            <button id="submitButton" onclick="checkPassword()">Submit</button>
-        </div>
+    <div class="image-container">
+        <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
+        <p class="main-title">TCWR Dy-NASTY</p>
+        <p class="sub-title">Fantasy Football League</p>
+        
+        <p><input id="passwordBox" type="password" placeholder="Enter Password" onkeypress="handleKeyPress(event)" /></p>
+        
+        <button id="submitButton" onclick="checkPassword()">Submit</button>
+        
+        <br> <button id="subscribeButton" style="display:none; margin-top: 15px; background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%;">
+            Enable Push Notifications
+        </button>
     </div>
+</div>
     
 <script>
     const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
@@ -237,8 +242,7 @@
         submitButton.addEventListener('click', checkPassword);
         passwordInput.addEventListener('keypress', handleKeyPress);
     }
-</script>
-<script>
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('service-worker.js')
@@ -250,7 +254,53 @@
                 });
         });
     }
-   
+
+    // Add this inside your existing script
+async function subscribeUser() {
+    const subscribeBtn = document.getElementById('subscribeButton');
+    
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            alert("Notification permission denied.");
+            return;
+        }
+
+        const registration = await navigator.serviceWorker.ready;
+        
+        // This is where you paste your Public VAPID Key
+        const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: 'BAxitNAnuPolRhu-9OgtRDe6bGQIByGgHNXCusicO9cydFHt9oEfA4d9MfAJ7HB23izytI-ywwDwmeof9e4HzZg' 
+        });
+
+        const { endpoint, keys } = subscription.toJSON();
+
+        // Save to your Supabase table
+        const { error } = await supabase
+            .from('push_subscriptions')
+            .insert({
+                endpoint: endpoint,
+                auth: keys.auth,
+                p256dh: keys.p256dh
+            });
+
+        if (error) throw error;
+
+        alert("Subscribed! You will now receive notifications.");
+        subscribeBtn.style.display = 'none'; 
+
+    } catch (err) {
+        console.error("Subscription error:", err);
+        alert("Failed to subscribe.");
+    }
+}
+
+document.getElementById('subscribeButton').addEventListener('click', subscribeUser);
+
+    if (!storedUser) {
+    document.getElementById('subscribeButton').style.display = 'block';
+}
 </script>
 </body>
 </html>

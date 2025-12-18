@@ -1362,23 +1362,58 @@ async function fetchMessages() {
         messageDisplay.scrollTop = messageDisplay.scrollHeight;
     }
 }
+
 /* ==================================================================== */
 /* === Event listeners=== */
 /* ==================================================================== */
-if (styleToggleBtn) {
-    styleToggleBtn.addEventListener('click', (event) => {
-        event.stopPropagation(); // Prevents global document listener from immediately closing it
-        if (styleDropdown) styleDropdown.classList.toggle('hidden');
-        if (emojiPicker) emojiPicker.classList.add('hidden'); // Close others
-        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); // Close others
-        messageInput.focus(); // Keep focus on the input area
+
+// --- Sidebar Toggle ---
+if (menuBtn) {
+    menuBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevents the global click listener from closing it immediately
+        if (sidebar) {
+            sidebar.classList.toggle('active');
+            
+            // If opening the sidebar, close other open menus
+            if (sidebar.classList.contains('active')) {
+                if (styleDropdown) styleDropdown.classList.add('hidden');
+                if (emojiPicker) emojiPicker.classList.add('hidden');
+                if (gifSearchContainer) gifSearchContainer.classList.add('hidden');
+            }
+        }
     });
 }
+
+// --- Global Click Listener (Closes Sidebar/Dropdowns when clicking outside) ---
+document.addEventListener('click', (event) => {
+    // Close sidebar if clicking outside of it
+    if (sidebar && sidebar.classList.contains('active')) {
+        if (!sidebar.contains(event.target) && event.target !== menuBtn) {
+            sidebar.classList.remove('active');
+        }
+    }
+    
+    // Close style dropdown if clicking outside
+    if (styleDropdown && !styleDropdown.contains(event.target) && event.target !== styleToggleBtn) {
+        styleDropdown.classList.add('hidden');
+    }
+});
+
+// --- Your Existing Style Listeners ---
+if (styleToggleBtn) {
+    styleToggleBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); 
+        if (styleDropdown) styleDropdown.classList.toggle('hidden');
+        if (emojiPicker) emojiPicker.classList.add('hidden'); 
+        if (gifSearchContainer) gifSearchContainer.classList.add('hidden'); 
+        if (sidebar) sidebar.classList.remove('active'); // Close sidebar if opening style
+        messageInput.focus(); 
+    });
+}
+
 if (boldBtn) {
     boldBtn.addEventListener('click', () => {
-        // 'bold' command applies <b> tags or CSS bold to selection
         document.execCommand('bold', false, null);
-        // Toggle the 'active' class based on the current state of the selection
         boldBtn.classList.toggle('active', document.queryCommandState('bold'));
         messageInput.focus();
     });
@@ -1386,7 +1421,6 @@ if (boldBtn) {
 
 if (italicBtn) {
     italicBtn.addEventListener('click', () => {
-        // 'italic' command applies <i> tags or CSS italic to selection
         document.execCommand('italic', false, null);
         italicBtn.classList.toggle('active', document.queryCommandState('italic'));
         messageInput.focus();
@@ -1395,7 +1429,6 @@ if (italicBtn) {
 
 if (underlineBtn) {
     underlineBtn.addEventListener('click', () => {
-        // 'underline' command applies <u> tags or CSS underline to selection
         document.execCommand('underline', false, null);
         underlineBtn.classList.toggle('active', document.queryCommandState('underline'));
         messageInput.focus();
@@ -1404,41 +1437,47 @@ if (underlineBtn) {
 
 if (sizeSelect) {
     sizeSelect.addEventListener('change', (event) => {
-        // 'fontSize' command applies the font size via HTML. 
-        // Note: The value needs to be a number 1-7 for the execCommand to work consistently (as set in the HTML)
         document.execCommand('fontSize', false, event.target.value); 
         messageInput.focus();
     });
 }
+
 if (imageButton) {
     imageButton.addEventListener('click', () => {
         if (imageInput) imageInput.click();
     });
 }
+
 if (imageInput) {
     imageInput.addEventListener('change', uploadImage);
 }
+
 if (sendButton) {
     sendButton.addEventListener('click', () => sendMessage());
 }
+
 if (gifButton) {
     gifButton.addEventListener('click', (event) => {
-        event.stopPropagation(); // Prevent document listener from hiding it immediately
+        event.stopPropagation(); 
         if (gifSearchContainer) gifSearchContainer.classList.toggle('hidden'); 
-        if (emojiPicker) emojiPicker.classList.add('hidden'); // Close others
-        if (styleDropdown) styleDropdown.classList.add('hidden'); // Close others
+        if (emojiPicker) emojiPicker.classList.add('hidden'); 
+        if (styleDropdown) styleDropdown.classList.add('hidden'); 
+        if (sidebar) sidebar.classList.remove('active'); // Close sidebar if opening GIFs
+        
         if (gifSearchContainer && gifSearchContainer.classList.contains('hidden')) {
             if (gifSearchInput) gifSearchInput.value = '';
             if (gifResultsContainer) gifResultsContainer.innerHTML = '';
         }
     });
 }
+
 if (gifSearchButton) {
     gifSearchButton.addEventListener('click', () => {
         const searchTerm = gifSearchInput ? gifSearchInput.value : '';
         searchGifs(searchTerm);
     });
 }
+
 if (gifSearchInput) {
     gifSearchInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
@@ -1447,6 +1486,7 @@ if (gifSearchInput) {
         }
     });
 }
+
 if (messageInput) {
     messageInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {

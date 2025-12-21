@@ -27,12 +27,13 @@
   /* ----------------------------------------
      🎖️ Header Section
   ---------------------------------------- */
-  .header {
+ .header {
     display: flex;
     align-items: center;
     gap: 1.5em;
     background: linear-gradient(90deg, #FFD700, #FFEF9F);
-    padding: 1.5em 2em;
+    /* Reduced top/bottom padding slightly to accommodate a larger logo without making the bar too tall */
+    padding: 1em 2em; 
     margin: 30px;
     border-radius: 20px;
     box-shadow: 4px 4px 25px rgba(0, 0, 0, 0.5);
@@ -42,12 +43,15 @@
   }
 
   .logo {
-    max-width: 100px;
+    /* Increased from 100px to 160px for a more prominent look */
+    max-width: 160px; 
   }
 
   .logo img {
     width: 100%;
     height: auto;
+    /* Optional: adds a slight lift to the logo so it pops off the shimmer */
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2)); 
   }
 
   .header-text {
@@ -55,6 +59,8 @@
     font-size: 2.8em;
     font-weight: bold;
     color: #1e3159;
+    /* Ensures text doesn't wrap awkwardly next to the larger logo */
+    line-height: 1; 
   }
 
   .subtitle {

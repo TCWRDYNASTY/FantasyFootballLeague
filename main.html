@@ -51,14 +51,18 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  border: 2px solid black;
-  background-color: beige;
-  color: black;
+  /* Glassmorphism Styles */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white; /* Changed to white to stand out */
+  /* Layout & Spacing */
   padding: 20px 10px;
   gap: 20px;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
-  position: relative; /* keeps dropdown anchored */
+  position: relative;
 }
 
 .logo-container img {

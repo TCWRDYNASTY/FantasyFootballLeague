@@ -16,7 +16,7 @@ const urlsToCache = [
   // REMOVED: '/style.css' (Add back ONLY if file exists)
   
   // Images 
-  '/DYNASTYLOGO.jpeg',
+  '/DYNASTYLOGO.png',
   '/Subject.jpeg',
   '/ainteasy.jpeg',
   '/thehomies.jpeg', 

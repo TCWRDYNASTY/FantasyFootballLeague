@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fantasy Football Rule Vote</title>
+    
+    <!-- Supabase and Chart.js Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Font Imports for Styling -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900;900&display=swap" rel="stylesheet">
+    
+   <style>
+/* ==================================================================== */
+/* === 1. ROOT VARIABLES / THEME === */
+/* ==================================================================== */
+:root {
+  --primary-dark: #0f1a33; /* Deeper navy for contrast */
+  --accent-gold: #FFD700;
+  --light-text: #f0f4f8;
+  --container-bg: #22365d;
+  --section-bg: #314b7a;
+  --highlight-blue: #7db2ff;
+  --gradient-blue: linear-gradient(135deg, #1e3159, #3c5283);
+  --shadow-strong: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* ==================================================================== */
+/* === 2. GLOBAL STYLES === */
+/* ==================================================================== */
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #1e3159 0%, #0f1a33 80%);
+  color: var(--light-text);
+  margin: 0;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Container with glow + border */
+.main-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--gradient-blue);
+  padding: 2.5rem;
+  border-radius: 2rem;
+  color: var(--light-text);
+  border: 3px solid var(--accent-gold);
+  box-shadow: var(--shadow-strong);
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+}
+.main-wrapper:hover {
+  transform: scale(1.01);
+}
+
+/* Hide Utility */
+.hidden {
+  display: none !important;
+}
+
+/* ==================================================================== */
+/* === 3. HEADER / DISPLAY === */
+/* ==================================================================== */
+#userDisplay {
+  background: rgba(60, 82, 131, 0.8);
+  border: 1px solid var(--highlight-blue);
+  color: var(--light-text);
+  padding: 0.8rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* ==================================================================== */
+/* === 4. RESULTS PAGE === */
+/* ==================================================================== */
+.results-intro-header {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.1em;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  background: linear-gradient(90deg, #FFD700, #fff2a1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  margin-bottom: 2rem;
+  text-shadow: 2px 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.rule-result-card {
+  background: rgba(49, 75, 122, 0.9);
+  padding: 1.2rem;
+  border-radius: 1rem;
+  border: 2px solid var(--highlight-blue);
+  margin-bottom: 1.2rem;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.rule-result-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.chart-container {
+  max-width: 300px;
+  margin: 10px auto 15px;
+}
+
+.rule-result-card h2 {
+  font-size: 1.5rem;
+  color: var(--accent-gold);
+  margin-bottom: 0.6rem;
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.5);
+}
+
+/* Responsive grid layout */
+#ruleResultsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* ==================================================================== */
+/* === 5. BUTTONS === */
+/* ==================================================================== */
+.enter-ballot-btn {
+  background: linear-gradient(90deg, #5a85ff, #2a58d9);
+  color: white;
+  padding: 1rem 3rem;
+  border-radius: 1rem;
+  font-weight: 900;
+  font-size: 1.5rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  margin-top: 2rem;
+  text-transform: uppercase;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.05em;
+}
+.enter-ballot-btn:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+}
+
+/* ==================================================================== */
+/* === 6. VOTING PAGE === */
+/* ==================================================================== */
+.voting-header {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  margin-bottom: 1.5rem;
+  color: var(--accent-gold);
+  text-align: center;
+}
+
+.rule-item {
+  border: 1px solid var(--highlight-blue);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.8rem;
+  background-color: rgba(49, 75, 122, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.rule-item:hover {
+  transform: translateY(-2px);
+}
+
+.rule-statement {
+  font-weight: 600;
+  color: var(--light-text);
+  font-size: 1.1rem;
+}
+
+.vote-options label {
+  margin-right: 1.2rem;
+  font-size: 1rem;
+}
+
+.vote-options input[type="radio"] {
+  margin-right: 6px;
+  accent-color: var(--accent-gold);
+}
+
+.vote-submit {
+  padding: 1rem 2rem;
+  background: var(--accent-gold);
+  color: var(--primary-dark);
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+  font-weight: 900;
+  font-size: 1.5rem;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+.vote-submit:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+.vote-submit:disabled {
+  background: #6a748c;
+  color: #b0b8c8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ==================================================================== */
+/* === 7. STATUS MESSAGES === */
+/* ==================================================================== */
+.status-message {
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+}
+.status-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+.status-error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.status-info {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+/* ==================================================================== */
+/* === 8. RESPONSIVE DESIGN === */
+/* ==================================================================== */
+@media (max-width: 768px) {
+  .main-wrapper {
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+  }
+  .enter-ballot-btn,
+  .vote-submit {
+    font-size: 1.2rem;
+    padding: 0.8rem 2rem;
+  }
+  .results-intro-header {
+    font-size: 2.5rem;
+  }
+  .rule-result-card h2 {
+    font-size: 1.3rem;
+  }
+}
+@media (max-width: 480px) {
+  body {
+    padding: 1rem;
+  }
+  #userDisplay {
+    font-size: 1rem;
+    padding: 0.6rem;
+  }
+  .main-wrapper {
+    border-width: 2px;
+  }
+  .results-intro-header {
+    font-size: 2rem;
+  }
+  .rule-result-card {
+    padding: 1rem;
+  }
+  .vote-submit {
+    font-size: 1.1rem;
+  }
+}
+</style>
+
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div id="userDisplay"></div>
+
+    <!-- 1. RESULTS SPLASH PAGE (Initial View) -->
+    <div id="resultsPage" style="text-align: center;">
+        <h1 class="results-intro-header">Rule Change Ballot</h1>
+        <p class="text-lg mb-6">See how the league is leaning on the proposed rule changes.</p>
+        
+        <p id="loading-results-msg" class="text-xl">Loading results...</p> 
+
+        <div id="ruleResultsContainer">
+            <!-- Dynamic rule results will go here -->
+        </div>
+
+        <button class="enter-ballot-btn" id="enterBallotBtn">Enter Voting Ballot</button>
+        <p id="resultsStatus" class="status-message status-info" style="display:none;"></p>
+    </div>
+
+    <!-- 2. VOTING BALLOT PAGE (Hidden initially) -->
+    <div id="votingPage" class="hidden">
+        <h2 class="voting-header">Official Rule Ballot</h2>
+        <form id="votingForm">
+            <div id="rulesContainer">
+                <!-- Rules will be dynamically inserted here by JS -->
+            </div>
+            <button type="submit" class="vote-submit" id="submitVoteBtn">Submit Vote</button>
+            <div id="formStatus" class="status-message" style="display:none;"></div>
+        </form>
+    </div>
+
+</div>
+
+
+<script>
+    // --- Supabase Setup ---
+    const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // --- Core Data: HARDCODED RULES (NOW WITH 6 RANDOM RULES FOR TESTING!) ---
+    let RULES_DATA = [
+        { id: 1, statement: "Allow trading future draft picks up to 2 years out." },
+        { id: 2, statement: "Change the playoff format to include a Wild Card round (7 teams total)." },
+        { id: 3, statement: "Increase the total roster size by one spot (from 15 to 16)." },
+        { id: 4, statement: "Implement a weekly 'Toilet Bowl' match for the bottom two teams." },
+        { id: 5, statement: "Award 0.5 bonus points for any player scoring over 40 fantasy points." },
+        { id: 6, statement: "Move the trade deadline one week later in the season." },
+{ id: 7, statement: "New Commish." },
+    ];
+    let user = null; 
+
+    // --- DOM Elements ---
+    const userDisplay = document.getElementById('userDisplay');
+    const resultsPage = document.getElementById('resultsPage');
+    const votingPage = document.getElementById('votingPage');
+    const enterBallotBtn = document.getElementById('enterBallotBtn');
+    const rulesContainer = document.getElementById('rulesContainer');
+    const votingForm = document.getElementById('votingForm');
+    const submitVoteBtn = document.getElementById('submitVoteBtn');
+    const formStatus = document.getElementById('formStatus');
+    const resultsStatus = document.getElementById('resultsStatus');
+    const ruleResultsContainer = document.getElementById('ruleResultsContainer');
+    
+    // CACHED THE LOADING MESSAGE ELEMENT HERE
+    const loadingMsg = document.getElementById('loading-results-msg'); 
+    
+    const charts = {}; // Store Chart instances
+
+    // --- Initialization & Session Check ---
+
+    function checkLoginAndInitialize() {
+        const storedUser = localStorage.getItem('loggedInUser');
+        if (storedUser) {
+            try {
+                user = JSON.parse(storedUser);
+                userDisplay.textContent = `Logged in as: ${user.username}`;
+                
+                displayResultsPage();
+
+                enterBallotBtn.addEventListener('click', () => {
+                    // Ensure the ballot is initialized and elements exist BEFORE checking existing votes.
+                    showVotingPage();
+                    initializeBallot();
+                });
+                
+            } catch (e) {
+                // Redirect if corrupted local storage
+                window.location.href = "index.html"; 
+            }
+        } else {
+            // Redirect if not logged in
+            window.location.href = "index.html"; 
+        }
+    }
+
+    // --- Page Switching ---
+
+    function showVotingPage() {
+        resultsPage.classList.add('hidden');
+        votingPage.classList.remove('hidden');
+        resultsStatus.style.display = 'none'; // Clear results status
+    }
+
+    function showResultsPage() {
+        votingPage.classList.add('hidden');
+        resultsPage.classList.remove('hidden');
+        displayResultsPage(); // Reload results
+    }
+
+    // --- RESULTS PAGE LOGIC ---
+
+    async function displayResultsPage() {
+        // 1. Show loading message and clear previous results
+        if (loadingMsg) {
+            loadingMsg.classList.remove('hidden'); 
+        }
+        ruleResultsContainer.innerHTML = ''; // Clear container
+        
+        setStatus('Fetching current vote tally for all rules...', 'status-info', resultsStatus);
+
+        for (const rule of RULES_DATA) {
+            
+            // Calls the SQL function for each rule ID
+            const { data, error } = await supabase.rpc('get_rule_vote_tally', {
+                target_rule_id: rule.id 
+            });
+
+            if (error) {
+                console.error(`Error fetching tally for Rule ${rule.id}:`, error);
+                // Display error card instead of crashing
+                const errorCard = document.createElement('div');
+                errorCard.className = 'rule-result-card';
+                errorCard.innerHTML = `<p class="text-red-500">Error loading results for Rule ${rule.id}.</p>`;
+                ruleResultsContainer.appendChild(errorCard);
+                continue; // Skip to the next rule
+            }
+
+            // Process data
+            const yesCount = data.find(r => r.vote_choice === 'Yes')?.count || 0;
+            const noCount = data.find(r => r.vote_choice === 'No')?.count || 0;
+            const totalVotes = yesCount + noCount;
+            
+            // --- FIX APPLIED HERE: Use DOM manipulation instead of innerHTML += ---
+            const ruleCard = document.createElement('div');
+            ruleCard.className = 'rule-result-card';
+            ruleCard.id = `ruleResult-${rule.id}`;
+            ruleCard.innerHTML = `
+                <h2 class="font-bold">Rule ${rule.id}</h2>
+                <p class="rule-statement text-sm">${rule.statement}</p>
+                <div class="chart-container">
+                    <canvas id="voteChart-${rule.id}"></canvas>
+                </div>
+                <p class="text-sm font-light text-gray-300 mt-2" id="voterCount-${rule.id}">Total Votes: ${totalVotes}</p>
+            `;
+
+            // Append the new card to the container *before* rendering the chart
+            ruleResultsContainer.appendChild(ruleCard);
+
+            // Render Chart after the canvas element is in the DOM
+            renderPieChart(rule.id, yesCount, noCount);
+            // --- END FIX ---
+        }
+
+        // Hide loading message once all results are processed
+        if (loadingMsg) {
+            loadingMsg.classList.add('hidden');
+        }
+        setStatus('All rule results loaded.', 'status-info', resultsStatus);
+    }
+
+    function renderPieChart(ruleId, yesCount, noCount) {
+        if (charts[ruleId]) {
+            charts[ruleId].destroy();
+        }
+        
+        // Ensure the canvas element exists before trying to get its context
+        const canvasElement = document.getElementById(`voteChart-${ruleId}`);
+        if (!canvasElement) return;
+
+        const ctx = canvasElement.getContext('2d');
+        
+        charts[ruleId] = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Yes', 'No'],
+
+ datasets: [{
+                    data: [yesCount, noCount],
+                    backgroundColor: [
+                        'rgba(34, 197, 94, 0.8)', // Green for Yes
+                        'rgba(239, 68, 68, 0.8)'  // Red for No
+                    ],
+                    borderColor: ['#ffffff', '#ffffff'],
+                    borderWidth: 2
+
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: 'white', font: { size: 15 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
+                                return `${label}: ${value} (${percentage})`;
+                            }
+                        }
+                    },
+                    title: {
+                        display: false // Hide title since the card already has one
+                    }
+                }
+            }
+        });
+    }
+
+    // --- VOTING PAGE FUNCTIONS ---
+
+    function initializeBallot() {
+        renderRules(); 
+        checkExistingVotes(); 
+        votingForm.removeEventListener('submit', handleVoteSubmission);
+        votingForm.addEventListener('submit', handleVoteSubmission);
+    }
+    
+    function renderRules() {
+        rulesContainer.innerHTML = RULES_DATA.map(rule => `
+            <div class="rule-item" data-rule-id="${rule.id}">
+                <p class="rule-statement">Rule ${rule.id}: ${rule.statement}</p>
+                <div class="vote-options">
+                    <label><input type="radio" name="rule-${rule.id}" value="Yes" required> YES</label>
+                    <label><input type="radio" name="rule-${rule.id}" value="No"> NO</label>
+                </div>
+                <div id="voteStatus-${rule.id}" class="status-message status-info" style="display:none;"></div>
+            </div>
+        `).join('');
+    }
+
+    async function checkExistingVotes() {
+        const { data: existingVotes, error } = await supabase
+            .from('rule_votes')
+            .select('rule_id, vote_choice')
+            .eq('voter_name', user.username);
+
+        if (error) {
+            setStatus(`Error checking votes: ${error.message}`, 'status-error', formStatus);
+            return false;
+        }
+
+        const votedRulesMap = existingVotes.reduce((acc, vote) => {
+            acc[vote.rule_id] = vote.vote_choice;
+            return acc;
+        }, {});
+
+        let allVoted = true;
+
+        RULES_DATA.forEach(rule => {
+            const ruleId = rule.id;
+            const voteStatusDiv = document.getElementById(`voteStatus-${ruleId}`);
+            const ruleItem = document.querySelector(`.rule-item[data-rule-id="${ruleId}"]`);
+            
+            // It is critical that voteStatusDiv is checked for null here (though initializeBallot now ensures it exists)
+            if (voteStatusDiv) {
+                if (votedRulesMap[ruleId]) {
+                    const vote = votedRulesMap[ruleId];
+                    voteStatusDiv.textContent = `You have already voted '${vote}'.`;
+                    voteStatusDiv.style.display = 'block';
+                    voteStatusDiv.classList.remove('status-info');
+                    voteStatusDiv.classList.add('status-success');
+                    
+                    // Lock the radio buttons for this rule
+                    if (ruleItem) {
+                        ruleItem.querySelectorAll('input[type="radio"]').forEach(radio => radio.disabled = true);
+                    }
+                    
+                } else {
+                    voteStatusDiv.textContent = `You have not voted on this rule.`;
+                    voteStatusDiv.style.display = 'block';
+                    // Only mark as not voted if the rule actually exists in the data
+                    if (ruleItem) {
+                        allVoted = false;
+                    }
+                }
+            } else {
+                   console.error(`Missing voteStatusDiv for rule ${ruleId}`);
+            }
+        });
+
+        // Update the main submit button
+        if (allVoted && RULES_DATA.length > 0) {
+            submitVoteBtn.disabled = true;
+            submitVoteBtn.textContent = 'All Rules Voted On (Review Results)';
+        } else {
+            submitVoteBtn.disabled = false;
+            submitVoteBtn.textContent = 'Submit Vote(s)';
+        }
+        
+        return allVoted;
+    }
+
+    async function handleVoteSubmission(event) {
+        event.preventDefault();
+        submitVoteBtn.disabled = true;
+        submitVoteBtn.textContent = 'Submitting...';
+        setStatus('Submitting votes...', 'status-info', formStatus);
+
+        const votesToInsert = [];
+
+        RULES_DATA.forEach(rule => {
+            const voteInput = votingForm.querySelector(`input[name="rule-${rule.id}"]:checked`);
+            const ruleItem = document.querySelector(`.rule-item[data-rule-id="${rule.id}"]`);
+
+            // Only submit if a choice was made AND the controls are not disabled (meaning they haven't voted yet)
+            if (voteInput && ruleItem && !ruleItem.querySelector('input[type="radio"]').disabled) { 
+                votesToInsert.push({
+                    rule_id: rule.id,
+                    voter_name: user.username,
+                    vote_choice: voteInput.value
+                });
+            }
+        });
+
+        if (votesToInsert.length === 0) {
+            setStatus('No new votes to submit. Did you make a selection?', 'status-error', formStatus);
+            submitVoteBtn.disabled = false;
+            submitVoteBtn.textContent = 'Submit Vote(s)';
+            return;
+        }
+
+        // 🚨 Supabase BULK INSERT 🚨
+        const { error } = await supabase
+            .from('rule_votes')
+            .insert(votesToInsert);
+
+        if (error) {
+            console.error('Vote Submission Error:', error);
+            
+            // Catches the UNIQUE constraint error (23505)
+            if (error.code === '23505') {
+                setStatus('Error: You have already cast your vote(s) on one or more of these rules.', 'status-error', formStatus);
+            } else {
+                setStatus(`Error: Failed to save votes. ${error.message}`, 'status-error', formStatus);
+            }
+            submitVoteBtn.textContent = 'Submit Vote(s)';
+        } else {
+            setStatus(`Successfully recorded ${votesToInsert.length} new vote(s)!`, 'status-success', formStatus);
+            // After success, lock the ballot and show the latest results
+            checkExistingVotes(); 
+            setTimeout(showResultsPage, 2000); // Redirect to results after 2 seconds
+        }
+    }
+
+    // --- Utility Function ---
+
+    function setStatus(message, type, target) {
+        target.textContent = message;
+        target.classList.remove('status-success', 'status-error', 'status-info'); 
+        target.classList.add('status-message', type);
+        target.style.display = 'block';
+
+        if (target !== formStatus && target !== resultsStatus) {
+            setTimeout(() => {
+                target.style.display = 'none';
+            }, 8000);
+        }
+    }
+    
+    // Start the application
+    checkLoginAndInitialize();
+</script>
+</body>
+</html>

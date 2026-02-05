@@ -312,26 +312,20 @@
         // Replace 'https://www.example.com' with your actual live stream URL
         const liveStreamURL = " https://tcwrdynasty.github.io/draftlottery/"; 
 
-        const countdown = () => {
-            // Note: '2026-02-08T00:00:00Z' uses UTC. Adjust if you need a specific local timezone.
-            // Example for Pacific Standard Time (PST), adjust if needed for your local time:
-            // const endDate = new Date('2026-02-08T00:00:00-08:00').getTime(); 
-            const endDate = new Date('2026-02-08T00:00:00Z').getTime(); 
-            const now = new Date().getTime();
-            const distance = endDate - now;
+       const countdown = () => {
+    // Estimated Halftime for Super Bowl LX: Feb 8, 2026, at 8:00 PM EST
+    // Using a specific ISO string with the -05:00 offset for Eastern Standard Time
+    const endDate = new Date('2026-02-08T20:00:00-05:00').getTime(); 
+    
+    const now = new Date().getTime();
+    const distance = endDate - now;
 
-            if (distance < 0) {
-                clearInterval(timer);
-                
-                // Display the "Live" message
-                countdownElement.innerHTML = '<div class="lottery-live-message">🎉 The Draft Lottery is Live! 🎉</div>';
-                
-                // Show the link container and set the link's URL
-                linkContainer.classList.remove('hidden');
-                liveLink.href = liveStreamURL;
-
-                return;
-            }
+    // Optional: Add logic here to handle when distance <= 0 (Halftime has started!)
+    if (distance < 0) {
+        console.log("It's showtime! Bad Bunny is on stage.");
+        return;
+    }
+};
 
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));

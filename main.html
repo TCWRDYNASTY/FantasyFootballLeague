@@ -1562,38 +1562,64 @@ window.addEventListener('load', async () => {
 
 
 /* ==================================================================== */
-/* === ESPN
+/* === ESPN Fix (Using Codetabs Proxy)
 /* ==================================================================== */
 const rssUrl = 'https://www.espn.com/espn/rss/nfl/news';
-    const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+// Codetabs is a reliable proxy for bypassing 403 blocks on RSS feeds
+const proxyUrl = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(rssUrl)}`;
 
-    fetch(proxyUrl)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        const list = document.getElementById('nfl-news');
-        if (list) {
-          list.innerHTML = '';
-          data.items.slice(0, 5).forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a><small>${new Date(item.pubDate).toLocaleDateString()}</small>`;
-            list.appendChild(li);
-          });
-        } else {
-          console.error('Element with ID "nfl-news" not found.');
-        }
-      })
-      .catch(error => {
-        console.error('There was a problem fetching or processing the RSS feed:', error);
-        const list = document.getElementById('nfl-news');
-        if (list) {
-          list.innerHTML = '<li>Failed to load news feed.</li>';
-        }
+fetch(proxyUrl)
+  .then(res => {
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.text();
+  })
+  .then(str => {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(str, "text/xml");
+    
+    // Check for parsing errors
+    const errorNode = xmlDoc.querySelector("parsererror");
+    if (errorNode) throw new Error("Error parsing XML");
+
+    const items = xmlDoc.querySelectorAll("item");
+    const list = document.getElementById('nfl-news');
+
+    if (list) {
+      list.innerHTML = '';
+      
+      const newsItems = Array.from(items).slice(0, 5);
+      
+      if (newsItems.length === 0) {
+        list.innerHTML = '<li>No recent news found.</li>';
+        return;
+      }
+
+      newsItems.forEach(item => {
+        const title = item.querySelector("title")?.textContent || "Untitled";
+        const link = item.querySelector("link")?.textContent || "#";
+        const pubDate = item.querySelector("pubDate")?.textContent || "";
+        
+        const dateObj = new Date(pubDate);
+        const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString() : "";
+
+        const li = document.createElement('li');
+        li.style.marginBottom = "10px";
+        li.innerHTML = `
+          <a href="${link}" target="_blank" style="font-weight: bold; text-decoration: none; color: #cc0000;">${title}</a>
+          <br><small style="color: #666;">${formattedDate}</small>
+        `;
+        list.appendChild(li);
       });
+    }
+  })
+  .catch(error => {
+    console.error('ESPN Feed Error:', error);
+    const list = document.getElementById('nfl-news');
+    if (list) {
+      list.innerHTML = '<li>News feed temporarily blocked. <a href="https://www.espn.com/nfl/" target="_blank">View on ESPN</a></li>';
+    }
+  });
+    
 
      const leagueId = "1180908151502815232";
 

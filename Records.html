@@ -160,12 +160,12 @@ async function fetchAndDisplayRankings() {
             const totalScore = col[2];  // Column C (Index 2)
             
             // Shifting indices to fix the "one column to the right" issue
-            const winPctPts = col[8];   // Column H (Index 7)
-            const tpfPts = col[10];      // Column J (Index 9)
-            const tpaPts = col[12];     // Column L (Index 11)
-            const playoffPts = col[14]; // Column N (Index 13)
-            const champAppPts = col[16];// Column P (Index 15)
-            const ringsPts = col[18];   // Column R (Index 17)
+            const winPctPts = col[6];   // Column H 
+            const tpfPts = col[8];      // Column J (Index 9)
+            const tpaPts = col[10];     // Column L (Index 11)
+            const playoffPts = col[12]; // Column N (Index 13)
+            const champAppPts = col[14];// Column P (Index 15)
+            const ringsPts = col[16];   // Column R (Index 17)
 
             container.innerHTML += `
                 <div class="ranking-card" data-rank="${rank}">

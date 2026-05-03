@@ -1,453 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Records & Rankings</title>
-	<link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TCWR FANTASY FOOTBALL DY-NASTY MANAGER RANKINGS</title>
+    <style>
+        body { background-color: #1a202c; font-family: 'Inter', sans-serif; color: white; margin: 0; }
 
-	<style>
-        /* --- Root Variables for Easy Color Management --- */
-        :root {
-            --dark-blue-bg: #1e3159;
-            --medium-blue-accent: #2e4a80;
-            --light-blue-hover: #3e5a99;
-            --white-content-bg: rgba(255, 255, 255, 0.95);
-            --red-accent: #990000;
-            --black-border: #000000;
-            --light-grey-table-header: #f2f2f2;
+        .ranking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            width: 95%;
+            max-width: 1400px;
+            margin: 40px auto;
         }
 
-        /* --- Global Styles & Body --- */
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, var(--dark-blue-bg) 0%, #0f1a30 100%); /* Deep gradient background */
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+        .ranking-card {
+            background-color: #2d3748;
+            border: 3px solid #4a5568;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
             display: flex;
             flex-direction: column;
+            transition: transform 0.2s ease;
+        }
+
+        /* Rank Highlights */
+        .ranking-card[data-rank="1"] { border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+        .ranking-card[data-rank="2"] { border-color: #C0C0C0; }
+        .ranking-card[data-rank="3"] { border-color: #CD7F32; }
+
+        .rank-number {
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            background: #1a202c;
+            color: #FFD700;
+            width: 40px;
+            height: 40px;
+            display: flex;
             align-items: center;
-            color: #333; /* Default text color for content */
-            overflow-x: hidden; /* Prevent horizontal scroll on animations */
-        }
-
-        /* --- Header Section --- */
-        .header {
-            background: var(--white-content-bg);
-            border: 3px solid var(--black-border);
-            padding: 25px 40px;
-            font-size: clamp(2rem, 5vw, 3.5rem); /* Responsive font size */
-            text-align: center;
-            font-family: 'Inter', sans-serif;
-	    font-weight: bold;
-            color: var(--dark-blue-bg);
-            margin: 40px auto 30px auto; /* More vertical margin, center horizontally */
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5); /* Stronger, more prominent shadow */
-            width: 90%;
-            max-width: 1000px;
-            border-radius: 15px; /* More rounded corners */
-            position: relative;
-            overflow: hidden;
-            letter-spacing: 2px; /* Slightly spaced out letters */
-            text-transform: uppercase;
-        }
-
-        /* Subtle glow effect for the header */
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -10%;
-            left: -10%;
-            width: 120%;
-            height: 120%;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            transform: rotate(30deg);
-            animation: pulse-glow 3s infinite alternate ease-in-out;
-            z-index: 0;
-        }
-
-        @keyframes pulse-glow {
-            from { opacity: 0.2; transform: scale(1) rotate(30deg); }
-            to { opacity: 0.4; transform: scale(1.05) rotate(30deg); }
-        }
-
-        /* --- Main Content Container --- */
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px; /* Increased gap between columns */
             justify-content: center;
-            width: 95%;
-            max-width: 1200px;
-            margin-bottom: 40px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
         }
 
-        /* --- Individual Column Styling --- */
-        .column {
-            flex: 1 1 calc(50% - 15px); /* Two columns on larger screens, adjust for gap */
-            background-color: var(--white-content-bg);
-            border: 2px solid var(--black-border);
-            padding: 30px;
-            box-sizing: border-box;
-            border-radius: 12px; /* Rounded corners */
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Deeper shadow */
-            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover */
-            position: relative;
-            overflow: hidden; /* For inner styling */
-        }
+        .manager-info { margin-bottom: 15px; border-bottom: 1px solid #4a5568; padding-bottom: 10px; }
+        .real-name { font-size: 1.4rem; font-weight: bold; display: block; }
 
-        /* Inner border effect for columns */
-        .column::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            border: 1px dashed rgba(0, 0, 0, 0.2); /* Subtle dashed inner border */
+        .total-score { font-size: 1.8rem; color: #4ade80; margin: 5px 0; font-weight: 800; }
+        .total-score span { font-size: 0.8rem; color: #cbd5e0; }
+
+        .stats-sub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
             border-radius: 8px;
-            pointer-events: none; /* Don't interfere with clicks */
         }
 
-        .column:hover {
-            transform: translateY(-8px) scale(1.01); /* Lift and slight scale on hover */
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6); /* More intense shadow on hover */
-        }
+        .stat-item { display: flex; flex-direction: column; }
+        .stat-label { font-size: 0.6rem; color: #cbd5e0; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 0.95rem; font-weight: bold; color: #FFD700; }
 
-        /* --- Record Category Titles --- */
-        .column p:first-child {
-            margin-top: 0; /* Remove top margin for first paragraph */
-        }
-
-        .column p {
-            font-size: 1.5em; /* Larger, more impactful titles */
-            margin: 1.8em 0 0.6em 0; /* Adjusted vertical spacing */
-	    font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            color: var(--dark-blue-bg);
-            position: relative; /* For underline effect */
-        }
-
-        /* Modern, subtle underline for titles */
-        .underline-text {
-            font-family: 'Playfair Display', serif; /* Consistent elegant font */
-            text-decoration: none; /* Remove default */
-            display: inline-block; /* Allow padding/margin for pseudo-element */
-            padding-bottom: 5px; /* Space for the line */
-        }
-
-        .underline-text::after {
-            content: '';
-            display: block;
-            width: 70px; /* Specific width */
-            height: 3px;
-            background-color: var(--red-accent);
-            margin: 5px auto 0 auto; /* Center the line */
-            border-radius: 2px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Shadow for depth */
-        }
-
-        /* --- Record Values Styling --- */
-        .record-text-style {
-            color: var(--red-accent);
-            font-size: 1.2em !important; /* Prominent size for values */
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            line-height: 1.8; /* Improved readability */
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
-        }
-
-        /* --- Table Styling --- */
-        table {
+        .win-bar-container {
             width: 100%;
-            border-collapse: separate; /* Allows border-radius */
-            border-spacing: 0;
-            font-size: 1em;
-            font-family: 'Montserrat', sans-serif;
-            margin-top: 20px; /* More space above table */
-            border-radius: 10px; /* Rounded table corners */
-            overflow: hidden; /* Ensures content respects border-radius */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Table shadow */
-            background-color: #fff; /* Ensure white background for cells */
+            height: 8px;
+            background: #1a202c;
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
         }
+        .win-bar-fill { height: 100%; background: linear-gradient(90deg, #4a5568, #FFD700); transition: width 1s ease-in-out; }
 
-        th, td {
-            border: none; /* No individual cell borders */
-            padding: 14px 10px; /* More padding */
-            text-align: center;
-        }
-
-        th {
-            background-color: var(--light-grey-table-header);
-            color: var(--dark-blue-bg);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid var(--black-border); /* Separator for header */
-        }
-
-        tr:nth-child(even) {
-            background-color: #f0f0f0; /* Slightly darker stripe */
-        }
-
-        tr:hover {
-            background-color: #e5e5e5; /* Highlight row on hover */
-            cursor: pointer; /* Indicate interactivity */
-        }
-
-        /* --- Tooltip Styling --- */
-        .matchup-tooltip {
-            position: absolute;
-            background-color: var(--dark-blue-bg); /* Dark blue background */
-            color: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-            font-size: 0.95em;
-            font-family: 'Montserrat', sans-serif;
-            z-index: 1000; /* Ensure it's on top */
-            opacity: 0; /* Start hidden */
-            visibility: hidden; /* Start hidden */
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            pointer-events: none; /* Don't block mouse events on elements below */
-            text-align: center;
-            border: 1px solid var(--red-accent); /* Red accent border */
-            white-space: nowrap; /* Keep content on one line */
-            letter-spacing: 0.5px;
-        }
-
-        .matchup-tooltip.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* --- Navigation Button --- */
-        .nav-container {
-            display: flex;
-            justify-content: center;
-            padding: 40px 0 10px 0; /* More padding above the button */
-        }
-
-        .nav-container a {
-            color: white;
-            font-size: 1.2rem;
-            border: 2px solid var(--black-border);
-            border-radius: 10px; /* More rounded button */
-            text-decoration: none;
-            padding: 15px 25px; /* Larger button */
-            background: linear-gradient(to right, var(--medium-blue-accent) 0%, var(--dark-blue-bg) 100%); /* Gradient background for depth */
-            transition: all 0.3s ease;
-            text-align: center;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Button shadow */
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .nav-container a:hover {
-            background: linear-gradient(to right, var(--light-blue-hover) 0%, var(--medium-blue-accent) 100%); /* Lighter gradient on hover */
-            transform: translateY(-5px) scale(1.02); /* Lift and slight scale */
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Stronger shadow on hover */
-            filter: brightness(1.1); /* Subtle brightness increase */
-        }
-
-        /* --- Responsive Design --- */
-        @media (max-width: 768px) {
-            .header {
-                font-size: 7vw;
-                padding: 20px 20px;
-                margin: 30px auto 20px auto;
-            }
-
-            .column {
-                flex: 1 1 100%; /* Stack columns on smaller screens */
-                padding: 25px;
-            }
-
-            .column p {
-                font-size: 1.3em;
-                margin: 1.5em 0 0.5em 0;
-            }
-
-            .record-text-style {
-                font-size: 1.1em !important;
-            }
-
-            .nav-container {
-                padding: 30px 0 10px 0;
-            }
-
-            .nav-container a {
-                font-size: 1rem;
-                padding: 12px 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header {
-                font-size: 9vw;
-                padding: 15px 10px;
-                margin: 20px auto;
-            }
-
-            .column {
-                padding: 20px;
-            }
-
-            .column p {
-                font-size: 1.2em;
-                margin: 1.2em 0 0.4em 0;
-            }
-
-            .record-text-style {
-                font-size: 1em !important;
-            }
-        }
+        .info-card { border-color: #4ade80; background-color: #1e293b; }
+        .info-header { font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: 5px; }
+        .info-desc { font-size: 0.85rem; color: #cbd5e0; font-style: italic; margin-bottom: 15px; line-height: 1.4; }
+        .weight-total { color: #4ade80; font-weight: 800; font-size: 1.2rem; margin-top: 10px; text-align: right; border-top: 1px solid #4a5568; padding-top: 5px; }
     </style>
 </head>
-
 <body>
 
-    <div class="header">Records & Rankings</div>
+<div class="ranking-grid" id="leaderboard">
+    <p style="text-align: center; grid-column: 1/-1;">Loading rankings...</p>
+</div>
 
-    <div class="container">
-        <div class="column">
-            <p class="underline-text">Championships Won:</p>
-            <p class="record-text-style">mgreg00x 1<br>CrazyCougars 1</p>
+<script>
+// The raw Google Sheets CSV URL
+const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pub?gid=242455735&single=true&output=csv';
 
-            <p class="underline-text">Highest Win Percentage:</p>
-            <p class="record-text-style">BUNNIESUPBUDDY 75%</p>
+// Using api.allorigins.win to bypass CORS for local file development
+const finalUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(sheetUrl)}&_=${Date.now()}`;
 
-            <p class="underline-text">Lowest Win Percentage:</p>
-            <p class="record-text-style">drvargas 25%</p>
+async function fetchAndDisplayRankings() {
+    console.log("Status: Fetching data via AllOrigins Proxy..."); 
+    try {
+        const response = await fetch(finalUrl);
+        
+        if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+
+        const data = await response.json();
+        const csvText = data.contents; // AllOrigins wraps the CSV in 'contents'
+
+        // Parse CSV Rows
+        const rows = csvText.split(/\r?\n/).filter(row => row.trim() !== "").map(row => {
+            const matches = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+            return matches ? matches.map(cell => cell.replace(/^"(.*)"$/, '$1').trim()) : [];
+        });
+
+        const container = document.getElementById('leaderboard');
+        container.innerHTML = "";
+
+        // Process data starting from Row 4 (index 3)
+        for (let i = 3; i < rows.length; i++) {
+            const col = rows[i];
             
-            <p class="underline-text">Most Points For:</p>
-            <p class="record-text-style">BUNNIESUPBUDDY 3,496.80 points</p>
+            // Validation: Ensure Row has a Rank and a Manager Name
+            if (!col[0] || isNaN(col[0]) || !col[1]) continue; 
 
-            <p class="underline-text">Lowest Points For:</p>
-            <p class="record-text-style">mahomesDiggAhole 2,952.28 points</p>
+            const rank = col[0];
+            const manager = col[1];
+            const totalScore = col[2] || "0";
+            
+            const winPctPts = col[7] || "0";
+            const tpfPts = col[9] || "0";
+            const playoffPts = col[13] || "0";
+            const champsPts = col[17] || "0";
 
-            <p class="underline-text">Most Transactions:</p>
-            <p class="record-text-style">mgreg00x 105</p>
-        </div>
+            container.innerHTML += `
+                <div class="ranking-card" data-rank="${rank}">
+                    <div class="rank-number">${rank}</div>
+                    <div class="manager-info">
+                        <span class="real-name">${manager}</span>
+                    </div>
+                    <div class="total-score">${totalScore} <span>/ 10</span></div>
+                    
+                    <div class="stats-sub-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Win %</span>
+                            <span class="stat-value">${winPctPts}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">TPF</span>
+                            <span class="stat-value">${tpfPts}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Playoffs</span>
+                            <span class="stat-value">${playoffPts}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Champs</span>
+                            <span class="stat-value">${champsPts}</span>
+                        </div>
+                    </div>
 
-        <div class="column">
-            <p class="underline-text">Highest Weekly Total:</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Year</th>
-                        <th>Week</th>
-                        <th>Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td data-matchup="dudenamedtrevor: 190.40 - lightmyBONfire: 104.18">dudenamedtrevor</td><td>2023</td><td>3</td><td>190.40</td></tr>
+                    <div class="win-bar-container">
+                        <div class="win-bar-fill" style="width: ${parseFloat(totalScore) * 10}%"></div>
+                    </div>
+                </div>`;
+        }
 
-                    <tr><td data-matchup="lightmyBONfire: 187.40 - BUNNIESUPBUDDY: 96.14">lightmyBONfire</td><td>2023</td><td>16</td><td>187.40</td></tr>
+        // Final Info Card
+        container.innerHTML += `
+            <div class="ranking-card info-card">
+                <div class="info-header">Point Assignment</div>
+                <div class="info-desc">
+                    How the Rankings Work: Rankings are out of a total of 10 points. 
+                    The closer a team's score is to 10, the higher their rank.
+                </div>
+                <div class="stats-sub-grid">
+                    <div class="stat-item"><span class="stat-label">Win %</span><span class="stat-value">2.0</span></div>
+                    <div class="stat-item"><span class="stat-label">TPF</span><span class="stat-value">2.0</span></div>
+                    <div class="stat-item"><span class="stat-label">TPA (The less the higher)</span><span class="stat-value">1.5</span></div>
+                    <div class="stat-item"><span class="stat-label">Playoffs</span><span class="stat-value">1.5</span></div>
+                    <div class="stat-item"><span class="stat-label">Champ App</span><span class="stat-value">1.0</span></div>
+                    <div class="stat-item"><span class="stat-label">Champs Won</span><span class="stat-value">2.0</span></div>
+                </div>
+                <div class="weight-total">TOTAL WEIGHT: 10.0</div>
+            </div>`;
 
-                    <tr><td data-matchup="CrazyCougars: 186.58 - lightmyBONfire: 112.032">CrazyCougars</td><td>2024</td><td>12</td><td>186.58</td></tr>
-
-                    <tr><td data-matchup="dudenamedtrevor: 185.70 - BUNNIESUPBUDDY: 182.42">dudenamedtrevor</td><td>2024</td><td>16</td><td>185.70</td></tr>
-
-                    <tr><td data-matchup="BUNNIESUPBUDDY: 182.42 - dudenamedtrevor: 185.70">BUNNIESUPBUDDY</td><td>2024</td><td>16</td><td>182.42</td></tr>
-
-                    <tr><td data-matchup="BUNNIESUPBUDDY: 181.10 - TB12isDaddy: 114.72">BUNNIESUPBUDDY</td><td>2023</td><td>4</td><td>181.10</td></tr>
-
-                    <tr><td data-matchup="SanDiegoSuperBurgers: 175.46 - Harry: 146.36">SanDiegoSuperBurgers</td><td>2024</td><td>15</td><td>175.46</td></tr>
-
-                    <tr><td data-matchup="lightmyBONfire: 174.06 - dudenamedtrevor: 98.56">lightmyBONfire</td><td>2023</td><td>15</td><td>174.06</td></tr>
-
-                    <tr><td data-matchup="mgreg00x: 173.56 - drvargas: 165.40">mgreg00x</td><td>2023</td><td>11</td><td>173.56</td></tr>
-
-                    <tr><td data-matchup="lightmyBONfire: 172.68 - DawgPound247: 117.10">lightmyBONfire</td><td>2024</td><td>14</td><td>172.68</td></tr>
-                </tbody>
-            </table>
-
-            <div class="nav-container">
-                <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?gid=0&single=true">Manager Rankings 2025</a>
-             <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?gid=242455735&single=true">Manager Rankings 2026</a>
-			</div>
-        </div>
-    </div>
-
-
-
-    <div id="matchupTooltip" class="matchup-tooltip"></div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const nameCells = document.querySelectorAll('.column table tbody td:first-child');
-            const tooltip = document.getElementById('matchupTooltip');
-
-            nameCells.forEach(cell => {
-                // Only add listeners if the cell has matchup data
-                if (cell.dataset.matchup) {
-                    cell.addEventListener('mouseenter', (event) => {
-                        // Set tooltip content
-                        tooltip.textContent = cell.dataset.matchup;
-                        
-                        // Position the tooltip
-                        const cellRect = cell.getBoundingClientRect();
-                        const scrollX = window.scrollX || document.documentElement.scrollLeft;
-                        const scrollY = window.scrollY || document.documentElement.scrollTop;
-
-                        // Calculate desired position (e.g., above and centered to the cell)
-                        let left = cellRect.left + scrollX + (cellRect.width / 2) - (tooltip.offsetWidth / 2);
-                        let top = cellRect.top + scrollY - tooltip.offsetHeight - 10; // 10px above the cell
-
-                        // Adjust if it goes off screen to the left
-                        if (left < scrollX) {
-                            left = scrollX + 10;
-                        }
-                        // Adjust if it goes off screen to the right
-                        if (left + tooltip.offsetWidth > window.innerWidth + scrollX) {
-                            left = window.innerWidth + scrollX - tooltip.offsetWidth - 10;
-                        }
-                        // Adjust if it goes off screen to the top (move below if necessary)
-                        if (top < scrollY) {
-                            top = cellRect.bottom + scrollY + 10;
-                        }
-
-
-                        tooltip.style.left = `${left}px`;
-                        tooltip.style.top = `${top}px`;
-                        
-                        // Show tooltip
-                        tooltip.classList.add('visible');
-                    });
-
-                    cell.addEventListener('mouseleave', () => {
-                        // Hide tooltip
-                        tooltip.classList.remove('visible');
-                    });
-
-                    // Add a small event listener to parent to make sure tooltip disappears
-                    // if mouse rapidly leaves the table area.
-                    cell.closest('table').addEventListener('mouseleave', () => {
-                        tooltip.classList.remove('visible');
-                    });
-                }
-            });
-        });
-    </script>
-	<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            // FIX: Renamed Service Worker file reference to ensure re-registration
-            navigator.serviceWorker.register('service-worker-2.js') 
-                .then(registration => {
-                    console.log('Service Worker registered!');
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
-                });
-        });
+    } catch (error) {
+        console.error("Critical Error:", error);
+        document.getElementById('leaderboard').innerHTML = 
+            `<p style="grid-column: 1/-1; text-align: center; color: #fc8181;">
+                <strong>Data Load Failed</strong><br>
+                Please ensure the Google Sheet is "Published to the Web" as a CSV.<br>
+                <small>${error.message}</small>
+            </p>`;
     }
+}
+
+fetchAndDisplayRankings();
 </script>
 
 </body>

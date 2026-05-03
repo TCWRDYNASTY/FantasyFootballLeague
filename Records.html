@@ -148,18 +148,24 @@ async function fetchAndDisplayRankings() {
         const container = document.getElementById('leaderboard');
         container.innerHTML = "";
 
-        // 3. The Loop (Starting at Row 4 / Index 3)
+       // 3. The Loop (Starting at Row 4 / Index 3)
         for (let i = 3; i < rows.length; i++) {
             const col = rows[i];
+            
+            // Skip rows that don't have a valid Rank in Column A
             if (!col[0] || isNaN(col[0])) continue; 
 
-            const rank = col[0];
-            const manager = col[1];
-            const totalScore = col[2];
-            const winPctPts = col[7];
-            const tpfPts = col[9];
-            const playoffPts = col[13];
-            const champsPts = col[17];
+            const rank = col[0];        // Column A (Index 0)
+            const manager = col[1];     // Column B (Index 1)
+            const totalScore = col[2];  // Column C (Index 2)
+            
+            // Shifting indices to fix the "one column to the right" issue
+            const winPctPts = col[7];   // Column H (Index 7)
+            const tpfPts = col[9];      // Column J (Index 9)
+            const tpaPts = col[11];     // Column L (Index 11)
+            const playoffPts = col[13]; // Column N (Index 13)
+            const champAppPts = col[15];// Column P (Index 15)
+            const ringsPts = col[17];   // Column R (Index 17)
 
             container.innerHTML += `
                 <div class="ranking-card" data-rank="${rank}">
@@ -172,8 +178,10 @@ async function fetchAndDisplayRankings() {
                     <div class="stats-sub-grid">
                         <div class="stat-item"><span class="stat-label">Win %</span><span class="stat-value">${winPctPts}</span></div>
                         <div class="stat-item"><span class="stat-label">TPF</span><span class="stat-value">${tpfPts}</span></div>
+                        <div class="stat-item"><span class="stat-label">TPA</span><span class="stat-value">${tpaPts}</span></div>
                         <div class="stat-item"><span class="stat-label">Playoffs</span><span class="stat-value">${playoffPts}</span></div>
-                        <div class="stat-item"><span class="stat-label">Champs</span><span class="stat-value">${champsPts}</span></div>
+                        <div class="stat-item"><span class="stat-label">Champ App</span><span class="stat-value">${champAppPts}</span></div>
+                        <div class="stat-item"><span class="stat-label">Rings</span><span class="stat-value">${ringsPts}</span></div>
                     </div>
 
                     <div class="win-bar-container">
@@ -181,8 +189,6 @@ async function fetchAndDisplayRankings() {
                     </div>
                 </div>`;
         }
-
-        // Add the Legend Card
         container.innerHTML += `
             <div class="ranking-card info-card">
                 <div class="info-header">Point Assignment</div>
@@ -190,8 +196,10 @@ async function fetchAndDisplayRankings() {
                 <div class="stats-sub-grid">
                     <div class="stat-item"><span class="stat-label">Win %</span><span class="stat-value">2.0</span></div>
                     <div class="stat-item"><span class="stat-label">TPF</span><span class="stat-value">2.0</span></div>
+                    <div class="stat-item"><span class="stat-label">TPA</span><span class="stat-value">1.5</span></div>
                     <div class="stat-item"><span class="stat-label">Playoffs</span><span class="stat-value">1.5</span></div>
-                    <div class="stat-item"><span class="stat-label">Champs</span><span class="stat-value">2.0</span></div>
+                    <div class="stat-item"><span class="stat-label">Champ App</span><span class="stat-value">1.0</span></div>
+                    <div class="stat-item"><span class="stat-label">Rings</span><span class="stat-value">2.0</span></div>
                 </div>
             </div>`;
 

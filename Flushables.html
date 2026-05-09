@@ -1,30 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Flushables</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TCWR Dy-NASTY Legacy Board</title>
 
-    <style>
-/*------------------------------------*\
-  #BASE STYLES
-\*------------------------------------*/
-body {
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+
+  <style>
+
+  /* ----------------------------------------
+     GLOBAL
+  ---------------------------------------- */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: url("https://www.transparenttextures.com/patterns/dark-wood.png");
-    background-color: #7B4B2A; /* Poop-like brown */
-    padding: 40px 20px;
-    color: #222;
-}
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #1e3159;
+    color: white;
+  }
 
-/*------------------------------------*\
-  #HEADER
-\*------------------------------------*/
-.header {
-    background: rgba(255, 255, 255, 0.9);
-    border: 4px solid #333;
+  /* ----------------------------------------
+     HEADER
+  ---------------------------------------- */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 1.5em;
+    background: linear-gradient(90deg, #FFD700, #FFEF9F);
+    padding: 1em 2em;
+    margin: 30px;
+    border-radius: 20px;
+    box-shadow: 4px 4px 25px rgba(0, 0, 0, 0.5);
+    animation: shimmer 3s infinite linear;
+    background-size: 200% auto;
+    background-position: left center;
+  }
+
+  .logo {
+    max-width: 160px;
+  }
+
+  .logo img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+  }
+
+  .header-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8em;
+    font-weight: bold;
+    color: #1e3159;
+    line-height: 1;
+  }
+
+  .subtitle {
+    font-size: 0.6em;
+    font-style: italic;
+    color: #444;
+  }
+
+  /* ----------------------------------------
+     CHAMPIONS SECTION
+  ---------------------------------------- */
+  .main-content {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 2em;
+    gap: 2em;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .trophy-img {
+    max-width: 200px;
+    flex-shrink: 0;
+  }
+
+  .trophy-img img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+
+  .champ-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5em;
+    justify-content: center;
+    flex: 1;
+  }
+
+  .champ {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 2px solid #FFD700;
+    color: #FFD700;
+    padding: 1.2em;
+    width: 280px;
+    border-radius: 15px;
+    font-family: Copperplate, serif;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+  }
+
+  .champ:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+  }
+
+  .champ-quote {
+    font-size: 1em;
+    font-family: cursive;
+    margin-top: 0.5em;
+    color: #FFEF9F;
+  }
+
+  /* ----------------------------------------
+     DIVIDER
+  ---------------------------------------- */
+  .vs-divider {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    padding: 30px;
+    margin: 40px auto;
+    width: 90%;
+    border-top: 4px solid #FFD700;
+    border-bottom: 4px solid #7B4B2A;
+    background: linear-gradient(to right, #1e3159, #7B4B2A);
+    color: white;
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 2px;
+  }
+
+  /* ----------------------------------------
+     FLUSHABLES SECTION
+  ---------------------------------------- */
+  .flush-section {
+    padding: 2em;
+  }
+
+  .flush-header {
+    background: rgba(255,255,255,0.08);
+    border: 3px solid #7B4B2A;
     padding: 25px;
     text-align: center;
     font-size: 2.2rem;
@@ -32,158 +162,220 @@ body {
     border-radius: 15px;
     box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.3);
     margin-bottom: 30px;
-}
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 2px;
+  }
 
-.header p {
+  .flush-header p {
     margin: 10px 0;
     font-size: 1.2rem;
-    color: #444;
-}
+    color: #ddd;
+  }
 
-/*------------------------------------*\
-  #CONTAINER & CHAMPION CARDS
-\*------------------------------------*/
-.container {
+  .flush-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
-}
+  }
 
-.champ {
-    background-color: rgba(255, 255, 255, 0.85);
+  .flush-champ {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+    border: 2px solid #7B4B2A;
+    color: #fff;
     text-align: center;
     padding: 1em;
-    border: 3px solid black;
     font-family: Copperplate, serif;
     width: 280px;
-    flex: 0 0 auto;
     position: relative;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s;
-}
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+  }
 
-.champ:hover {
-    transform: scale(1.03);
-}
+  .flush-champ:hover {
+    transform: scale(1.05);
+  }
 
-.champ img {
-    max-width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 6px;
-    margin-bottom: 10px;
-}
+  .flush-quote {
+    font-size: 0.9rem;
+    font-family: cursive;
+    color: #d8c3b5;
+  }
 
-.quote {
-    font-size: 0.85rem;
-    font-family: 'Comic Sans MS', cursive;
-    color: #555;
-}
-
-/*------------------------------------*\
-  #BADGE & ANIMATIONS
-\*------------------------------------*/
-.badge {
+  /* ----------------------------------------
+     BADGES
+  ---------------------------------------- */
+  .badge {
     position: absolute;
-    top: -20px;
-    right: -20px;
-    background-color: #e5c07b;
-    color: #5a3206;
-    padding: 0.5em 1em;
-    border: 3px solid #3a1f00;
+    top: -15px;
+    right: -15px;
+    background-color: #FFD700;
+    color: #1e3159;
+    padding: 0.6em;
     border-radius: 50%;
-    font-size: 0.8em;
+    font-size: 1.2em;
     font-weight: bold;
-    animation: bounce 2s infinite, glow 1.5s infinite alternate;
-}
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    animation: bounce 2s infinite;
+  }
 
-@keyframes bounce {
+  .flush-badge {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    background-color: #7B4B2A;
+    color: white;
+    padding: 0.6em;
+    border-radius: 50%;
+    font-size: 1.2em;
+    font-weight: bold;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    animation: bounce 2s infinite;
+  }
+
+  /* ----------------------------------------
+     ANIMATIONS
+  ---------------------------------------- */
+  @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-6px); }
-}
+  }
 
-@keyframes glow {
-    from { box-shadow: 0 0 5px #5a3206; }
-    to { box-shadow: 0 0 20px #5a3206; }
-}
+  @keyframes shimmer {
+    0% { background-position: -1000px center; }
+    100% { background-position: 1000px center; }
+  }
 
-/*------------------------------------*\
-  #MEDIA QUERIES (RESPONSIVENESS)
-\*------------------------------------*/
-@media (max-width: 768px) {
-    .champ {
-        width: 100%;
-        margin: 0 auto;
-    }
+  /* ----------------------------------------
+     RESPONSIVE
+  ---------------------------------------- */
+  @media (max-width: 768px) {
 
     .header {
-        font-size: 1.8rem;
+      flex-direction: column;
+      text-align: center;
     }
 
-    .header p {
-        font-size: 1rem;
+    .main-content {
+      flex-direction: column;
+      align-items: center;
     }
-}
 
-@media (max-width: 1024px) {
-    /* This rule for .header-text is likely from an external context, not defined in your provided HTML.
-       If .header-text is not used, it's unnecessary. If it is used, it should be defined in your HTML. */
-    /* .header-text {
-        font-size: 2.2em;
-    } */
-
-    .champ {
-        width: 240px;
+    .champ-container,
+    .flush-container {
+      flex-direction: column;
+      align-items: center;
     }
-}
-</style>
+
+    .champ,
+    .flush-champ {
+      width: 90%;
+    }
+
+    .header-text {
+      font-size: 2em;
+    }
+
+    .vs-divider {
+      font-size: 1.5rem;
+    }
+  }
+
+  </style>
 </head>
-<body> 
+
+<body>
+
+  <!-- HEADER -->
   <div class="header">
-      TCWR Dy-Nasty
-      <p>🏆 Toilet Bowl Champs 🧻</p>
+    <div class="logo">
+      <img src="Subject.jpeg" alt="TCWR Logo" />
+    </div>
+
+    <div class="header-text">
+      TCWR Dy-NASTY
+      <div class="subtitle">League Legacy Board</div>
+    </div>
+  </div>
+
+  <!-- HALL OF CHAMPIONS -->
+  <div class="main-content">
+
+    <div class="trophy-img">
+      <img src="trophy3.jpeg" alt="Trophy" />
+    </div>
+
+    <div class="champ-container">
+
+      <div class="champ">
+        <p>Matt Gregory<br />2023<br />9-5</p>
+        <p class="champ-quote">"The First!"</p>
+      </div>
+
+      <div class="champ">
+        <p>Jessica Sims<br />2024<br />12-2</p>
+        <p class="champ-quote">"The champ in 2 Leagues!"</p>
+      </div>
+
+      <div class="champ">
+        <p>Matt Gregory<br />2025<br />8-6</p>
+        <p class="champ-quote">"Say My Name!"</p>
+        <div class="badge">🏆</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="vs-divider">
+    🏆 Hall of Champions VS 🚽 Toilet Bowl Champs 🧻
+  </div>
+
+  <!-- FLUSHABLES -->
+  <div class="flush-section">
+
+    <div class="flush-header">
+      Toilet Bowl Champions
       <p>Cheers to a Shitty Season!</p>
+    </div>
+
+    <div class="flush-container">
+
+      <div class="flush-champ">
+        <p><strong>Brittany Canfield</strong><br/>2023 Season<br/><strong>4-10</strong></p>
+        <p class="flush-quote">"So many people are shitting on my team name!"</p>
+      </div>
+
+      <div class="flush-champ">
+        <p><strong>Steven Vargas</strong><br/>2024 Season<br/><strong>3-11</strong></p>
+        <p class="flush-quote">"I never come in last place!"</p>
+      </div>
+
+      <div class="flush-champ">
+        <p><strong>An Nguyen</strong><br/>2025 Season<br/><strong>2-12</strong></p>
+        <p class="flush-quote">"Chaos"</p>
+        <div class="flush-badge">💩</div>
+      </div>
+
+    </div>
   </div>
 
-
-
-<div class="page-wrapper">
- 
-  <div class="container">
-      <div class="champ">
-          <p><strong>Brittany Canfield</strong><br/>2023 Season<br/><strong>4-10</strong></p>
-          <p class="quote">"So many people are shitting on my team name!"</p>
-      </div>
-
-      <div class="champ">
-          <p><strong>Steven Vargas</strong><br/>2024 Season<br/><strong>3-11</strong></p>
-          <p class="quote">"I never come in last place!"</p>
-      </div>
-      
-        <div class="champ">
-          <p><strong>An Nguyen</strong><br/>2025 Season<br/><strong>2-12</strong></p>
-          <p class="quote">"Chaos"</p>
-          <div class="badge">💩</div>
-      </div>
-      
-  </div>
-</div>
-
-      <script>
+  <script>
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            // FIX: Renamed Service Worker file reference to ensure re-registration
-            navigator.serviceWorker.register('service-worker-2.js') 
-                .then(registration => {
-                    console.log('Service Worker registered!');
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
-                });
-        });
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker-2.js')
+          .then(registration => {
+            console.log('Service Worker registered!');
+          })
+          .catch(error => {
+            console.log('Service Worker registration failed:', error);
+          });
+      });
     }
-</script>
+  </script>
+
 </body>
 </html>

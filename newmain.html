@@ -334,10 +334,11 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
             </div>
         </div>
 
-       <!-- NEW CENTER COLUMN: WEEKLY SCOREBOARD & PREDICTIONS -->
+<!-- CENTER COLUMN: WEEKLY SCOREBOARD -->
 <div class="center-column">
     <div class="column-title">Weekly Scoreboard & Predictions</div>
     <div class="column-container" id="scoreboard-container">
+        <!-- The scoreboard cards will be injected here -->
         <p style="text-align:center; color:#94a3b8; padding:20px;">Calculating predictions...</p>
     </div>
 </div>
@@ -366,10 +367,15 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 
 <script type="module">
 /* ==================================================================== */
-/* === 1. FIREBASE INITIALIZATION === */
+/* === 1. EXTERNAL LIBRARIES & CONFIG === */
 /* ==================================================================== */
+// Add PapaParse for CSV processing
+import Papa from "https://cdn.skypack.dev/papaparse";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const leagueId = "1180908151502815232";
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
@@ -386,7 +392,6 @@ const db = getFirestore(app);
 /* ==================================================================== */
 /* === 2. MOBILE MENU LOGIC === */
 /* ==================================================================== */
-// This must be inside the module to work now
 const menuBtn = document.getElementById('mobileMenuBtn');
 const sidebar = document.querySelector('.sidebar-left');
 
@@ -411,15 +416,12 @@ function loadBulletin() {
             display.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.8rem;">No recent announcements.</p>';
             return;
         }
-
         snapshot.forEach((doc) => {
             const post = doc.data();
             const item = document.createElement('div');
             item.className = 'bulletin-item';
-            
             const displayDate = post.Date || post.date || "UPDATE";
             const displayText = post.text || "";
-
             item.innerHTML = `
                 <p class="bulletin-date">${displayDate.toUpperCase()}</p>
                 <p class="bulletin-text">${displayText}</p>
@@ -429,13 +431,9 @@ function loadBulletin() {
     });
 }
 
-loadBulletin();
-
 /* ==================================================================== */
 /* === 4. SLEEPER STANDINGS DATA === */
 /* ==================================================================== */
-const leagueId = "1180908151502815232";
-
 async function fetchStandings() {
     try {
         const [rostersRes, usersRes] = await Promise.all([
@@ -473,7 +471,6 @@ async function fetchStandings() {
             teams.forEach((team, index) => {
                 const row = document.createElement('tr');
                 if (index === 6) row.classList.add('playoff-divider'); 
-                
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td style="font-weight: 600;">${team.teamName}</td>
@@ -487,7 +484,108 @@ async function fetchStandings() {
     }
 }
 
+/* ==================================================================== */
+/* === 5. WEEKLY SCOREBOARD & PREDICTIONS (NEW) === */
+/* ==================================================================== */
+function getCurrentWeek() {
+    // Set to Thursday of Week 1
+    const seasonStart = new Date("2025-09-04"); 
+    const now = new Date();
+    const diff = now - seasonStart;
+    const week = Math.ceil(diff / (7 * 24 * 60 * 60 * 1000));
+    return Math.max(1, Math.min(week, 18)); 
+}
+
+async function fetchScoreboard() {
+    const container = document.getElementById('scoreboard-container');
+    const week = getCurrentWeek();
+
+    try {
+        const [matchRes, usersRes, rostersRes] = await Promise.all([
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
+        ]);
+
+        const matchupsRaw = await matchRes.json();
+        const users = await usersRes.json();
+        const rosters = await rostersRes.json();
+
+        // Create maps to link Roster ID to Username
+        const userLookup = Object.fromEntries(users.map(u => [u.user_id, u.display_name]));
+        const rosterToNameMap = Object.fromEntries(rosters.map(r => [r.roster_id, userLookup[r.owner_id] || "Unknown"]));
+
+        // Get Google Sheet Stats
+        Papa.parse(csvUrl, {
+            download: true,
+            header: true,
+            complete: (results) => {
+                renderMatchupCards(matchupsRaw, rosterToNameMap, results.data);
+            }
+        });
+    } catch (err) {
+        console.error("Scoreboard Error:", err);
+    }
+}
+
+function renderMatchupCards(matchups, nameMap, stats) {
+    const container = document.getElementById('scoreboard-container');
+    container.innerHTML = '';
+
+    const groups = {};
+    matchups.forEach(m => {
+        if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
+        groups[m.matchup_id].push(m);
+    });
+
+    Object.values(groups).forEach(pair => {
+        if (pair.length < 2) return;
+
+        const nameA = nameMap[pair[0].roster_id];
+        const nameB = nameMap[pair[1].roster_id];
+
+        // Projections from Sleeper
+        const projA = pair[0].points || 0;
+        const projB = pair[1].points || 0;
+
+        // Historic Avg from CSV (Matching name in CSV to Sleeper Name)
+        const statA = stats.find(s => s.Manager && nameA && s.Manager.toLowerCase().includes(nameA.toLowerCase()));
+        const statB = stats.find(s => s.Manager && nameB && s.Manager.toLowerCase().includes(nameB.toLowerCase()));
+
+        const avgA = parseFloat(statA?.AvgPts || 0);
+        const avgB = parseFloat(statB?.AvgPts || 0);
+
+        const sleeperFav = projA > projB ? nameA : nameB;
+        const historicFav = avgA > avgB ? nameA : nameB;
+        
+        let verdict = `Projected Winner: @${historicFav}`;
+        if (sleeperFav !== historicFav && historicFav !== "Unknown") {
+            verdict = `🚨 Upset Alert: @${historicFav}`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'bulletin-item';
+        card.style.borderLeft = "4px solid #facc15";
+        card.innerHTML = `
+            <p class="bulletin-date" style="margin-bottom:8px;">WEEK MATCHUP</p>
+            <p style="color:white; font-weight:bold; margin:0 0 10px 0;">@${nameA} vs @${nameB}</p>
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#94a3b8;">
+                <span>Sleeper Proj: ${projA} - ${projB}</span>
+                <span>Historic Avg: ${avgA} - ${avgB}</span>
+            </div>
+            <p style="margin-top:10px; color:#facc15; font-weight:bold; font-size:0.9rem;">${verdict}</p>
+        `;
+        container.appendChild(card);
+    });
+}
+
+/* ==================================================================== */
+/* === 6. INITIALIZE ALL === */
+/* ==================================================================== */
+loadBulletin();
 fetchStandings();
+fetchScoreboard();
+
 </script>
 
 </body>

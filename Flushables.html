@@ -9,9 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 
   <style>
-
   /* ----------------------------------------
-     GLOBAL
+      GLOBAL
   ---------------------------------------- */
   * {
     box-sizing: border-box;
@@ -26,264 +25,180 @@
   }
 
   /* ----------------------------------------
-     HEADER
+      HEADER
   ---------------------------------------- */
   .header {
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 1.5em;
     background: linear-gradient(90deg, #FFD700, #FFEF9F);
-    padding: 1em 2em;
+    padding: 1.5em;
     margin: 30px;
     border-radius: 20px;
     box-shadow: 4px 4px 25px rgba(0, 0, 0, 0.5);
-    animation: shimmer 3s infinite linear;
     background-size: 200% auto;
-    background-position: left center;
-  }
-
-  .logo {
-    max-width: 160px;
-  }
-
-  .logo img {
-    width: 100%;
-    height: auto;
-    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
   }
 
   .header-text {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 2.8em;
-    font-weight: bold;
     color: #1e3159;
-    line-height: 1;
-  }
-
-  .subtitle {
-    font-size: 0.6em;
-    font-style: italic;
-    color: #444;
+    text-align: center;
   }
 
   /* ----------------------------------------
-     CHAMPIONS SECTION
+      SECTION SHARED STYLES
   ---------------------------------------- */
-  .main-content {
+  .section-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
     padding: 2em;
-    gap: 2em;
-    justify-content: center;
-    align-items: flex-start;
+    gap: 1.5em;
   }
 
-  .trophy-img {
-    max-width: 200px;
-    flex-shrink: 0;
-  }
-
-  .trophy-img img {
-    width: 100%;
-    height: auto;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-  }
-
-  .champ-container {
+  .content-wrapper {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5em;
     justify-content: center;
-    flex: 1;
+    align-items: stretch; /* Makes cards same height */
+    gap: 20px;
+    width: 100%;
+    max-width: 1400px;
   }
 
-  .champ {
+  .trophy-box {
+    width: 280px; /* Matches card width for symmetry */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .trophy-box img {
+    width: 100%;
+    height: 280px; /* Fixed height for image consistency */
+    object-fit: contain;
+    border-radius: 15px;
+  }
+
+  /* ----------------------------------------
+      CHAMPIONS (GOLD)
+  ---------------------------------------- */
+  .champ-header {
+    background: rgba(255, 215, 0, 0.1);
+    border: 3px solid #FFD700;
+    padding: 20px;
+    width: 90%;
+    text-align: center;
+    border-radius: 15px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: #FFD700;
+    letter-spacing: 2px;
+  }
+
+  .champ-card {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
     border: 2px solid #FFD700;
     color: #FFD700;
-    padding: 1.2em;
+    padding: 1.5em;
     width: 280px;
     border-radius: 15px;
     font-family: Copperplate, serif;
     text-align: center;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
     position: relative;
-    transition: transform 0.2s ease, box-shadow 0.3s ease;
-  }
-
-  .champ:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
-  }
-
-  .champ-quote {
-    font-size: 1em;
-    font-family: cursive;
-    margin-top: 0.5em;
-    color: #FFEF9F;
-  }
-
-  /* ----------------------------------------
-     DIVIDER
-  ---------------------------------------- */
-  .vs-divider {
-    text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
-    padding: 30px;
-    margin: 40px auto;
-    width: 90%;
-    border-top: 4px solid #FFD700;
-    border-bottom: 4px solid #7B4B2A;
-    background: linear-gradient(to right, #1e3159, #7B4B2A);
-    color: white;
-    border-radius: 20px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.4);
-    font-family: 'Bebas Neue', sans-serif;
-    letter-spacing: 2px;
-  }
-
-  /* ----------------------------------------
-     FLUSHABLES SECTION
-  ---------------------------------------- */
-  .flush-section {
-    padding: 2em;
-  }
-
-  .flush-header {
-    background: rgba(255,255,255,0.08);
-    border: 3px solid #7B4B2A;
-    padding: 25px;
-    text-align: center;
-    font-size: 2.2rem;
-    font-weight: bold;
-    border-radius: 15px;
-    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.3);
-    margin-bottom: 30px;
-    color: #fff;
-    font-family: 'Bebas Neue', sans-serif;
-    letter-spacing: 2px;
-  }
-
-  .flush-header p {
-    margin: 10px 0;
-    font-size: 1.2rem;
-    color: #ddd;
-  }
-
-  .flush-container {
+    transition: transform 0.2s ease;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     justify-content: center;
-    gap: 20px;
   }
 
-  .flush-champ {
-    background: rgba(255,255,255,0.1);
+  /* ----------------------------------------
+      FLUSHABLES (BROWN)
+  ---------------------------------------- */
+  .flush-header {
+    background: rgba(123, 75, 42, 0.2);
+    border: 3px solid #7B4B2A;
+    padding: 20px;
+    width: 90%;
+    text-align: center;
+    border-radius: 15px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: #fff;
+    letter-spacing: 2px;
+  }
+
+  .flush-card {
+    background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
     border: 2px solid #7B4B2A;
     color: #fff;
-    text-align: center;
-    padding: 1em;
-    font-family: Copperplate, serif;
+    padding: 1.5em;
     width: 280px;
-    position: relative;
     border-radius: 15px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    font-family: Copperplate, serif;
+    text-align: center;
+    position: relative;
     transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
-  .flush-champ:hover {
+  .champ-card:hover, .flush-card:hover {
     transform: scale(1.05);
   }
 
-  .flush-quote {
-    font-size: 0.9rem;
-    font-family: cursive;
-    color: #d8c3b5;
-  }
-
   /* ----------------------------------------
-     BADGES
+      BADGES & QUOTES
   ---------------------------------------- */
   .badge {
     position: absolute;
     top: -15px;
     right: -15px;
-    background-color: #FFD700;
-    color: #1e3159;
     padding: 0.6em;
     border-radius: 50%;
     font-size: 1.2em;
     font-weight: bold;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
     animation: bounce 2s infinite;
   }
 
-  .flush-badge {
-    position: absolute;
-    top: -15px;
-    right: -15px;
-    background-color: #7B4B2A;
-    color: white;
-    padding: 0.6em;
-    border-radius: 50%;
-    font-size: 1.2em;
-    font-weight: bold;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    animation: bounce 2s infinite;
+  .gold-badge { background: #FFD700; color: #1e3159; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+  .brown-badge { background: #7B4B2A; color: white; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+
+  .quote {
+    font-size: 0.9em;
+    font-family: cursive;
+    margin-top: 10px;
+    font-style: italic;
   }
 
   /* ----------------------------------------
-     ANIMATIONS
+      DIVIDER
   ---------------------------------------- */
+  .vs-divider {
+    text-align: center;
+    font-size: 2rem;
+    padding: 15px;
+    margin: 20px auto;
+    width: 80%;
+    border-top: 2px solid #FFD700;
+    border-bottom: 2px solid #7B4B2A;
+    background: linear-gradient(to right, #1e3159, #7B4B2A);
+    font-family: 'Bebas Neue', sans-serif;
+  }
+
   @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-6px); }
   }
 
-  @keyframes shimmer {
-    0% { background-position: -1000px center; }
-    100% { background-position: 1000px center; }
-  }
-
-  /* ----------------------------------------
-     RESPONSIVE
-  ---------------------------------------- */
   @media (max-width: 768px) {
-
-    .header {
-      flex-direction: column;
-      text-align: center;
-    }
-
-    .main-content {
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .champ-container,
-    .flush-container {
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .champ,
-    .flush-champ {
-      width: 90%;
-    }
-
-    .header-text {
-      font-size: 2em;
-    }
-
-    .vs-divider {
-      font-size: 1.5rem;
-    }
+    .header-text { font-size: 1.8em; }
+    .content-wrapper { flex-direction: column; align-items: center; }
   }
-
   </style>
 </head>
 
@@ -292,86 +207,70 @@
   <!-- HEADER -->
   <div class="header">
     <div class="header-text">
-      🏆 Hall of Champions VS 🚽 Toilet Bowl Champs 🧻
+       🏆 Hall of Champions VS 🚽 Toilet Bowl Champs 🧻
     </div>
   </div>
 
   <!-- HALL OF CHAMPIONS -->
-  <div class="main-content">
- <div class="flush-header">
-      The Champs
-      <p>Cheers to a Shitty Season!</p>
-    </div>
-    <div class="trophy-img">
-      <img src="trophy3.jpeg" alt="Trophy" />
+  <section class="section-container">
+    <div class="champ-header">
+      The Champions
     </div>
 
-    <div class="champ-container">
+    <div class="content-wrapper">
+      <div class="trophy-box">
+        <img src="trophy3.jpeg" alt="Trophy" />
+      </div>
 
-      <div class="champ">
+      <div class="champ-card">
         <p>Matt Gregory<br />2023<br />9-5</p>
-        <p class="champ-quote">"The First!"</p>
+        <p class="quote">"The First!"</p>
       </div>
 
-      <div class="champ">
+      <div class="champ-card">
         <p>Jessica Sims<br />2024<br />12-2</p>
-        <p class="champ-quote">"The champ in 2 Leagues!"</p>
+        <p class="quote">"The champ in 2 Leagues!"</p>
       </div>
 
-      <div class="champ">
+      <div class="champ-card">
         <p>Matt Gregory<br />2025<br />8-6</p>
-        <p class="champ-quote">"Say My Name!"</p>
-        <div class="badge">🏆</div>
+        <p class="quote">"Say My Name!"</p>
+        <div class="badge gold-badge">🏆</div>
       </div>
-
     </div>
-  </div>
+  </section>
 
-  <!-- DIVIDER -->
+  <div class="vs-divider">VS</div>
+
   <!-- FLUSHABLES -->
-  <div class="flush-section">
-
+  <section class="section-container">
     <div class="flush-header">
       Toilet Bowl Champions
-      <p>Cheers to a Shitty Season!</p>
+      <p style="font-size: 0.5em; margin: 5px 0; font-family: sans-serif; text-transform: none;">Cheers to a Shitty Season!</p>
     </div>
 
-    <div class="flush-container">
- <div class="trophy-img">
-      <img src="toilet.png" alt="Toilet" />
-    </div>
-      <div class="flush-champ">
+    <div class="content-wrapper">
+      <div class="trophy-box">
+        <img src="toilet.png" alt="Toilet" />
+      </div>
+
+      <div class="flush-card">
         <p><strong>Brittany Canfield</strong><br/>2023 Season<br/><strong>4-10</strong></p>
-        <p class="flush-quote">"So many people are shitting on my team name!"</p>
+        <p class="quote">"So many people are shitting on my team name!"</p>
       </div>
 
-      <div class="flush-champ">
+      <div class="flush-card">
         <p><strong>Steven Vargas</strong><br/>2024 Season<br/><strong>3-11</strong></p>
-        <p class="flush-quote">"I never come in last place!"</p>
+        <p class="quote">"I never come in last place!"</p>
       </div>
 
-      <div class="flush-champ">
+      <div class="flush-card">
         <p><strong>An Nguyen</strong><br/>2025 Season<br/><strong>2-12</strong></p>
-        <p class="flush-quote">"Chaos"</p>
-        <div class="flush-badge">💩</div>
+        <p class="quote">"Chaos"</p>
+        <div class="badge brown-badge">💩</div>
       </div>
-
     </div>
-  </div>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker-2.js')
-          .then(registration => {
-            console.log('Service Worker registered!');
-          })
-          .catch(error => {
-            console.log('Service Worker registration failed:', error);
-          });
-      });
-    }
-  </script>
+  </section>
 
 </body>
 </html>

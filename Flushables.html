@@ -36,7 +36,6 @@
     margin: 30px;
     border-radius: 20px;
     box-shadow: 4px 4px 25px rgba(0, 0, 0, 0.5);
-    background-size: 200% auto;
   }
 
   .header-text {
@@ -53,7 +52,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2em;
+    padding: 1em 2em 3em 2em; /* Added bottom padding for breathing room */
     gap: 1.5em;
   }
 
@@ -61,14 +60,14 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    align-items: stretch; /* Makes cards same height */
+    align-items: stretch; 
     gap: 20px;
     width: 100%;
     max-width: 1400px;
   }
 
   .trophy-box {
-    width: 280px; /* Matches card width for symmetry */
+    width: 280px; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -76,7 +75,7 @@
 
   .trophy-box img {
     width: 100%;
-    height: 280px; /* Fixed height for image consistency */
+    height: 280px; 
     object-fit: contain;
     border-radius: 15px;
   }
@@ -175,21 +174,6 @@
     font-style: italic;
   }
 
-  /* ----------------------------------------
-      DIVIDER
-  ---------------------------------------- */
-  .vs-divider {
-    text-align: center;
-    font-size: 2rem;
-    padding: 15px;
-    margin: 20px auto;
-    width: 80%;
-    border-top: 2px solid #FFD700;
-    border-bottom: 2px solid #7B4B2A;
-    background: linear-gradient(to right, #1e3159, #7B4B2A);
-    font-family: 'Bebas Neue', sans-serif;
-  }
-
   @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-6px); }
@@ -198,6 +182,7 @@
   @media (max-width: 768px) {
     .header-text { font-size: 1.8em; }
     .content-wrapper { flex-direction: column; align-items: center; }
+    .trophy-box { width: 100%; }
   }
   </style>
 </head>
@@ -207,7 +192,7 @@
   <!-- HEADER -->
   <div class="header">
     <div class="header-text">
-       🏆 Hall of Champions VS 🚽 Toilet Bowl Champs 🧻
+       🏆 Hall of Champions & 🚽 Toilet Bowl Champs
     </div>
   </div>
 
@@ -239,8 +224,6 @@
       </div>
     </div>
   </section>
-
-  <div class="vs-divider">VS</div>
 
   <!-- FLUSHABLES -->
   <section class="section-container">

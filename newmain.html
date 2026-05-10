@@ -384,7 +384,8 @@ const nameTranslator = {
     "drvargas": "Bonnie"
 };
 
-    /* === 1. EXTERNAL LIBRARIES & CONFIG === */
+/* === 1. EXTERNAL LIBRARIES & CONFIG === */
+// Switched to jsDelivr to fix the net::ERR_CONNECTION_CLOSED error
 import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -405,7 +406,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 /* === 2. LEAGUE BULLETIN (FIREBASE) === */
-// Fixed: Included the missing loadBulletin function
 function loadBulletin() {
     const display = document.getElementById('bulletin-display');
     if (!display) return;
@@ -430,7 +430,6 @@ function loadBulletin() {
 }
 
 /* === 3. SLEEPER STANDINGS DATA === */
-// Fixed: Included the missing fetchStandings function
 async function fetchStandings() {
     try {
         const [rostersRes, usersRes] = await Promise.all([
@@ -528,14 +527,13 @@ function renderMatchupCards(matchups, nameMap, stats) {
 
         const avgA = parseFloat(sA?.AvgPts || 0);
         const avgB = parseFloat(sB?.AvgPts || 0);
-        const h2h = sA?.H2H_Record || "0-0";
-        const diff = sA?.Pt_Diff || "0";
+        const h2hA = sA?.H2H_Record || "0-0";
+        const diffA = sA?.Pt_Diff || "0";
 
         const pA = pair[0].points || 0;
         const pB = pair[1].points || 0;
         
         const historicFav = avgA > avgB ? nameA : nameB;
-        // Logic check: if Sleeper and Historic disagree, it's an Upset Alert
         const sleeperFav = pA > pB ? nameA : nameB;
         let borderColor = (historicFav === sleeperFav) ? "#facc15" : "#f87171";
 
@@ -549,8 +547,8 @@ function renderMatchupCards(matchups, nameMap, stats) {
             <div style="font-size:0.7rem; color:#94a3b8; display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
                 <span>Proj: ${pA} - ${pB}</span>
                 <span>Avg: ${avgA} - ${avgB}</span>
-                <span>H2H: ${h2h}</span>
-                <span>Diff: ${diff}</span>
+                <span>H2H: ${h2hA}</span>
+                <span>Diff: ${diffA}</span>
             </div>
             <p style="margin-top:8px; color:${borderColor}; font-weight:bold; font-size:0.8rem;">
                 ${historicFav === sleeperFav ? 'Projected:' : '🚨 Upset Alert:'} @${historicFav}
@@ -561,11 +559,9 @@ function renderMatchupCards(matchups, nameMap, stats) {
 }
 
 /* === 5. INITIALIZE ALL === */
-// These are now called once all functions are defined
 loadBulletin();
 fetchStandings();
 fetchScoreboard();
-
 </script>
 </body>
 </html>

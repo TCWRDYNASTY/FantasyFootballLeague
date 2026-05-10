@@ -367,9 +367,26 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 
 <script type="module">
 /* ==================================================================== */
+/* === 0. TRANSLATORS === */
+/* ==================================================================== */    
+const nameTranslator = {
+    "BUNNIESUPBUDDY": "Evelyn",
+    "drvargas": "Bonnie",
+    "mgreg00x": "Matt",
+    "bcanfield0913": "An",
+    "EmMack": "Emily",
+    "TheBeardedVet": "Jess",
+    "dudenamedtrevor": "Trevor",
+    "CrazyCougars": "Jess", 
+    "lightmyBONfire": "Nate",
+    "Waddlepenguin": "Brittney",
+    "DawgPound247": "Brittney",
+    "dianne399": "Dianne"
+};
+    
+/* ==================================================================== */
 /* === 1. EXTERNAL LIBRARIES & CONFIG === */
 /* ==================================================================== */
-// Add PapaParse for CSV processing
 import Papa from "https://cdn.skypack.dev/papaparse";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -485,10 +502,9 @@ async function fetchStandings() {
 }
 
 /* ==================================================================== */
-/* === 5. WEEKLY SCOREBOARD & PREDICTIONS (NEW) === */
+/* === 5. WEEKLY SCOREBOARD & PREDICTIONS === */
 /* ==================================================================== */
 function getCurrentWeek() {
-    // Set to Thursday of Week 1
     const seasonStart = new Date("2025-09-04"); 
     const now = new Date();
     const diff = now - seasonStart;
@@ -511,11 +527,9 @@ async function fetchScoreboard() {
         const users = await usersRes.json();
         const rosters = await rostersRes.json();
 
-        // Create maps to link Roster ID to Username
         const userLookup = Object.fromEntries(users.map(u => [u.user_id, u.display_name]));
         const rosterToNameMap = Object.fromEntries(rosters.map(r => [r.roster_id, userLookup[r.owner_id] || "Unknown"]));
 
-        // Get Google Sheet Stats
         Papa.parse(csvUrl, {
             download: true,
             header: true,
@@ -530,50 +544,71 @@ async function fetchScoreboard() {
 
 function renderMatchupCards(matchups, nameMap, stats) {
     const container = document.getElementById('scoreboard-container');
-    container.innerHTML = '';
+    container.innerHTML = ''; // Clear "Calculating..."
 
+    // 1. Group EVERYONE by their matchup_id
     const groups = {};
     matchups.forEach(m => {
         if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
         groups[m.matchup_id].push(m);
     });
 
-    Object.values(groups).forEach(pair => {
+    console.log("Total Matchups Found:", Object.keys(groups).length);
+
+    // 2. Loop through every group and build a card
+    Object.keys(groups).forEach(matchId => {
+        const pair = groups[matchId];
+        
+        // Skip if it's a bye week or incomplete data
         if (pair.length < 2) return;
 
-        const nameA = nameMap[pair[0].roster_id];
-        const nameB = nameMap[pair[1].roster_id];
+        const teamA = pair[0];
+        const teamB = pair[1];
 
-        // Projections from Sleeper
-        const projA = pair[0].points || 0;
-        const projB = pair[1].points || 0;
+        // Link Roster ID to names
+        const nameA = nameMap[teamA.roster_id] || "Unknown";
+        const nameB = nameMap[teamB.roster_id] || "Unknown";
 
-        // Historic Avg from CSV (Matching name in CSV to Sleeper Name)
-        const statA = stats.find(s => s.Manager && nameA && s.Manager.toLowerCase().includes(nameA.toLowerCase()));
-        const statB = stats.find(s => s.Manager && nameB && s.Manager.toLowerCase().includes(nameB.toLowerCase()));
+        // Logic to find stats using our Translator
+        const findStat = (sleeperName) => {
+            const cleanSleeper = sleeperName.replace('@', '').trim();
+            const realName = nameTranslator[cleanSleeper] || cleanSleeper;
+            return stats.find(s => s.Manager && s.Manager.toLowerCase().trim() === realName.toLowerCase().trim());
+        };
+
+        const statA = findStat(nameA);
+        const statB = findStat(nameB);
 
         const avgA = parseFloat(statA?.AvgPts || 0);
         const avgB = parseFloat(statB?.AvgPts || 0);
+        const projA = teamA.points || 0;
+        const projB = teamB.points || 0;
 
+        // Determine favorites
         const sleeperFav = projA > projB ? nameA : nameB;
         const historicFav = avgA > avgB ? nameA : nameB;
         
         let verdict = `Projected Winner: @${historicFav}`;
-        if (sleeperFav !== historicFav && historicFav !== "Unknown") {
+        let borderColor = "#facc15"; // Yellow
+
+        if (historicFav !== "Unknown" && sleeperFav !== historicFav) {
             verdict = `🚨 Upset Alert: @${historicFav}`;
+            borderColor = "#f87171"; // Red
         }
 
+        // Create and Add the Card
         const card = document.createElement('div');
         card.className = 'bulletin-item';
-        card.style.borderLeft = "4px solid #facc15";
+        card.style.borderLeft = `4px solid ${borderColor}`;
+        card.style.marginBottom = "15px"; // Ensure spacing between cards
         card.innerHTML = `
-            <p class="bulletin-date" style="margin-bottom:8px;">WEEK MATCHUP</p>
+            <p class="bulletin-date" style="margin-bottom:8px;">MATCHUP #${matchId}</p>
             <p style="color:white; font-weight:bold; margin:0 0 10px 0;">@${nameA} vs @${nameB}</p>
             <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#94a3b8;">
-                <span>Sleeper Proj: ${projA} - ${projB}</span>
-                <span>Historic Avg: ${avgA} - ${avgB}</span>
+                <span>Proj: ${projA} - ${projB}</span>
+                <span>History: ${avgA} - ${avgB}</span>
             </div>
-            <p style="margin-top:10px; color:#facc15; font-weight:bold; font-size:0.9rem;">${verdict}</p>
+            <p style="margin-top:10px; color:${borderColor}; font-weight:bold; font-size:0.9rem;">${verdict}</p>
         `;
         container.appendChild(card);
     });

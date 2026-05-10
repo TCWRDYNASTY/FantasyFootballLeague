@@ -370,24 +370,27 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 /* === 0. TRANSLATORS === */
 /* ==================================================================== */    
 const nameTranslator = {
-    "BUNNIESUPBUDDY": "Evelyn",
-    "drvargas": "Bonnie",
     "mgreg00x": "Matt",
-    "bcanfield0913": "An",
-    "EmMack": "Emily",
-    "TheBeardedVet": "Jess",
-    "dudenamedtrevor": "Trevor",
-    "CrazyCougars": "Jess", 
+    "SanDiegoSuperBurgers": "Sylvesterr", 
+    "BUNNIESUPBUDDY": "Evelyn",
     "lightmyBONfire": "Nate",
-    "Waddlepenguin": "Brittney",
+    "dudenamedtrevor": "Trevor",
+    "bcanfield0913": "An",
+    "dianne399": "Dianne",
+    "LycaonPictus": "Brad", 
+    "EmMack": "Emily",
     "DawgPound247": "Brittney",
-    "dianne399": "Dianne"
+    "TB12isDaddy": "Bye Week",
+    "CrazyCougars": "Jess",
+    "Waddlepenguin": "Nate", 
+    "drvargas": "Bonnie"
 };
     
 /* ==================================================================== */
 /* === 1. EXTERNAL LIBRARIES & CONFIG === */
 /* ==================================================================== */
-import "https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js";
+// Using Skypack for Module Compatibility
+import Papa from "https://cdn.skypack.dev/papaparse@5.3.2";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     
@@ -505,7 +508,6 @@ async function fetchStandings() {
 /* === 5. WEEKLY SCOREBOARD & PREDICTIONS === */
 /* ==================================================================== */
 function getCurrentWeek() {
-    // Current date for 2026 season testing
     const seasonStart = new Date("2025-09-04"); 
     const now = new Date();
     const diff = now - seasonStart;
@@ -528,12 +530,11 @@ async function fetchScoreboard() {
         const users = await usersRes.json();
         const rosters = await rostersRes.json();
 
-        // This links Sleeper's internal IDs to the names we recognize
         const userLookup = Object.fromEntries(users.map(u => [u.user_id, u.display_name]));
         const rosterToNameMap = Object.fromEntries(rosters.map(r => [r.roster_id, userLookup[r.owner_id] || "Unknown"]));
 
-        // Stable PapaParse call - using window.Papa to avoid the "connection closed" error
-        window.Papa.parse(csvUrl, {
+        // Stable PapaParse call using the imported module variable
+        Papa.parse(csvUrl, {
             download: true,
             header: true,
             complete: (results) => {
@@ -549,7 +550,6 @@ function renderMatchupCards(matchups, nameMap, stats) {
     const container = document.getElementById('scoreboard-container');
     container.innerHTML = ''; 
 
-    // Grouping the players into their specific matchups (Matchup 1, Matchup 2, etc.)
     const groups = {};
     matchups.forEach(m => {
         if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
@@ -562,7 +562,6 @@ function renderMatchupCards(matchups, nameMap, stats) {
         return stats.find(s => s.Manager && s.Manager.toLowerCase().trim() === realName.toLowerCase().trim());
     };
 
-    // This creates a card for EVERY matchup found in the league
     Object.keys(groups).forEach(matchId => {
         const pair = groups[matchId];
         if (pair.length < 2) return;
@@ -614,6 +613,5 @@ fetchStandings();
 fetchScoreboard();
 
 </script>
-
 </body>
 </html>

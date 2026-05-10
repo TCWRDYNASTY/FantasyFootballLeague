@@ -366,9 +366,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 </div>
 
 <script type="module">
-/* ==================================================================== */
 /* === 0. TRANSLATORS === */
-/* ==================================================================== */    
 const nameTranslator = {
     "mgreg00x": "Matt",
     "SanDiegoSuperBurgers": "Sylvesterr", 
@@ -385,15 +383,12 @@ const nameTranslator = {
     "Waddlepenguin": "Nate", 
     "drvargas": "Bonnie"
 };
-    
-/* ==================================================================== */
+
 /* === 1. EXTERNAL LIBRARIES & CONFIG === */
-/* ==================================================================== */
-// Using Skypack for Module Compatibility
 import Papa from "https://cdn.skypack.dev/papaparse@5.3.2";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    
+
 const leagueId = "1180908151502815232";
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
 
@@ -409,104 +404,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ==================================================================== */
-/* === 2. MOBILE MENU LOGIC === */
-/* ==================================================================== */
-const menuBtn = document.getElementById('mobileMenuBtn');
-const sidebar = document.querySelector('.sidebar-left');
-
-if (menuBtn && sidebar) {
-    menuBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        sidebar.classList.toggle('active');
-        menuBtn.innerHTML = sidebar.classList.contains('active') ? '✕ Close' : '☰ Menu';
-    });
-}
-
-/* ==================================================================== */
-/* === 3. LEAGUE BULLETIN (FIREBASE) === */
-/* ==================================================================== */
-function loadBulletin() {
-    const display = document.getElementById('bulletin-display');
-    const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
-
-    onSnapshot(q, (snapshot) => {
-        display.innerHTML = ''; 
-        if (snapshot.empty) {
-            display.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.8rem;">No recent announcements.</p>';
-            return;
-        }
-        snapshot.forEach((doc) => {
-            const post = doc.data();
-            const item = document.createElement('div');
-            item.className = 'bulletin-item';
-            const displayDate = post.Date || post.date || "UPDATE";
-            const displayText = post.text || "";
-            item.innerHTML = `
-                <p class="bulletin-date">${displayDate.toUpperCase()}</p>
-                <p class="bulletin-text">${displayText}</p>
-            `;
-            display.appendChild(item);
-        });
-    });
-}
-
-/* ==================================================================== */
-/* === 4. SLEEPER STANDINGS DATA === */
-/* ==================================================================== */
-async function fetchStandings() {
-    try {
-        const [rostersRes, usersRes] = await Promise.all([
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
-        ]);
-
-        const rosters = await rostersRes.json();
-        const users = await usersRes.json();
-        const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
-
-        const teams = rosters.map(roster => {
-            const user = userMap[roster.owner_id] || {};
-            const settings = roster.settings || {};
-            const wins = settings.wins || 0;
-            const losses = settings.losses || 0;
-            const ties = settings.ties || 0;
-            const pf = (settings.fpts || 0) + ((settings.fpts_decimal || 0) / 100);
-            const totalGames = wins + losses + ties;
-            const winPct = totalGames ? (wins / totalGames) : 0;
-
-            return {
-                teamName: user.metadata?.team_name || user.display_name || "Unnamed Team",
-                record: `${wins}-${losses}-${ties}`,
-                winPct: winPct,
-                pointsFor: pf
-            };
-        });
-
-        teams.sort((a, b) => b.winPct - a.winPct || b.pointsFor - a.pointsFor);
-
-        const tbody = document.querySelector('#standings-table tbody');
-        if (tbody) {
-            tbody.innerHTML = '';
-            teams.forEach((team, index) => {
-                const row = document.createElement('tr');
-                if (index === 6) row.classList.add('playoff-divider'); 
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td style="font-weight: 600;">${team.teamName}</td>
-                    <td>${team.record}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-    } catch (error) {
-        console.error("Error fetching Sleeper standings:", error);
-    }
-}
-
-/* ==================================================================== */
 /* === 5. WEEKLY SCOREBOARD & PREDICTIONS === */
-/* ==================================================================== */
 function getCurrentWeek() {
     const seasonStart = new Date("2025-09-04"); 
     const now = new Date();
@@ -533,7 +431,6 @@ async function fetchScoreboard() {
         const userLookup = Object.fromEntries(users.map(u => [u.user_id, u.display_name]));
         const rosterToNameMap = Object.fromEntries(rosters.map(r => [r.roster_id, userLookup[r.owner_id] || "Unknown"]));
 
-        // Stable PapaParse call using the imported module variable
         Papa.parse(csvUrl, {
             download: true,
             header: true,
@@ -572,15 +469,19 @@ function renderMatchupCards(matchups, nameMap, stats) {
         const statA = findStat(nameA);
         const statB = findStat(nameB);
 
+        // Pulling Historic Averages and H2H data from Sheet
         const avgA = parseFloat(statA?.AvgPts || 0);
         const avgB = parseFloat(statB?.AvgPts || 0);
+        const h2h = statA?.H2H_Record || "N/A"; // Make sure your CSV has this column
+        const diff = statA?.Pt_Diff || "0";     // Make sure your CSV has this column
+
         const projA = pair[0].points || 0;
         const projB = pair[1].points || 0;
 
         const sleeperFav = projA > projB ? nameA : nameB;
         const historicFav = avgA > avgB ? nameA : nameB;
         
-        let verdict = `Projected Winner: @${historicFav}`;
+        let verdict = `Projected: @${historicFav}`;
         let borderColor = "#facc15";
 
         if (historicFav !== "Unknown" && sleeperFav !== historicFav) {
@@ -591,13 +492,15 @@ function renderMatchupCards(matchups, nameMap, stats) {
         const card = document.createElement('div');
         card.className = 'bulletin-item';
         card.style.borderLeft = `4px solid ${borderColor}`;
-        card.style.marginBottom = "12px"; 
+        card.style.marginBottom = "15px"; 
         card.innerHTML = `
             <p class="bulletin-date" style="margin-bottom:8px;">MATCHUP #${matchId}</p>
-            <p style="color:white; font-weight:bold; margin:0 0 10px 0;">@${nameA} vs @${nameB}</p>
-            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#94a3b8;">
+            <p style="color:white; font-weight:bold; margin:0 0 5px 0;">@${nameA} vs @${nameB}</p>
+            <div style="font-size:0.75rem; color:#94a3b8; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <span>Sleeper Proj: ${projA} - ${projB}</span>
                 <span>Historic Avg: ${avgA} - ${avgB}</span>
+                <span>H2H: ${h2h}</span>
+                <span>Pt Diff: ${diff}</span>
             </div>
             <p style="margin-top:10px; color:${borderColor}; font-weight:bold; font-size:0.9rem;">${verdict}</p>
         `;
@@ -605,13 +508,12 @@ function renderMatchupCards(matchups, nameMap, stats) {
     });
 }
 
-/* ==================================================================== */
-/* === 6. INITIALIZE ALL === */
-/* ==================================================================== */
+// Keep your existing loadBulletin and fetchStandings functions here...
+
 loadBulletin();
 fetchStandings();
 fetchScoreboard();
-
+</script>
 </script>
 </body>
 </html>

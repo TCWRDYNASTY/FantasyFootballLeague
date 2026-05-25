@@ -147,21 +147,70 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 
 /* FIXES FOR JAVASCRIPT INJECTED SCOREBOARD / COUNTDOWN */
 /* Targets whatever structural text boxes JS injects inside the container */
+/* ==================================================================== */
+/* === FIXED COUNTDOWN CALIBRATION === */
+/* ==================================================================== */
+
+/* Ensure the scoreboard container uses flexbox to layout the script's elements */
 #scoreboard-container {
-  padding: 10px;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 2rem 1rem !important;
+  width: 100% !important;
 }
 
-#scoreboard-container div, 
-#scoreboard-container p {
-  max-width: 100%;
-  word-wrap: break-word;
+/* Fixes the row layout for the numbers and labels */
+#scoreboard-container > div:first-of-type {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-evenly !important;
+  align-items: baseline !important;
+  width: 100% !important;
+  max-width: 500px !important;
+  margin: 1.5rem auto !important;
+  gap: 10px !important;
 }
 
-/* Auto-scales huge countdown numbers safely */
+/* Targets the individual countdown columns (Number + Label) */
+#scoreboard-container > div:first-of-type > div {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* Exact text sizes from your original working layout */
 #scoreboard-container span, 
 #scoreboard-container h1,
 #scoreboard-container [style*="font-size"] {
-  font-size: clamp(1.8rem, 7vw, 3.5rem) !important; 
+  font-size: clamp(1.8rem, 5vw, 2.8rem) !important; /* Perfectly scaled down ceiling */
+  font-weight: bold !important;
+  color: #facc15 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+
+/* Label styling (DAYS, HRS, MINS, SECS) */
+#scoreboard-container p,
+#scoreboard-container text {
+  font-size: clamp(0.7rem, 2vw, 0.85rem) !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+  margin: 4px 0 0 0 !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Subtitle text ("Patriots @ Seahawks • Season Opener") */
+#scoreboard-container em,
+#scoreboard-container p[style*="italic"] {
+  font-size: clamp(0.9rem, 3vw, 1.1rem) !important;
+  font-style: italic !important;
+  color: #94a3b8 !important;
+  margin-top: 1.5rem !important;
+  text-align: center !important;
 }
 
 /* Bulletin Items */

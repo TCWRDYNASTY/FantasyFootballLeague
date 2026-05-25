@@ -1,294 +1,613 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password TCWR</title>
-    <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-   <style>
-    /* =========================================
-       Base Layout Styles (Perfect Centering)
-    ========================================= */
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TCWR FANTASY FOOTBALL DY-NASTY</title>
 
-    body {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: #1e3159;
-        color: white;
-        font-family: "Courier New", monospace;
-        padding: 20px;
-        overflow-x: hidden; /* Prevents right-side shift on mobile */
-    }
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+   
+<style>
+/* ==================================================================== */
+/* === 1. GLOBAL / BODY STYLES === */
+/* ==================================================================== */
+html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+}
 
-    /* =========================================
-       Flex Container for Main Content
-    ========================================= */
-    .content-columns {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 1rem;
-        gap: 40px;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        box-sizing: border-box;
-    }
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #1e3159;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
 
-    /* =========================================
-       Shared Container Styles
-    ========================================= */
-    .image-container {
-        max-width: 400px;
-        width: 100%;
-        padding: 20px;
-        background-color: beige;
-        color: black;
-        border-radius: 8px;
-        text-align: center;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        box-sizing: border-box;
-    }
+/* Common title styling for all columns */
+.column-title {
+  font-size: clamp(1rem, 4vw, 1.5rem);
+  font-weight: 590;
+  color: #facc15;
+  padding: 0.5rem 0.25rem;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
 
-    /* =========================================
-       Image Styling
-    ========================================= */
-    .image-container img {
-        max-width: 100%;
-        height: auto;
-        border: 2px solid black;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        display: block;
-    }
+/* ==================================================================== */
+/* === 2. HEADER === */
+/* ==================================================================== */
+.header {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  border-bottom: 4px solid transparent;
+  border-image: linear-gradient(90deg, #B8860B, #FFD700, #B8860B) 1;
+  box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.5);
+  color: #f8fafc;
+  padding: 30px 15px;
+  gap: 25px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 10;
+}
 
-    /* =========================================
-       Password Input Styling
-    ========================================= */
-    #passwordBox {
-        padding: 10px;
-        margin: 10px auto;
-        font-size: 1rem;
-        width: 100%;
-        max-width: 300px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        box-sizing: border-box;
-        background-color: white;
-        color: black;
-        display: block;
-    }
+.logo-container img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+}
 
-    /* =========================================
-       Submit Button Styling
-    ========================================= */
-    #submitButton {
-        padding: 12px 24px;
-        font-size: 1.1em;
-        background-color: #28a745;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s ease-in-out;
-        width: auto;
-    }
+.header .title { font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold; margin: 0; }
+.header .subtitle { font-size: clamp(1rem, 4vw, 1.5rem); margin: 5px 0; }
+.header .since { font-size: clamp(0.9rem, 3vw, 1.2rem); margin: 0; }
 
-    #submitButton:hover {
-        background-color: #218838;
-        transform: scale(1.05);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
+/* ==================================================================== */
+/* === 3. MAIN LAYOUT === */
+/* ==================================================================== */
+.main-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+  gap: 1rem;
+  width: 100%;
+  max-width: 95vw;
+}
 
-    /* =========================================
-       Typography
-    ========================================= */
-    .main-title {
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin: 0.2em 0;
-        text-align: center;
-    }
+/* DESKTOP REORDERING & AUTO-HEIGHT */
+@media (min-width: 1024px) {
+  .main-content-wrapper {
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    height: auto;
+  }
 
-    .sub-title {
-        font-size: 1.4rem;
-        margin: 0.2em 0 0.5em 0;
-        text-align: center;
-    }
+  /* Left Column: Standings */
+  .left-column-wrapper { order: 1; width: 350px; }
+  
+  /* Center Column: Scoreboard */
+  .center-column { order: 2; flex: 1; max-width: 700px; }
+  
+  /* Right Column: Bulletin */
+  .right-column-wrapper { order: 3; width: 350px; }
 
-    /* =========================================
-       Responsive Layout Adjustments
-    ========================================= */
-    @media (max-width: 768px) {
-        .content-columns {
-            gap: 20px;
-            padding: 0.5rem;
-        }
+  /* Ensure child wrappers allow uniform stretching */
+  .left-column-wrapper,
+  .center-column,
+  .right-column-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+}
 
-        .image-container {
-            max-width: 90%;
-            width: 100%;
-        }
+/* Common Column Container */
+.column-container {
+  background-color: #2d3748;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: visible; /* Changed from auto to remove the scrollbar */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
 
-        #passwordBox {
-            width: 100%;
-        }
-    }
+/* ==================================================================== */
+/* === 4. COMPONENT STYLES === */
+/* ==================================================================== */
 
-    @media (max-width: 480px) {
-        .main-title {
-            font-size: 2rem;
-        }
+/* Standings Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-        .sub-title {
-            font-size: 1.2rem;
-        }
+th, td {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid #3e4a5e;
+  text-align: left;
+  color: #f0f0f0;
+  font-size: 0.85rem;
+}
 
-        .image-container {
-            padding: 15px;
-        }
+th { background: #1a202c; position: sticky; top: 0; }
+tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 
-        #submitButton {
-            width: 100%;
-            padding: 15px;
-        }
+/* Bulletin Items */
+.bulletin-item {
+  background: rgba(15, 23, 42, 0.5);
+  border-left: 4px solid #eab308;
+  padding: 1rem;
+  margin: 0.5rem;
+  border-radius: 4px;
+}
 
-        #passwordBox {
-            width: 100%;
-        }
-    }
+.bulletin-date {
+  color: #eab308;
+  font-weight: bold;
+  font-size: 0.7rem;
+  margin: 0;
+}
+
+.bulletin-text {
+  color: white;
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* ==================================================================== */
+/* === 5. SIDEBAR & MENU === */
+/* ==================================================================== */
+.sidebar-left {
+  position: fixed;
+  top: 0;
+  left: -100%; 
+  width: 80%;
+  max-width: 350px;
+  height: 100%;
+  background-color: #2d3748;
+  transition: left 0.3s ease;
+  z-index: 9999;
+  overflow-y: auto;
+  padding-top: 20px;
+}
+
+.sidebar-left.active {
+  left: 0 !important;
+}
+
+.menu-toggle {
+  display: block;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 10001;
+  background: #2d3748;
+  color: #facc15; 
+  border: 1px solid #4a5568;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.sidebar-nav a {
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #e2e8f0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #4a5568;
+    transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-nav a:hover {
+    background-color: #4a5568;
+    color: #facc15; 
+}
+
+.sidebar-nav a.sign-off {
+    color: #fc8181;
+    border-bottom: none;
+}
+
+@media (min-width: 768px) {
+  .menu-toggle { display: none; }
+  .sidebar-left:hover { left: 0; }
+  .sidebar-left::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 20px; 
+    z-index: 9998;
+  }
+}    
+
+/* ==================================================================== */
+/* === 6. RESPONSIVE / MEDIA QUERIES === */
+/* ==================================================================== */
+@media (max-width: 768px) {
+  body { padding: 0.5rem; }
+  .main-content-wrapper { max-width: 95vw; }
+}
+
+/* ==================================================================== */
+/* === Utility === */
+/* ==================================================================== */
+.hidden {
+  display: none !important;
+}
 </style>
-
 </head>
 
-    <div class="content-columns">
-    <div class="image-container">
-        <img src="wildlifeentrance.jpeg" alt="Wildlife refuge entrance" />
-        <p class="main-title">TCWR Dy-NASTY</p>
-        <p class="sub-title">Fantasy Football League</p>
-        
-        <p><input id="passwordBox" type="password" placeholder="Enter Password" onkeypress="handleKeyPress(event)" /></p>
-        
-        <button id="submitButton" onclick="checkPassword()">Submit</button>
-        
-        <br> <button id="subscribeButton" style="display:none; margin-top: 15px; background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%;">
-            Enable Push Notifications
-        </button>
+<body class="body">
+
+    <button class="menu-toggle" id="mobileMenuBtn">☰ Menu</button>
+    
+    <div class="sidebar-left">
+        <nav class="sidebar-nav">
+            <br>
+            <a href="https://tcwrdynasty.github.io/members/">League Members</a>
+            <a href="HallofChampions.html">Hall of Champions</a>
+            <a href="Flushables.html">Flushables</a>
+            <a href="Records.html">Records & Rankings</a>
+            <a href="rookiedraftcountdown.html">Draft Lottery</a>
+            <a href="Bylaws.html">Constitution</a>
+            <a href="contactcommish.html">Contact Commish</a>
+            <a href="https://www.facebook.com/messages">League Chat </a>
+            <a href="https://sleeper.com/login">Sleeper</a>
+        </nav>
+    </div>
+
+    <div class="header">
+        <div class="logo-container">
+            <img src="DYNASTYLOGO.png" alt="logo">
+        </div>
+        <div class="header-text">
+            <p class="title">TCWR Dy-NASTY</p>
+            <p class="subtitle">Fantasy Football League</p>
+            <p class="since">Since 2023</p>
+        </div>
+    </div>
+
+    <div class="main-content-wrapper">
+
+        <!-- NEW LEFT COLUMN: LEAGUE STANDINGS (Replaces ESPN) -->
+        <div class="left-column-wrapper">
+            <div class="column-title">League Standings</div>
+            <div class="column-container">
+                <table id="standings-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Team</th>
+                            <th>Record</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+<!-- CENTER COLUMN: WEEKLY SCOREBOARD -->
+<div class="center-column">
+    <div class="column-title">Weekly Scoreboard & Predictions</div>
+    <div class="column-container" id="scoreboard-container">
+        <!-- The scoreboard cards will be injected here -->
+        <p style="text-align:center; color:#94a3b8; padding:20px;">Calculating predictions...</p>
     </div>
 </div>
 
-<script>
-    // 1. Rename 'supabase' to 'supabaseClient' to avoid Safari naming conflicts
-    const supabaseUrl = 'https://jheqfwykhvyngfqawknr.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
-    const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+       <!-- NEW RIGHT COLUMN: LEAGUE BULLETIN -->
+<div class="right-column-wrapper">
+    <div class="column-title">League Bulletin</div>
+    <div class="column-container">
+        <!-- Firebase will inject news items here -->
+        <div id="bulletin-display">
+            <p style="text-align:center; color:#94a3b8; padding:20px; font-size:0.8rem;">
+                Fetching latest league news...
+            </p>
+        </div>
 
-    const storedUser = localStorage.getItem('loggedInUser');
+        <!-- Static Link stays here -->
+        <div style="text-align: center; margin: 1.5rem 0;">
+            <p style="color: #94a3b8; font-size: 0.8rem;">Want to talk trash?</p>
+            <a href="https://www.facebook.com/messages/" target="_blank" 
+               style="display: inline-block; background: #0084ff; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 0.8rem;">
+               Open League Chat
+            </a>
+        </div>
+    </div>
+</div>
 
-    if (storedUser) {
-        window.location.href = "main.html";
-    }
+<script type="module">
+/* === 0. TRANSLATORS === */
+const nameTranslator = {
+    "mgreg00x": "Matt",
+    "SanDiegoSuperBurgers": "Sylvesterr", 
+    "BUNNIESUPBUDDY": "Evelyn",
+    "lightmyBONfire": "Nate",
+    "dudenamedtrevor": "Trevor",
+    "bcanfield0913": "An",
+    "dianne399": "Dianne",
+    "LycaonPictus": "Brad", 
+    "EmMack": "Emily",
+    "DawgPound247": "Brittney",
+    "TB12isDaddy": "Bye Week",
+    "CrazyCougars": "Jess",
+    "Waddlepenguin": "Nate", 
+    "drvargas": "Bonnie"
+};
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js')
-            .then(() => console.log('SW Registered'))
-            .catch(err => console.log('SW failed:', err));
-    }
+/* === 1. EXTERNAL LIBRARIES & CONFIG === */
+// Switched to jsDelivr to fix the net::ERR_CONNECTION_CLOSED error
+import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    
+const leagueId = "1180908151502815232";
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
 
-    // 2. Define functions as window properties so the HTML attributes can find them
-    window.checkPassword = async function() {
-        const passwordInput = document.getElementById("passwordBox");
-        const password = passwordInput.value;
-        if (!password) {
-            alert("Please enter a password.");
+const firebaseConfig = {
+    apiKey: "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
+    authDomain: "tcwr-dynasty.firebaseapp.com",
+    projectId: "tcwr-dynasty",
+    storageBucket: "tcwr-dynasty.firebasestorage.app",
+    messagingSenderId: "544187199777",
+    appId: "1:544187199777:web:05753208f1daee32558e60"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* === 2. LEAGUE BULLETIN (FIREBASE) === */
+function loadBulletin() {
+    const display = document.getElementById('bulletin-display');
+    if (!display) return;
+    const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
+
+    onSnapshot(q, (snapshot) => {
+        display.innerHTML = ''; 
+        if (snapshot.empty) {
+            display.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.8rem;">No recent announcements.</p>';
+            return;
+        }
+        snapshot.forEach((doc) => {
+            const post = doc.data();
+            const item = document.createElement('div');
+            item.className = 'bulletin-item';
+            const displayDate = post.Date || post.date || "UPDATE";
+            const displayText = post.text || "";
+            item.innerHTML = `<p class="bulletin-date">${displayDate.toUpperCase()}</p><p class="bulletin-text">${displayText}</p>`;
+            display.appendChild(item);
+        });
+    });
+}
+
+/* === 3. SLEEPER STANDINGS DATA === */
+async function fetchStandings() {
+    try {
+        const [rostersRes, usersRes] = await Promise.all([
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
+        ]);
+        const rosters = await rostersRes.json();
+        const users = await usersRes.json();
+        const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
+
+        const teams = rosters.map(roster => {
+            const user = userMap[roster.owner_id] || {};
+            const settings = roster.settings || {};
+            const pf = (settings.fpts || 0) + ((settings.fpts_decimal || 0) / 100);
+            return {
+                teamName: user.metadata?.team_name || user.display_name || "Unnamed Team",
+                record: `${settings.wins || 0}-${settings.losses || 0}-${settings.ties || 0}`,
+                winPct: (settings.wins + settings.losses) ? (settings.wins / (settings.wins + settings.losses)) : 0,
+                pointsFor: pf
+            };
+        });
+
+        teams.sort((a, b) => b.winPct - a.winPct || b.pointsFor - a.pointsFor);
+        const tbody = document.querySelector('#standings-table tbody');
+        if (tbody) {
+            tbody.innerHTML = teams.map((team, index) => `
+                <tr class="${index === 6 ? 'playoff-divider' : ''}">
+                    <td>${index + 1}</td>
+                    <td style="font-weight: 600;">${team.teamName}</td>
+                    <td>${team.record}</td>
+                </tr>`).join('');
+        }
+    } catch (error) { console.error("Standings Error:", error); }
+}
+
+/* === 4. WEEKLY SCOREBOARD & PREDICTIONS === */
+function getCurrentWeek() {
+    const seasonStart = new Date("2025-09-04"); 
+    const now = new Date();
+    const diff = now - seasonStart;
+    const week = Math.ceil(diff / (7 * 24 * 60 * 60 * 1000));
+    return Math.max(1, Math.min(week, 18)); 
+}
+
+async function fetchScoreboard() {
+    const week = getCurrentWeek();
+    try {
+        const [matchRes, usersRes, rostersRes] = await Promise.all([
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
+        ]);
+
+        const matchupsRaw = await matchRes.json();
+        const users = await usersRes.json();
+        const rosters = await rostersRes.json();
+
+        const userLookup = Object.fromEntries(users.map(u => [u.user_id, u.display_name]));
+        const rosterToNameMap = Object.fromEntries(rosters.map(r => [r.roster_id, userLookup[r.owner_id] || "Unknown"]));
+
+        // Offseason/Preseason Check: If matchups are empty or contain only nulls, show the countdown wrapper
+        const isOffseason = !matchupsRaw || matchupsRaw.length === 0 || matchupsRaw.every(m => m.matchup_id === null);
+
+        if (isOffseason) {
+            startKickoffCountdown();
             return;
         }
 
-        const { data: user, error } = await supabaseClient
-            .from('users')
-            .select('*')
-            .eq('password_word', password)
-            .single();
+        Papa.parse(csvUrl, {
+            download: true,
+            header: true,
+            complete: (results) => { renderMatchupCards(matchupsRaw, rosterToNameMap, results.data); }
+        });
+    } catch (err) { console.error("Scoreboard Error:", err); }
+}
 
-        if (error) {
-            const audio = new Audio('magicword.mp3');
-            audio.play();
-            setTimeout(() => {
-                alert("Access Denied");
-                passwordInput.value = "";
-            }, 100);
-        } else if (user) {
-            localStorage.setItem('loggedInUser', JSON.stringify({ username: user.assigned_name, id: user.id }));
-            window.location.href = "main.html";
+function startKickoffCountdown() {
+    const container = document.getElementById('scoreboard-container');
+    if (!container) return;
+
+    // Center the countdown box vertically within the long column space
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.justifyContent = 'center';
+    container.style.height = '100%';
+
+    // Create the hidden audio element pointing to your future GitHub file
+    let buzzer = document.getElementById('kickoff-buzzer');
+    if (!buzzer) {
+        buzzer = document.createElement('audio');
+        buzzer.id = 'kickoff-buzzer';
+        buzzer.src = 'countdowntimer.mp3'; 
+        buzzer.preload = 'auto';
+        document.body.appendChild(buzzer);
+    }
+
+    // Target kickoff date: Sept 9, 2026 at 5:20 PM PDT
+    const kickoffDate = new Date("2026-09-09T17:20:00-07:00").getTime();
+
+    function updateTimer() {
+        const now = new Date().getTime();
+        const distance = kickoffDate - now;
+
+        if (distance < 0) {
+            container.innerHTML = '<p style="text-align:center; color:#facc15; padding:40px; font-weight:bold; font-size:1.5rem;">🏈 FOOTBALL HAS STARTED! Refreshing data...</p>';
+            buzzer.play().catch(e => console.log("Audio waiting for click interaction to play: ", e));
+            clearInterval(timerInterval);
+            return;
         }
-    };
 
-    window.handleKeyPress = function(event) {
-        if (event.key === "Enter") { window.checkPassword(); }
-    };
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    window.subscribeUser = async function() {
-        try {
-            if (!('Notification' in window)) {
-                alert("To enable notifications on iPhone, use 'Add to Home Screen' first.");
-                return;
-            }
+        container.innerHTML = `
+            <div style="text-align: center; padding: 50px 20px; background: rgba(15, 23, 42, 0.4); margin: 20px; border-radius: 8px; border: 1px dashed #4a5568; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                <p style="color: #94a3b8; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 25px 0; font-weight: 500;">Countdown to NFL Kickoff</p>
+                <div style="display: flex; justify-content: center; gap: 25px; color: white; font-weight: bold;">
+                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${days}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Days</span></div>
+                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${hours}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Hrs</span></div>
+                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${minutes}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Mins</span></div>
+                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${seconds}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Secs</span></div>
+                </div>
+                <p style="margin-top: 30px; font-size: 1rem; color: #64748b; font-style: italic; letter-spacing: 0.5px;">Patriots @ Seahawks • Season Opener</p>
+            </div>
+        `;
+    }
 
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') return;
+    updateTimer();
+    const timerInterval = setInterval(updateTimer, 1000);
+}
 
-            const registration = await navigator.serviceWorker.ready;
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: 'BAxitNAnuPolRhu-9OgtRDe6bGQIByGgHNXCusicO9cydFHt9oEfA4d9MfAJ7HB23izytI-ywwDwmeof9e4HzZg'
-            });
+function renderMatchupCards(matchups, nameMap, stats) {
+    const container = document.getElementById('scoreboard-container');
+    if (!container) return;
+    container.innerHTML = ''; 
 
-            const { endpoint, keys } = subscription.toJSON();
-            const { error } = await supabaseClient
-                .from('push_subscriptions')
-                .insert({ endpoint, auth: keys.auth, p256dh: keys.p256dh });
+    const groups = {};
+    matchups.forEach(m => {
+        if (m.matchup_id === null || m.matchup_id === undefined) return;
 
-            if (error) throw error;
-            alert("Subscribed!");
-            document.getElementById('subscribeButton').style.display = 'none';
-
-        } catch (err) {
-            console.error("Push error:", err);
-            alert("To enable notifications on iPhone, use 'Add to Home Screen'.");
-        }
-    };
-
-    window.addEventListener('DOMContentLoaded', () => {
-        const subBtn = document.getElementById('subscribeButton');
-        const passInput = document.getElementById("passwordBox");
-
-        if (passInput) {
-            passInput.addEventListener('keypress', window.handleKeyPress);
-        }
-        
-        // Safari check: if 'Notification' doesn't exist, we don't show the button yet
-        if (subBtn && !storedUser) {
-            if ('Notification' in window) {
-                subBtn.style.display = 'block';
-                subBtn.addEventListener('click', window.subscribeUser);
-            } else {
-                // Optional: show a message saying "Install app for notifications"
-                console.log("Notifications API not available in this view.");
-            }
-        }
+        if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
+        groups[m.matchup_id].push(m);
     });
+
+    Object.keys(groups).forEach(matchId => {
+        const pair = groups[matchId];
+        if (pair.length < 2) return;
+
+        let nameA = nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`;
+        let nameB = nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`;
+
+        nameA = nameA.replace('@', '').trim();
+        nameB = nameB.replace('@', '').trim();
+
+        const findStat = (cleanName) => {
+            const realName = nameTranslator[cleanName] || cleanName;
+            return stats.find(s => s.Manager?.toLowerCase().trim() === realName.toLowerCase().trim());
+        };
+
+        const sA = findStat(nameA);
+        const sB = findStat(nameB);
+
+        const avgA = parseFloat(sA?.AvgPts || 0);
+        const avgB = parseFloat(sB?.AvgPts || 0);
+        const h2hA = sA?.H2H_Record || "0-0";
+        const diffA = sA?.Pt_Diff || "0";
+
+        const pA = pair[0].points || 0;
+        const pB = pair[1].points || 0;
+        
+        const historicFav = avgA > avgB ? nameA : nameB;
+        const sleeperFav = pA > pB ? nameA : nameB;
+        let borderColor = (historicFav === sleeperFav) ? "#facc15" : "#f87171";
+
+        const card = document.createElement('div');
+        card.className = 'bulletin-item';
+        card.style.borderLeft = `4px solid ${borderColor}`;
+        card.style.marginBottom = "15px"; 
+        card.innerHTML = `
+            <p class="bulletin-date">MATCHUP #${matchId}</p>
+            <p style="color:white; font-weight:bold; margin:5px 0;">@${nameA} vs @${nameB}</p>
+            <div style="font-size:0.7rem; color:#94a3b8; display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                <span>Proj: ${pA} - ${pB}</span>
+                <span>Avg: ${avgA} - ${avgB}</span>
+                <span>H2H: ${h2hA}</span>
+                <span>Diff: ${diffA}</span>
+            </div>
+            <p style="margin-top:8px; color:${borderColor}; font-weight:bold; font-size:0.8rem;">
+                ${historicFav === sleeperFav ? 'Projected:' : '🚨 Upset Alert:'} @${historicFav}
+            </p>
+        `;
+        container.appendChild(card);
+    });
+}
+
+/* === 5. INITIALIZE ALL === */
+loadBulletin();
+fetchStandings();
+fetchScoreboard();
 </script>
 </body>
 </html>

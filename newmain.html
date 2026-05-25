@@ -505,6 +505,9 @@ function renderMatchupCards(matchups, nameMap, stats) {
 
     const groups = {};
     matchups.forEach(m => {
+        // SKIP teams that don't have a valid matchup_id (byes or uninitialized weeks)
+        if (m.matchup_id === null || m.matchup_id === undefined) return;
+
         if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
         groups[m.matchup_id].push(m);
     });
@@ -513,11 +516,15 @@ function renderMatchupCards(matchups, nameMap, stats) {
         const pair = groups[matchId];
         if (pair.length < 2) return;
 
-        const nameA = nameMap[pair[0].roster_id];
-        const nameB = nameMap[pair[1].roster_id];
+        // Clean up names right away and ensure we don't crash if nameMap missing a roster
+        let nameA = nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`;
+        let nameB = nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`;
 
-        const findStat = (name) => {
-            const cleanName = name.replace('@', '').trim();
+        // Strip '@' if it's already present in the source data to avoid @@ double rendering
+        nameA = nameA.replace('@', '').trim();
+        nameB = nameB.replace('@', '').trim();
+
+        const findStat = (cleanName) => {
             const realName = nameTranslator[cleanName] || cleanName;
             return stats.find(s => s.Manager?.toLowerCase().trim() === realName.toLowerCase().trim());
         };
@@ -557,7 +564,6 @@ function renderMatchupCards(matchups, nameMap, stats) {
         container.appendChild(card);
     });
 }
-
 /* === 5. INITIALIZE ALL === */
 loadBulletin();
 fetchStandings();

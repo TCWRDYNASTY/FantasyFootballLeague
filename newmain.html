@@ -73,7 +73,7 @@ body {
 .header .since { font-size: clamp(0.9rem, 3vw, 1.2rem); margin: 0; }
 
 /* ==================================================================== */
-/* === 3. MAIN LAYOUT (The Big Change) === */
+/* === 3. MAIN LAYOUT === */
 /* ==================================================================== */
 .main-content-wrapper {
   display: flex;
@@ -85,23 +85,32 @@ body {
   max-width: 95vw;
 }
 
-/* DESKTOP REORDERING */
+/* DESKTOP REORDERING & AUTO-HEIGHT */
 @media (min-width: 1024px) {
   .main-content-wrapper {
     flex-direction: row;
     justify-content: center;
     align-items: stretch;
-    height: 80vh;
+    height: auto;
   }
 
-  /* Left Column: Now Standings */
+  /* Left Column: Standings */
   .left-column-wrapper { order: 1; width: 350px; }
   
-  /* Center Column: Now Empty */
+  /* Center Column: Scoreboard */
   .center-column { order: 2; flex: 1; max-width: 700px; }
   
-  /* Right Column: Now Bulletin */
+  /* Right Column: Bulletin */
   .right-column-wrapper { order: 3; width: 350px; }
+
+  /* Ensure child wrappers allow uniform stretching */
+  .left-column-wrapper,
+  .center-column,
+  .right-column-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
 }
 
 /* Common Column Container */
@@ -111,7 +120,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-y: auto;
+  overflow-y: visible; /* Changed from auto to remove the scrollbar */
   box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
@@ -136,7 +145,7 @@ th, td {
 th { background: #1a202c; position: sticky; top: 0; }
 tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 
-/* Bulletin Items (Updated for side column) */
+/* Bulletin Items */
 .bulletin-item {
   background: rgba(15, 23, 42, 0.5);
   border-left: 4px solid #eab308;
@@ -162,7 +171,6 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 /* ==================================================================== */
 /* === 5. SIDEBAR & MENU === */
 /* ==================================================================== */
-
 .sidebar-left {
   position: fixed;
   top: 0;
@@ -235,38 +243,9 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
   }
 }    
 
-
 /* ==================================================================== */
 /* === 6. RESPONSIVE / MEDIA QUERIES === */
 /* ==================================================================== */
-
-@media (min-width: 1024px) {
-  .main-content-wrapper {
-    flex-direction: row;
-    justify-content: center;
-    align-items: stretch;
-    height: clamp(70vh, 85vh, 90vh);
-  }
-
-  .left-column-wrapper { order: 1; width: 300px; }
-  .main-content { order: 2; width: 700px; }
-  .right-column { order: 3; width: 350px; }
-
-  .left-column-wrapper,
-  .main-content,
-  .right-column {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-
-  .left-column,
-  .right-column-container {
-    flex: 1;
-    overflow-y: auto;
-  }
-}
-
 @media (max-width: 768px) {
   body { padding: 0.5rem; }
   .main-content-wrapper { max-width: 95vw; }
@@ -275,11 +254,9 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 /* ==================================================================== */
 /* === Utility === */
 /* ==================================================================== */
-
 .hidden {
   display: none !important;
 }
-
 </style>
 </head>
 

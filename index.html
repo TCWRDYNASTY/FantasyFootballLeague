@@ -11,12 +11,15 @@
 /* ==================================================================== */
 /* === 1. GLOBAL / BODY STYLES === */
 /* ==================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box; /* Crucial: ensures padding doesn't push components off screen */
+}
+
 html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
   width: 100%;
-  height: 100%;
+  overflow-x: hidden; /* Hard prevents horizontal swiping/scrolling on mobile devices */
 }
 
 body {
@@ -26,18 +29,17 @@ body {
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 1rem;
+  padding: 1rem 0.5rem; /* Slightly reduced padding for tighter screens */
 }
 
 /* Common title styling for all columns */
 .column-title {
-  font-size: clamp(1rem, 4vw, 1.5rem);
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
   font-weight: 590;
   color: #facc15;
   padding: 0.5rem 0.25rem;
   text-align: center;
   width: 100%;
-  box-sizing: border-box;
 }
 
 /* ==================================================================== */
@@ -55,22 +57,21 @@ body {
   border-image: linear-gradient(90deg, #B8860B, #FFD700, #B8860B) 1;
   box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.5);
   color: #f8fafc;
-  padding: 30px 15px;
+  padding: 20px 15px;
   gap: 25px;
-  box-sizing: border-box;
   position: relative;
   z-index: 10;
 }
 
 .logo-container img {
   width: 100%;
-  max-width: 200px;
+  max-width: 160px; /* Kept clean and compact */
   height: auto;
 }
 
 .header .title { font-size: clamp(1.5rem, 5vw, 2rem); font-weight: bold; margin: 0; }
-.header .subtitle { font-size: clamp(1rem, 4vw, 1.5rem); margin: 5px 0; }
-.header .since { font-size: clamp(0.9rem, 3vw, 1.2rem); margin: 0; }
+.header .subtitle { font-size: clamp(1rem, 4vw, 1.3rem); margin: 5px 0; }
+.header .since { font-size: clamp(0.85rem, 3vw, 1.1rem); margin: 0; }
 
 /* ==================================================================== */
 /* === 3. MAIN LAYOUT === */
@@ -80,36 +81,30 @@ body {
   flex-direction: column;
   align-items: center;
   margin-top: 1rem;
-  gap: 1rem;
+  gap: 1.5rem;
   width: 100%;
-  max-width: 95vw;
+  padding: 0 10px;
 }
 
-/* DESKTOP REORDERING & AUTO-HEIGHT */
+/* DESKTOP DESIGNS (Screens 1024px wide or higher) */
 @media (min-width: 1024px) {
   .main-content-wrapper {
     flex-direction: row;
     justify-content: center;
     align-items: stretch;
-    height: auto;
+    max-width: 1350px;
   }
 
-  /* Left Column: Standings */
-  .left-column-wrapper { order: 1; width: 350px; }
-  
-  /* Center Column: Scoreboard */
-  .center-column { order: 2; flex: 1; max-width: 700px; }
-  
-  /* Right Column: Bulletin */
-  .right-column-wrapper { order: 3; width: 350px; }
+  /* Swapped fixed pixel scaling to defensive fluid flex basis */
+  .left-column-wrapper { order: 1; flex: 0 1 320px; min-width: 270px; }
+  .center-column { order: 2; flex: 1; max-width: 680px; min-width: 320px; }
+  .right-column-wrapper { order: 3; flex: 0 1 320px; min-width: 270px; }
 
-  /* Ensure child wrappers allow uniform stretching */
   .left-column-wrapper,
   .center-column,
   .right-column-wrapper {
     display: flex;
     flex-direction: column;
-    height: auto;
   }
 }
 
@@ -120,15 +115,20 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-y: visible; /* Changed from auto to remove the scrollbar */
+  width: 100%;
   box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  overflow-x: auto; /* Handles native dynamic containment fallback */
 }
 
 /* ==================================================================== */
 /* === 4. COMPONENT STYLES === */
 /* ==================================================================== */
 
-/* Standings Table */
+/* Dynamic Safeguards for JavaScript Standings Content */
+#left-column-wrapper .column-container {
+  overflow-x: auto; /* Keeps standings tables scrollable natively inside their border */
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -139,11 +139,30 @@ th, td {
   border-bottom: 1px solid #3e4a5e;
   text-align: left;
   color: #f0f0f0;
-  font-size: 0.85rem;
+  font-size: clamp(0.75rem, 2.8vw, 0.85rem); /* Text scales down naturally on tiny screens */
 }
 
 th { background: #1a202c; position: sticky; top: 0; }
 tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
+
+/* FIXES FOR JAVASCRIPT INJECTED SCOREBOARD / COUNTDOWN */
+/* Targets whatever structural text boxes JS injects inside the container */
+#scoreboard-container {
+  padding: 10px;
+}
+
+#scoreboard-container div, 
+#scoreboard-container p {
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+/* Auto-scales huge countdown numbers safely */
+#scoreboard-container span, 
+#scoreboard-container h1,
+#scoreboard-container [style*="font-size"] {
+  font-size: clamp(1.8rem, 7vw, 3.5rem) !important; 
+}
 
 /* Bulletin Items */
 .bulletin-item {
@@ -176,7 +195,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
   top: 0;
   left: -100%; 
   width: 80%;
-  max-width: 350px;
+  max-width: 320px;
   height: 100%;
   background-color: #2d3748;
   transition: left 0.3s ease;
@@ -242,14 +261,6 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
     z-index: 9998;
   }
 }    
-
-/* ==================================================================== */
-/* === 6. RESPONSIVE / MEDIA QUERIES === */
-/* ==================================================================== */
-@media (max-width: 768px) {
-  body { padding: 0.5rem; }
-  .main-content-wrapper { max-width: 95vw; }
-}
 
 /* ==================================================================== */
 /* === Utility === */

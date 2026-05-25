@@ -487,6 +487,12 @@ function startKickoffCountdown() {
     const container = document.getElementById('scoreboard-container');
     if (!container) return;
 
+    // Center the countdown box vertically within the long column space
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.justifyContent = 'center';
+    container.style.height = '100%';
+
     // Create the hidden audio element pointing to your future GitHub file
     let buzzer = document.getElementById('kickoff-buzzer');
     if (!buzzer) {
@@ -505,7 +511,7 @@ function startKickoffCountdown() {
         const distance = kickoffDate - now;
 
         if (distance < 0) {
-            container.innerHTML = '<p style="text-align:center; color:#facc15; padding:20px; font-weight:bold;">🏈 FOOTBALL HAS STARTED! Refreshing data...</p>';
+            container.innerHTML = '<p style="text-align:center; color:#facc15; padding:40px; font-weight:bold; font-size:1.5rem;">🏈 FOOTBALL HAS STARTED! Refreshing data...</p>';
             buzzer.play().catch(e => console.log("Audio waiting for click interaction to play: ", e));
             clearInterval(timerInterval);
             return;
@@ -517,18 +523,22 @@ function startKickoffCountdown() {
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
         container.innerHTML = `
-            <div style="text-align: center; padding: 30px 15px; background: rgba(15, 23, 42, 0.4); margin: 10px; border-radius: 6px; border: 1px dashed #4a5568;">
-                <p style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 15px 0;">Countdown to NFL Kickoff</p>
-                <div style="display: flex; justify-content: center; gap: 15px; color: white; font-weight: bold;">
-                    <div><span style="display:block; font-size: 1.8rem; color: #facc15;">${days}</span><span style="font-size:0.65rem; color:#64748b;">Days</span></div>
-                    <div><span style="display:block; font-size: 1.8rem; color: #facc15;">${hours}</span><span style="font-size:0.65rem; color:#64748b;">Hrs</span></div>
-                    <div><span style="display:block; font-size: 1.8rem; color: #facc15;">${minutes}</span><span style="font-size:0.65rem; color:#64748b;">Mins</span></div>
-                    <div><span style="display:block; font-size: 1.8rem; color: #facc15;">${seconds}</span><span style="font-size:0.65rem; color:#64748b;">Secs</span></div>
+            <div style="text-align: center; padding: 50px 20px; background: rgba(15, 23, 42, 0.4); margin: 20px; border-radius: 8px; border: 1px dashed #4a5568; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                <p style="color: #94a3b8; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 25px 0; font-weight: 500;">Countdown to NFL Kickoff</p>
+                <div style="display: flex; justify-content: center; gap: 25px; color: white; font-weight: bold;">
+                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${days}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Days</span></div>
+                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${hours}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Hrs</span></div>
+                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${minutes}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Mins</span></div>
+                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${seconds}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Secs</span></div>
                 </div>
-                <p style="margin-top: 15px; font-size: 0.75rem; color: #64748b; font-style: italic;">Patriots @ Seahawks • Season Opener</p>
+                <p style="margin-top: 30px; font-size: 1rem; color: #64748b; font-style: italic; letter-spacing: 0.5px;">Patriots @ Seahawks • Season Opener</p>
             </div>
         `;
     }
+
+    updateTimer();
+    const timerInterval = setInterval(updateTimer, 1000);
+}
 
     updateTimer();
     const timerInterval = setInterval(updateTimer, 1000);

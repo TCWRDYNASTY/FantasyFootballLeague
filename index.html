@@ -1,1298 +1,685 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
     <title>TCWR FANTASY FOOTBALL DY-NASTY</title>
 
-
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
    
-
 <style>
-
 /* ==================================================================== */
-
 /* === 1. GLOBAL / BODY STYLES === */
-
 /* ==================================================================== */
-
 *, *::before, *::after {
-
   box-sizing: border-box; /* Crucial: ensures padding doesn't push components off screen */
-
 }
-
-
 
 html, body {
-
   margin: 0;
-
   padding: 0;
-
   width: 100%;
-
   overflow-x: hidden; /* Hard prevents horizontal swiping/scrolling on mobile devices */
-
 }
-
-
 
 body {
-
   font-family: 'Inter', sans-serif;
-
   background-color: #1e3159;
-
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   min-height: 100vh;
-
   padding: 1rem 0.5rem; /* Slightly reduced padding for tighter screens */
-
 }
-
-
 
 /* Common title styling for all columns */
-
 .column-title {
-
   font-size: clamp(1.1rem, 4vw, 1.5rem);
-
   font-weight: 590;
-
   color: #facc15;
-
   padding: 0.5rem 0.25rem;
-
   text-align: center;
-
   width: 100%;
-
 }
 
-
-
 /* ==================================================================== */
-
-/* === 2. HEADER === */
-
+/* === 2. HEADER (Fully Dynamic & Responsive) === */
 /* ==================================================================== */
-
 .header {
-
   width: 100%;
-
   display: flex;
-
-  flex-wrap: wrap;
-
+  flex-direction: column; /* Vertical alignment on small devices */
   align-items: center;
-
   justify-content: center;
-
   text-align: center;
-
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-
   border-bottom: 4px solid transparent;
-
   border-image: linear-gradient(90deg, #B8860B, #FFD700, #B8860B) 1;
-
   box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.5);
-
   color: #f8fafc;
-
   padding: 20px 15px;
-
-  gap: 25px;
-
+  gap: 15px;
   position: relative;
-
   z-index: 10;
-
 }
 
-
+/* Header Text Wrapper (Matches your HTML class exactly now) */
+.header-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
 .logo-container img {
-
   width: 100%;
-
   max-width: 210px;   
-
   height: auto;
-
-  margin-top: -15px;  
-
-  margin-bottom: -15px;    
-
+  margin-top: -5px;  
+  margin-bottom: -5px;    
   display: block;
-
 }
-
-
 
 .header .title { 
-
-  font-size: clamp(1.8rem, 5vw, 2.5rem); 
-
+  font-size: clamp(1.6rem, 4.5vw, 2.5rem); 
   font-weight: 900;                
-
   text-transform: uppercase;       
-
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); 
-
   margin: 0; 
-
 }
-
-
 
 .header .subtitle { 
-
-  font-size: clamp(1rem, 4vw, 1.3rem); 
-
+  font-size: clamp(0.95rem, 3.5vw, 1.3rem); 
   font-weight: 500;           
-
   color: #cbd5e1;                
-
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-
   margin: 5px 0; 
-
 }
-
-
 
 .header .since { 
-
-  font-size: clamp(0.85rem, 3vw, 1.1rem); 
-
+  font-size: clamp(0.85rem, 2.8vw, 1.1rem); 
   font-weight: 700;
-
   color: #FFD700; 
-
   letter-spacing: 2px;
-
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-
   margin: 0; 
-
 }
 
-
+/* Desktop layout adjustment for the header items */
+@media (min-width: 768px) {
+  .header {
+    flex-direction: row; /* Horizontal alignment on tablets/desktop */
+    gap: 35px;
+    padding: 20px 40px;
+  }
+  .header-text {
+    align-items: flex-start;
+    text-align: left;
+  }
+  .logo-container img {
+    margin-top: -15px;  
+    margin-bottom: -15px;    
+  }
+}
 
 /* ==================================================================== */
-
 /* === 3. MAIN LAYOUT === */
-
 /* ==================================================================== */
-
 .main-content-wrapper {
-
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   margin-top: 1rem;
-
   gap: 1.5rem;
-
   width: 100%;
-
   padding: 0 10px;
-
 }
-
-
 
 /* DESKTOP DESIGNS (Screens 1024px wide or higher) */
-
 @media (min-width: 1024px) {
-
   .main-content-wrapper {
-
     flex-direction: row;
-
     justify-content: center;
-
     align-items: stretch;
-
     max-width: 1350px;
-
   }
-
-
-
-  /* Swapped fixed pixel scaling to defensive fluid flex basis */
 
   .left-column-wrapper { order: 1; flex: 0 1 320px; min-width: 270px; }
-
   .center-column { order: 2; flex: 1; max-width: 680px; min-width: 320px; }
-
   .right-column-wrapper { order: 3; flex: 0 1 320px; min-width: 270px; }
 
-
-
   .left-column-wrapper,
-
   .center-column,
-
   .right-column-wrapper {
-
     display: flex;
-
     flex-direction: column;
-
   }
-
 }
-
-
 
 /* Common Column Container */
-
 .column-container {
-
   background-color: #2d3748;
-
   border-radius: 0.5rem;
-
   display: flex;
-
   flex-direction: column;
-
   height: 100%;
-
   width: 100%;
-
   box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-
 }
 
-
-
 /* ==================================================================== */
-
 /* === 4. COMPONENT STYLES === */
-
 /* ==================================================================== */
-
-
-
-/* Dynamic Safeguards for JavaScript Standings Content */
-
-#left-column-wrapper .column-container {
-
+.left-column-wrapper .column-container {
   overflow-x: auto; /* Keeps standings tables scrollable natively inside their border */
-
 }
-
-
 
 table {
-
   width: 100%;
-
   border-collapse: collapse;
-
 }
-
-
 
 th, td {
-
   padding: 0.75rem 0.5rem;
-
   border-bottom: 1px solid #3e4a5e;
-
   text-align: left;
-
   color: #f0f0f0;
-
   font-size: clamp(0.75rem, 2.8vw, 0.85rem); /* Text scales down naturally on tiny screens */
-
 }
-
-
 
 th { background: #1a202c; position: sticky; top: 0; }
-
 tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 
-
-
-/* ==================================================================== */
-
 /* === SAFE SCOREBOARD RESPONSIVENESS === */
-
-/* ==================================================================== */
-
 #scoreboard-container {
-
   width: 100% !important;
-
   max-width: 100% !important;
-
   padding: 1.5rem 1rem !important;
-
   box-sizing: border-box !important;
-
 }
-
 #scoreboard-container > div {
-
   max-width: 100% !important;
-
   width: 100% !important;
-
   box-sizing: border-box !important;
-
   overflow-x: auto !important;
-
   -webkit-overflow-scrolling: touch;
-
 }
-
-
 
 #scoreboard-container p,
-
 #scoreboard-container span,
-
 #scoreboard-container div {
-
   max-width: 100% !important;
-
 }
-
-
 
 .bulletin-item {
-
   background: rgba(15, 23, 42, 0.5);
-
   border-left: 4px solid #eab308;
-
   padding: 1rem;
-
   margin: 0.5rem;
-
   border-radius: 4px;
-
 }
-
-
 
 .bulletin-date {
-
   color: #eab308;
-
   font-weight: bold;
-
   font-size: 0.7rem;
-
   margin: 0;
-
 }
-
-
 
 .bulletin-text {
-
   color: white;
-
   margin: 0.5rem 0 0 0;
-
   font-size: 0.9rem;
-
   line-height: 1.4;
-
 }
 
-
-
 /* ==================================================================== */
-
-/* === 5. SIDEBAR & MENU === */
-
+/* === 5. SIDEBAR & MENU (Fixed Overlay Setup) === */
 /* ==================================================================== */
-
 .sidebar-left {
-
   position: fixed;
-
   top: 0;
-
   left: -100%; 
-
-  width: 80%;
-
-  max-width: 320px;
-
+  width: 85%;
+  max-width: 280px;
   height: 100%;
-
   background-color: #2d3748;
-
-  transition: left 0.3s ease;
-
+  transition: left 0.3s ease-in-out;
   z-index: 9999;
-
   overflow-y: auto;
-
-  padding-top: 20px;
-
+  padding-top: 70px; /* Leave space for menu button visibility */
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
 }
 
-
-
+/* Active class cleanly toggled by JS */
 .sidebar-left.active {
-
   left: 0 !important;
-
 }
-
-
 
 .menu-toggle {
-
   display: block;
-
   position: fixed;
-
   top: 15px;
-
   left: 15px;
-
   z-index: 10001;
-
   background: #2d3748;
-
   color: #facc15; 
-
   border: 1px solid #4a5568;
-
   padding: 10px 15px;
-
   border-radius: 5px;
-
   cursor: pointer;
-
   font-weight: bold;
-
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-
+/* Dark background overlay shade behind open drawer */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  display: none;
+}
+.sidebar-overlay.active {
+  display: block;
+}
 
 .sidebar-nav {
-
     display: flex;
-
     flex-direction: column;
-
     margin-bottom: 20px;
-
 }
-
-
 
 .sidebar-nav a {
-
     padding: 15px 20px;
-
     text-decoration: none;
-
     color: #e2e8f0;
-
     font-size: 1.1rem;
-
     border-bottom: 1px solid #4a5568;
-
     transition: background 0.2s, color 0.2s;
-
 }
-
-
 
 .sidebar-nav a:hover {
-
     background-color: #4a5568;
-
     color: #facc15; 
-
 }
-
-
 
 .sidebar-nav a.sign-off {
-
     color: #fc8181;
-
     border-bottom: none;
-
 }
 
-
-
-@media (min-width: 768px) {
-
-  .menu-toggle { display: none; }
-
-  .sidebar-left:hover { left: 0; }
-
-  .sidebar-left::before {
-
-    content: "";
-
-    position: fixed;
-
-    top: 0;
-
-    left: 0;
-
-    height: 100%;
-
-    width: 20px; 
-
-    z-index: 9998;
-
-  }
-
-}    
-
-
-
 /* ==================================================================== */
-
 /* === Utility === */
-
 /* ==================================================================== */
-
 .hidden {
-
   display: none !important;
-
 }
-
 </style>
-
 </head>
-
-
 
 <body class="body">
 
-
-
     <button class="menu-toggle" id="mobileMenuBtn">☰ Menu</button>
+    <div class="sidebar-overlay" id="sidebarOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 9998; display: none;"></div>
 
-    
-
-    <div class="sidebar-left">
-
+    <div class="sidebar-left" id="sidebarLeft">
         <nav class="sidebar-nav">
-
             <br>
-
             <a href="legends.html">Hall of Champions</a>
-
             <a href="https://tcwrdynasty.github.io/members/">League Members</a>
-
             <a href="Records.html">Manager Rankings</a>
-
             <a href="rookiedraftcountdown.html">Draft Lottery</a>
-
             <a href="Bylaws.html">Constitution</a>
-
             <a href="contactcommish.html">Contact Commish</a>
-
             <a href="https://www.facebook.com/messages">League Chat </a>
-
             <a href="https://sleeper.com/login">Sleeper</a>
-
         </nav>
-
     </div>
-
-
 
     <div class="header">
-
         <div class="logo-container">
-
             <img src="DYNASTYLOGO.png" alt="logo">
-
         </div>
-
         <div class="header-text">
-
             <p class="title">TCWR Dy-NASTY</p>
-
             <p class="subtitle">Fantasy Football League</p>
-
             <p class="since">Since 2023</p>
-
         </div>
-
     </div>
-
-
 
     <div class="main-content-wrapper">
 
-
-
-        <!-- NEW LEFT COLUMN: LEAGUE STANDINGS (Replaces ESPN) -->
-
         <div class="left-column-wrapper">
-
             <div class="column-title">League Standings</div>
-
             <div class="column-container">
-
                 <table id="standings-table">
-
                     <thead>
-
                         <tr>
-
                             <th>Rank</th>
-
                             <th>Team</th>
-
                             <th>Record</th>
-
                         </tr>
-
                     </thead>
-
                     <tbody>
-
-                        <!-- Data populated by JavaScript -->
-
-                    </tbody>
-
+                        </tbody>
                 </table>
-
             </div>
-
         </div>
 
-
-
-<!-- CENTER COLUMN: WEEKLY SCOREBOARD -->
-
-<div class="center-column">
-
-    <div class="column-title">Weekly Scoreboard & Predictions</div>
-
-    <div class="column-container" id="scoreboard-container">
-
-        <!-- The scoreboard cards will be injected here -->
-
-        <p style="text-align:center; color:#94a3b8; padding:20px;">Calculating predictions...</p>
-
-    </div>
-
-</div>
-
-
-
-       <!-- NEW RIGHT COLUMN: LEAGUE BULLETIN -->
-
-<div class="right-column-wrapper">
-
-    <div class="column-title">League Bulletin</div>
-
-    <div class="column-container">
-
-        <!-- Firebase will inject news items here -->
-
-        <div id="bulletin-display">
-
-            <p style="text-align:center; color:#94a3b8; padding:20px; font-size:0.8rem;">
-
-                Fetching latest league news...
-
-            </p>
-
+        <div class="center-column">
+            <div class="column-title">Weekly Scoreboard & Predictions</div>
+            <div class="column-container" id="scoreboard-container">
+                <p style="text-align:center; color:#94a3b8; padding:20px;">Calculating predictions...</p>
+            </div>
         </div>
 
-
-
-        <!-- Static Link stays here -->
-
-        <div style="text-align: center; margin: 1.5rem 0;">
-
-            <p style="color: #94a3b8; font-size: 0.8rem;">Want to talk trash?</p>
-
-            <a href="https://www.facebook.com/messages/" target="_blank" 
-
-               style="display: inline-block; background: #0084ff; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 0.8rem;">
-
-               Open League Chat
-
-            </a>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<script type="module">
-
-/* === 0. TRANSLATORS === */
-
-const nameTranslator = {
-
-    "mgreg00x": "Matt",
-
-    "SanDiegoSuperBurgers": "Sylvesterr", 
-
-    "BUNNIESUPBUDDY": "Evelyn",
-
-    "lightmyBONfire": "Nate",
-
-    "dudenamedtrevor": "Trevor",
-
-    "bcanfield0913": "An",
-
-    "dianne399": "Dianne",
-
-    "LycaonPictus": "Brad", 
-
-    "EmMack": "Emily",
-
-    "DawgPound247": "Brittney",
-
-    "TB12isDaddy": "Bye Week",
-
-    "CrazyCougars": "Jess",
-
-    "Waddlepenguin": "Nate", 
-
-    "drvargas": "Bonnie"
-
-};
-
-
-
-/* === 1. EXTERNAL LIBRARIES & CONFIG === */
-
-// Switched to jsDelivr to fix the net::ERR_CONNECTION_CLOSED error
-
-import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    
-
-const leagueId = "1180908151502815232";
-
-const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
-
-
-
-const firebaseConfig = {
-
-    apiKey: "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
-
-    authDomain: "tcwr-dynasty.firebaseapp.com",
-
-    projectId: "tcwr-dynasty",
-
-    storageBucket: "tcwr-dynasty.firebasestorage.app",
-
-    messagingSenderId: "544187199777",
-
-    appId: "1:544187199777:web:05753208f1daee32558e60"
-
-};
-
-
-
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
-
-
-
-/* === 2. LEAGUE BULLETIN (FIREBASE) === */
-
-function loadBulletin() {
-
-    const display = document.getElementById('bulletin-display');
-
-    if (!display) return;
-
-    const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
-
-
-
-    onSnapshot(q, (snapshot) => {
-
-        display.innerHTML = ''; 
-
-        if (snapshot.empty) {
-
-            display.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.8rem;">No recent announcements.</p>';
-
-            return;
-
-        }
-
-        snapshot.forEach((doc) => {
-
-            const post = doc.data();
-
-            const item = document.createElement('div');
-
-            item.className = 'bulletin-item';
-
-            const displayDate = post.Date || post.date || "UPDATE";
-
-            const displayText = post.text || "";
-
-            item.innerHTML = `<p class="bulletin-date">${displayDate.toUpperCase()}</p><p class="bulletin-text">${displayText}</p>`;
-
-            display.appendChild(item);
-
-        });
-
-    });
-
-}
-
-
-
-/* === 3. SLEEPER STANDINGS DATA === */
-
-async function fetchStandings() {
-
-    try {
-
-        const [rostersRes, usersRes] = await Promise.all([
-
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
-
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
-
-        ]);
-
-        const rosters = await rostersRes.json();
-
-        const users = await usersRes.json();
-
-        const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
-
-
-
-        const teams = rosters.map(roster => {
-
-            const user = userMap[roster.owner_id] || {};
-
-            const settings = roster.settings || {};
-
-            const pf = (settings.fpts || 0) + ((settings.fpts_decimal || 0) / 100);
-
-            return {
-
-                teamName: user.metadata?.team_name || user.display_name || "Unnamed Team",
-
-                record: `${settings.wins || 0}-${settings.losses || 0}-${settings.ties || 0}`,
-
-                winPct: (settings.wins + settings.losses) ? (settings.wins / (settings.wins + settings.losses)) : 0,
-
-                pointsFor: pf
-
-            };
-
-        });
-
-
-
-        teams.sort((a, b) => b.winPct - a.winPct || b.pointsFor - a.pointsFor);
-
-        const tbody = document.querySelector('#standings-table tbody');
-
-        if (tbody) {
-
-            tbody.innerHTML = teams.map((team, index) => `
-
-                <tr class="${index === 6 ? 'playoff-divider' : ''}">
-
-                    <td>${index + 1}</td>
-
-                    <td style="font-weight: 600;">${team.teamName}</td>
-
-                    <td>${team.record}</td>
-
-                </tr>`).join('');
-
-        }
-
-    } catch (error) { console.error("Standings Error:", error); }
-
-}
-
-
-
-/* === 4. WEEKLY SCOREBOARD & PREDICTIONS === */
-
-function getCurrentWeek() {
-
-    const seasonStart = new Date("2025-09-04"); 
-
-    const now = new Date();
-
-    const diff = now - seasonStart;
-
-    const week = Math.ceil(diff / (7 * 24 * 60 * 60 * 1000));
-
-    return Math.max(1, Math.min(week, 18)); 
-
-}
-
-
-
-async function fetchScoreboard() {
-
-    const week = getCurrentWeek();
-
-    try {
-
-        const [matchRes, usersRes, rostersRes] = await Promise.all([
-
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`),
-
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`),
-
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
-
-        ]);
-
-
-
-        const matchupsRaw = await matchRes.json();
-
-        const users = await usersRes.json();
-
-        const rosters = await rostersRes.json();
-
-
-
-        const userLookup = Object.fromEntries(users.map(u => [u.user_id, u.display_name]));
-
-        const rosterToNameMap = Object.fromEntries(rosters.map(r => [r.roster_id, userLookup[r.owner_id] || "Unknown"]));
-
-
-
-        // Offseason/Preseason Check: If matchups are empty or contain only nulls, show the countdown wrapper
-
-        const isOffseason = !matchupsRaw || matchupsRaw.length === 0 || matchupsRaw.every(m => m.matchup_id === null);
-
-
-
-        if (isOffseason) {
-
-            startKickoffCountdown();
-
-            return;
-
-        }
-
-
-
-        Papa.parse(csvUrl, {
-
-            download: true,
-
-            header: true,
-
-            complete: (results) => { renderMatchupCards(matchupsRaw, rosterToNameMap, results.data); }
-
-        });
-
-    } catch (err) { console.error("Scoreboard Error:", err); }
-
-}
-
-
-
-function startKickoffCountdown() {
-
-    const container = document.getElementById('scoreboard-container');
-
-    if (!container) return;
-
-
-
-    // Center the countdown box vertically within the long column space
-
-    container.style.display = 'flex';
-
-    container.style.flexDirection = 'column';
-
-    container.style.justifyContent = 'center';
-
-    container.style.height = '100%';
-
-
-
-    // Create the hidden audio element pointing to your future GitHub file
-
-    let buzzer = document.getElementById('kickoff-buzzer');
-
-    if (!buzzer) {
-
-        buzzer = document.createElement('audio');
-
-        buzzer.id = 'kickoff-buzzer';
-
-        buzzer.src = 'countdowntimer.mp3'; 
-
-        buzzer.preload = 'auto';
-
-        document.body.appendChild(buzzer);
-
-    }
-
-
-
-    // Target kickoff date: Sept 9, 2026 at 5:20 PM PDT
-
-    const kickoffDate = new Date("2026-09-09T17:20:00-07:00").getTime();
-
-
-
-   function updateTimer() {
-
-        const now = new Date().getTime();
-
-        const distance = kickoffDate - now;
-
-
-
-        if (distance < 0) {
-
-            container.innerHTML = '<p style="text-align:center; color:#facc15; padding:40px; font-weight:bold; font-size:1.5rem;">🏈 FOOTBALL HAS STARTED! Refreshing data...</p>';
-
-            buzzer.play().catch(e => console.log("Audio waiting for click interaction to play: ", e));
-
-            clearInterval(timerInterval);
-
-            return;
-
-        }
-
-
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-
-
-        container.innerHTML = `
-
-            <div style="text-align: center; padding: 30px 10px; background: rgba(15, 23, 42, 0.4); margin: 5px; border-radius: 8px; border: 1px dashed #4a5568; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 100%;">
-
-                <p style="color: #94a3b8; font-size: clamp(0.85rem, 2.5vw, 1.1rem); text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px 0; font-weight: 500;">Countdown to NFL Kickoff</p>
-
-                <div style="display: flex; justify-content: center; gap: clamp(10px, 3vw, 25px); color: white; font-weight: bold; width: 100%;">
-
-                    <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${days}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Days</span></div>
-
-                    <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${hours}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Hrs</span></div>
-
-                    <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${minutes}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Mins</span></div>
-
-                    <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${seconds}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Secs</span></div>
-
+        <div class="right-column-wrapper">
+            <div class="column-title">League Bulletin</div>
+            <div class="column-container">
+                <div id="bulletin-display">
+                    <p style="text-align:center; color:#94a3b8; padding:20px; font-size:0.8rem;">
+                        Fetching latest league news...
+                    </p>
                 </div>
 
-                <p style="margin-top: 25px; font-size: 0.9rem; color: #64748b; font-style: italic; letter-spacing: 0.5px;">Patriots @ Seahawks • Season Opener</p>
-
+                <div style="text-align: center; margin: 1.5rem 0;">
+                    <p style="color: #94a3b8; font-size: 0.8rem;">Want to talk trash?</p>
+                    <a href="https://www.facebook.com/messages/" target="_blank" 
+                       style="display: inline-block; background: #0084ff; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 0.8rem;">
+                        Open League Chat
+                    </a>
+                </div>
             </div>
+        </div>
+    </div>
 
-        `;
+   <script type="module">
+        /* === 1. SIDEBAR & NAVIGATION CONTROLLER === */
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebarLeft = document.getElementById('sidebarLeft');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-    }
+        function toggleMenu() {
+            sidebarLeft.classList.toggle('active');
+            if (sidebarLeft.classList.contains('active')) {
+                sidebarOverlay.style.display = 'block';
+            } else {
+                sidebarOverlay.style.display = 'none';
+            }
+        }
 
+        if (mobileMenuBtn && sidebarOverlay) {
+            mobileMenuBtn.addEventListener('click', toggleMenu);
+            sidebarOverlay.addEventListener('click', toggleMenu);
+        }
 
-
-    updateTimer();
-
-    const timerInterval = setInterval(updateTimer, 1000);
-
-}
-
-
-
-function renderMatchupCards(matchups, nameMap, stats) {
-
-    const container = document.getElementById('scoreboard-container');
-
-    if (!container) return;
-
-    container.innerHTML = ''; 
-
-
-
-    const groups = {};
-
-    matchups.forEach(m => {
-
-        if (m.matchup_id === null || m.matchup_id === undefined) return;
-
-
-
-        if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
-
-        groups[m.matchup_id].push(m);
-
-    });
-
-
-
-    Object.keys(groups).forEach(matchId => {
-
-        const pair = groups[matchId];
-
-        if (pair.length < 2) return;
-
-
-
-        let nameA = nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`;
-
-        let nameB = nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`;
-
-
-
-        nameA = nameA.replace('@', '').trim();
-
-        nameB = nameB.replace('@', '').trim();
-
-
-
-        const findStat = (cleanName) => {
-
-            const realName = nameTranslator[cleanName] || cleanName;
-
-            return stats.find(s => s.Manager?.toLowerCase().trim() === realName.toLowerCase().trim());
-
+        /* === 2. TRANSLATORS === */
+        const nameTranslator = {
+            "mgreg00x": "Matt",
+            "SanDiegoSuperBurgers": "Sylvesterr", 
+            "BUNNIESUPBUDDY": "Evelyn",
+            "lightmyBONfire": "Nate",
+            "dudenamedtrevor": "Trevor",
+            "bcanfield0913": "An",
+            "dianne399": "Dianne",
+            "LycaonPictus": "Brad", 
+            "EmMack": "Emily",
+            "DawgPound247": "Brittney",
+            "TB12isDaddy": "Bye Week",
+            "CrazyCougars": "Jess",
+            "Waddlepenguin": "Nate", 
+            "drvargas": "Bonnie"
         };
 
+        /* === 3. EXTERNAL LIBRARIES & CONFIG === */
+        import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+            
+        const leagueId = "1180908151502815232";
+        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
+            authDomain: "tcwr-dynasty.firebaseapp.com",
+            projectId: "tcwr-dynasty",
+            storageBucket: "tcwr-dynasty.firebasestorage.app",
+            messagingSenderId: "544187199777",
+            appId: "1:544187199777:web:05753208f1daee32558e60"
+        };
 
-        const sA = findStat(nameA);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        const sB = findStat(nameB);
+        /* === 4. LEAGUE BULLETIN (FIREBASE) === */
+        function loadBulletin() {
+            const display = document.getElementById('bulletin-display');
+            if (!display) return;
+            const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
 
+            onSnapshot(q, (snapshot) => {
+                display.innerHTML = ''; 
+                if (snapshot.empty) {
+                    display.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.8rem;">No recent announcements.</p>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const post = doc.data();
+                    const item = document.createElement('div');
+                    item.className = 'bulletin-item';
+                    const displayDate = post.Date || post.date || "UPDATE";
+                    const displayText = post.text || "";
+                    item.innerHTML = `<p class="bulletin-date">${displayDate.toUpperCase()}</p><p class="bulletin-text">${displayText}</p>`;
+                    display.appendChild(item);
+                });
+            });
+        }
 
+        /* === 5. SLEEPER STANDINGS DATA === */
+        async function fetchStandings() {
+            try {
+                const [rostersRes, usersRes] = await Promise.all([
+                    fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+                    fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
+                ]);
+                const rosters = await rostersRes.json();
+                const users = await usersRes.json();
+                const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
 
-        const avgA = parseFloat(sA?.AvgPts || 0);
+                const teams = rosters.map(roster => {
+                    const user = userMap[roster.owner_id] || {};
+                    const settings = roster.settings || {};
+                    const pf = (settings.fpts || 0) + ((settings.fpts_decimal || 0) / 100);
+                    return {
+                        teamName: user.metadata?.team_name || user.display_name || "Unnamed Team",
+                        record: `${settings.wins || 0}-${settings.losses || 0}-${settings.ties || 0}`,
+                        winPct: (settings.wins + settings.losses) ? (settings.wins / (settings.wins + settings.losses)) : 0,
+                        pointsFor: pf
+                    };
+                });
 
-        const avgB = parseFloat(sB?.AvgPts || 0);
+                teams.sort((a, b) => b.winPct - a.winPct || b.pointsFor - a.pointsFor);
+                const tbody = document.querySelector('#standings-table tbody');
+                if (tbody) {
+                    tbody.innerHTML = teams.map((team, index) => `
+                        <tr class="${index === 6 ? 'playoff-divider' : ''}">
+                            <td>${index + 1}</td>
+                            <td style="font-weight: 600;">${team.teamName}</td>
+                            <td>${team.record}</td>
+                        </tr>`).join('');
+                }
+            } catch (error) { console.error("Standings Error:", error); }
+        }
 
-        const h2hA = sA?.H2H_Record || "0-0";
+        /* === 6. WEEKLY SCOREBOARD & PREDICTIONS === */
+        function getCurrentWeek() {
+            // Updated to 2026 to keep calendar math tracking current active timelines
+            const seasonStart = new Date("2026-09-10"); 
+            const now = new Date();
+            const diff = now - seasonStart;
+            const week = Math.ceil(diff / (7 * 24 * 60 * 60 * 1000));
+            return Math.max(1, Math.min(week, 18)); 
+        }
 
-        const diffA = sA?.Pt_Diff || "0";
+        async function fetchScoreboard() {
+            const week = getCurrentWeek();
+            try {
+                const [matchRes, usersRes, rostersRes] = await Promise.all([
+                    fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`),
+                    fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+                    fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
+                ]);
 
+                const matchupsRaw = await matchRes.json();
+                const users = await usersRes.json();
+                const rosters = await rostersRes.json();
 
+                const userLookup = Object.fromEntries(users.map(u => [u.user_id, u.display_name]));
+                const rosterToNameMap = Object.fromEntries(rosters.map(r => [r.roster_id, userLookup[r.owner_id] || "Unknown"]));
 
-        const pA = pair[0].points || 0;
+                // Offseason/Preseason Check
+                const isOffseason = !matchupsRaw || matchupsRaw.length === 0 || matchupsRaw.every(m => m.matchup_id === null);
 
-        const pB = pair[1].points || 0;
+                if (isOffseason) {
+                    startKickoffCountdown();
+                    return;
+                }
 
-        
+                Papa.parse(csvUrl, {
+                    download: true,
+                    header: true,
+                    complete: (results) => { renderMatchupCards(matchupsRaw, rosterToNameMap, results.data); }
+                });
+            } catch (err) { console.error("Scoreboard Error:", err); }
+        }
 
-        const historicFav = avgA > avgB ? nameA : nameB;
+        function startKickoffCountdown() {
+            const container = document.getElementById('scoreboard-container');
+            if (!container) return;
 
-        const sleeperFav = pA > pB ? nameA : nameB;
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.justifyContent = 'center';
+            container.style.height = '100%';
 
-        let borderColor = (historicFav === sleeperFav) ? "#facc15" : "#f87171";
+            let buzzer = document.getElementById('kickoff-buzzer');
+            if (!buzzer) {
+                buzzer = document.createElement('audio');
+                buzzer.id = 'kickoff-buzzer';
+                buzzer.src = 'countdowntimer.mp3'; 
+                buzzer.preload = 'auto';
+                document.body.appendChild(buzzer);
+            }
 
+            // Target kickoff date: Sept 10, 2026 (Thursday Night Opener)
+            const kickoffDate = new Date("2026-09-10T17:20:00-07:00").getTime();
 
+            function updateTimer() {
+                const now = new Date().getTime();
+                const distance = kickoffDate - now;
 
-        const card = document.createElement('div');
+                if (distance < 0) {
+                    container.innerHTML = '<p style="text-align:center; color:#facc15; padding:40px; font-weight:bold; font-size:1.5rem;">🏈 FOOTBALL HAS STARTED! Refreshing data...</p>';
+                    buzzer.play().catch(e => console.log("Audio waiting for interaction: ", e));
+                    clearInterval(timerInterval);
+                    return;
+                }
 
-        card.className = 'bulletin-item';
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        card.style.borderLeft = `4px solid ${borderColor}`;
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 30px 10px; background: rgba(15, 23, 42, 0.4); margin: 5px; border-radius: 8px; border: 1px dashed #4a5568; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 100%;">
+                        <p style="color: #94a3b8; font-size: clamp(0.85rem, 2.5vw, 1.1rem); text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px 0; font-weight: 500;">Countdown to NFL Kickoff</p>
+                        <div style="display: flex; justify-content: center; gap: clamp(10px, 3vw, 25px); color: white; font-weight: bold; width: 100%;">
+                            <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${days}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Days</span></div>
+                            <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${hours}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Hrs</span></div>
+                            <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${minutes}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Mins</span></div>
+                            <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${seconds}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Secs</span></div>
+                        </div>
+                        <p style="margin-top: 25px; font-size: 0.9rem; color: #64748b; font-style: italic; letter-spacing: 0.5px;">Season Opener Countdown</p>
+                    </div>
+                `;
+            }
 
-        card.style.marginBottom = "15px"; 
+            updateTimer();
+            const  timerInterval = setInterval(updateTimer, 1000);
+        }
 
-        card.innerHTML = `
+        function renderMatchupCards(matchups, nameMap, stats) {
+            const container = document.getElementById('scoreboard-container');
+            if (!container) return;
+            container.innerHTML = ''; 
 
-            <p class="bulletin-date">MATCHUP #${matchId}</p>
+            const groups = {};
+            matchups.forEach(m => {
+                if (m.matchup_id === null || m.matchup_id === undefined) return;
+                if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
+                groups[m.matchup_id].push(m);
+            });
 
-            <p style="color:white; font-weight:bold; margin:5px 0;">@${nameA} vs @${nameB}</p>
+            Object.keys(groups).forEach(matchId => {
+                const pair = groups[matchId];
+                if (pair.length < 2) return;
 
-            <div style="font-size:0.7rem; color:#94a3b8; display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                let nameA = nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`;
+                let nameB = nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`;
 
-                <span>Proj: ${pA} - ${pB}</span>
+                nameA = nameA.replace('@', '').trim();
+                nameB = nameB.replace('@', '').trim();
 
-                <span>Avg: ${avgA} - ${avgB}</span>
+                const findStat = (cleanName) => {
+                    const realName = nameTranslator[cleanName] || cleanName;
+                    return stats.find(s => s.Manager?.toLowerCase().trim() === realName.toLowerCase().trim());
+                };
 
-                <span>H2H: ${h2hA}</span>
+                const sA = findStat(nameA);
+                const sB = findStat(nameB);
 
-                <span>Diff: ${diffA}</span>
+                const avgA = parseFloat(sA?.AvgPts || 0);
+                const avgB = parseFloat(sB?.AvgPts || 0);
+                const h2hA = sA?.H2H_Record || "0-0";
+                const diffA = sA?.Pt_Diff || "0";
 
-            </div>
+                const pA = pair[0].points || 0;
+                const pB = pair[1].points || 0;
+                
+                const historicFav = avgA > avgB ? nameA : nameB;
+                const sleeperFav = pA > pB ? nameA : nameB;
+                let borderColor = (historicFav === sleeperFav) ? "#facc15" : "#f87171";
 
-            <p style="margin-top:8px; color:${borderColor}; font-weight:bold; font-size:0.8rem;">
+                const card = document.createElement('div');
+                card.className = 'bulletin-item';
+                card.style.borderLeft = `4px solid ${borderColor}`;
+                card.style.marginBottom = "15px"; 
+                card.innerHTML = `
+                    <p class="bulletin-date">MATCHUP #${matchId}</p>
+                    <p style="color:white; font-weight:bold; margin:5px 0;">@${nameA} vs @${nameB}</p>
+                    <div style="font-size:0.7rem; color:#94a3b8; display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                        <span>Proj: ${pA} - ${pB}</span>
+                        <span>Avg: ${avgA} - ${avgB}</span>
+                        <span>H2H: ${h2hA}</span>
+                        <span>Diff: ${diffA}</span>
+                    </div>
+                    <p style="margin-top:8px; color:${borderColor}; font-weight:bold; font-size:0.8rem;">
+                        ${historicFav === sleeperFav ? 'Projected:' : '🚨 Upset Alert:'} @${historicFav}
+                    </p>
+                `;
+                container.appendChild(card);
+            });
+        }
 
-                ${historicFav === sleeperFav ? 'Projected:' : '🚨 Upset Alert:'} @${historicFav}
-
-            </p>
-
-        `;
-
-        container.appendChild(card);
-
-    });
-
-}
-
-
-
-/* === 5. INITIALIZE ALL === */
-
-loadBulletin();
-
-fetchStandings();
-
-fetchScoreboard();
-
-</script>
-
+        /* === 7. INITIALIZE ALL === */
+        loadBulletin();
+        fetchStandings();
+        fetchScoreboard();
+    </script>
 </body>
-
-</html> 
+</html>
 

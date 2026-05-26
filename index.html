@@ -555,20 +555,19 @@ function startKickoffCountdown() {
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
+      /* --- REPLACE YOUR OLD CONTAINER.INNERHTML BLOCK WITH THIS --- */
         container.innerHTML = `
-           HTML
-<div style="text-align: center; padding: 30px 10px; ... width: 100%;">
-  <p style="font-size: clamp(0.85rem, 2.5vw, 1.1rem); ...">
-  <div style="display: flex; justify-content: center; gap: clamp(10px, 3vw, 25px); ... width: 100%;">
-                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${days}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Days</span></div>
-                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${hours}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Hrs</span></div>
-                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${minutes}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Mins</span></div>
-                    <div><span style="display:block; font-size: 3.5rem; color: #facc15; line-height: 1;">${seconds}</span><span style="font-size:0.85rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Secs</span></div>
+            <div style="text-align: center; padding: 30px 10px; background: rgba(15, 23, 42, 0.4); margin: 5px; border-radius: 8px; border: 1px dashed #4a5568; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 100%;">
+                <p style="color: #94a3b8; font-size: clamp(0.85rem, 2.5vw, 1.1rem); text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px 0; font-weight: 500;">Countdown to NFL Kickoff</p>
+                <div style="display: flex; justify-content: center; gap: clamp(10px, 3vw, 25px); color: white; font-weight: bold; width: 100%;">
+                    <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${days}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Days</span></div>
+                    <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${hours}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Hrs</span></div>
+                    <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${minutes}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Mins</span></div>
+                    <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${seconds}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Secs</span></div>
                 </div>
-                <p style="margin-top: 30px; font-size: 1rem; color: #64748b; font-style: italic; letter-spacing: 0.5px;">Patriots @ Seahawks • Season Opener</p>
+                <p style="margin-top: 25px; font-size: 0.9rem; color: #64748b; font-style: italic; letter-spacing: 0.5px;">Patriots @ Seahawks • Season Opener</p>
             </div>
         `;
-    }
 
     updateTimer();
     const timerInterval = setInterval(updateTimer, 1000);

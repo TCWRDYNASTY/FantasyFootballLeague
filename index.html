@@ -539,7 +539,7 @@ function startKickoffCountdown() {
     // Target kickoff date: Sept 9, 2026 at 5:20 PM PDT
     const kickoffDate = new Date("2026-09-09T17:20:00-07:00").getTime();
 
-    function updateTimer() {
+   function updateTimer() {
         const now = new Date().getTime();
         const distance = kickoffDate - now;
 
@@ -555,7 +555,6 @@ function startKickoffCountdown() {
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      /* --- REPLACE YOUR OLD CONTAINER.INNERHTML BLOCK WITH THIS --- */
         container.innerHTML = `
             <div style="text-align: center; padding: 30px 10px; background: rgba(15, 23, 42, 0.4); margin: 5px; border-radius: 8px; border: 1px dashed #4a5568; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 100%;">
                 <p style="color: #94a3b8; font-size: clamp(0.85rem, 2.5vw, 1.1rem); text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px 0; font-weight: 500;">Countdown to NFL Kickoff</p>
@@ -568,6 +567,7 @@ function startKickoffCountdown() {
                 <p style="margin-top: 25px; font-size: 0.9rem; color: #64748b; font-style: italic; letter-spacing: 0.5px;">Patriots @ Seahawks • Season Opener</p>
             </div>
         `;
+    }
 
     updateTimer();
     const timerInterval = setInterval(updateTimer, 1000);

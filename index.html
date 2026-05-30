@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TCWR FANTASY FOOTBALL DY-NASTY</title>
 
+    <!-- App Icons with Cache-Busting Strings -->
+    <link rel="icon" type="image/png" sizes="192x192" href="tcwr-icon-192.png?v=1" />
+    <link rel="icon" type="image/png" sizes="512x512" href="tcwr-icon-512.png?v=1" />
+    <link rel="apple-touch-icon" sizes="192x192" href="tcwr-icon-192.png?v=1" />
+    <link rel="apple-touch-icon" sizes="512x512" href="tcwr-icon-512.png?v=1" />
+
+    <!-- PWA Manifest Connection -->
+    <link rel="manifest" href="manifest.json" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
    
 <style>
@@ -335,7 +343,6 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
             <a href="rookiedraftcountdown.html">Draft Lottery</a>
             <a href="Bylaws.html">Constitution</a>
             <a href="contactcommish.html">Contact Commish</a>
-            <a href="https://www.facebook.com/messages">League Chat </a>
             <a href="https://sleeper.com/login">Sleeper</a>
         </nav>
     </div>
@@ -688,6 +695,16 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
     fetchStandings();
     fetchScoreboard();
     </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(reg => console.log('Service Worker registered successfully!', reg))
+            .catch(err => console.log('Service Worker registration failed: ', err));
+        });
+      }
+    </script>
+    
 </body>
 </html>
 

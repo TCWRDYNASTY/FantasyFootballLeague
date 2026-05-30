@@ -571,7 +571,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         } catch (err) { console.error("Scoreboard Error:", err); }
     }
 
-    function startKickoffCountdown() {
+   function startKickoffCountdown() {
         const container = document.getElementById('scoreboard-container');
         if (!container) return;
 
@@ -586,6 +586,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
             buzzer.id = 'kickoff-buzzer';
             buzzer.src = 'countdowntimer.mp3'; 
             buzzer.preload = 'auto';
+            buzzer.loop = true; // Loop the ticking sound while counting down
             document.body.appendChild(buzzer);
         }
 
@@ -597,11 +598,19 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 
             if (distance < 0) {
                 container.innerHTML = '<p style="text-align:center; color:#facc15; padding:40px; font-weight:bold; font-size:1.5rem;">🏈 FOOTBALL HAS STARTED! Refreshing data...</p>';
-                buzzer.play().catch(e => console.log("Audio waiting for interaction: ", e));
+                
+                // Stop the ticking clock sound when the timer finishes
+                buzzer.pause();
+                buzzer.currentTime = 0; 
+
                 clearInterval(timerInterval);
-                // Trigger a real scoreboard reload once the clock runs out
                 setTimeout(() => { location.reload(); }, 3000);
                 return;
+            }
+
+            // Try to play the ticking audio continuously during the countdown
+            if (buzzer.paused) {
+                buzzer.play().catch(e => console.log("Audio waiting for user gesture to play: ", e));
             }
 
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -626,7 +635,6 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         updateTimer();
         const timerInterval = setInterval(updateTimer, 1000);
     }
-
     function renderMatchupCards(matchups, nameMap, stats) {
         const container = document.getElementById('scoreboard-container');
         if (!container) return;
@@ -704,7 +712,5 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         });
       }
     </script>
-    
 </body>
 </html>
-

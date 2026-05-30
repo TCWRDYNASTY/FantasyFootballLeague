@@ -580,16 +580,6 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         container.style.justifyContent = 'center';
         container.style.height = '100%';
 
-        let buzzer = document.getElementById('kickoff-buzzer');
-        if (!buzzer) {
-            buzzer = document.createElement('audio');
-            buzzer.id = 'kickoff-buzzer';
-            buzzer.src = 'countdowntimer.mp3'; 
-            buzzer.preload = 'auto';
-            buzzer.loop = true; // Loop the ticking sound while counting down
-            document.body.appendChild(buzzer);
-        }
-
         const kickoffDate = new Date("2026-09-09T17:20:00-07:00").getTime();
 
         function updateTimer() {
@@ -598,24 +588,14 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 
             if (distance < 0) {
                 container.innerHTML = '<p style="text-align:center; color:#facc15; padding:40px; font-weight:bold; font-size:1.5rem;">🏈 FOOTBALL HAS STARTED! Refreshing data...</p>';
-                
-                // Stop the ticking clock sound when the timer finishes
-                buzzer.pause();
-                buzzer.currentTime = 0; 
-
                 clearInterval(timerInterval);
                 setTimeout(() => { location.reload(); }, 3000);
                 return;
             }
 
-            // Try to play the ticking audio continuously during the countdown
-            if (buzzer.paused) {
-                buzzer.play().catch(e => console.log("Audio waiting for user gesture to play: ", e));
-            }
-
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 || 1)) / (1000 * 60)); // fallback safety check
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
             container.innerHTML = `
@@ -635,6 +615,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         updateTimer();
         const timerInterval = setInterval(updateTimer, 1000);
     }
+    
     function renderMatchupCards(matchups, nameMap, stats) {
         const container = document.getElementById('scoreboard-container');
         if (!container) return;

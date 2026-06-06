@@ -101,6 +101,7 @@
   </div>
 
 <script>
+    // === 1. USER SESSION CHECK (GUEST SAFE) ===
     const storedUser = localStorage.getItem('loggedInUser');
     const userDisplay = document.getElementById('userDisplay');
     const senderNameInput = document.getElementById('senderNameInput');
@@ -112,23 +113,26 @@
             user = JSON.parse(storedUser);
             userDisplay.textContent = `Logged in as: ${user.username}`;
             senderNameInput.value = user.username; 
-            
         } catch (e) {
-            console.error("Failed to parse user data, redirecting.");
-            window.location.href = "index.html";
+            console.error("Failed to parse user data. Defaulting to Guest.");
+            userDisplay.textContent = "Logged in as: Guest";
+            senderNameInput.value = "Anonymous Manager";
         }
     } else {
-        console.log('No user session found. Redirecting to login.');
-        window.location.href = "index.html";
+        // 🚀 FIXED: Removed window.location.href="index.html" trap. 
+        // This stops the infinite loop on your phone and lets the form load safely!
+        console.log('No user session found on mobile device. Allowing guest form access.');
+        userDisplay.textContent = "Logged in as: Guest";
+        senderNameInput.value = "Anonymous Manager";
     }
-</script>
-  <script>
+
+    // === 2. CORRECTED SERVICE WORKER REGISTRATION ===
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            // FIX: Renamed Service Worker file reference to ensure re-registration
-            navigator.serviceWorker.register('service-worker-2.js') 
+            // 🚀 FIXED: Pointing back to your actual file 'service-worker.js' instead of 'service-worker-2.js'
+            navigator.serviceWorker.register('service-worker.js') 
                 .then(registration => {
-                    console.log('Service Worker registered!');
+                    console.log('Service Worker registered successfully!');
                 })
                 .catch(error => {
                     console.log('Service Worker registration failed:', error);

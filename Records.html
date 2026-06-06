@@ -250,7 +250,6 @@
 <div class="modal-overlay" id="sheetModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 class="modal-title">Full Manager Rankings Spreadsheet</h3>
             <button class="modal-close-btn" id="closeModalBtn">&times;</button>
         </div>
         <div class="modal-body">
@@ -351,7 +350,7 @@ const closeBtn = document.getElementById('closeModalBtn');
 
 openBtn.addEventListener('click', () => {
     modal.classList.add('active');
-    document.body.style.overflow = 'hidden'; // Prevents background page scrolling while spreadsheet is open
+    document.body.style.overflow = 'hidden';
 });
 
 closeBtn.addEventListener('click', () => {

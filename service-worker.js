@@ -1,33 +1,33 @@
-const CACHE_NAME = 'tcwr-main-v4';
+const CACHE_NAME = 'tcwr-main-v5'; 
 
 const urlsToCache = [
-  '/', 
-  '/index.html',
-  '/manifest.json',
-  '/service-worker.js', 
-  '/Bylaws.html',
-  '/Flushables.html',
-  '/HallofChampions.html',
-  '/Records.html',
-  'contactcommish.html',
-  '/dynastychat.html',
-  '/main.html',
-  '/rookiedraftcountdown.html',
+  './', 
+  'index.html',
+  'manifest.json',
+  'service-worker.js', 
+  'Bylaws.html',
+  'Flushables.html',
+  'HallofChampions.html',
+  'Records.html',
+  'contactcommish.html', // 🚀 Fixed relative path
+  'dynastychat.html',
+  'main.html',
+  'rookiedraftcountdown.html',
   
   // Images 
-  '/DYNASTYLOGO.png',
-  '/Subject.jpeg',
-  '/ainteasy.jpeg',
-  '/thehomies.jpeg', 
-  '/trophy3.jpeg',
+  'DYNASTYLOGO.png',
+  'Subject.jpeg',
+  'ainteasy.jpeg',
+  'thehomies.jpeg', 
+  'trophy3.jpeg',
   
   // Audio
-  '/magicword.mp3',
-  '/camp-fire.mp3',
+  'magicword.mp3',
+  'camp-fire.mp3',
   
   // Icons
-  '/tcwr-icon-192.png',
-  '/tcwr-icon-512.png'
+  'tcwr-icon-192.png',
+  'tcwr-icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -105,11 +105,11 @@ self.addEventListener('push', (event) => {
 
     const options = {
         body: bodyText,
-        icon: '/tcwr-icon-192.png', 
-        badge: '/tcwr-icon-192.png',
+        icon: 'tcwr-icon-192.png', 
+        badge: 'tcwr-icon-192.png',
         vibrate: [100, 50, 100],
         data: { 
-            url: '/dynastychat.html' 
+            url: 'dynastychat.html' 
         }
     };
 
@@ -122,7 +122,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
-    const urlToOpen = event.notification.data.url || '/'; 
+    const urlToOpen = event.notification.data.url || './'; 
 
     event.waitUntil(
         clients.matchAll({ type: 'window' }).then((windowClients) => {

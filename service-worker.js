@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tcwr-main-v3'; 
+const CACHE_NAME = 'tcwr-main-v4';
 
 const urlsToCache = [
   '/', 
@@ -9,7 +9,7 @@ const urlsToCache = [
   '/Flushables.html',
   '/HallofChampions.html',
   '/Records.html',
-  '/contactcommish.html',
+  'contactcommish.html',
   '/dynastychat.html',
   '/main.html',
   '/rookiedraftcountdown.html',

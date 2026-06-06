@@ -407,7 +407,12 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 </div>
 
 <script type="module">
-    /* === 1. SIDEBAR & NAVIGATION CONTROLLER === */
+    /* === 1. EXTERNAL LIBRARIES & CONFIG === */
+    import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    /* === 2. UI SIDEBAR NAVIGATION === */
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const sidebarLeft = document.getElementById('sidebarLeft');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -426,7 +431,26 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         sidebarOverlay.addEventListener('click', toggleMenu);
     }
 
-    /* === 2. TRANSLATORS === */
+    const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            // If it's an external link (Sleeper/Messenger), let it open normally
+            if (link.getAttribute('href').startsWith('http')) {
+                return;
+            }
+            e.preventDefault();
+            const targetUrl = link.getAttribute('href');
+            
+            sidebarLeft.classList.remove('active');
+            sidebarOverlay.style.display = 'none';
+            
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 150);
+        });
+    });
+
+    /* === 3. TRANSLATORS === */
     const nameTranslator = {
         "mgreg00x": "Matt",
         "SanDiegoSuperBurgers": "Sylvesterr", 
@@ -444,11 +468,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         "drvargas": "Bonnie"
     };
 
-    /* === 3. EXTERNAL LIBRARIES & CONFIG === */
-    import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        
+    /* === 4. FIREBASE CONFIG & DATA SETUP === */
     const leagueId = "1180908151502815232";
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
 
@@ -464,7 +484,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    /* === 4. LEAGUE BULLETIN (FIREBASE) === */
+    /* === 5. LEAGUE BULLETIN (FIREBASE) === */
     function loadBulletin() {
         const display = document.getElementById('bulletin-display');
         if (!display) return;
@@ -488,7 +508,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         });
     }
 
-    /* === 5. SLEEPER STANDINGS DATA === */
+    /* === 6. SLEEPER STANDINGS DATA === */
     async function fetchStandings() {
         try {
             const [rostersRes, usersRes] = await Promise.all([
@@ -524,7 +544,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         } catch (error) { console.error("Standings Error:", error); }
     }
 
-    /* === 6. WEEKLY SCOREBOARD & PREDICTIONS === */
+    /* === 7. WEEKLY SCOREBOARD & PREDICTIONS === */
     function getCurrentWeek() {
         const seasonStart = new Date("2026-09-09T17:20:00-07:00"); 
         const now = new Date();
@@ -537,7 +557,6 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         const now = new Date();
         const kickoffDate = new Date("2026-09-09T17:20:00-07:00");
 
-        // Hard Calendar Check: Force countdown if the actual season hasn't kicked off yet
         if (now < kickoffDate) {
             startKickoffCountdown();
             return;
@@ -558,7 +577,6 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
             const userLookup = Object.fromEntries(users.map(u => [u.user_id, u.display_name]));
             const rosterToNameMap = Object.fromEntries(rosters.map(r => [r.roster_id, userLookup[r.owner_id] || "Unknown"]));
 
-            // Fallback safety check for late updates or empty API arrays
             const isOffseason = !matchupsRaw || matchupsRaw.length === 0 || matchupsRaw.every(m => m.matchup_id === null);
             if (isOffseason) {
                 startKickoffCountdown();
@@ -573,7 +591,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         } catch (err) { console.error("Scoreboard Error:", err); }
     }
 
-   function startKickoffCountdown() {
+    function startKickoffCountdown() {
         const container = document.getElementById('scoreboard-container');
         if (!container) return;
 
@@ -583,6 +601,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         container.style.height = '100%';
 
         const kickoffDate = new Date("2026-09-09T17:20:00-07:00").getTime();
+        let timerInterval; // Declared here for safe interval clearing
 
         function updateTimer() {
             const now = new Date().getTime();
@@ -597,7 +616,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 || 1)) / (1000 * 60)); // fallback safety check
+            const minutes = Math.floor((distance % (1000 * 60 || 1)) / (1000 * 60)); 
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
             container.innerHTML = `
@@ -615,7 +634,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         }
 
         updateTimer();
-        const timerInterval = setInterval(updateTimer, 1000);
+        timerInterval = setInterval(updateTimer, 1000);
     }
     
     function renderMatchupCards(matchups, nameMap, stats) {
@@ -681,19 +700,20 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
         });
     }
 
-    /* === 7. INITIALIZE ALL === */
+    /* === 8. INITIALIZE ALL === */
     loadBulletin();
     fetchStandings();
     fetchScoreboard();
-    </script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('service-worker.js')
-            .then(reg => console.log('Service Worker registered successfully!', reg))
-            .catch(err => console.log('Service Worker registration failed: ', err));
-        });
-      }
-    </script>
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registered successfully!', reg))
+        .catch(err => console.log('Service Worker registration failed: ', err));
+    });
+  }
+</script>
 </body>
 </html>

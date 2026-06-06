@@ -16,6 +16,8 @@
         color: white; 
         margin: 0; 
         padding: 0;
+        /* Padding at bottom so content doesn't get cut off behind the floating button container */
+        padding-bottom: 100px; 
     }
 
     /* 2. Responsive Grid - Lowered minmax to 300px for mobile safety */
@@ -111,10 +113,126 @@
     .info-desc { font-size: 0.9rem; color: #cbd5e0; font-style: italic; margin-bottom: 15px; line-height: 1.5; }
     .weight-total { color: #4ade80; font-weight: 800; font-size: 1.3rem; margin-top: 15px; text-align: right; border-top: 2px solid #2d3748; padding-top: 10px; }
 
+    /* --- Floating Action Button Elements --- */
+    .footer-action-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: linear-gradient(to top, rgba(26,32,44,1) 70%, rgba(26,32,44,0));
+        padding: 20px 0;
+        display: flex;
+        justify-content: center;
+        z-index: 100;
+    }
+
+    .embed-trigger-btn {
+        background-color: #4ade80;
+        color: #1a202c;
+        font-size: 1rem;
+        font-weight: 800;
+        padding: 14px 28px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .embed-trigger-btn:hover {
+        background-color: #38bdf8; /* Accent dynamic shift to blue on hover */
+        transform: scale(1.05);
+    }
+
+    /* --- Hidden Modal Structure --- */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(8px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal-content {
+        background-color: #1e293b;
+        width: 90%;
+        max-width: 1200px;
+        height: 80vh;
+        border-radius: 16px;
+        border: 2px solid #4b5563;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        background-color: #0f172a;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #334155;
+    }
+
+    .modal-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #f8fafc;
+    }
+
+    .modal-close-btn {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-size: 1.75rem;
+        cursor: pointer;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+
+    .modal-close-btn:hover {
+        color: #ef4444;
+    }
+
+    .modal-body {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+    }
+
+    .modal-body iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
     /* Mobile Cleanup */
     @media (max-width: 600px) {
         .ranking-grid { gap: 35px; margin-top: 50px; }
         .ranking-card { padding: 20px 15px; }
+        .modal-content { width: 95%; height: 85vh; }
     }
 </style>
 </head>
@@ -123,6 +241,22 @@
 
 <div class="ranking-grid" id="leaderboard">
     <p style="text-align: center; grid-column: 1/-1;">Loading rankings...</p>
+</div>
+
+<div class="footer-action-container">
+    <button class="embed-trigger-btn" id="openModalBtn">Full Manager Rankings</button>
+</div>
+
+<div class="modal-overlay" id="sheetModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Full Manager Rankings Spreadsheet</h3>
+            <button class="modal-close-btn" id="closeModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?widget=true&amp;headers=false"></iframe>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -210,9 +344,31 @@ async function fetchAndDisplayRankings() {
     }
 }
 
+// --- Modal Control Functionality ---
+const modal = document.getElementById('sheetModal');
+const openBtn = document.getElementById('openModalBtn');
+const closeBtn = document.getElementById('closeModalBtn');
+
+openBtn.addEventListener('click', () => {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevents background page scrolling while spreadsheet is open
+});
+
+closeBtn.addEventListener('click', () => {
+    modal.classList.remove('active');
+    document.body.style.overflow = ''; // Re-enables background scrolling
+});
+
+// Close modal if user clicks outside the dashboard wrapper box
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+});
+
 fetchAndDisplayRankings();
 </script>
-
 
 </body>
 </html>

@@ -335,8 +335,7 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
 <body class="body">
 
   <button class="menu-toggle" id="mobileMenuBtn">☰ Menu</button>
-    <div class="sidebar-overlay" id="sidebarOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 9998; display: none;"></div>
-
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="sidebar-left" id="sidebarLeft">
         <nav class="sidebar-nav">
             <a href="legends.html">Hall of Champions</a>
@@ -432,23 +431,20 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
     }
 
     const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
-    sidebarLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            // If it's an external link (Sleeper/Messenger), let it open normally
-            if (link.getAttribute('href').startsWith('http')) {
-                return;
-            }
-            e.preventDefault();
-            const targetUrl = link.getAttribute('href');
-            
+sidebarLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        const targetUrl = link.getAttribute('href');
+        if (!targetUrl || targetUrl.startsWith('http') || targetUrl.startsWith('//')) {
             sidebarLeft.classList.remove('active');
             sidebarOverlay.style.display = 'none';
-            
-            setTimeout(() => {
-                window.location.href = targetUrl;
-            }, 150);
-        });
+            return; 
+        }
+        e.preventDefault();
+        sidebarLeft.classList.remove('active');
+        sidebarOverlay.style.display = 'none';
+        window.location.assign(targetUrl);
     });
+});
 
     /* === 3. TRANSLATORS === */
     const nameTranslator = {

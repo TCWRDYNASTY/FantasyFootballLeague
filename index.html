@@ -412,37 +412,32 @@ tr.playoff-divider td { border-bottom: 2px solid #ef4444; }
     import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     /* === 2. UI SIDEBAR NAVIGATION === */
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const sidebarLeft = document.getElementById('sidebarLeft');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-    function toggleMenu() {
-        sidebarLeft.classList.toggle('active');
-        if (sidebarLeft.classList.contains('active')) {
-            sidebarOverlay.style.display = 'block';
-        } else {
-            sidebarOverlay.style.display = 'none';
-        }
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const sidebarLeft = document.getElementById('sidebarLeft');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+function toggleMenu() {
+    sidebarLeft.classList.toggle('active');
+    if (sidebarLeft.classList.contains('active')) {
+        sidebarOverlay.style.display = 'block';
+    } else {
+        sidebarOverlay.style.display = 'none';
     }
+}
 
-    if (mobileMenuBtn && sidebarOverlay) {
-        mobileMenuBtn.addEventListener('click', toggleMenu);
-        sidebarOverlay.addEventListener('click', toggleMenu);
-    }
+if (mobileMenuBtn && sidebarOverlay) {
+    mobileMenuBtn.addEventListener('click', toggleMenu);
+    sidebarOverlay.addEventListener('click', toggleMenu);
+}
 
-    const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
 sidebarLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        const targetUrl = link.getAttribute('href');
-        if (!targetUrl || targetUrl.startsWith('http') || targetUrl.startsWith('//')) {
-            sidebarLeft.classList.remove('active');
-            sidebarOverlay.style.display = 'none';
-            return; 
-        }
-        e.preventDefault();
+    link.addEventListener('click', () => {
+        // Just close the menu overlay smoothly and let the 
+        // browser handle the page jump natively on mobile.
         sidebarLeft.classList.remove('active');
         sidebarOverlay.style.display = 'none';
-        window.location.assign(targetUrl);
     });
 });
 

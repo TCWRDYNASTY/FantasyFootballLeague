@@ -445,19 +445,19 @@ sidebarLinks.forEach(link => {
     /* === 3. TRANSLATORS === */
     const nameTranslator = {
         "mgreg00x": "Matt",
-        "SanDiegoSuperBurgers": "Sylvesterr", 
+        "SanDiegoSuperBurgers": "Sylvester", 
         "BUNNIESUPBUDDY": "Evelyn",
-        "lightmyBONfire": "Nate",
+        "lightmyBONfire": "Bonnie",
         "dudenamedtrevor": "Trevor",
-        "bcanfield0913": "An",
+        "bcanfield0913": "Brittany",
         "dianne399": "Dianne",
         "LycaonPictus": "Brad", 
         "EmMack": "Emily",
-        "DawgPound247": "Brittney",
-        "TB12isDaddy": "Bye Week",
+        "DawgPound247": "Brian",
+        "TB12isDaddy": "An",
         "CrazyCougars": "Jess",
         "Waddlepenguin": "Nate", 
-        "drvargas": "Bonnie"
+        "drvargas": "Steven"
     };
 
     /* === 4. FIREBASE CONFIG & DATA SETUP === */
@@ -501,40 +501,63 @@ sidebarLinks.forEach(link => {
     }
 
     /* === 6. SLEEPER STANDINGS DATA === */
-    async function fetchStandings() {
-        try {
-            const [rostersRes, usersRes] = await Promise.all([
-                fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
-                fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
-            ]);
-            const rosters = await rostersRes.json();
-            const users = await usersRes.json();
-            const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
+   async function fetchStandings() {
+    try {
+        const [rostersRes, usersRes] = await Promise.all([
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
+        ]);
 
-            const teams = rosters.map(roster => {
-                const user = userMap[roster.owner_id] || {};
-                const settings = roster.settings || {};
-                const pf = (settings.fpts || 0) + ((settings.fpts_decimal || 0) / 100);
-                return {
-                    teamName: user.metadata?.team_name || user.display_name || "Unnamed Team",
-                    record: `${settings.wins || 0}-${settings.losses || 0}-${settings.ties || 0}`,
-                    winPct: (settings.wins + settings.losses) ? (settings.wins / (settings.wins + settings.losses)) : 0,
-                    pointsFor: pf
-                };
-            });
+        const rosters = await rostersRes.json();
+        const users = await usersRes.json();
 
-            teams.sort((a, b) => b.winPct - a.winPct || b.pointsFor - a.pointsFor);
-            const tbody = document.querySelector('#standings-table tbody');
-            if (tbody) {
-                tbody.innerHTML = teams.map((team, index) => `
-                    <tr class="${index === 6 ? 'playoff-divider' : ''}">
-                        <td>${index + 1}</td>
-                        <td style="font-weight: 600;">${team.teamName}</td>
-                        <td>${team.record}</td>
-                    </tr>`).join('');
-            }
-        } catch (error) { console.error("Standings Error:", error); }
+        console.log(users);
+
+        const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
+
+        const teams = rosters.map(roster => {
+            const user = userMap[roster.owner_id] || {};
+            const settings = roster.settings || {};
+            const pf =
+                (settings.fpts || 0) +
+                ((settings.fpts_decimal || 0) / 100);
+
+            return {
+                teamName:
+                    user.metadata?.team_name ||
+                    user.display_name ||
+                    "Unnamed Team",
+                record:
+                    `${settings.wins || 0}-${settings.losses || 0}-${settings.ties || 0}`,
+                winPct:
+                    (settings.wins + settings.losses)
+                        ? settings.wins / (settings.wins + settings.losses)
+                        : 0,
+                pointsFor: pf
+            };
+        });
+
+        teams.sort(
+            (a, b) =>
+                b.winPct - a.winPct ||
+                b.pointsFor - a.pointsFor
+        );
+
+        const tbody = document.querySelector("#standings-table tbody");
+
+        if (tbody) {
+            tbody.innerHTML = teams.map((team, index) => `
+                <tr class="${index === 6 ? "playoff-divider" : ""}">
+                    <td>${index + 1}</td>
+                    <td style="font-weight: 600;">${team.teamName}</td>
+                    <td>${team.record}</td>
+                </tr>
+            `).join("");
+        }
+    } catch (error) {
+        console.error("Standings Error:", error);
     }
+}
 
     /* === 7. WEEKLY SCOREBOARD & PREDICTIONS === */
     function getCurrentWeek() {

@@ -511,7 +511,11 @@ sidebarLinks.forEach(link => {
         const rosters = await rostersRes.json();
         const users = await usersRes.json();
 
-        console.log(users);
+       console.log(users.map(u => ({
+    display_name: u.display_name,
+    team_name: u.metadata?.team_name,
+    metadata: u.metadata
+})));
 
         const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
 

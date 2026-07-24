@@ -656,79 +656,134 @@ sidebarLinks.forEach(link => {
         timerInterval = setInterval(updateTimer, 1000);
     }
     
-  function renderMatchupCards(matchups, nameMap, stats) {
+function renderMatchupCards(matchups, nameMap, stats) {
     const container = document.getElementById('scoreboard-container');
     if (!container) return;
+
     container.innerHTML = '';
 
     const groups = {};
-    matchups.forEach(m => {
-        if (m.matchup_id === null || m.matchup_id === undefined) return;
-        if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
-        groups[m.matchup_id].push(m);
+
+    matchups.forEach(matchup => {
+        if (
+            matchup.matchup_id === null ||
+            matchup.matchup_id === undefined
+        ) {
+            return;
+        }
+
+        if (!groups[matchup.matchup_id]) {
+            groups[matchup.matchup_id] = [];
+        }
+
+        groups[matchup.matchup_id].push(matchup);
     });
 
     Object.keys(groups).forEach(matchId => {
         const pair = groups[matchId];
+
         if (pair.length < 2) return;
 
-        let nameA = nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`;
-        let nameB = nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`;
+        let nameA =
+            nameMap[pair[0].roster_id] ||
+            `Team ${pair[0].roster_id}`;
+
+        let nameB =
+            nameMap[pair[1].roster_id] ||
+            `Team ${pair[1].roster_id}`;
 
         nameA = nameA.replace('@', '').trim();
         nameB = nameB.replace('@', '').trim();
 
         const findStat = (managerName, opponentName) => {
-            const realManager = nameTranslator[managerName] || managerName;
+            const realManager =
+                nameTranslator[managerName] || managerName;
 
-            return stats.find(s =>
-                s.Manager?.trim().toLowerCase() === realManager.trim().toLowerCase() &&
-                s.Opponent?.trim().toLowerCase() === `@${opponentName}`.trim().toLowerCase()
-            );
+            return stats.find(stat => {
+                const spreadsheetManager =
+                    stat.Manager?.trim().toLowerCase();
+
+                const spreadsheetOpponent =
+                    stat.Opponent?.trim().toLowerCase();
+
+                const expectedManager =
+                    realManager.trim().toLowerCase();
+
+                const expectedOpponent =
+                    `@${opponentName}`.trim().toLowerCase();
+
+                return (
+                    spreadsheetManager === expectedManager &&
+                    spreadsheetOpponent === expectedOpponent
+                );
+            });
         };
 
-        const sA = findStat(nameA, nameB);
-        const sB = findStat(nameB, nameA);
+        const statA = findStat(nameA, nameB);
+        const statB = findStat(nameB, nameA);
 
-        const avgA = parseFloat(sA?.AvgPts || 0);
-        const avgB = parseFloat(sB?.AvgPts || 0);
-        const h2hA = sA?.H2H_Record || "0-0";
-        const diffA = sA?.Pt_Diff || "0";
+        const avgA = Number.parseFloat(statA?.AvgPts || 0);
+        const avgB = Number.parseFloat(statB?.AvgPts || 0);
 
-        const pA = pair[0].points || 0;
-        const pB = pair[1].points || 0;
+        const h2hA = statA?.H2H_Record || '0-0';
+        const diffA = statA?.Pt_Diff || '0';
 
-        // Skip ties
-        if (avgA === avgB || pA === pB) return;
+        const pointsA = Number(pair[0].points) || 0;
+        const pointsB = Number(pair[1].points) || 0;
 
-        const historicFav = avgA > avgB ? nameA : nameB;
-        const sleeperFav = pA > pB ? nameA : nameB;
+        // Do not choose a favorite when either comparison is tied.
+        if (avgA === avgB || pointsA === pointsB) return;
 
-        // Only display disagreements
-        if (historicFav === sleeperFav) return;
+        const historicFavorite =
+            avgA > avgB ? nameA : nameB;
 
-        const borderColor = "#f87171";
+        const sleeperFavorite =
+            pointsA > pointsB ? nameA : nameB;
+
+        // Only show matchups where the two favorites disagree.
+        if (historicFavorite === sleeperFavorite) return;
+
+        const borderColor = '#f87171';
 
         const card = document.createElement('div');
+
         card.className = 'bulletin-item';
         card.style.borderLeft = `4px solid ${borderColor}`;
-        card.style.marginBottom = "15px";
+        card.style.marginBottom = '15px';
 
         card.innerHTML = `
-            <p class="bulletin-date">MATCHUP #${matchId}</p>
+            <p class="bulletin-date">
+                MATCHUP #${matchId}
+            </p>
+
             <p style="color:white; font-weight:bold; margin:5px 0;">
                 @${nameA} vs @${nameB}
             </p>
 
-            <div style="font-size:0.7rem; color:#94a3b8; display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-                <span>Proj: ${pA} - ${pB}</span>
+            <div
+                style="
+                    font-size:0.7rem;
+                    color:#94a3b8;
+                    display:grid;
+                    grid-template-columns:1fr 1fr;
+                    gap:5px;
+                "
+            >
+                <span>Proj: ${pointsA} - ${pointsB}</span>
                 <span>Avg: ${avgA} - ${avgB}</span>
                 <span>H2H: ${h2hA}</span>
                 <span>Diff: ${diffA}</span>
             </div>
 
-            <p style="margin-top:8px; color:${borderColor}; font-weight:bold; font-size:0.8rem;">
-                🚨 Upset Alert: @${historicFav}
+            <p
+                style="
+                    margin-top:8px;
+                    color:${borderColor};
+                    font-weight:bold;
+                    font-size:0.8rem;
+                "
+            >
+                🚨 Upset Alert: @${historicFavorite}
             </p>
         `;
 
@@ -736,14 +791,32 @@ sidebarLinks.forEach(link => {
     });
 }
 
-  if ('serviceWorker' in navigator) {
+/* === 8. INITIALIZE PAGE === */
+loadBulletin();
+fetchStandings();
+fetchScoreboard();
+
+/* === 9. SERVICE WORKER === */
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(reg => console.log('Service Worker registered successfully!', reg))
-        .catch(err => console.log('Service Worker registration failed: ', err));
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(registration => {
+                console.log(
+                    'Service Worker registered successfully!',
+                    registration
+                );
+            })
+            .catch(error => {
+                console.error(
+                    'Service Worker registration failed:',
+                    error
+                );
+            });
     });
-  }
+}
 </script>
+
+
         
 </body>
 </html>

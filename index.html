@@ -1200,11 +1200,9 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         };
 
         let seriesText;
-        let storylineText;
 
         if (rivalryH2H.wins === rivalryH2H.losses) {
             seriesText = `Series tied ${rivalryH2H.wins}-${rivalryH2H.losses}`;
-            storylineText = `These teams have faced ${completedMeetings} times, and neither manager has been able to take control of the series.`;
         } else {
             const recordOwnerLeads = rivalryH2H.wins > rivalryH2H.losses;
             const seriesLeader = recordOwnerLeads
@@ -1215,23 +1213,156 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
             const leaderLosses = Math.min(rivalryH2H.wins, rivalryH2H.losses);
 
             seriesText = `@${seriesLeader} leads ${leaderWins}-${leaderLosses}`;
+        }
 
-            if (Math.abs(leaderWins - leaderLosses) <= 1) {
-                storylineText = `Only one game separates these managers after ${completedMeetings} previous meetings.`;
-            } else if (completedMeetings >= 6) {
-                storylineText = `A long-running league rivalry returns for another chapter this week.`;
-            } else {
-                storylineText = `The series leader will try to maintain control when these managers meet again.`;
-            }
+        if (!document.getElementById("tcwr-rivalry-card-styles")) {
+            const rivalryStyles = document.createElement("style");
+            rivalryStyles.id = "tcwr-rivalry-card-styles";
+            rivalryStyles.textContent = `
+                .tcwr-rivalry-layout {
+                    display:grid;
+                    grid-template-columns:minmax(170px,.8fr) minmax(360px,1.6fr) minmax(220px,.8fr);
+                    align-items:center;
+                    gap:18px;
+                }
+
+                .tcwr-rivalry-title {
+                    color:#facc15;
+                    font-size:.72rem;
+                    font-weight:900;
+                    letter-spacing:1px;
+                    text-transform:uppercase;
+                    white-space:nowrap;
+                }
+
+                .tcwr-rivalry-matchup {
+                    display:grid;
+                    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+                    align-items:center;
+                    gap:12px;
+                    min-width:0;
+                }
+
+                .tcwr-rivalry-manager {
+                    display:flex;
+                    align-items:center;
+                    gap:9px;
+                    min-width:0;
+                }
+
+                .tcwr-rivalry-manager.right {
+                    justify-content:flex-end;
+                }
+
+                .tcwr-rivalry-name {
+                    min-width:0;
+                    color:white;
+                    font-size:.82rem;
+                    font-weight:900;
+                    line-height:1.15;
+                    overflow:hidden;
+                    text-overflow:ellipsis;
+                    white-space:nowrap;
+                }
+
+                .tcwr-rivalry-avatar {
+                    width:38px;
+                    height:38px;
+                    flex:0 0 38px;
+                    border-radius:50%;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    background:#334155;
+                    border:2px solid #475569;
+                    font-size:.74rem;
+                    font-weight:900;
+                }
+
+                .tcwr-rivalry-details {
+                    text-align:right;
+                    min-width:0;
+                }
+
+                .tcwr-rivalry-meeting {
+                    color:#94a3b8;
+                    font-size:.68rem;
+                    font-weight:800;
+                    letter-spacing:.7px;
+                    text-transform:uppercase;
+                }
+
+                .tcwr-rivalry-series {
+                    margin-top:5px;
+                    color:white;
+                    font-size:.78rem;
+                    font-weight:900;
+                    overflow-wrap:anywhere;
+                }
+
+                @media (max-width:1050px) {
+                    .tcwr-rivalry-layout {
+                        grid-template-columns:1fr;
+                        gap:12px;
+                        text-align:center;
+                    }
+
+                    .tcwr-rivalry-title {
+                        white-space:normal;
+                    }
+
+                    .tcwr-rivalry-details {
+                        text-align:center;
+                    }
+                }
+
+                @media (max-width:620px) {
+                    .tcwr-rivalry-card {
+                        padding:14px 12px !important;
+                    }
+
+                    .tcwr-rivalry-matchup {
+                        grid-template-columns:1fr;
+                        gap:9px;
+                    }
+
+                    .tcwr-rivalry-manager,
+                    .tcwr-rivalry-manager.right {
+                        justify-content:center;
+                    }
+
+                    .tcwr-rivalry-manager.right .tcwr-rivalry-name {
+                        order:2;
+                    }
+
+                    .tcwr-rivalry-manager.right .tcwr-rivalry-avatar {
+                        order:1;
+                    }
+
+                    .tcwr-rivalry-name {
+                        max-width:calc(100vw - 150px);
+                        white-space:normal;
+                        overflow:visible;
+                        text-overflow:clip;
+                        overflow-wrap:anywhere;
+                        text-align:left;
+                    }
+
+                    .tcwr-rivalry-swords {
+                        transform:rotate(90deg);
+                    }
+                }
+            `;
+            document.head.appendChild(rivalryStyles);
         }
 
         const rivalryCard = document.createElement("div");
-        rivalryCard.className = "bulletin-item rivalry-card";
+        rivalryCard.className = "bulletin-item rivalry-card tcwr-rivalry-card";
         rivalryCard.style.cssText = `
             width:100%;
             box-sizing:border-box;
             margin:-2px 0 15px;
-            padding:14px 18px;
+            padding:15px 20px;
             color:white;
             background:linear-gradient(145deg, rgba(30,41,59,.98), rgba(15,23,42,.98));
             border:1px solid rgba(148,163,184,.22);
@@ -1241,39 +1372,28 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         `;
 
         rivalryCard.innerHTML = `
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
-                <div style="min-width:170px;">
-                    <div style="color:#facc15; font-size:.7rem; font-weight:900; letter-spacing:1px; text-transform:uppercase;">
-                        🛡️ Rivalry of the Week
+            <div class="tcwr-rivalry-layout">
+                <div>
+                    <div class="tcwr-rivalry-title">🛡️ Rivalry of the Week</div>
+                </div>
+
+                <div class="tcwr-rivalry-matchup">
+                    <div class="tcwr-rivalry-manager">
+                        <div class="tcwr-rivalry-avatar">${getInitials(rivalryNameA)}</div>
+                        <div class="tcwr-rivalry-name">@${rivalryNameA}</div>
                     </div>
-                    <div style="margin-top:4px; color:#94a3b8; font-size:.66rem; font-weight:700; letter-spacing:.8px; text-transform:uppercase;">
-                        ${getOrdinal(upcomingMeetingNumber)} All-Time Meeting
+
+                    <div class="tcwr-rivalry-swords" style="color:#f59e0b; font-size:1rem; font-weight:900;">⚔️</div>
+
+                    <div class="tcwr-rivalry-manager right">
+                        <div class="tcwr-rivalry-name" style="text-align:right;">@${rivalryNameB}</div>
+                        <div class="tcwr-rivalry-avatar">${getInitials(rivalryNameB)}</div>
                     </div>
                 </div>
 
-                <div style="display:flex; align-items:center; justify-content:center; gap:12px; flex:1; min-width:280px;">
-                    <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                        <div style="width:36px; height:36px; flex:0 0 36px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#334155; border:2px solid #475569; font-size:.72rem; font-weight:900;">
-                            ${getInitials(rivalryNameA)}
-                        </div>
-                        <div style="font-size:.78rem; font-weight:900; overflow-wrap:anywhere;">@${rivalryNameA}</div>
-                    </div>
-
-                    <div style="color:#f59e0b; font-size:1rem; font-weight:900;">⚔️</div>
-
-                    <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                        <div style="font-size:.78rem; font-weight:900; text-align:right; overflow-wrap:anywhere;">@${rivalryNameB}</div>
-                        <div style="width:36px; height:36px; flex:0 0 36px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#334155; border:2px solid #475569; font-size:.72rem; font-weight:900;">
-                            ${getInitials(rivalryNameB)}
-                        </div>
-                    </div>
-                </div>
-
-                <div style="min-width:220px; text-align:right;">
-                    <div style="color:white; font-size:.75rem; font-weight:900;">${seriesText}</div>
-                    <div style="margin-top:4px; color:#94a3b8; font-size:.66rem; line-height:1.35;">
-                        ${storylineText}
-                    </div>
+                <div class="tcwr-rivalry-details">
+                    <div class="tcwr-rivalry-meeting">${getOrdinal(upcomingMeetingNumber)} All-Time Meeting</div>
+                    <div class="tcwr-rivalry-series">${seriesText}</div>
                 </div>
             </div>
         `;

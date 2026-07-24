@@ -605,6 +605,37 @@ let selectedScoreboardWeek = SCOREBOARD_TEST_WEEK;
 let scoreboardRefreshTimer = null;
 let scoreboardRequestInProgress = false;
 
+function getFeaturedStorageKey(week, type) {
+    return `tcwr-${type}-featured-${leagueId}-week-${week}`;
+}
+
+function readStoredFeaturedMatchup(week, type) {
+    try {
+        const rawValue = window.localStorage.getItem(
+            getFeaturedStorageKey(week, type)
+        );
+
+        return rawValue ? JSON.parse(rawValue) : null;
+    } catch (error) {
+        console.warn("Unable to read featured matchup lock:", error);
+        return null;
+    }
+}
+
+function storeFeaturedMatchup(week, type, matchup, cardType) {
+    try {
+        window.localStorage.setItem(
+            getFeaturedStorageKey(week, type),
+            JSON.stringify({
+                matchId: String(matchup.matchId),
+                cardType
+            })
+        );
+    } catch (error) {
+        console.warn("Unable to store featured matchup lock:", error);
+    }
+}
+
 async function getSleeperCurrentWeek() {
     try {
         const response = await fetch("https://api.sleeper.app/v1/state/nfl");
@@ -836,17 +867,28 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
     const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
 
     const parseH2H = record => {
-        const parts = String(record || "0-0").split("-").map(value => Number.parseInt(value, 10) || 0);
+        const normalizedRecord = String(record || "0-0")
+            .trim()
+            .replace(/[–—−]/g, "-");
+
+        const parts = normalizedRecord
+            .split("-")
+            .map(value => Number.parseInt(value.trim(), 10) || 0);
+
         const wins = parts[0] || 0;
         const losses = parts[1] || 0;
         const ties = parts[2] || 0;
         const total = wins + losses + ties;
+
         return {
             wins,
             losses,
             ties,
             total,
-            winPercentage: total > 0 ? (wins + ties * 0.5) / total : 0.5
+            winPercentage:
+                total > 0
+                    ? (wins + ties * 0.5) / total
+                    : 0.5
         };
     };
 
@@ -940,23 +982,71 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         return;
     }
 
-    const disagreementMatchups = analyzedMatchups.filter(matchup => matchup.predictionDisagreement);
+    const disagreementMatchups = analyzedMatchups.filter(
+        matchup => matchup.predictionDisagreement
+    );
+
+    const anyGameStarted = analyzedMatchups.some(
+        matchup => matchup.gamesStarted
+    );
+
     let featuredMatchup;
     let cardType;
 
-    if (disagreementMatchups.length > 0) {
-        disagreementMatchups.sort((a, b) =>
-            (b.sleeperProjectionMargin || 0) - (a.sleeperProjectionMargin || 0) ||
-            b.confidence - a.confidence
+    const lockedSelection = readStoredFeaturedMatchup(week, "locked");
+    const candidateSelection = readStoredFeaturedMatchup(week, "candidate");
+
+    if (anyGameStarted && lockedSelection) {
+        featuredMatchup = analyzedMatchups.find(
+            matchup => String(matchup.matchId) === lockedSelection.matchId
         );
-        featuredMatchup = disagreementMatchups[0];
-        cardType = "prediction-clash";
+
+        cardType = lockedSelection.cardType || "matchup";
+    }
+
+    if (!featuredMatchup && anyGameStarted && candidateSelection) {
+        featuredMatchup = analyzedMatchups.find(
+            matchup => String(matchup.matchId) === candidateSelection.matchId
+        );
+
+        cardType = candidateSelection.cardType || "matchup";
+    }
+
+    if (!featuredMatchup) {
+        if (disagreementMatchups.length > 0) {
+            disagreementMatchups.sort((a, b) =>
+                (b.sleeperProjectionMargin || 0) -
+                    (a.sleeperProjectionMargin || 0) ||
+                b.confidence - a.confidence
+            );
+
+            featuredMatchup = disagreementMatchups[0];
+            cardType = "prediction-clash";
+        } else {
+            analyzedMatchups.sort((a, b) =>
+                a.averageGap - b.averageGap ||
+                b.combinedAverage - a.combinedAverage
+            );
+
+            featuredMatchup = analyzedMatchups[0];
+            cardType = "matchup";
+        }
+    }
+
+    if (anyGameStarted) {
+        storeFeaturedMatchup(
+            week,
+            "locked",
+            featuredMatchup,
+            cardType
+        );
     } else {
-        analyzedMatchups.sort((a, b) =>
-            a.averageGap - b.averageGap || b.combinedAverage - a.combinedAverage
+        storeFeaturedMatchup(
+            week,
+            "candidate",
+            featuredMatchup,
+            cardType
         );
-        featuredMatchup = analyzedMatchups[0];
-        cardType = "matchup";
     }
 
     const {
@@ -991,9 +1081,10 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         sleeperPanelText = liveLeader ? `@${liveLeader}` : "Currently tied";
         sleeperPanelSubtext = `${pointsA.toFixed(1)}–${pointsB.toFixed(1)}`;
     } else {
-        sleeperPanelLabel = "Sleeper Predicted Winner";
-        sleeperPanelText = "Unavailable";
-        sleeperPanelSubtext = "Not provided by Sleeper public API";
+        sleeperPanelLabel = "Sleeper Prediction";
+        sleeperPanelText = "Waiting for kickoff";
+        sleeperPanelSubtext =
+            "Sleeper projections will appear before kickoff.";
     }
 
     const explanationTitle = statisticalFavorite

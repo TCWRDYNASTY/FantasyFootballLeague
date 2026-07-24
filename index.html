@@ -592,119 +592,190 @@ async function fetchStandings() {
 
 /*
     TEST MODE:
-    true  = always display Sleeper Week 1 matchups before the season starts
-    false = automatically calculate the live NFL week
+    true  = start on SCOREBOARD_TEST_WEEK
+    false = start on Sleeper's current display week
 */
 const SCOREBOARD_TEST_MODE = true;
 const SCOREBOARD_TEST_WEEK = 1;
+const SCOREBOARD_MIN_WEEK = 1;
+const SCOREBOARD_MAX_WEEK = 14;
+const SCOREBOARD_REFRESH_MS = 60 * 1000;
 
-function getCurrentWeek() {
-    const seasonStart =
-        new Date("2026-09-09T17:20:00-07:00");
+let selectedScoreboardWeek = SCOREBOARD_TEST_WEEK;
+let scoreboardRefreshTimer = null;
+let scoreboardRequestInProgress = false;
 
-    const now = new Date();
-
-    const millisecondsPerWeek =
-        7 * 24 * 60 * 60 * 1000;
-
-    const diff =
-        now.getTime() - seasonStart.getTime();
-
-    const week =
-        Math.floor(diff / millisecondsPerWeek) + 1;
-
-    return Math.max(1, Math.min(week, 18));
+async function getSleeperCurrentWeek() {
+    try {
+        const response = await fetch("https://api.sleeper.app/v1/state/nfl");
+        if (!response.ok) throw new Error(`Sleeper NFL state request failed: ${response.status}`);
+        const state = await response.json();
+        const sleeperWeek = Number(state.display_week ?? state.leg ?? state.week ?? 1);
+        return Math.max(SCOREBOARD_MIN_WEEK, Math.min(sleeperWeek, SCOREBOARD_MAX_WEEK));
+    } catch (error) {
+        console.warn("Unable to load Sleeper current week:", error);
+        return SCOREBOARD_TEST_WEEK;
+    }
 }
 
-async function fetchScoreboard() {
-    const container =
-        document.getElementById("scoreboard-container");
+function clampScoreboardWeek(week) {
+    return Math.max(SCOREBOARD_MIN_WEEK, Math.min(Number(week) || SCOREBOARD_MIN_WEEK, SCOREBOARD_MAX_WEEK));
+}
 
-    const week = SCOREBOARD_TEST_MODE
-        ? SCOREBOARD_TEST_WEEK
-        : getCurrentWeek();
+function clearScoreboardRefreshTimer() {
+    if (scoreboardRefreshTimer) {
+        window.clearInterval(scoreboardRefreshTimer);
+        scoreboardRefreshTimer = null;
+    }
+}
 
-    if (container) {
+function startScoreboardRefreshTimer() {
+    clearScoreboardRefreshTimer();
+    scoreboardRefreshTimer = window.setInterval(() => {
+        fetchScoreboard(selectedScoreboardWeek, { showLoading: false });
+    }, SCOREBOARD_REFRESH_MS);
+}
+
+function createWeekNavigation(week) {
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = `
+        display:grid;
+        grid-template-columns:44px minmax(0, 1fr) 44px;
+        align-items:center;
+        gap:10px;
+        margin-bottom:16px;
+    `;
+
+    const previousButton = document.createElement("button");
+    previousButton.type = "button";
+    previousButton.setAttribute("aria-label", "Show previous week");
+    previousButton.textContent = "←";
+    previousButton.disabled = week <= SCOREBOARD_MIN_WEEK;
+
+    const nextButton = document.createElement("button");
+    nextButton.type = "button";
+    nextButton.setAttribute("aria-label", "Show next week");
+    nextButton.textContent = "→";
+    nextButton.disabled = week >= SCOREBOARD_MAX_WEEK;
+
+    [previousButton, nextButton].forEach(button => {
+        button.style.cssText = `
+            width:44px;
+            height:40px;
+            border-radius:10px;
+            border:1px solid rgba(250, 204, 21, 0.35);
+            background:rgba(15, 23, 42, 0.8);
+            color:#facc15;
+            font-size:1.1rem;
+            font-weight:900;
+            cursor:pointer;
+        `;
+        if (button.disabled) {
+            button.style.opacity = "0.35";
+            button.style.cursor = "not-allowed";
+        }
+    });
+
+    const label = document.createElement("div");
+    label.style.cssText = `
+        text-align:center;
+        color:#cbd5e1;
+        font-size:0.78rem;
+        font-weight:800;
+        letter-spacing:1px;
+        text-transform:uppercase;
+    `;
+    label.textContent = `Week ${week} of ${SCOREBOARD_MAX_WEEK}`;
+
+    previousButton.addEventListener("click", () => {
+        if (week <= SCOREBOARD_MIN_WEEK) return;
+        selectedScoreboardWeek = clampScoreboardWeek(week - 1);
+        fetchScoreboard(selectedScoreboardWeek);
+    });
+
+    nextButton.addEventListener("click", () => {
+        if (week >= SCOREBOARD_MAX_WEEK) return;
+        selectedScoreboardWeek = clampScoreboardWeek(week + 1);
+        fetchScoreboard(selectedScoreboardWeek);
+    });
+
+    wrapper.append(previousButton, label, nextButton);
+    return wrapper;
+}
+
+function extractSleeperProjection(matchup) {
+    const possibleValues = [
+        matchup.projected_points,
+        matchup.projected,
+        matchup.projection,
+        matchup.points_projected,
+        matchup.projected_total
+    ];
+
+    for (const value of possibleValues) {
+        const number = Number.parseFloat(value);
+        if (Number.isFinite(number)) return number;
+    }
+
+    return null;
+}
+
+async function fetchScoreboard(requestedWeek = selectedScoreboardWeek, options = {}) {
+    const { showLoading = true } = options;
+    const container = document.getElementById("scoreboard-container");
+    if (!container || scoreboardRequestInProgress) return;
+
+    const week = clampScoreboardWeek(requestedWeek);
+    selectedScoreboardWeek = week;
+    scoreboardRequestInProgress = true;
+
+    if (showLoading) {
         container.innerHTML = `
-            <p style="
-                text-align:center;
-                color:#94a3b8;
-                padding:30px;
-            ">
+            <p style="text-align:center; color:#94a3b8; padding:30px;">
                 Loading Week ${week} matchup of the week...
             </p>
         `;
     }
 
     try {
-        const [
-            matchRes,
-            usersRes,
-            rostersRes
-        ] = await Promise.all([
-            fetch(
-                `https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`
-            ),
-            fetch(
-                `https://api.sleeper.app/v1/league/${leagueId}/users`
-            ),
-            fetch(
-                `https://api.sleeper.app/v1/league/${leagueId}/rosters`
-            )
+        const [matchRes, usersRes, rostersRes, stateRes] = await Promise.all([
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+            fetch("https://api.sleeper.app/v1/state/nfl")
         ]);
 
-        if (
-            !matchRes.ok ||
-            !usersRes.ok ||
-            !rostersRes.ok
-        ) {
+        if (!matchRes.ok || !usersRes.ok || !rostersRes.ok) {
             throw new Error(
                 `Sleeper scoreboard request failed. ` +
-                `Matchups: ${matchRes.status}, ` +
-                `Users: ${usersRes.status}, ` +
-                `Rosters: ${rostersRes.status}`
+                `Matchups: ${matchRes.status}, Users: ${usersRes.status}, Rosters: ${rostersRes.status}`
             );
         }
 
         const matchupsRaw = await matchRes.json();
         const users = await usersRes.json();
         const rosters = await rostersRes.json();
+        const nflState = stateRes.ok ? await stateRes.json() : {};
 
         console.log("Scoreboard test mode:", SCOREBOARD_TEST_MODE);
         console.log("Requested Sleeper week:", week);
         console.log("Raw Sleeper matchup data:", matchupsRaw);
 
         const userLookup = Object.fromEntries(
-            users.map(user => [
-                user.user_id,
-                user.display_name || "Unknown"
-            ])
+            users.map(user => [user.user_id, user.display_name || "Unknown"])
         );
 
         const rosterToNameMap = Object.fromEntries(
-            rosters.map(roster => [
-                roster.roster_id,
-                userLookup[roster.owner_id] || "Unknown"
-            ])
+            rosters.map(roster => [roster.roster_id, userLookup[roster.owner_id] || "Unknown"])
         );
 
-        const hasMatchupData =
-            Array.isArray(matchupsRaw) &&
-            matchupsRaw.length > 0;
-
-        if (!hasMatchupData) {
-            if (container) {
-                container.innerHTML = `
-                    <p style="
-                        text-align:center;
-                        color:white;
-                        padding:40px;
-                    ">
-                        Sleeper returned no matchup data for Week ${week}.
-                    </p>
-                `;
-            }
-
+        if (!Array.isArray(matchupsRaw) || matchupsRaw.length === 0) {
+            container.innerHTML = "";
+            container.appendChild(createWeekNavigation(week));
+            const message = document.createElement("p");
+            message.style.cssText = "text-align:center; color:white; padding:40px;";
+            message.textContent = `Sleeper returned no matchup data for Week ${week}.`;
+            container.appendChild(message);
             return;
         }
 
@@ -712,681 +783,290 @@ async function fetchScoreboard() {
             download: true,
             header: true,
             skipEmptyLines: true,
-
             complete: results => {
                 if (results.errors.length > 0) {
-                    console.warn(
-                        "Spreadsheet parsing warnings:",
-                        results.errors
-                    );
+                    console.warn("Spreadsheet parsing warnings:", results.errors);
                 }
-
-                renderMatchupCards(
-                    matchupsRaw,
-                    rosterToNameMap,
-                    results.data,
-                    week
-                );
+                renderMatchupCards(matchupsRaw, rosterToNameMap, results.data, week, nflState);
             },
-
             error: error => {
-                console.error(
-                    "Spreadsheet loading error:",
-                    error
-                );
-
-                if (container) {
-                    container.innerHTML = `
-                        <p style="
-                            text-align:center;
-                            color:#f87171;
-                            padding:40px;
-                        ">
-                            Unable to load matchup statistics.
-                        </p>
-                    `;
-                }
+                console.error("Spreadsheet loading error:", error);
+                container.innerHTML = "";
+                container.appendChild(createWeekNavigation(week));
+                const message = document.createElement("p");
+                message.style.cssText = "text-align:center; color:#f87171; padding:40px;";
+                message.textContent = "Unable to load matchup statistics.";
+                container.appendChild(message);
             }
         });
     } catch (error) {
         console.error("Scoreboard Error:", error);
-
-        if (container) {
-            container.innerHTML = `
-                <p style="
-                    text-align:center;
-                    color:#f87171;
-                    padding:40px;
-                ">
-                    Unable to load the scoreboard.
-                </p>
-            `;
-        }
+        container.innerHTML = "";
+        container.appendChild(createWeekNavigation(week));
+        const message = document.createElement("p");
+        message.style.cssText = "text-align:center; color:#f87171; padding:40px;";
+        message.textContent = "Unable to load the scoreboard.";
+        container.appendChild(message);
+    } finally {
+        scoreboardRequestInProgress = false;
     }
 }
-function renderMatchupCards(matchups, nameMap, stats, week) {
-    const container = document.getElementById('scoreboard-container');
+
+function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
+    const container = document.getElementById("scoreboard-container");
     if (!container) return;
 
-    container.innerHTML = '';
-    container.style.display = 'block';
-    container.style.height = 'auto';
+    container.innerHTML = "";
+    container.style.display = "block";
+    container.style.height = "auto";
+    container.appendChild(createWeekNavigation(week));
 
-    /* =====================================
-       1. GROUP TEAMS BY MATCHUP
-    ===================================== */
     const groups = {};
-
     matchups.forEach(matchup => {
-        if (
-            matchup.matchup_id === null ||
-            matchup.matchup_id === undefined
-        ) {
-            return;
-        }
-
-        if (!groups[matchup.matchup_id]) {
-            groups[matchup.matchup_id] = [];
-        }
-
+        if (matchup.matchup_id === null || matchup.matchup_id === undefined) return;
+        if (!groups[matchup.matchup_id]) groups[matchup.matchup_id] = [];
         groups[matchup.matchup_id].push(matchup);
     });
 
-    /* =====================================
-       2. HELPER FUNCTIONS
-    ===================================== */
     const safeNumber = value => {
         const number = Number.parseFloat(value);
         return Number.isFinite(number) ? number : 0;
     };
 
-    const clamp = (value, minimum, maximum) => {
-        return Math.min(Math.max(value, minimum), maximum);
-    };
+    const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
 
     const parseH2H = record => {
-        const parts = String(record || '0-0')
-            .split('-')
-            .map(value => Number.parseInt(value, 10) || 0);
-
+        const parts = String(record || "0-0").split("-").map(value => Number.parseInt(value, 10) || 0);
         const wins = parts[0] || 0;
         const losses = parts[1] || 0;
         const ties = parts[2] || 0;
         const total = wins + losses + ties;
-
         return {
             wins,
             losses,
             ties,
             total,
-            winPercentage:
-                total > 0
-                    ? (wins + ties * 0.5) / total
-                    : 0.5
+            winPercentage: total > 0 ? (wins + ties * 0.5) / total : 0.5
         };
     };
 
     const formatSignedNumber = value => {
         const number = safeNumber(value);
-
         if (number > 0) return `+${number.toFixed(1)}`;
         if (number < 0) return number.toFixed(1);
-        return '0.0';
+        return "0.0";
     };
 
-    const getInitials = name => {
-        return String(name)
-            .split(/[\s_-]+/)
-            .filter(Boolean)
-            .map(part => part.charAt(0))
-            .join('')
-            .slice(0, 2)
-            .toUpperCase() || 'TM';
-    };
+    const getInitials = name => String(name)
+        .split(/[\s_-]+/)
+        .filter(Boolean)
+        .map(part => part.charAt(0))
+        .join("")
+        .slice(0, 2)
+        .toUpperCase() || "TM";
 
     const findStat = (managerName, opponentName) => {
-        const realManager =
-            nameTranslator[managerName] || managerName;
-
+        const realManager = nameTranslator[managerName] || managerName;
         return stats.find(stat => {
-            const spreadsheetManager =
-                stat.Manager?.trim().toLowerCase();
-
-            const spreadsheetOpponent =
-                stat.Opponent?.trim().toLowerCase();
-
-            const expectedManager =
-                realManager.trim().toLowerCase();
-
-            const expectedOpponent =
-                `@${opponentName}`.trim().toLowerCase();
-
-            return (
-                spreadsheetManager === expectedManager &&
-                spreadsheetOpponent === expectedOpponent
-            );
+            const spreadsheetManager = stat.Manager?.trim().toLowerCase();
+            const spreadsheetOpponent = stat.Opponent?.trim().toLowerCase();
+            const expectedManager = realManager.trim().toLowerCase();
+            const expectedOpponent = `@${opponentName}`.trim().toLowerCase();
+            return spreadsheetManager === expectedManager && spreadsheetOpponent === expectedOpponent;
         });
     };
 
-    /* =====================================
-       3. ANALYZE EVERY MATCHUP
-    ===================================== */
+    const sleeperDisplayWeek = safeNumber(nflState.display_week ?? nflState.leg ?? nflState.week);
     const analyzedMatchups = [];
 
     Object.keys(groups).forEach(matchId => {
         const pair = groups[matchId];
         if (pair.length < 2) return;
 
-        let nameA =
-            nameMap[pair[0].roster_id] ||
-            `Team ${pair[0].roster_id}`;
-
-        let nameB =
-            nameMap[pair[1].roster_id] ||
-            `Team ${pair[1].roster_id}`;
-
-        nameA = nameA.replace('@', '').trim();
-        nameB = nameB.replace('@', '').trim();
+        let nameA = nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`;
+        let nameB = nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`;
+        nameA = nameA.replace("@", "").trim();
+        nameB = nameB.replace("@", "").trim();
 
         const statA = findStat(nameA, nameB);
         const statB = findStat(nameB, nameA);
-
         const avgA = safeNumber(statA?.AvgPts);
         const avgB = safeNumber(statB?.AvgPts);
-
-        // Sleeper's matchup endpoint supplies current weekly points here.
-        // These are not projected totals.
         const pointsA = safeNumber(pair[0].points);
         const pointsB = safeNumber(pair[1].points);
+        const projectionA = extractSleeperProjection(pair[0]);
+        const projectionB = extractSleeperProjection(pair[1]);
+        const hasSleeperProjection = projectionA !== null && projectionB !== null;
 
-        const spreadsheetFavorite =
-            avgA === avgB
-                ? null
-                : avgA > avgB
-                    ? nameA
-                    : nameB;
-
-        const sleeperLeader =
-            pointsA === pointsB
-                ? null
-                : pointsA > pointsB
-                    ? nameA
-                    : nameB;
-
-        const isUpsetMatchup = Boolean(
-            spreadsheetFavorite &&
-            sleeperLeader &&
-            spreadsheetFavorite !== sleeperLeader
+        const statisticalFavorite = avgA === avgB ? null : (avgA > avgB ? nameA : nameB);
+        const sleeperPredictedWinner = !hasSleeperProjection || projectionA === projectionB
+            ? null
+            : (projectionA > projectionB ? nameA : nameB);
+        const sleeperProjectionMargin = hasSleeperProjection ? Math.abs(projectionA - projectionB) : null;
+        const liveLeader = pointsA === pointsB ? null : (pointsA > pointsB ? nameA : nameB);
+        const gamesStarted = pointsA !== 0 || pointsB !== 0;
+        const predictionDisagreement = Boolean(
+            statisticalFavorite && sleeperPredictedWinner && statisticalFavorite !== sleeperPredictedWinner
         );
 
-        const favoriteStat =
-            spreadsheetFavorite === nameA
-                ? statA
-                : spreadsheetFavorite === nameB
-                    ? statB
-                    : null;
-
-        const favoriteAverage =
-            spreadsheetFavorite === nameA
-                ? avgA
-                : spreadsheetFavorite === nameB
-                    ? avgB
-                    : Math.max(avgA, avgB);
-
-        const opponentAverage =
-            spreadsheetFavorite === nameA
-                ? avgB
-                : spreadsheetFavorite === nameB
-                    ? avgA
-                    : Math.min(avgA, avgB);
-
-        const averageAdvantage =
-            Math.abs(favoriteAverage - opponentAverage);
-
-        const favoriteH2H =
-            favoriteStat?.H2H_Record || '0-0';
-
+        const favoriteStat = statisticalFavorite === nameA ? statA : (statisticalFavorite === nameB ? statB : null);
+        const favoriteAverage = statisticalFavorite === nameA ? avgA : (statisticalFavorite === nameB ? avgB : Math.max(avgA, avgB));
+        const opponentAverage = statisticalFavorite === nameA ? avgB : (statisticalFavorite === nameB ? avgA : Math.min(avgA, avgB));
+        const averageAdvantage = Math.abs(favoriteAverage - opponentAverage);
+        const favoriteH2H = favoriteStat?.H2H_Record || "0-0";
         const h2hData = parseH2H(favoriteH2H);
-
-        const pointDifferential =
-            safeNumber(favoriteStat?.Pt_Diff);
-
-        const averageScore =
-            Math.min(averageAdvantage, 20) * 1.2;
-
-        const h2hScore =
-            Math.max(0, h2hData.winPercentage - 0.5) * 30;
-
-        const differentialScore =
-            Math.min(Math.abs(pointDifferential), 300) * 0.03;
-
-        const confidence = clamp(
-            Math.round(
-                50 +
-                averageScore +
-                h2hScore +
-                differentialScore
-            ),
-            55,
-            95
-        );
+        const pointDifferential = safeNumber(favoriteStat?.Pt_Diff);
+        const averageScore = Math.min(averageAdvantage, 20) * 1.2;
+        const h2hScore = Math.max(0, h2hData.winPercentage - 0.5) * 30;
+        const differentialScore = Math.min(Math.abs(pointDifferential), 300) * 0.03;
+        const confidence = clamp(Math.round(50 + averageScore + h2hScore + differentialScore), 55, 95);
 
         analyzedMatchups.push({
-            matchId,
-            nameA,
-            nameB,
-            avgA,
-            avgB,
-            pointsA,
-            pointsB,
-            spreadsheetFavorite,
-            sleeperLeader,
-            isUpsetMatchup,
-            confidence,
-            averageAdvantage,
-            favoriteH2H,
-            h2hData,
-            pointDifferential,
+            matchId, nameA, nameB, avgA, avgB, pointsA, pointsB,
+            projectionA, projectionB, hasSleeperProjection,
+            statisticalFavorite, sleeperPredictedWinner, sleeperProjectionMargin,
+            liveLeader, gamesStarted, predictionDisagreement, confidence,
+            averageAdvantage, favoriteH2H, h2hData, pointDifferential,
             averageGap: Math.abs(avgA - avgB),
             combinedAverage: avgA + avgB
         });
     });
 
-    /* =====================================
-       4. SELECT ONE FEATURED MATCHUP
-    ===================================== */
     if (analyzedMatchups.length === 0) {
-        container.innerHTML = `
-            <p style="
-                text-align:center;
-                color:#94a3b8;
-                padding:30px;
-            ">
-                No matchup data is currently available.
-            </p>
-        `;
+        const message = document.createElement("p");
+        message.style.cssText = "text-align:center; color:#94a3b8; padding:30px;";
+        message.textContent = "No matchup data is currently available.";
+        container.appendChild(message);
         return;
     }
 
-    const gamesStarted = analyzedMatchups.some(
-        matchup =>
-            matchup.pointsA !== 0 ||
-            matchup.pointsB !== 0
-    );
-
-    const upsetMatchups = gamesStarted
-        ? analyzedMatchups.filter(
-            matchup => matchup.isUpsetMatchup
-        )
-        : [];
-
+    const disagreementMatchups = analyzedMatchups.filter(matchup => matchup.predictionDisagreement);
     let featuredMatchup;
     let cardType;
 
-    if (upsetMatchups.length > 0) {
-        // Show only the strongest upset matchup.
-        upsetMatchups.sort(
-            (a, b) =>
-                b.confidence - a.confidence ||
-                b.averageAdvantage - a.averageAdvantage
+    if (disagreementMatchups.length > 0) {
+        disagreementMatchups.sort((a, b) =>
+            (b.sleeperProjectionMargin || 0) - (a.sleeperProjectionMargin || 0) ||
+            b.confidence - a.confidence
         );
-
-        featuredMatchup = upsetMatchups[0];
-        cardType = 'upset';
+        featuredMatchup = disagreementMatchups[0];
+        cardType = "prediction-clash";
     } else {
-        // If no upset exists, show the closest historical matchup.
-        analyzedMatchups.sort(
-            (a, b) =>
-                a.averageGap - b.averageGap ||
-                b.combinedAverage - a.combinedAverage
+        analyzedMatchups.sort((a, b) =>
+            a.averageGap - b.averageGap || b.combinedAverage - a.combinedAverage
         );
-
         featuredMatchup = analyzedMatchups[0];
-        cardType = 'matchup';
+        cardType = "matchup";
     }
 
-    /* =====================================
-       5. CREATE THE SINGLE FEATURED CARD
-    ===================================== */
     const {
-        matchId,
-        nameA,
-        nameB,
-        avgA,
-        avgB,
-        pointsA,
-        pointsB,
-        spreadsheetFavorite,
-        sleeperLeader,
-        confidence,
-        averageAdvantage,
-        favoriteH2H,
-        h2hData,
-        pointDifferential
+        matchId, nameA, nameB, avgA, avgB, pointsA, pointsB,
+        projectionA, projectionB, hasSleeperProjection,
+        statisticalFavorite, sleeperPredictedWinner, sleeperProjectionMargin,
+        liveLeader, gamesStarted, averageAdvantage, favoriteH2H,
+        h2hData, pointDifferential
     } = featuredMatchup;
 
-    const isUpset = cardType === 'upset';
+    const isPredictionClash = cardType === "prediction-clash";
+    const isPastWeek = sleeperDisplayWeek > 0 && week < sleeperDisplayWeek;
+    const gameStatus = isPastWeek ? "FINAL" : (gamesStarted ? "LIVE" : "SCHEDULED");
+    const badgeText = isPredictionClash ? "⚡ PREDICTION CLASH" : "🏆 MATCHUP OF THE WEEK";
+    const badgeBackground = isPredictionClash
+        ? "linear-gradient(135deg, #7c2d12, #f97316)"
+        : "linear-gradient(135deg, #92400e, #f59e0b)";
+    const borderColor = isPredictionClash ? "#fb923c" : "#facc15";
+    const statisticalText = statisticalFavorite ? `@${statisticalFavorite}` : "Even matchup";
 
-    const badgeText = isUpset
-        ? `🚨 ${confidence}% UPSET ALERT`
-        : '🏆 MATCHUP OF THE WEEK';
+    let sleeperPanelLabel;
+    let sleeperPanelText;
+    let sleeperPanelSubtext = "";
 
-    const badgeBackground = isUpset
-        ? 'linear-gradient(135deg, #991b1b, #ef4444)'
-        : 'linear-gradient(135deg, #92400e, #f59e0b)';
+    if (hasSleeperProjection) {
+        sleeperPanelLabel = "Sleeper Predicted Winner";
+        sleeperPanelText = sleeperPredictedWinner ? `@${sleeperPredictedWinner}` : "Projected tie";
+        sleeperPanelSubtext = `${projectionA.toFixed(1)}–${projectionB.toFixed(1)}` +
+            (sleeperProjectionMargin !== null ? ` • by ${sleeperProjectionMargin.toFixed(1)}` : "");
+    } else if (gamesStarted || isPastWeek) {
+        sleeperPanelLabel = isPastWeek ? "Final Winner" : "Live Leader";
+        sleeperPanelText = liveLeader ? `@${liveLeader}` : "Currently tied";
+        sleeperPanelSubtext = `${pointsA.toFixed(1)}–${pointsB.toFixed(1)}`;
+    } else {
+        sleeperPanelLabel = "Sleeper Predicted Winner";
+        sleeperPanelText = "Unavailable";
+        sleeperPanelSubtext = "Not provided by Sleeper public API";
+    }
 
-    const borderColor = isUpset
-        ? '#ef4444'
-        : '#facc15';
+    const explanationTitle = statisticalFavorite
+        ? `Why the numbers favor @${statisticalFavorite}`
+        : "Why this matchup was selected";
 
-    const spreadsheetText = spreadsheetFavorite
-        ? `@${spreadsheetFavorite}`
-        : 'Even matchup';
-
-    const sleeperText = gamesStarted
-        ? (
-            sleeperLeader
-                ? `@${sleeperLeader}`
-                : 'Currently tied'
-        )
-        : 'Scheduled';
-
-    const explanationTitle = spreadsheetFavorite
-        ? `Why the spreadsheet favors @${spreadsheetFavorite}`
-        : 'Why this matchup was selected';
-
-    const card = document.createElement('div');
-    card.className = 'bulletin-item';
-
+    const card = document.createElement("div");
+    card.className = "bulletin-item";
     card.style.cssText = `
-        width:100%;
-        box-sizing:border-box;
-        margin-bottom:15px;
-        padding:20px;
-        color:white;
-        background:linear-gradient(
-            145deg,
-            rgba(30, 41, 59, 0.98),
-            rgba(15, 23, 42, 0.98)
-        );
-        border:1px solid rgba(148, 163, 184, 0.22);
-        border-top:4px solid ${borderColor};
-        border-radius:14px;
-        box-shadow:0 12px 30px rgba(0, 0, 0, 0.35);
+        width:100%; box-sizing:border-box; margin-bottom:15px; padding:20px; color:white;
+        background:linear-gradient(145deg, rgba(30,41,59,.98), rgba(15,23,42,.98));
+        border:1px solid rgba(148,163,184,.22); border-top:4px solid ${borderColor};
+        border-radius:14px; box-shadow:0 12px 30px rgba(0,0,0,.35);
     `;
 
     card.innerHTML = `
-        <div style="
-            display:flex;
-            justify-content:center;
-            margin-bottom:18px;
-        ">
-            <div style="
-                display:inline-flex;
-                align-items:center;
-                justify-content:center;
-                padding:9px 16px;
-                border-radius:999px;
-                background:${badgeBackground};
-                color:white;
-                font-size:0.82rem;
-                font-weight:800;
-                letter-spacing:0.7px;
-                text-align:center;
-                box-shadow:0 5px 15px rgba(0,0,0,0.3);
-            ">
+        <div style="display:flex; justify-content:center; margin-bottom:18px;">
+            <div style="display:inline-flex; align-items:center; justify-content:center; padding:9px 16px; border-radius:999px; background:${badgeBackground}; color:white; font-size:.82rem; font-weight:800; letter-spacing:.7px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,.3);">
                 ${badgeText}
             </div>
         </div>
 
-        <p style="
-            margin:0 0 16px;
-            text-align:center;
-            color:#94a3b8;
-            font-size:0.7rem;
-            font-weight:700;
-            letter-spacing:1.5px;
-        ">
-            WEEK ${week} • MATCHUP #${matchId}
+        <p style="margin:0 0 16px; text-align:center; color:#94a3b8; font-size:.7rem; font-weight:700; letter-spacing:1.5px;">
+            WEEK ${week} • MATCHUP #${matchId} • ${gameStatus}
         </p>
 
-        <div style="
-            display:grid;
-            grid-template-columns:minmax(0, 1fr) auto minmax(0, 1fr);
-            align-items:center;
-            gap:12px;
-            margin-bottom:20px;
-        ">
+        <div style="display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:12px; margin-bottom:20px;">
             <div style="text-align:center; min-width:0;">
-                <div style="
-                    width:54px;
-                    height:54px;
-                    margin:0 auto 8px;
-                    border-radius:50%;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    background:#334155;
-                    border:2px solid ${
-                        spreadsheetFavorite === nameA
-                            ? borderColor
-                            : '#475569'
-                    };
-                    font-size:1rem;
-                    font-weight:800;
-                ">
+                <div style="width:54px; height:54px; margin:0 auto 8px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#334155; border:2px solid ${statisticalFavorite === nameA ? borderColor : '#475569'}; font-size:1rem; font-weight:800;">
                     ${getInitials(nameA)}
                 </div>
-
-                <div style="
-                    font-size:0.9rem;
-                    font-weight:800;
-                    color:${
-                        spreadsheetFavorite === nameA
-                            ? '#facc15'
-                            : 'white'
-                    };
-                    overflow-wrap:anywhere;
-                ">
-                    @${nameA}
-                </div>
-
-                <div style="
-                    margin-top:4px;
-                    color:#94a3b8;
-                    font-size:0.7rem;
-                ">
-                    Avg ${avgA.toFixed(1)}
-                </div>
+                <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameA ? '#facc15' : 'white'}; overflow-wrap:anywhere;">@${nameA}</div>
+                <div style="margin-top:4px; color:#94a3b8; font-size:.7rem;">Historical Avg ${avgA.toFixed(1)}</div>
+                ${(gamesStarted || isPastWeek) ? `<div style="margin-top:7px; color:white; font-size:1.15rem; font-weight:900;">${pointsA.toFixed(1)}</div>` : ''}
             </div>
 
-            <div style="
-                color:#64748b;
-                font-size:0.8rem;
-                font-weight:900;
-            ">
-                VS
-            </div>
+            <div style="color:#64748b; font-size:.8rem; font-weight:900;">VS</div>
 
             <div style="text-align:center; min-width:0;">
-                <div style="
-                    width:54px;
-                    height:54px;
-                    margin:0 auto 8px;
-                    border-radius:50%;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    background:#334155;
-                    border:2px solid ${
-                        spreadsheetFavorite === nameB
-                            ? borderColor
-                            : '#475569'
-                    };
-                    font-size:1rem;
-                    font-weight:800;
-                ">
+                <div style="width:54px; height:54px; margin:0 auto 8px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#334155; border:2px solid ${statisticalFavorite === nameB ? borderColor : '#475569'}; font-size:1rem; font-weight:800;">
                     ${getInitials(nameB)}
                 </div>
-
-                <div style="
-                    font-size:0.9rem;
-                    font-weight:800;
-                    color:${
-                        spreadsheetFavorite === nameB
-                            ? '#facc15'
-                            : 'white'
-                    };
-                    overflow-wrap:anywhere;
-                ">
-                    @${nameB}
-                </div>
-
-                <div style="
-                    margin-top:4px;
-                    color:#94a3b8;
-                    font-size:0.7rem;
-                ">
-                    Avg ${avgB.toFixed(1)}
-                </div>
+                <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameB ? '#facc15' : 'white'}; overflow-wrap:anywhere;">@${nameB}</div>
+                <div style="margin-top:4px; color:#94a3b8; font-size:.7rem;">Historical Avg ${avgB.toFixed(1)}</div>
+                ${(gamesStarted || isPastWeek) ? `<div style="margin-top:7px; color:white; font-size:1.15rem; font-weight:900;">${pointsB.toFixed(1)}</div>` : ''}
             </div>
         </div>
 
-        <div style="
-            display:grid;
-            grid-template-columns:repeat(2, minmax(0, 1fr));
-            gap:10px;
-            margin-bottom:18px;
-        ">
-            <div style="
-                min-width:0;
-                padding:11px;
-                background:rgba(250, 204, 21, 0.08);
-                border:1px solid rgba(250, 204, 21, 0.2);
-                border-radius:8px;
-            ">
-                <div style="
-                    color:#94a3b8;
-                    font-size:0.65rem;
-                    text-transform:uppercase;
-                    letter-spacing:0.8px;
-                ">
-                    Spreadsheet Favorite
-                </div>
-
-                <div style="
-                    margin-top:4px;
-                    color:#facc15;
-                    font-size:0.82rem;
-                    font-weight:800;
-                    overflow-wrap:anywhere;
-                ">
-                    ${spreadsheetText}
-                </div>
+        <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:18px;">
+            <div style="min-width:0; padding:11px; background:rgba(250,204,21,.08); border:1px solid rgba(250,204,21,.2); border-radius:8px;">
+                <div style="color:#94a3b8; font-size:.65rem; text-transform:uppercase; letter-spacing:.8px;">Statistical Favorite</div>
+                <div style="margin-top:4px; color:#facc15; font-size:.82rem; font-weight:800; overflow-wrap:anywhere;">${statisticalText}</div>
             </div>
 
-            <div style="
-                min-width:0;
-                padding:11px;
-                background:rgba(56, 189, 248, 0.08);
-                border:1px solid rgba(56, 189, 248, 0.2);
-                border-radius:8px;
-            ">
-                <div style="
-                    color:#94a3b8;
-                    font-size:0.65rem;
-                    text-transform:uppercase;
-                    letter-spacing:0.8px;
-                ">
-                    Sleeper Status
-                </div>
-
-                <div style="
-                    margin-top:4px;
-                    color:#38bdf8;
-                    font-size:0.82rem;
-                    font-weight:800;
-                    overflow-wrap:anywhere;
-                ">
-                    ${sleeperText}
-                </div>
+            <div style="min-width:0; padding:11px; background:rgba(56,189,248,.08); border:1px solid rgba(56,189,248,.2); border-radius:8px;">
+                <div style="color:#94a3b8; font-size:.65rem; text-transform:uppercase; letter-spacing:.8px;">${sleeperPanelLabel}</div>
+                <div style="margin-top:4px; color:#38bdf8; font-size:.82rem; font-weight:800; overflow-wrap:anywhere;">${sleeperPanelText}</div>
+                ${sleeperPanelSubtext ? `<div style="margin-top:3px; color:#94a3b8; font-size:.66rem;">${sleeperPanelSubtext}</div>` : ''}
             </div>
         </div>
 
-        <div style="
-            padding:14px;
-            background:rgba(15, 23, 42, 0.65);
-            border-radius:10px;
-            border:1px solid rgba(148, 163, 184, 0.15);
-        ">
-            <p style="
-                margin:0 0 10px;
-                color:white;
-                font-size:0.75rem;
-                font-weight:800;
-                text-transform:uppercase;
-                letter-spacing:0.8px;
-            ">
-                ${explanationTitle}
-            </p>
-
-            <div style="
-                display:flex;
-                flex-direction:column;
-                gap:8px;
-                color:#cbd5e1;
-                font-size:0.78rem;
-            ">
-                <div>
-                    📈 Average scoring advantage:
-                    <strong style="color:white;">
-                        +${averageAdvantage.toFixed(1)} PPG
-                    </strong>
-                </div>
-
-                <div>
-                    🤝 Head-to-head:
-                    <strong style="color:white;">
-                        ${favoriteH2H}
-                    </strong>
-                    ${
-                        h2hData.total > 0
-                            ? `(${Math.round(
-                                h2hData.winPercentage * 100
-                            )}% win rate)`
-                            : '(No recorded history)'
-                    }
-                </div>
-
-                <div>
-                    💥 Career point differential:
-                    <strong style="color:white;">
-                        ${formatSignedNumber(pointDifferential)}
-                    </strong>
-                </div>
+        <div style="padding:14px; background:rgba(15,23,42,.65); border-radius:10px; border:1px solid rgba(148,163,184,.15);">
+            <p style="margin:0 0 10px; color:white; font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.8px;">${explanationTitle}</p>
+            <div style="display:flex; flex-direction:column; gap:8px; color:#cbd5e1; font-size:.78rem;">
+                <div>📈 Average scoring advantage: <strong style="color:white;">+${averageAdvantage.toFixed(1)} PPG</strong></div>
+                <div>🤝 Head-to-head: <strong style="color:white;">${favoriteH2H}</strong> ${h2hData.total > 0 ? `(${Math.round(h2hData.winPercentage * 100)}% win rate)` : '(No recorded history)'}</div>
+                <div>💥 Career point differential: <strong style="color:white;">${formatSignedNumber(pointDifferential)}</strong></div>
             </div>
         </div>
 
-        <div style="
-            display:flex;
-            justify-content:space-between;
-            gap:12px;
-            margin-top:14px;
-            color:#64748b;
-            font-size:0.65rem;
-        ">
-            <span>
-                ${
-                    gamesStarted
-                        ? `Current score: ${pointsA.toFixed(1)}–${pointsB.toFixed(1)}`
-                        : `Week ${week} matchup • Games have not started`
-                }
-            </span>
-            ${
-                isUpset
-                    ? `<span>Confidence: ${confidence}%</span>`
-                    : ''
-            }
+        <div style="display:flex; justify-content:space-between; gap:12px; margin-top:14px; color:#64748b; font-size:.65rem;">
+            <span>${(gamesStarted || isPastWeek) ? `${gameStatus}: ${pointsA.toFixed(1)}–${pointsB.toFixed(1)}` : `Week ${week} matchup • Games have not started`}</span>
+            <span>Auto-refreshes every 60 seconds</span>
         </div>
     `;
 
@@ -1396,7 +1076,15 @@ function renderMatchupCards(matchups, nameMap, stats, week) {
 /* === 8. INITIALIZE PAGE === */
 loadBulletin();
 fetchStandings();
-fetchScoreboard();
+
+(async function initializeScoreboard() {
+    selectedScoreboardWeek = SCOREBOARD_TEST_MODE
+        ? SCOREBOARD_TEST_WEEK
+        : await getSleeperCurrentWeek();
+
+    await fetchScoreboard(selectedScoreboardWeek);
+    startScoreboardRefreshTimer();
+})();
 
 /* === 9. SERVICE WORKER === */
 if ('serviceWorker' in navigator) {

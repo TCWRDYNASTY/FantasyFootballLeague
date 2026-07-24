@@ -467,29 +467,110 @@ sidebarLinks.forEach(link => {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    /* === 5. LEAGUE BULLETIN (FIREBASE) === */
-    function loadBulletin() {
-        const display = document.getElementById('bulletin-display');
-        if (!display) return;
-        const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
+    /* === 5. LEAGUE BULLETIN (AUTOMATED + FIREBASE) === */
+    let commissionerBulletinUnsubscribe = null;
 
-        onSnapshot(q, (snapshot) => {
-            display.innerHTML = ''; 
+    function ensureLeagueBulletinShell() {
+        const display = document.getElementById("bulletin-display");
+        if (!display) return null;
+
+        if (!document.getElementById("tcwr-bulletin-styles")) {
+            const style = document.createElement("style");
+            style.id = "tcwr-bulletin-styles";
+            style.textContent = `
+                #bulletin-display { display:flex; flex-direction:column; gap:14px; }
+                .tcwr-news-panel { overflow:hidden; color:#fff; background:linear-gradient(145deg,rgba(30,41,59,.98),rgba(15,23,42,.98)); border:1px solid rgba(148,163,184,.22); border-radius:14px; box-shadow:0 12px 30px rgba(0,0,0,.28); }
+                .tcwr-news-header { padding:14px 16px; text-align:center; color:#facc15; font-size:.82rem; font-weight:900; letter-spacing:1.15px; border-bottom:1px solid rgba(148,163,184,.16); }
+                .tcwr-award-nav { display:grid; grid-template-columns:38px minmax(0,1fr) 38px; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid rgba(148,163,184,.14); }
+                .tcwr-award-nav button { width:38px; height:34px; border-radius:9px; border:1px solid rgba(250,204,21,.35); background:rgba(15,23,42,.82); color:#facc15; font-weight:900; cursor:pointer; }
+                .tcwr-award-nav button:disabled { opacity:.3; cursor:not-allowed; }
+                .tcwr-award-week { text-align:center; color:#cbd5e1; font-size:.72rem; font-weight:900; letter-spacing:.9px; text-transform:uppercase; }
+                .tcwr-story { padding:15px 16px; border-bottom:1px solid rgba(148,163,184,.14); }
+                .tcwr-story:last-child { border-bottom:0; }
+                .tcwr-story-title { margin:0 0 7px; font-size:.76rem; font-weight:900; letter-spacing:.75px; text-transform:uppercase; }
+                .tcwr-story-main { color:#fff; font-size:.94rem; font-weight:900; line-height:1.35; overflow-wrap:anywhere; }
+                .tcwr-story-sub { margin-top:4px; color:#94a3b8; font-size:.74rem; font-weight:700; line-height:1.4; }
+                .tcwr-story.red { border-left:4px solid #ef4444; }
+                .tcwr-story.red .tcwr-story-title { color:#f87171; }
+                .tcwr-story.orange { border-left:4px solid #f97316; }
+                .tcwr-story.orange .tcwr-story-title { color:#fb923c; }
+                .tcwr-story.gold { border-left:4px solid #facc15; }
+                .tcwr-story.gold .tcwr-story-title { color:#facc15; }
+                .tcwr-story.green { border-left:4px solid #22c55e; }
+                .tcwr-story.green .tcwr-story-title { color:#4ade80; }
+                .tcwr-story.blue { border-left:4px solid #38bdf8; }
+                .tcwr-story.blue .tcwr-story-title { color:#38bdf8; }
+                .tcwr-story.purple { border-left:4px solid #a78bfa; }
+                .tcwr-story.purple .tcwr-story-title { color:#c4b5fd; }
+                .tcwr-empty { padding:22px 16px; color:#94a3b8; text-align:center; font-size:.78rem; }
+                .tcwr-commissioner-heading { margin:0 0 8px; color:#facc15; font-size:.72rem; font-weight:900; letter-spacing:.9px; text-transform:uppercase; }
+                .tcwr-commissioner-post { padding:13px 14px; border-bottom:1px solid rgba(148,163,184,.14); }
+                .tcwr-commissioner-post:last-child { border-bottom:0; }
+                .tcwr-commissioner-date { margin:0 0 5px; color:#94a3b8; font-size:.64rem; font-weight:900; letter-spacing:.8px; text-transform:uppercase; }
+                .tcwr-commissioner-text { margin:0; color:#fff; font-size:.8rem; line-height:1.45; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        if (!document.getElementById("automated-bulletin-panel")) {
+            display.innerHTML = `
+                <section id="automated-bulletin-panel" class="tcwr-news-panel">
+                    <div id="automated-bulletin-content" class="tcwr-empty">Loading league bulletin...</div>
+                </section>
+                <section id="commissioner-bulletin-panel" class="tcwr-news-panel">
+                    <div class="tcwr-news-header">📣 COMMISSIONER PANEL</div>
+                    <div id="commissioner-bulletin-content" class="tcwr-empty">Loading commissioner posts...</div>
+                </section>
+            `;
+        }
+
+        return display;
+    }
+
+    function loadBulletin() {
+        ensureLeagueBulletinShell();
+        const display = document.getElementById("commissioner-bulletin-content");
+        if (!display) return;
+
+        if (commissionerBulletinUnsubscribe) commissionerBulletinUnsubscribe();
+
+        const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
+        commissionerBulletinUnsubscribe = onSnapshot(q, snapshot => {
+            display.innerHTML = "";
+
             if (snapshot.empty) {
-                display.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.8rem;">No recent announcements.</p>';
+                display.innerHTML = '<div class="tcwr-empty">No recent announcements.</div>';
                 return;
             }
-            snapshot.forEach((doc) => {
-                const post = doc.data();
-                const item = document.createElement('div');
-                item.className = 'bulletin-item';
+
+            snapshot.forEach(documentSnapshot => {
+                const post = documentSnapshot.data();
+                const item = document.createElement("article");
+                item.className = "tcwr-commissioner-post";
+
                 const displayDate = post.Date || post.date || "UPDATE";
                 const displayText = post.text || "";
-                item.innerHTML = `<p class="bulletin-date">${displayDate.toUpperCase()}</p><p class="bulletin-text">${displayText}</p>`;
+                item.innerHTML = `
+                    <p class="tcwr-commissioner-date">${escapeBulletinHtml(String(displayDate).toUpperCase())}</p>
+                    <p class="tcwr-commissioner-text">${escapeBulletinHtml(displayText)}</p>
+                `;
                 display.appendChild(item);
             });
+        }, error => {
+            console.error("Commissioner bulletin error:", error);
+            display.innerHTML = '<div class="tcwr-empty">Unable to load commissioner posts.</div>';
         });
     }
+
+    function escapeBulletinHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
 /* === 6. SLEEPER STANDINGS DATA === */
 
 async function fetchStandings() {
@@ -989,6 +1070,8 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         return;
     }
 
+    updateAutomatedBulletinFromScoreboard(analyzedMatchups, week, sleeperDisplayWeek);
+
     const disagreementMatchups = analyzedMatchups.filter(
         matchup => matchup.predictionDisagreement
     );
@@ -1440,6 +1523,451 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         container.appendChild(rivalryCard);
     }
 }
+
+/* =========================================================
+   AUTOMATED SIDE BULLETIN
+   Thursday-Monday: live upset + blowout watches.
+   Tuesday-Thursday morning: archived weekly awards.
+   ========================================================= */
+
+const BULLETIN_THURSDAY_SWITCH_HOUR_ET = 12;
+let selectedAwardsWeek = 1;
+let latestCompletedAwardsWeek = 1;
+let bulletinMode = "awards";
+let cachedPlayersById = null;
+let cachedLeagueSettings = null;
+let latestLiveBulletinPayload = null;
+let bulletinRequestToken = 0;
+
+function getEasternClockParts(date = new Date()) {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/New_York",
+        weekday: "short",
+        hour: "2-digit",
+        hour12: false
+    });
+    const parts = Object.fromEntries(
+        formatter.formatToParts(date).map(part => [part.type, part.value])
+    );
+    return {
+        weekday: parts.weekday,
+        hour: Number(parts.hour) || 0
+    };
+}
+
+function shouldShowLiveLeagueWatch(date = new Date()) {
+    const { weekday, hour } = getEasternClockParts(date);
+    if (["Fri", "Sat", "Sun", "Mon"].includes(weekday)) return true;
+    return weekday === "Thu" && hour >= BULLETIN_THURSDAY_SWITCH_HOUR_ET;
+}
+
+function getLatestCompletedWeek(displayWeek) {
+    const week = clampScoreboardWeek(displayWeek || 1);
+    return Math.max(SCOREBOARD_MIN_WEEK, week - 1);
+}
+
+function bulletinStoryHtml({ className, title, main, sub = "" }) {
+    return `
+        <article class="tcwr-story ${className}">
+            <div class="tcwr-story-title">${escapeBulletinHtml(title)}</div>
+            <div class="tcwr-story-main">${escapeBulletinHtml(main)}</div>
+            ${sub ? `<div class="tcwr-story-sub">${escapeBulletinHtml(sub)}</div>` : ""}
+        </article>
+    `;
+}
+
+function updateAutomatedBulletinFromScoreboard(analyzedMatchups, week, sleeperDisplayWeek) {
+    latestLiveBulletinPayload = { analyzedMatchups, week, sleeperDisplayWeek };
+    if (!shouldShowLiveLeagueWatch()) return;
+    renderLiveLeagueWatch(analyzedMatchups, week);
+}
+
+function renderLiveLeagueWatch(analyzedMatchups, week) {
+    ensureLeagueBulletinShell();
+    bulletinMode = "live";
+    const target = document.getElementById("automated-bulletin-content");
+    if (!target) return;
+
+    const activeMatchups = analyzedMatchups.filter(matchup => matchup.gamesStarted);
+    const upsetCandidates = activeMatchups
+        .filter(matchup => matchup.statisticalFavorite && matchup.liveLeader)
+        .filter(matchup => matchup.liveLeader !== matchup.statisticalFavorite)
+        .map(matchup => ({
+            ...matchup,
+            liveMargin: Math.abs(matchup.pointsA - matchup.pointsB),
+            underdog: matchup.liveLeader,
+            favorite: matchup.statisticalFavorite
+        }))
+        .sort((a, b) => b.liveMargin - a.liveMargin);
+
+    const blowout = [...activeMatchups]
+        .map(matchup => ({ ...matchup, liveMargin: Math.abs(matchup.pointsA - matchup.pointsB) }))
+        .sort((a, b) => b.liveMargin - a.liveMargin)[0];
+
+    let stories = "";
+
+    if (upsetCandidates[0]) {
+        const upset = upsetCandidates[0];
+        stories += bulletinStoryHtml({
+            className: "red",
+            title: "🚨 Upset Brewing",
+            main: `@${upset.underdog} is leading @${upset.favorite}`,
+            sub: `${upset.pointsA.toFixed(1)}–${upset.pointsB.toFixed(1)} • Underdog ahead by ${upset.liveMargin.toFixed(1)}`
+        });
+    } else {
+        stories += bulletinStoryHtml({
+            className: "red",
+            title: "🚨 Upset Brewing",
+            main: activeMatchups.length ? "No statistical underdog is currently leading." : "Waiting for live scoring.",
+            sub: activeMatchups.length ? "This updates automatically with the scoreboard." : "The watch begins when points are posted."
+        });
+    }
+
+    if (blowout) {
+        const leader = blowout.pointsA >= blowout.pointsB ? blowout.nameA : blowout.nameB;
+        const trailing = leader === blowout.nameA ? blowout.nameB : blowout.nameA;
+        stories += bulletinStoryHtml({
+            className: "orange",
+            title: "💥 Blowout Watch",
+            main: `@${leader} leads @${trailing} by ${blowout.liveMargin.toFixed(1)}`,
+            sub: `${blowout.pointsA.toFixed(1)}–${blowout.pointsB.toFixed(1)}`
+        });
+    } else {
+        stories += bulletinStoryHtml({
+            className: "orange",
+            title: "💥 Blowout Watch",
+            main: "Waiting for live scoring.",
+            sub: "The largest active scoring margin will appear here."
+        });
+    }
+
+    target.className = "";
+    target.innerHTML = `
+        <div class="tcwr-news-header">LIVE LEAGUE WATCH • WEEK ${week}</div>
+        ${stories}
+    `;
+}
+
+async function initializeLeagueBulletin() {
+    ensureLeagueBulletinShell();
+    loadBulletin();
+
+    const displayWeek = await getSleeperCurrentWeek();
+    latestCompletedAwardsWeek = getLatestCompletedWeek(displayWeek);
+    selectedAwardsWeek = latestCompletedAwardsWeek;
+
+    if (shouldShowLiveLeagueWatch()) {
+        await loadLiveBulletinWeek(displayWeek);
+    } else {
+        await loadWeeklyAwards(selectedAwardsWeek, displayWeek);
+    }
+}
+
+async function loadLiveBulletinWeek(week) {
+    const requestToken = ++bulletinRequestToken;
+    const target = document.getElementById("automated-bulletin-content");
+    if (target) {
+        target.className = "tcwr-empty";
+        target.textContent = `Loading Week ${week} live watch...`;
+    }
+
+    try {
+        const [matchups, users, rosters, stats] = await Promise.all([
+            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`),
+            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+            fetchCsvRows(csvUrl)
+        ]);
+        if (requestToken !== bulletinRequestToken) return;
+        const analyzed = analyzeBulletinMatchups(matchups, users, rosters, stats);
+        renderLiveLeagueWatch(analyzed, week);
+    } catch (error) {
+        console.error("Live bulletin error:", error);
+        if (target) target.innerHTML = '<div class="tcwr-empty">Unable to load live league watch.</div>';
+    }
+}
+
+async function loadWeeklyAwards(week, displayWeek = null) {
+    ensureLeagueBulletinShell();
+    bulletinMode = "awards";
+    selectedAwardsWeek = clampScoreboardWeek(week);
+    const target = document.getElementById("automated-bulletin-content");
+    if (!target) return;
+
+    const requestToken = ++bulletinRequestToken;
+    target.className = "tcwr-empty";
+    target.textContent = `Loading Week ${selectedAwardsWeek} awards...`;
+
+    try {
+        const currentDisplayWeek = displayWeek || await getSleeperCurrentWeek();
+        latestCompletedAwardsWeek = getLatestCompletedWeek(currentDisplayWeek);
+
+        const [matchups, users, rosters, stats, league] = await Promise.all([
+            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${selectedAwardsWeek}`),
+            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+            fetchCsvRows(csvUrl),
+            getLeagueSettings()
+        ]);
+        if (requestToken !== bulletinRequestToken) return;
+
+        const awards = await calculateWeeklyAwards(matchups, users, rosters, stats, league);
+        if (requestToken !== bulletinRequestToken) return;
+        renderWeeklyAwards(awards, selectedAwardsWeek);
+    } catch (error) {
+        console.error("Weekly awards error:", error);
+        target.innerHTML = '<div class="tcwr-empty">Unable to load weekly awards.</div>';
+    }
+}
+
+function renderWeeklyAwards(awards, week) {
+    const target = document.getElementById("automated-bulletin-content");
+    if (!target) return;
+
+    const previousDisabled = week <= SCOREBOARD_MIN_WEEK;
+    const nextDisabled = week >= latestCompletedAwardsWeek;
+    const row = award => bulletinStoryHtml(award);
+
+    target.className = "";
+    target.innerHTML = `
+        <div class="tcwr-news-header">🏆 WEEKLY AWARDS</div>
+        <div class="tcwr-award-nav">
+            <button id="awards-prev-week" type="button" ${previousDisabled ? "disabled" : ""} aria-label="Previous awards week">←</button>
+            <div class="tcwr-award-week">Week ${week}</div>
+            <button id="awards-next-week" type="button" ${nextDisabled ? "disabled" : ""} aria-label="Next awards week">→</button>
+        </div>
+        ${row({ className:"gold", title:"👑 Manager of the Week", main:`@${awards.managerOfWeek.name}`, sub:`${awards.managerOfWeek.points.toFixed(1)} pts` })}
+        ${row({ className:"gold", title:"🥈 1st Loser", main:`@${awards.firstLoser.name}`, sub:`${awards.firstLoser.points.toFixed(1)} pts` })}
+        ${row({ className:"gold", title:"🥉 2nd Loser", main:`@${awards.secondLoser.name}`, sub:`${awards.secondLoser.points.toFixed(1)} pts` })}
+        ${row({ className:"green", title:"🍀 Luckiest Win", main:`@${awards.luckiestWin.name} ${awards.luckiestWin.points.toFixed(1)} pts`, sub:awards.luckiestWin.note })}
+        ${row({ className:"purple", title:"🎯 Overachiever", main:awards.overachiever.main, sub:awards.overachiever.sub })}
+        ${row({ className:"blue", title:"🎯 Sharpshooter", main:awards.sharpshooter.main, sub:awards.sharpshooter.sub })}
+        ${row({ className:"orange", title:"⚔️ Rivalry Winner", main:awards.rivalryWinner.main, sub:awards.rivalryWinner.sub })}
+    `;
+
+    document.getElementById("awards-prev-week")?.addEventListener("click", () => {
+        if (selectedAwardsWeek > SCOREBOARD_MIN_WEEK) loadWeeklyAwards(selectedAwardsWeek - 1);
+    });
+    document.getElementById("awards-next-week")?.addEventListener("click", () => {
+        if (selectedAwardsWeek < latestCompletedAwardsWeek) loadWeeklyAwards(selectedAwardsWeek + 1);
+    });
+}
+
+async function calculateWeeklyAwards(matchupsRaw, users, rosters, stats, league) {
+    const userLookup = Object.fromEntries(users.map(user => [user.user_id, user.display_name || "Unknown"]));
+    const rosterNames = Object.fromEntries(rosters.map(roster => [roster.roster_id, (userLookup[roster.owner_id] || `Team ${roster.roster_id}`).replace("@", "").trim()]));
+    const entries = matchupsRaw.map(matchup => ({
+        raw: matchup,
+        rosterId: matchup.roster_id,
+        matchupId: matchup.matchup_id,
+        name: rosterNames[matchup.roster_id] || `Team ${matchup.roster_id}`,
+        points: Number(matchup.points) || 0,
+        projection: extractSleeperProjection(matchup)
+    }));
+
+    const sortedScores = [...entries].sort((a, b) => b.points - a.points);
+    const fallback = sortedScores[0] || { name:"Unavailable", points:0 };
+    const managerOfWeek = sortedScores[0] || fallback;
+    const firstLoser = sortedScores[1] || fallback;
+    const secondLoser = sortedScores[2] || fallback;
+
+    const grouped = {};
+    entries.forEach(entry => {
+        if (entry.matchupId == null) return;
+        (grouped[entry.matchupId] ||= []).push(entry);
+    });
+
+    const winners = Object.values(grouped)
+        .filter(pair => pair.length >= 2)
+        .map(pair => [...pair].sort((a, b) => b.points - a.points)[0])
+        .sort((a, b) => a.points - b.points);
+    const luckiestWin = winners[0] || fallback;
+    luckiestWin.note = "Lowest score among winning teams";
+
+    const historicalAverageFor = name => {
+        const translated = nameTranslator[name] || name;
+        const rows = stats.filter(row => String(row.Manager || "").trim().toLowerCase() === translated.toLowerCase());
+        const values = rows.map(row => Number(row.AvgPts)).filter(Number.isFinite);
+        return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+    };
+
+    const overachieverCandidates = entries.map(entry => {
+        const baseline = entry.projection ?? historicalAverageFor(entry.name);
+        return { ...entry, baseline, over: baseline == null ? null : entry.points - baseline };
+    }).filter(entry => entry.over != null).sort((a, b) => b.over - a.over);
+    const over = overachieverCandidates[0];
+    const overachiever = over ? {
+        main: `@${over.name} • Projected ${over.baseline.toFixed(1)} • Scored ${over.points.toFixed(1)}`,
+        sub: `${over.over >= 0 ? "+" : ""}${over.over.toFixed(1)} points above projection`
+    } : { main:"Projection data unavailable", sub:"This award will populate when projection or historical-average data is available." };
+
+    const sharpshooter = await calculateSharpshooter(entries, league);
+    const rivalryWinner = calculateRivalryWinner(entries, grouped, stats);
+
+    return { managerOfWeek, firstLoser, secondLoser, luckiestWin, overachiever, sharpshooter, rivalryWinner };
+}
+
+function calculateRivalryWinner(entries, grouped, stats) {
+    const byName = Object.fromEntries(entries.map(entry => [entry.name, entry]));
+    const candidates = [];
+
+    Object.values(grouped).forEach(pair => {
+        if (pair.length < 2) return;
+        const [a, b] = pair;
+        const rowA = findBulletinStat(stats, a.name, b.name);
+        const rowB = findBulletinStat(stats, b.name, a.name);
+        const record = rowA?.H2H_Record || rowB?.H2H_Record;
+        const parsed = parseBulletinH2H(record);
+        if (parsed.total <= 0) return;
+        candidates.push({ a, b, total:parsed.total, closeness:Math.abs(parsed.wins - parsed.losses), combined:a.points + b.points });
+    });
+
+    candidates.sort((a, b) => b.total - a.total || a.closeness - b.closeness || b.combined - a.combined);
+    const rivalry = candidates[0];
+    if (!rivalry) return { main:"No designated rivalry was found", sub:"" };
+
+    if (rivalry.a.points === rivalry.b.points) {
+        return { main:`@${rivalry.a.name} tied @${rivalry.b.name}`, sub:`${rivalry.a.points.toFixed(1)}–${rivalry.b.points.toFixed(1)}` };
+    }
+    const winner = rivalry.a.points > rivalry.b.points ? rivalry.a : rivalry.b;
+    const loser = winner === rivalry.a ? rivalry.b : rivalry.a;
+    return { main:`@${winner.name} defeated @${loser.name}`, sub:`${winner.points.toFixed(1)}–${loser.points.toFixed(1)}` };
+}
+
+async function calculateSharpshooter(entries, league) {
+    try {
+        const players = await getSleeperPlayers();
+        const lineupSlots = (league?.roster_positions || []).filter(slot => !["BN", "IR", "TAXI"].includes(slot));
+        if (!lineupSlots.length) throw new Error("No lineup slots available");
+
+        const candidates = entries.map(entry => {
+            const pointsMap = entry.raw.players_points || {};
+            const actual = entry.points;
+            const playerPool = Object.keys(pointsMap).map(playerId => ({
+                id: playerId,
+                points: Number(pointsMap[playerId]) || 0,
+                position: players[playerId]?.position || ""
+            }));
+            const optimal = calculateOptimalLineupPoints(playerPool, lineupSlots);
+            return { ...entry, left: Math.max(0, optimal - actual) };
+        }).sort((a, b) => a.left - b.left || b.points - a.points);
+
+        const best = candidates[0];
+        if (!best) throw new Error("No lineup data");
+        return { main:`@${best.name} left only ${best.left.toFixed(1)} pts on the bench.`, sub:"Best lineup efficiency of the week" };
+    } catch (error) {
+        console.warn("Sharpshooter calculation unavailable:", error);
+        return { main:"Lineup efficiency data unavailable", sub:"This will populate when Sleeper posts complete player scoring data." };
+    }
+}
+
+function calculateOptimalLineupPoints(players, slots) {
+    const eligible = slots.map(slot => players
+        .filter(player => isEligibleForSlot(player.position, slot))
+        .sort((a, b) => b.points - a.points)
+        .slice(0, 12));
+    let best = 0;
+
+    function search(slotIndex, used, total) {
+        if (slotIndex >= slots.length) {
+            best = Math.max(best, total);
+            return;
+        }
+        const options = eligible[slotIndex];
+        search(slotIndex + 1, used, total);
+        for (const player of options) {
+            if (used.has(player.id)) continue;
+            used.add(player.id);
+            search(slotIndex + 1, used, total + player.points);
+            used.delete(player.id);
+        }
+    }
+    search(0, new Set(), 0);
+    return best;
+}
+
+function isEligibleForSlot(position, slot) {
+    const maps = {
+        QB:["QB"], RB:["RB"], WR:["WR"], TE:["TE"], K:["K"], DEF:["DEF"], DL:["DL"], LB:["LB"], DB:["DB"],
+        FLEX:["RB","WR","TE"], WRT:["RB","WR","TE"], REC_FLEX:["WR","TE"], WRRB_FLEX:["WR","RB"],
+        SUPER_FLEX:["QB","RB","WR","TE"], IDP_FLEX:["DL","LB","DB"]
+    };
+    return (maps[slot] || [slot]).includes(position);
+}
+
+async function getSleeperPlayers() {
+    if (cachedPlayersById) return cachedPlayersById;
+    cachedPlayersById = await fetchJson("https://api.sleeper.app/v1/players/nfl");
+    return cachedPlayersById;
+}
+
+async function getLeagueSettings() {
+    if (cachedLeagueSettings) return cachedLeagueSettings;
+    cachedLeagueSettings = await fetchJson(`https://api.sleeper.app/v1/league/${leagueId}`);
+    return cachedLeagueSettings;
+}
+
+function analyzeBulletinMatchups(matchupsRaw, users, rosters, stats) {
+    const userLookup = Object.fromEntries(users.map(user => [user.user_id, user.display_name || "Unknown"]));
+    const nameMap = Object.fromEntries(rosters.map(roster => [roster.roster_id, userLookup[roster.owner_id] || "Unknown"]));
+    const groups = {};
+    matchupsRaw.forEach(matchup => {
+        if (matchup.matchup_id == null) return;
+        (groups[matchup.matchup_id] ||= []).push(matchup);
+    });
+
+    return Object.entries(groups).filter(([, pair]) => pair.length >= 2).map(([matchId, pair]) => {
+        const nameA = (nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`).replace("@", "").trim();
+        const nameB = (nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`).replace("@", "").trim();
+        const statA = findBulletinStat(stats, nameA, nameB);
+        const statB = findBulletinStat(stats, nameB, nameA);
+        const avgA = Number(statA?.AvgPts) || 0;
+        const avgB = Number(statB?.AvgPts) || 0;
+        const pointsA = Number(pair[0].points) || 0;
+        const pointsB = Number(pair[1].points) || 0;
+        return {
+            matchId, nameA, nameB, pointsA, pointsB, avgA, avgB,
+            statisticalFavorite: avgA === avgB ? null : (avgA > avgB ? nameA : nameB),
+            liveLeader: pointsA === pointsB ? null : (pointsA > pointsB ? nameA : nameB),
+            gamesStarted: pointsA !== 0 || pointsB !== 0
+        };
+    });
+}
+
+function findBulletinStat(stats, managerName, opponentName) {
+    const translatedManager = nameTranslator[managerName] || managerName;
+    return stats.find(row =>
+        String(row.Manager || "").trim().toLowerCase() === translatedManager.trim().toLowerCase() &&
+        String(row.Opponent || "").trim().toLowerCase() === `@${opponentName}`.toLowerCase()
+    );
+}
+
+function parseBulletinH2H(record) {
+    const parts = String(record || "0-0").replace(/[–—−]/g, "-").split("-").map(value => Number.parseInt(value, 10) || 0);
+    const wins = parts[0] || 0;
+    const losses = parts[1] || 0;
+    const ties = parts[2] || 0;
+    return { wins, losses, ties, total:wins + losses + ties };
+}
+
+async function fetchJson(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`${url} returned ${response.status}`);
+    return response.json();
+}
+
+function fetchCsvRows(url) {
+    return new Promise((resolve, reject) => {
+        Papa.parse(url, {
+            download:true,
+            header:true,
+            skipEmptyLines:true,
+            complete:results => resolve(results.data || []),
+            error:reject
+        });
+    });
+}
+
 /* =========================================================
    NFL SEASON KICKOFF COUNTDOWN
    Shows the countdown before kickoff.
@@ -1630,7 +2158,7 @@ async function initializeCountdownOrScoreboard() {
 initializeCountdownOrScoreboard();
     
 /* === 8. INITIALIZE PAGE === */
-loadBulletin();
+initializeLeagueBulletin();
 fetchStandings();
 
 

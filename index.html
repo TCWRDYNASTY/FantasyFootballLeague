@@ -595,7 +595,7 @@ async function fetchStandings() {
     true  = start on SCOREBOARD_TEST_WEEK
     false = start on Sleeper's current display week
 */
-const SCOREBOARD_TEST_MODE = true;
+const SCOREBOARD_TEST_MODE = false;
 const SCOREBOARD_TEST_WEEK = 1;
 const SCOREBOARD_MIN_WEEK = 1;
 const SCOREBOARD_MAX_WEEK = 14;
@@ -1440,19 +1440,199 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         container.appendChild(rivalryCard);
     }
 }
+/* =========================================================
+   NFL SEASON KICKOFF COUNTDOWN
+   Shows the countdown before kickoff.
+   At zero, removes the countdown and loads the matchup card.
+   ========================================================= */
 
-/* === 8. INITIALIZE PAGE === */
-loadBulletin();
-fetchStandings();
+const NFL_SEASON_KICKOFF = new Date("2026-09-09T20:20:00-04:00");
+let nflKickoffCountdownTimer = null;
 
-(async function initializeScoreboard() {
+function createKickoffCountdown() {
+    const container = document.getElementById("scoreboard-container");
+    if (!container) return null;
+
+    container.innerHTML = "";
+
+    const countdownCard = document.createElement("div");
+    countdownCard.id = "nfl-kickoff-countdown";
+    countdownCard.style.cssText = `
+        width:100%;
+        box-sizing:border-box;
+        padding:28px 20px;
+        color:white;
+        text-align:center;
+        background:linear-gradient(145deg, rgba(30,41,59,.98), rgba(15,23,42,.98));
+        border:1px solid rgba(148,163,184,.22);
+        border-top:4px solid #facc15;
+        border-radius:14px;
+        box-shadow:0 12px 30px rgba(0,0,0,.35);
+    `;
+
+    countdownCard.innerHTML = `
+        <div style="
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            padding:9px 18px;
+            margin-bottom:18px;
+            border-radius:999px;
+            background:linear-gradient(135deg,#92400e,#f59e0b);
+            color:white;
+            font-size:.82rem;
+            font-weight:900;
+            letter-spacing:.8px;
+            box-shadow:0 5px 15px rgba(0,0,0,.3);
+        ">
+            🏈 NFL SEASON KICKOFF
+        </div>
+
+        <div id="kickoff-countdown-grid" style="
+            display:grid;
+            grid-template-columns:repeat(4,minmax(0,1fr));
+            gap:12px;
+            max-width:680px;
+            margin:0 auto;
+        ">
+            ${createCountdownUnit("days", "Days")}
+            ${createCountdownUnit("hours", "Hours")}
+            ${createCountdownUnit("minutes", "Minutes")}
+            ${createCountdownUnit("seconds", "Seconds")}
+        </div>
+
+        <p style="
+            margin:20px 0 0;
+            color:#94a3b8;
+            font-size:.78rem;
+            font-weight:700;
+            letter-spacing:.6px;
+        ">
+            UNTIL THE 2026 NFL SEASON BEGINS
+        </p>
+    `;
+
+    container.appendChild(countdownCard);
+
+    const responsiveStyle = document.createElement("style");
+    responsiveStyle.id = "kickoff-countdown-responsive-style";
+    responsiveStyle.textContent = `
+        @media (max-width: 540px) {
+            #kickoff-countdown-grid {
+                grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+            }
+        }
+    `;
+
+    if (!document.getElementById(responsiveStyle.id)) {
+        document.head.appendChild(responsiveStyle);
+    }
+
+    return countdownCard;
+}
+
+function createCountdownUnit(id, label) {
+    return `
+        <div style="
+            min-width:0;
+            padding:16px 8px;
+            background:rgba(15,23,42,.72);
+            border:1px solid rgba(148,163,184,.18);
+            border-radius:10px;
+        ">
+            <div id="kickoff-${id}" style="
+                color:#facc15;
+                font-size:clamp(1.65rem,4vw,2.65rem);
+                line-height:1;
+                font-weight:900;
+            ">
+                00
+            </div>
+            <div style="
+                margin-top:7px;
+                color:#94a3b8;
+                font-size:.68rem;
+                font-weight:800;
+                letter-spacing:1px;
+                text-transform:uppercase;
+            ">
+                ${label}
+            </div>
+        </div>
+    `;
+}
+
+function updateKickoffCountdown() {
+    const remaining = NFL_SEASON_KICKOFF.getTime() - Date.now();
+
+    if (remaining <= 0) {
+        stopKickoffCountdown();
+        showScoreboardAfterKickoff();
+        return;
+    }
+
+    const days = Math.floor(remaining / 86400000);
+    const hours = Math.floor((remaining % 86400000) / 3600000);
+    const minutes = Math.floor((remaining % 3600000) / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+
+    setCountdownValue("days", days);
+    setCountdownValue("hours", hours);
+    setCountdownValue("minutes", minutes);
+    setCountdownValue("seconds", seconds);
+}
+
+function setCountdownValue(id, value) {
+    const element = document.getElementById(`kickoff-${id}`);
+    if (element) {
+        element.textContent = String(value).padStart(2, "0");
+    }
+}
+
+function stopKickoffCountdown() {
+    if (nflKickoffCountdownTimer) {
+        clearInterval(nflKickoffCountdownTimer);
+        nflKickoffCountdownTimer = null;
+    }
+}
+
+async function showScoreboardAfterKickoff() {
+    const container = document.getElementById("scoreboard-container");
+    if (container) container.innerHTML = "";
+
     selectedScoreboardWeek = SCOREBOARD_TEST_MODE
         ? SCOREBOARD_TEST_WEEK
         : await getSleeperCurrentWeek();
 
     await fetchScoreboard(selectedScoreboardWeek);
     startScoreboardRefreshTimer();
-})();
+}
+
+async function initializeCountdownOrScoreboard() {
+    if (Date.now() < NFL_SEASON_KICKOFF.getTime()) {
+       clearScoreboardRefreshTimer();
+        createKickoffCountdown();
+        updateKickoffCountdown();
+
+        nflKickoffCountdownTimer = setInterval(
+            updateKickoffCountdown,
+            1000
+        );
+
+        return;
+    }
+
+    await showScoreboardAfterKickoff();
+}
+
+
+/* === INITIALIZE SCOREBOARD / COUNTDOWN === */
+initializeCountdownOrScoreboard();
+    
+/* === 8. INITIALIZE PAGE === */
+loadBulletin();
+fetchStandings();
+
 
 /* === 9. SERVICE WORKER === */
 if ('serviceWorker' in navigator) {

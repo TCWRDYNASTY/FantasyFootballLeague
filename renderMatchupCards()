@@ -499,163 +499,281 @@ sidebarLinks.forEach(link => {
             });
         });
     }
+/* === 6. SLEEPER STANDINGS DATA === */
 
-    /* === 6. SLEEPER STANDINGS DATA === */
-   async function fetchStandings() {
+async function fetchStandings() {
     try {
         const [rostersRes, usersRes] = await Promise.all([
             fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
             fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
         ]);
 
+        if (!rostersRes.ok || !usersRes.ok) {
+            throw new Error(
+                `Sleeper standings request failed. ` +
+                `Rosters: ${rostersRes.status}, ` +
+                `Users: ${usersRes.status}`
+            );
+        }
+
         const rosters = await rostersRes.json();
         const users = await usersRes.json();
 
-       console.log(users.map(u => ({
-    display_name: u.display_name,
-    team_name: u.metadata?.team_name,
-    metadata: u.metadata
-})));
+        console.log(
+            users.map(user => ({
+                display_name: user.display_name,
+                team_name: user.metadata?.team_name,
+                metadata: user.metadata
+            }))
+        );
 
-        const userMap = Object.fromEntries(users.map(u => [u.user_id, u]));
+        const userMap = Object.fromEntries(
+            users.map(user => [user.user_id, user])
+        );
 
         const teams = rosters.map(roster => {
             const user = userMap[roster.owner_id] || {};
             const settings = roster.settings || {};
-            const pf =
+
+            const pointsFor =
                 (settings.fpts || 0) +
                 ((settings.fpts_decimal || 0) / 100);
+
+            const wins = settings.wins || 0;
+            const losses = settings.losses || 0;
+            const ties = settings.ties || 0;
+
+            const completedGames = wins + losses + ties;
 
             return {
                 teamName:
                     user.metadata?.team_name ||
                     user.display_name ||
                     "Unnamed Team",
-                record:
-                    `${settings.wins || 0}-${settings.losses || 0}-${settings.ties || 0}`,
+
+                record: `${wins}-${losses}-${ties}`,
+
                 winPct:
-                    (settings.wins + settings.losses)
-                        ? settings.wins / (settings.wins + settings.losses)
+                    completedGames > 0
+                        ? (wins + ties * 0.5) / completedGames
                         : 0,
-                pointsFor: pf
+
+                pointsFor
             };
         });
 
         teams.sort(
-            (a, b) =>
-                b.winPct - a.winPct ||
-                b.pointsFor - a.pointsFor
+            (teamA, teamB) =>
+                teamB.winPct - teamA.winPct ||
+                teamB.pointsFor - teamA.pointsFor
         );
 
-        const tbody = document.querySelector("#standings-table tbody");
+        const tbody =
+            document.querySelector("#standings-table tbody");
 
         if (tbody) {
-            tbody.innerHTML = teams.map((team, index) => `
-                <tr class="${index === 6 ? "playoff-divider" : ""}">
-                    <td>${index + 1}</td>
-                    <td style="font-weight: 600;">${team.teamName}</td>
-                    <td>${team.record}</td>
-                </tr>
-            `).join("");
+            tbody.innerHTML = teams
+                .map(
+                    (team, index) => `
+                        <tr class="${
+                            index === 6
+                                ? "playoff-divider"
+                                : ""
+                        }">
+                            <td>${index + 1}</td>
+
+                            <td style="font-weight:600;">
+                                ${team.teamName}
+                            </td>
+
+                            <td>${team.record}</td>
+                        </tr>
+                    `
+                )
+                .join("");
         }
     } catch (error) {
         console.error("Standings Error:", error);
     }
 }
 
-    /* === 7. WEEKLY SCOREBOARD & PREDICTIONS === */
-    function getCurrentWeek() {
-        const seasonStart = new Date("2026-09-09T17:20:00-07:00"); 
-        
-        const diff = now - seasonStart;
-        const week = Math.ceil(diff / (7 * 24 * 60 * 60 * 1000));
-        return Math.max(1, Math.min(week, 18)); 
-    }
+/* === 7. WEEKLY SCOREBOARD & PREDICTIONS === */
 
-    async function fetchScoreboard() {
-       
+/*
+    TEST MODE:
+    true  = always display Sleeper Week 1 matchups before the season starts
+    false = automatically calculate the live NFL week
+*/
+const SCOREBOARD_TEST_MODE = true;
+const SCOREBOARD_TEST_WEEK = 1;
 
-        const week = getCurrentWeek();
-        try {
-            const [matchRes, usersRes, rostersRes] = await Promise.all([
-                fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`),
-                fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`),
-                fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
-            ]);
+function getCurrentWeek() {
+    const seasonStart =
+        new Date("2026-09-09T17:20:00-07:00");
 
-            const matchupsRaw = await matchRes.json();
-            const users = await usersRes.json();
-            const rosters = await rostersRes.json();
+    const now = new Date();
 
-            const userLookup = Object.fromEntries(users.map(u => [u.user_id, u.display_name]));
-            const rosterToNameMap = Object.fromEntries(rosters.map(r => [r.roster_id, userLookup[r.owner_id] || "Unknown"]));
+    const millisecondsPerWeek =
+        7 * 24 * 60 * 60 * 1000;
 
-          const isOffseason =
-    !matchupsRaw ||
-    matchupsRaw.length === 0 ||
-    matchupsRaw.every(m => m.matchup_id === null);
+    const diff =
+        now.getTime() - seasonStart.getTime();
 
-if (isOffseason) {
-    document.getElementById('scoreboard-container').innerHTML =
-        '<p style="text-align:center;color:white;padding:40px;">No matchup data available yet.</p>';
-    return;
+    const week =
+        Math.floor(diff / millisecondsPerWeek) + 1;
+
+    return Math.max(1, Math.min(week, 18));
 }
 
-            Papa.parse(csvUrl, {
-                download: true,
-                header: true,
-                complete: (results) => { renderMatchupCards(matchupsRaw, rosterToNameMap, results.data); }
-            });
-        } catch (err) { console.error("Scoreboard Error:", err); }
+async function fetchScoreboard() {
+    const container =
+        document.getElementById("scoreboard-container");
+
+    const week = SCOREBOARD_TEST_MODE
+        ? SCOREBOARD_TEST_WEEK
+        : getCurrentWeek();
+
+    if (container) {
+        container.innerHTML = `
+            <p style="
+                text-align:center;
+                color:#94a3b8;
+                padding:30px;
+            ">
+                Loading Week ${week} matchup of the week...
+            </p>
+        `;
     }
 
-    function startKickoffCountdown() {
-        const container = document.getElementById('scoreboard-container');
-        if (!container) return;
+    try {
+        const [
+            matchRes,
+            usersRes,
+            rostersRes
+        ] = await Promise.all([
+            fetch(
+                `https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`
+            ),
+            fetch(
+                `https://api.sleeper.app/v1/league/${leagueId}/users`
+            ),
+            fetch(
+                `https://api.sleeper.app/v1/league/${leagueId}/rosters`
+            )
+        ]);
 
-        container.style.display = 'flex';
-        container.style.flexDirection = 'column';
-        container.style.justifyContent = 'center';
-        container.style.height = '100%';
-
-        const kickoffDate = new Date("2026-09-09T17:20:00-07:00").getTime();
-        let timerInterval; // Declared here for safe interval clearing
-
-        function updateTimer() {
-            const now = new Date().getTime();
-            const distance = kickoffDate - now;
-
-            if (distance < 0) {
-                container.innerHTML = '<p style="text-align:center; color:#facc15; padding:40px; font-weight:bold; font-size:1.5rem;">🏈 FOOTBALL HAS STARTED! Refreshing data...</p>';
-                clearInterval(timerInterval);
-                setTimeout(() => { location.reload(); }, 3000);
-                return;
-            }
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            container.innerHTML = `
-                <div style="text-align: center; padding: 30px 10px; background: rgba(15, 23, 42, 0.4); margin: 5px; border-radius: 8px; border: 1px dashed #4a5568; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 100%;">
-                    <p style="color: #94a3b8; font-size: clamp(0.85rem, 2.5vw, 1.1rem); text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px 0; font-weight: 500;">Countdown to Season 4 Kickoff</p>
-                    <div style="display: flex; justify-content: center; gap: clamp(10px, 3vw, 25px); color: white; font-weight: bold; width: 100%;">
-                        <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${days}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Days</span></div>
-                        <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${hours}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Hrs</span></div>
-                        <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${minutes}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Mins</span></div>
-                        <div><span style="display:block; font-size: clamp(1.8rem, 7vw, 3.5rem); color: #facc15; line-height: 1;">${seconds}</span><span style="font-size:0.75rem; color:#64748b; text-transform: uppercase; letter-spacing: 1px;">Secs</span></div>
-                    </div>
-                    <p style="margin-top: 25px; font-size: 0.9rem; color: #64748b; font-style: italic; letter-spacing: 0.5px;">Patriots @ Seahawks • Season Opener</p>
-                </div>
-            `;
+        if (
+            !matchRes.ok ||
+            !usersRes.ok ||
+            !rostersRes.ok
+        ) {
+            throw new Error(
+                `Sleeper scoreboard request failed. ` +
+                `Matchups: ${matchRes.status}, ` +
+                `Users: ${usersRes.status}, ` +
+                `Rosters: ${rostersRes.status}`
+            );
         }
 
-        updateTimer();
-        timerInterval = setInterval(updateTimer, 1000);
+        const matchupsRaw = await matchRes.json();
+        const users = await usersRes.json();
+        const rosters = await rostersRes.json();
+
+        console.log("Scoreboard test mode:", SCOREBOARD_TEST_MODE);
+        console.log("Requested Sleeper week:", week);
+        console.log("Raw Sleeper matchup data:", matchupsRaw);
+
+        const userLookup = Object.fromEntries(
+            users.map(user => [
+                user.user_id,
+                user.display_name || "Unknown"
+            ])
+        );
+
+        const rosterToNameMap = Object.fromEntries(
+            rosters.map(roster => [
+                roster.roster_id,
+                userLookup[roster.owner_id] || "Unknown"
+            ])
+        );
+
+        const hasMatchupData =
+            Array.isArray(matchupsRaw) &&
+            matchupsRaw.length > 0;
+
+        if (!hasMatchupData) {
+            if (container) {
+                container.innerHTML = `
+                    <p style="
+                        text-align:center;
+                        color:white;
+                        padding:40px;
+                    ">
+                        Sleeper returned no matchup data for Week ${week}.
+                    </p>
+                `;
+            }
+
+            return;
+        }
+
+        Papa.parse(csvUrl, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+
+            complete: results => {
+                if (results.errors.length > 0) {
+                    console.warn(
+                        "Spreadsheet parsing warnings:",
+                        results.errors
+                    );
+                }
+
+                renderMatchupCards(
+                    matchupsRaw,
+                    rosterToNameMap,
+                    results.data,
+                    week
+                );
+            },
+
+            error: error => {
+                console.error(
+                    "Spreadsheet loading error:",
+                    error
+                );
+
+                if (container) {
+                    container.innerHTML = `
+                        <p style="
+                            text-align:center;
+                            color:#f87171;
+                            padding:40px;
+                        ">
+                            Unable to load matchup statistics.
+                        </p>
+                    `;
+                }
+            }
+        });
+    } catch (error) {
+        console.error("Scoreboard Error:", error);
+
+        if (container) {
+            container.innerHTML = `
+                <p style="
+                    text-align:center;
+                    color:#f87171;
+                    padding:40px;
+                ">
+                    Unable to load the scoreboard.
+                </p>
+            `;
+        }
     }
-    
-function renderMatchupCards(matchups, nameMap, stats) {
+}
+function renderMatchupCards(matchups, nameMap, stats, week) {
     const container = document.getElementById('scoreboard-container');
     if (!container) return;
 
@@ -899,9 +1017,17 @@ function renderMatchupCards(matchups, nameMap, stats) {
         return;
     }
 
-    const upsetMatchups = analyzedMatchups.filter(
-        matchup => matchup.isUpsetMatchup
+    const gamesStarted = analyzedMatchups.some(
+        matchup =>
+            matchup.pointsA !== 0 ||
+            matchup.pointsB !== 0
     );
+
+    const upsetMatchups = gamesStarted
+        ? analyzedMatchups.filter(
+            matchup => matchup.isUpsetMatchup
+        )
+        : [];
 
     let featuredMatchup;
     let cardType;
@@ -966,9 +1092,13 @@ function renderMatchupCards(matchups, nameMap, stats) {
         ? `@${spreadsheetFavorite}`
         : 'Even matchup';
 
-    const sleeperText = sleeperLeader
-        ? `@${sleeperLeader}`
-        : 'Currently tied';
+    const sleeperText = gamesStarted
+        ? (
+            sleeperLeader
+                ? `@${sleeperLeader}`
+                : 'Currently tied'
+        )
+        : 'Scheduled';
 
     const explanationTitle = spreadsheetFavorite
         ? `Why the spreadsheet favors @${spreadsheetFavorite}`
@@ -1026,7 +1156,7 @@ function renderMatchupCards(matchups, nameMap, stats) {
             font-weight:700;
             letter-spacing:1.5px;
         ">
-            MATCHUP #${matchId}
+            WEEK ${week} • MATCHUP #${matchId}
         </p>
 
         <div style="
@@ -1177,7 +1307,7 @@ function renderMatchupCards(matchups, nameMap, stats) {
                     text-transform:uppercase;
                     letter-spacing:0.8px;
                 ">
-                    Sleeper Leader
+                    Sleeper Status
                 </div>
 
                 <div style="
@@ -1254,7 +1384,13 @@ function renderMatchupCards(matchups, nameMap, stats) {
             color:#64748b;
             font-size:0.65rem;
         ">
-            <span>Current score: ${pointsA.toFixed(1)}–${pointsB.toFixed(1)}</span>
+            <span>
+                ${
+                    gamesStarted
+                        ? `Current score: ${pointsA.toFixed(1)}–${pointsB.toFixed(1)}`
+                        : `Week ${week} matchup • Games have not started`
+                }
+            </span>
             ${
                 isUpset
                     ? `<span>Confidence: ${confidence}%</span>`
@@ -1289,9 +1425,6 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
-</script>
-
-
-        
+</script>     
 </body>
 </html>

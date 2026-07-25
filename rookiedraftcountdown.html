@@ -1,350 +1,1220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Rookie Draft Lottery Countdown</title>
-    <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  
-    <style>
-        :root {
-            --dark-blue-bg: #0f2027;
-            --medium-blue-bg: #203a43;
-            --light-blue-bg: #2c5364;
-            --accent-gold: #FFD700; /* Gold for highlight */
-            --light-text: #E0E0E0;
-            --dark-text: #1a1a1a;
-            --box-bg-color: rgba(255, 255, 255, 0.08); /* Slightly more opaque for content */
-            --box-border-color: rgba(255, 255, 255, 0.2);
-            --glow-color: rgba(255, 215, 0, 0.6);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#061426" />
 
-        /* --- Global Styles & Body --- */
-        body {
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, var(--dark-blue-bg) 0%, var(--medium-blue-bg) 50%, var(--light-blue-bg) 100%);
-            color: var(--light-text);
-            font-family: 'Montserrat', sans-serif;
-            display: flex; /* Makes body a flex container */
-            flex-direction: column; /* Stacks content vertically */
-            align-items: center; /* Centers items horizontally */
-            justify-content: center; /* Centers items vertically */
-            min-height: 100vh; /* Ensures body takes at least full viewport height */
-            text-align: center;
-            overflow: hidden; /* Prevents scroll on background animation */
-            position: relative; /* For z-index of animations */
-        }
+  <title>TCWR Rookie Draft Lottery Countdown</title>
 
-        /* --- Background Animation: Stars / Particles --- */
-        body::before {
-            content: '';
-            position: fixed; /* Stays fixed regardless of scroll */
-            top: 0;
-            left: 0;
-            width: 100%; /* Takes full width of viewport */
-            height: 100%; /* Takes full height of viewport */
-            
-            background-size: 30px 30px; /* Controls particle density, scales with px */
-            animation: moveBackground 80s linear infinite;
-            z-index: 0; /* Behind main content */
-            pointer-events: none;
-            opacity: 0.6;
-        }
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
 
-        @keyframes moveBackground {
-            from { background-position: 0 0; }
-            to { background-position: 100% 100%; }
-        }
-
-        /* --- Main Content Container for entrance animation --- */
-        .main-content {
-            z-index: 1; /* Above background */
-            animation: fadeInScale 1.5s ease-out forwards;
-            opacity: 0;
-            transform: scale(0.9);
-            max-width: 90%; /* Limits overall width, scales down on smaller screens */
-            padding: 0 10px; /* Small horizontal padding to prevent content touching edges */
-            box-sizing: border-box; /* Include padding in width calculation */
-        }
-
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* --- Header --- */
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(2.5rem, 6vw, 4rem); /* Fluid font size: min 2.5rem, max 4rem, scales with 6vw */
-            margin-bottom: 1rem;
-            color: var(--accent-gold);
-            text-shadow: 0 0 15px var(--glow-color), 0 0 30px rgba(255, 215, 0, 0.4);
-            letter-spacing: 3px;
-            position: relative;
-            animation: textPulse 2s infinite alternate ease-in-out;
-        }
-
-        h1 i {
-            margin-right: 15px;
-            color: var(--accent-gold);
-            font-size: 0.8em; /* Scales relative to parent h1 font size */
-        }
-
-        @keyframes textPulse {
-            from { text-shadow: 0 0 10px var(--glow-color), 0 0 20px rgba(255, 215, 0, 0.3); }
-            to { text-shadow: 0 0 20px var(--glow-color), 0 0 40px rgba(255, 215, 0, 0.5); }
-        }
-
-        /* --- Subtitle --- */
-        .subtitle {
-            font-size: clamp(1.2rem, 3vw, 1.8rem); /* Fluid font size */
-            margin-bottom: 3rem;
-            color: var(--light-text);
-            opacity: 0.9;
-        }
-
-        /* --- Countdown Display --- */
-        .countdown {
-            display: flex; /* Makes countdown items a flex container */
-            gap: 25px; /* Spacing between countdown boxes */
-            font-size: clamp(1.8rem, 5vw, 3.5rem); /* Fluid font size for numbers */
-            font-weight: bold;
-            flex-wrap: wrap; /* Allows boxes to wrap to the next line on smaller screens */
-            justify-content: center; /* Centers boxes horizontally when wrapped */
-        }
-
-        .countdown div {
-            background: var(--box-bg-color);
-            padding: 30px 25px;
-            border-radius: 15px;
-            min-width: 100px; /* Ensures boxes don't get too small initially */
-            border: 1px solid var(--box-border-color);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            color: var(--accent-gold);
-            font-family: 'Orbitron', sans-serif;
-            flex: 1 1 auto; /* Allows boxes to grow and shrink to fit available space */
-            max-width: 250px; /* Prevents individual boxes from becoming excessively wide on large screens */
-        }
-
-        .countdown div:hover {
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.6), 0 0 25px var(--glow-color);
-        }
-
-        .countdown div::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.4s ease-out, height 0.4s ease-out;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .countdown div:hover::before {
-            width: 200%;
-            height: 200%;
-        }
-
-        .countdown .label {
-            display: block;
-            font-size: clamp(0.7rem, 2vw, 1.1rem); /* Fluid font size for labels */
-            font-weight: normal;
-            margin-top: 15px;
-            color: var(--light-text);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.8;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        /* --- Lottery Live message style --- */
-        .lottery-live-message {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(1.8rem, 5vw, 3.5rem);
-            font-weight: bold;
-            color: var(--accent-gold);
-            text-shadow: 0 0 20px var(--glow-color);
-            padding: 30px;
-            border-radius: 15px;
-            background: rgba(255, 215, 0, 0.1);
-            border: 2px solid var(--accent-gold);
-            box-shadow: 0 0 30px var(--glow-color);
-            animation: pulseGlowLarge 1.5s infinite alternate ease-in-out;
-            margin-top: 50px;
-            text-decoration: none; /* remove underline from the link */
-        }
-
-        @keyframes pulseGlowLarge {
-            from { box-shadow: 0 0 20px var(--glow-color); }
-            to { box-shadow: 0 0 40px var(--glow-color); }
-        }
-
-        /* --- Live Link Button Style --- */
-        .live-link {
-            display: inline-block; /* Makes it behave like a block element, but in line with text flow */
-            margin-top: 25px;
-            padding: 15px 30px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-decoration: none;
-            color: var(--dark-blue-bg);
-            background-color: var(--accent-gold);
-            border: 3px solid var(--accent-gold);
-            border-radius: 10px;
-            box-shadow: 0 0 15px var(--glow-color);
-            transition: all 0.3s ease-in-out;
-            cursor: pointer;
-        }
-
-        .live-link:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px var(--accent-gold);
-            background-color: #fff;
-        }
-
-        /* --- Utility class to hide element --- */
-        .hidden {
-            display: none !important;
-        }
-
-
-        /* --- Responsive Design with Media Queries --- */
-
-        /* Adjustments for medium screens (e.g., tablets) */
-        @media (max-width: 768px) {
-            .countdown {
-                gap: 15px; /* Reduce gap between boxes */
-            }
-            .countdown div {
-                padding: 20px 15px; /* Reduce padding inside boxes */
-                min-width: 70px; /* Allow boxes to shrink slightly more */
-            }
-            .countdown .label {
-                font-size: clamp(0.6rem, 1.8vw, 0.9rem); /* Adjust label font size range */
-                margin-top: 10px; /* Reduce space from number */
-            }
-            h1 {
-                margin-bottom: 0.8rem; /* Adjust header margin */
-            }
-            .subtitle {
-                margin-bottom: 2rem; /* Adjust subtitle margin */
-            }
-        }
-
-        /* Adjustments for small screens (e.g., mobile phones) */
-        @media (max-width: 480px) {
-            h1 {
-                font-size: clamp(2rem, 8vw, 3rem); /* Allow header to shrink more on very small screens */
-                letter-spacing: 2px;
-            }
-            h1 i {
-                margin-right: 10px;
-                font-size: 0.7em;
-            }
-            .subtitle {
-                font-size: clamp(1rem, 4vw, 1.4rem); /* Allow subtitle to shrink more */
-                margin-bottom: 1.5rem;
-            }
-            .countdown {
-                gap: 10px; /* Further reduce gap on mobile */
-            }
-            .countdown div {
-                padding: 15px 10px; /* Smaller padding on mobile */
-                min-width: unset; /* Remove explicit min-width to let flexbox distribute freely */
-                flex: 1 1 45%; /* Allow two boxes per row (roughly) or stack if narrower */
-            }
-            .countdown .label {
-                font-size: clamp(0.6rem, 2.5vw, 0.8rem); /* Adjust label font size range */
-                margin-top: 8px;
-            }
-            .lottery-live-message {
-                font-size: clamp(1.5rem, 6vw, 2.5rem); /* Adjust font size for live message */
-                padding: 20px;
-            }
-            .live-link {
-                font-size: 1.2rem;
-                padding: 12px 25px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="main-content">
-        <h1><i class="fas fa-trophy"></i> Rookie Draft Lottery Reveal</h1>
-        <p class="subtitle">Countdown to February 14, 2027</p>
-
-        <div class="countdown" id="countdown">
-            <div><div id="days">0</div><span class="label">Days</span></div>
-            <div><div id="hours">0</div><span class="label">Hours</span></div>
-            <div><div id="minutes">0</div><span class="label">Minutes</span></div>
-            <div><div id="seconds">0</div><span class="label">Seconds</span></div>
-        </div>
-
-        <div id="linkContainer" class="hidden">
-            <a href="https://www.example.com" class="live-link" target="_blank">
-                Watch Live Stream <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-
-   <script>
-    const countdownElement = document.getElementById("countdown");
-    const daysElement = document.getElementById("days");
-    const hoursElement = document.getElementById("hours");
-    const minutesElement = document.getElementById("minutes");
-    const secondsElement = document.getElementById("seconds");
-    const linkContainer = document.getElementById("linkContainer");
-    const liveLink = linkContainer.querySelector('a');
-
-    // Cleaned up the URL space
-    const liveStreamURL = "https://tcwrdynasty.github.io/draftlottery/"; 
-
-    const countdown = () => {
-    // Target: Feb 14, 2027, 8:30 PM EST
-    const endDate = new Date('2027-02-14T20:30:00-05:00').getTime(); 
-    const now = new Date().getTime();
-    const distance = endDate - now;
-
-    if (distance < 0) {
-        if (typeof timer !== 'undefined') clearInterval(timer);
-        
-        // Update the "Live" message for the show
-        countdownElement.innerHTML = '<div class="lottery-live-message">🔥 The Show is Starting! 🔥</div>';
-        linkContainer.classList.remove('hidden');
-        liveLink.innerText = "Watch Halftime Show Live";
-        liveLink.href = liveStreamURL;
-        return;
+  <style>
+    :root {
+      --navy-950: #020914;
+      --navy-900: #061426;
+      --navy-850: #081b31;
+      --navy-800: #0b2440;
+      --navy-700: #12385e;
+      --blue-500: #2386d8;
+      --blue-400: #45a8ef;
+      --cyan-300: #79d8ff;
+      --gold-500: #f4be3d;
+      --gold-400: #ffd56b;
+      --gold-300: #ffe39a;
+      --white: #f7fbff;
+      --muted: #a8bdd2;
+      --panel: rgba(7, 24, 43, 0.82);
+      --panel-soft: rgba(10, 34, 59, 0.7);
+      --line: rgba(142, 205, 255, 0.2);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
     }
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    * {
+      box-sizing: border-box;
+    }
 
-        daysElement.innerText = String(days).padStart(2, '0');
-        hoursElement.innerText = String(hours).padStart(2, '0');
-        minutesElement.innerText = String(minutes).padStart(2, '0');
-        secondsElement.innerText = String(seconds).padStart(2, '0');
-    };
+    html {
+      min-height: 100%;
+      background: var(--navy-950);
+    }
 
-    // Initialize the timer variable first
-    const timer = setInterval(countdown, 1000);
-    // Run immediately on load
-    countdown();
-</script>
-    
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--white);
+      font-family: "Montserrat", sans-serif;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(35, 134, 216, 0.22), transparent 34%),
+        radial-gradient(circle at 15% 75%, rgba(244, 190, 61, 0.1), transparent 24%),
+        linear-gradient(160deg, var(--navy-950) 0%, var(--navy-900) 42%, #071d34 100%);
+    }
+
+    button,
+    a {
+      font: inherit;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page-shell {
+      position: relative;
+      min-height: 100vh;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .arena-glow {
+      position: fixed;
+      inset: 0;
+      z-index: -5;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, transparent 49.85%, rgba(121, 216, 255, 0.14) 50%, transparent 50.15%),
+        repeating-linear-gradient(
+          90deg,
+          transparent 0,
+          transparent 119px,
+          rgba(255, 255, 255, 0.018) 120px
+        );
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+
+    .light-beam {
+      position: fixed;
+      top: -28vh;
+      left: 50%;
+      width: 55vw;
+      height: 100vh;
+      transform: translateX(-50%);
+      z-index: -4;
+      pointer-events: none;
+      opacity: 0.34;
+      background: linear-gradient(
+        180deg,
+        rgba(92, 190, 255, 0.32),
+        rgba(92, 190, 255, 0.07) 52%,
+        transparent 82%
+      );
+      clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
+      filter: blur(18px);
+      animation: beamPulse 6s ease-in-out infinite;
+    }
+
+    .particles {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(170, 225, 255, 0.65);
+      box-shadow: 0 0 10px rgba(121, 216, 255, 0.8);
+      animation: floatParticle linear infinite;
+    }
+
+    .top-bar {
+      width: min(1480px, calc(100% - 36px));
+      margin: 0 auto;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid rgba(142, 205, 255, 0.16);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 213, 107, 0.55);
+      border-radius: 50%;
+      color: var(--gold-400);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.25), transparent 20%),
+        linear-gradient(145deg, rgba(244, 190, 61, 0.26), rgba(244, 190, 61, 0.03));
+      box-shadow: inset 0 0 18px rgba(244, 190, 61, 0.1);
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-name,
+    .brand-subtitle {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-name {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand-subtitle {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .broadcast-chip {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 13px;
+      border: 1px solid rgba(142, 205, 255, 0.2);
+      border-radius: 999px;
+      color: #c9e7fa;
+      background: rgba(9, 33, 58, 0.72);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .broadcast-chip::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold-500);
+      box-shadow: 0 0 12px rgba(244, 190, 61, 0.8);
+      animation: statusBlink 1.7s ease-in-out infinite;
+    }
+
+    main {
+      width: min(1480px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: clamp(26px, 4vw, 64px) 0 48px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.78fr);
+      gap: clamp(24px, 4vw, 64px);
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 18px;
+      color: var(--gold-400);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(0.82rem, 1.5vw, 1rem);
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before,
+    .eyebrow::after {
+      content: "";
+      width: 30px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-500));
+    }
+
+    .eyebrow::after {
+      background: linear-gradient(90deg, var(--gold-500), transparent);
+    }
+
+    h1 {
+      max-width: 860px;
+      margin: 0;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(3.5rem, 7.2vw, 7.3rem);
+      line-height: 0.86;
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      text-transform: uppercase;
+      text-wrap: balance;
+    }
+
+    h1 .gold {
+      display: block;
+      color: var(--gold-400);
+      text-shadow:
+        0 0 30px rgba(244, 190, 61, 0.2),
+        0 4px 0 rgba(72, 45, 3, 0.45);
+    }
+
+    .hero-description {
+      max-width: 690px;
+      margin: 24px 0 0;
+      color: #c0d2e4;
+      font-size: clamp(0.98rem, 1.5vw, 1.15rem);
+      line-height: 1.75;
+    }
+
+    .event-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .detail-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid rgba(142, 205, 255, 0.18);
+      border-radius: 999px;
+      color: #d7e9f8;
+      background: rgba(6, 24, 43, 0.72);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.035em;
+    }
+
+    .detail-pill svg {
+      width: 15px;
+      height: 15px;
+      color: var(--gold-400);
+      flex: 0 0 auto;
+    }
+
+    .countdown-panel {
+      margin-top: clamp(30px, 5vw, 52px);
+      padding: clamp(18px, 2vw, 26px);
+      border: 1px solid rgba(142, 205, 255, 0.22);
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(145deg, rgba(15, 48, 80, 0.78), rgba(4, 18, 33, 0.88)),
+        rgba(5, 19, 34, 0.82);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .countdown-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: linear-gradient(var(--gold-300), var(--gold-500), transparent);
+    }
+
+    .countdown-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .countdown-kicker {
+      color: var(--muted);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .countdown-title {
+      margin-top: 4px;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(1.25rem, 2vw, 1.65rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .sync-status {
+      color: #9fc3dc;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .time-card {
+      min-width: 0;
+      padding: clamp(16px, 2vw, 23px) 12px 14px;
+      border: 1px solid rgba(142, 205, 255, 0.18);
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(180deg, rgba(27, 70, 108, 0.55), rgba(7, 24, 43, 0.7));
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .time-card::after {
+      content: "";
+      position: absolute;
+      right: -30%;
+      bottom: -80%;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: rgba(69, 168, 239, 0.07);
+      filter: blur(4px);
+    }
+
+    .time-value {
+      position: relative;
+      z-index: 1;
+      display: block;
+      color: var(--white);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(2.4rem, 5.1vw, 4.8rem);
+      line-height: 0.88;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.025em;
+      text-shadow: 0 0 22px rgba(121, 216, 255, 0.18);
+    }
+
+    .time-label {
+      position: relative;
+      z-index: 1;
+      display: block;
+      margin-top: 12px;
+      color: var(--gold-400);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(0.68rem, 1.2vw, 0.84rem);
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .live-state {
+      display: none;
+      text-align: center;
+      padding: clamp(26px, 5vw, 44px) 18px;
+    }
+
+    .live-state.is-visible {
+      display: block;
+      animation: liveReveal 0.8s ease both;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: #08111c;
+      background: var(--gold-400);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      box-shadow: 0 0 26px rgba(244, 190, 61, 0.3);
+    }
+
+    .live-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #07111c;
+      animation: statusBlink 1s ease-in-out infinite;
+    }
+
+    .live-title {
+      margin: 18px 0 8px;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(2.4rem, 6vw, 5.2rem);
+      line-height: 0.9;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .live-copy {
+      max-width: 600px;
+      margin: 0 auto;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .enter-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      min-height: 54px;
+      margin-top: 22px;
+      padding: 13px 22px;
+      border: 1px solid var(--gold-300);
+      border-radius: 12px;
+      color: #08111c;
+      background: linear-gradient(180deg, var(--gold-300), var(--gold-500));
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: 0.09em;
+      text-decoration: none;
+      text-transform: uppercase;
+      box-shadow:
+        0 15px 32px rgba(244, 190, 61, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.55);
+      transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
+    }
+
+    .enter-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow:
+        0 18px 38px rgba(244, 190, 61, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .enter-button:focus-visible {
+      outline: 3px solid rgba(121, 216, 255, 0.8);
+      outline-offset: 4px;
+    }
+
+    .machine-stage {
+      position: relative;
+      min-height: 620px;
+      display: grid;
+      place-items: center;
+    }
+
+    .machine-halo {
+      position: absolute;
+      width: min(520px, 95%);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(57, 168, 238, 0.2), transparent 66%);
+      filter: blur(10px);
+      animation: haloPulse 5s ease-in-out infinite;
+    }
+
+    .machine {
+      position: relative;
+      width: min(490px, 100%);
+      height: 585px;
+      filter: drop-shadow(0 26px 35px rgba(0, 0, 0, 0.45));
+    }
+
+    .machine-frame {
+      position: absolute;
+      left: 50%;
+      bottom: 26px;
+      width: 82%;
+      height: 92px;
+      transform: translateX(-50%);
+      border: 1px solid rgba(142, 205, 255, 0.24);
+      border-radius: 22px 22px 14px 14px;
+      background:
+        linear-gradient(180deg, rgba(21, 69, 108, 0.95), rgba(5, 22, 39, 0.97));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        0 20px 45px rgba(0, 0, 0, 0.4);
+    }
+
+    .machine-frame::before,
+    .machine-frame::after {
+      content: "";
+      position: absolute;
+      bottom: -20px;
+      width: 26px;
+      height: 24px;
+      border-radius: 0 0 8px 8px;
+      background: #041526;
+      border: 1px solid rgba(142, 205, 255, 0.16);
+    }
+
+    .machine-frame::before { left: 42px; }
+    .machine-frame::after { right: 42px; }
+
+    .frame-logo {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .frame-logo strong {
+      display: block;
+      color: var(--gold-400);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .frame-logo span {
+      display: block;
+      margin-top: 2px;
+      color: #a8c8df;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .globe-stand {
+      position: absolute;
+      left: 50%;
+      bottom: 105px;
+      width: 60%;
+      height: 90px;
+      transform: translateX(-50%);
+      border-radius: 0 0 28px 28px;
+      background:
+        linear-gradient(90deg, rgba(22, 69, 107, 0.98), rgba(42, 109, 158, 0.98) 50%, rgba(17, 57, 91, 0.98));
+      border: 1px solid rgba(142, 205, 255, 0.22);
+      clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
+    }
+
+    .globe {
+      position: absolute;
+      left: 50%;
+      top: 32px;
+      width: 390px;
+      max-width: 82vw;
+      aspect-ratio: 1;
+      transform: translateX(-50%);
+      border: 4px solid rgba(184, 230, 255, 0.56);
+      border-radius: 50%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 36% 28%, rgba(255, 255, 255, 0.26), transparent 13%),
+        radial-gradient(circle at 50% 50%, rgba(51, 153, 221, 0.15), rgba(6, 31, 55, 0.38) 72%);
+      box-shadow:
+        inset 0 0 45px rgba(154, 221, 255, 0.18),
+        inset -25px -20px 55px rgba(0, 15, 28, 0.34),
+        0 0 0 12px rgba(14, 50, 81, 0.5),
+        0 0 45px rgba(51, 153, 221, 0.18);
+      backdrop-filter: blur(2px);
+    }
+
+    .globe::before {
+      content: "";
+      position: absolute;
+      inset: 8% 15% auto 15%;
+      height: 24%;
+      border-radius: 50%;
+      border-top: 2px solid rgba(255, 255, 255, 0.36);
+      transform: rotate(-8deg);
+      filter: blur(0.2px);
+    }
+
+    .globe::after {
+      content: "";
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      bottom: 11%;
+      height: 17%;
+      border-radius: 50%;
+      background: rgba(3, 19, 34, 0.28);
+      filter: blur(8px);
+    }
+
+    .ball {
+      position: absolute;
+      z-index: 2;
+      width: clamp(48px, 6vw, 62px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #07111c;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(1.25rem, 2.2vw, 1.7rem);
+      font-weight: 900;
+      background:
+        radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.95), transparent 13%),
+        radial-gradient(circle at 50% 50%, #fff 0 33%, transparent 34%),
+        var(--ball-color);
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      box-shadow:
+        inset -8px -10px 13px rgba(0, 0, 0, 0.25),
+        0 7px 12px rgba(0, 0, 0, 0.3);
+      animation: bounceBall var(--duration) ease-in-out infinite alternate;
+      animation-delay: var(--delay);
+    }
+
+    .ball-1 { --ball-color: #f4be3d; --duration: 1.8s; --delay: -0.4s; left: 18%; top: 22%; }
+    .ball-2 { --ball-color: #e25d4f; --duration: 2.1s; --delay: -1.1s; left: 43%; top: 15%; }
+    .ball-3 { --ball-color: #63b86b; --duration: 1.65s; --delay: -0.7s; left: 64%; top: 28%; }
+    .ball-4 { --ball-color: #7c7de1; --duration: 2.25s; --delay: -1.5s; left: 26%; top: 52%; }
+    .ball-5 { --ball-color: #f28b42; --duration: 1.9s; --delay: -0.2s; left: 55%; top: 55%; }
+    .ball-6 { --ball-color: #39a8d8; --duration: 2.35s; --delay: -1.8s; left: 12%; top: 65%; }
+    .ball-7 { --ball-color: #cf5fa7; --duration: 1.72s; --delay: -0.9s; left: 70%; top: 64%; }
+    .ball-8 { --ball-color: #d8d8d8; --duration: 2.15s; --delay: -1.3s; left: 43%; top: 75%; }
+
+    .intake {
+      position: absolute;
+      z-index: 5;
+      left: 50%;
+      bottom: 155px;
+      width: 46px;
+      height: 92px;
+      transform: translateX(-50%);
+      border: 3px solid rgba(184, 230, 255, 0.6);
+      border-top: none;
+      border-radius: 0 0 18px 18px;
+      background: rgba(82, 173, 227, 0.12);
+      box-shadow: inset 0 0 15px rgba(121, 216, 255, 0.12);
+    }
+
+    .chute {
+      position: absolute;
+      z-index: 4;
+      right: 8px;
+      top: 190px;
+      width: 118px;
+      height: 42px;
+      border: 3px solid rgba(184, 230, 255, 0.56);
+      border-left: 0;
+      border-radius: 0 18px 18px 0;
+      background: rgba(82, 173, 227, 0.1);
+      transform: rotate(6deg);
+      transform-origin: left center;
+    }
+
+    .reveal-cup {
+      position: absolute;
+      z-index: 5;
+      right: 1px;
+      top: 219px;
+      width: 83px;
+      height: 76px;
+      border: 3px solid rgba(184, 230, 255, 0.58);
+      border-top: 0;
+      border-radius: 0 0 26px 26px;
+      background: rgba(82, 173, 227, 0.12);
+      box-shadow: inset 0 -8px 18px rgba(0, 28, 50, 0.2);
+    }
+
+    .stage-caption {
+      position: absolute;
+      left: 50%;
+      bottom: -2px;
+      transform: translateX(-50%);
+      width: 100%;
+      color: #8facbf;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .footer {
+      width: min(1480px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 18px 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid rgba(142, 205, 255, 0.13);
+      color: #7f9cb4;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .footer strong {
+      color: #aac2d6;
+      font-weight: 700;
+    }
+
+    @keyframes beamPulse {
+      0%, 100% { opacity: 0.25; transform: translateX(-50%) scaleX(0.94); }
+      50% { opacity: 0.44; transform: translateX(-50%) scaleX(1.04); }
+    }
+
+    @keyframes haloPulse {
+      0%, 100% { opacity: 0.7; transform: scale(0.96); }
+      50% { opacity: 1; transform: scale(1.04); }
+    }
+
+    @keyframes statusBlink {
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes floatParticle {
+      from {
+        transform: translate3d(0, 20px, 0);
+        opacity: 0;
+      }
+      15% { opacity: 0.7; }
+      85% { opacity: 0.7; }
+      to {
+        transform: translate3d(var(--drift), -110vh, 0);
+        opacity: 0;
+      }
+    }
+
+    @keyframes bounceBall {
+      0% { transform: translate3d(-7px, 9px, 0) rotate(-11deg); }
+      33% { transform: translate3d(11px, -13px, 0) rotate(8deg); }
+      66% { transform: translate3d(-4px, -24px, 0) rotate(-4deg); }
+      100% { transform: translate3d(10px, 8px, 0) rotate(12deg); }
+    }
+
+    @keyframes liveReveal {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @media (max-width: 1040px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        text-align: center;
+      }
+
+      .hero-description {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .event-details {
+        justify-content: center;
+      }
+
+      .eyebrow {
+        justify-content: center;
+      }
+
+      .countdown-panel {
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .machine-stage {
+        min-height: 570px;
+        margin-top: -4px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .top-bar {
+        min-height: 64px;
+      }
+
+      .brand-subtitle,
+      .broadcast-chip span {
+        display: none;
+      }
+
+      main,
+      .top-bar,
+      .footer {
+        width: min(100% - 24px, 1480px);
+      }
+
+      main {
+        padding-top: 30px;
+      }
+
+      h1 {
+        font-size: clamp(3.25rem, 16vw, 5.4rem);
+      }
+
+      .countdown-header {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .sync-status {
+        text-align: left;
+      }
+
+      .countdown {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .time-value {
+        font-size: clamp(3rem, 16vw, 4.4rem);
+      }
+
+      .machine-stage {
+        min-height: 530px;
+      }
+
+      .machine {
+        height: 520px;
+        transform: scale(0.92);
+        transform-origin: top center;
+      }
+
+      .footer {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .brand-name {
+        font-size: 1rem;
+      }
+
+      .brand-mark {
+        width: 38px;
+      }
+
+      .broadcast-chip {
+        padding: 8px 10px;
+      }
+
+      .event-details {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .detail-pill {
+        justify-content: center;
+      }
+
+      .countdown-panel {
+        border-radius: 20px;
+        padding: 16px;
+      }
+
+      .time-card {
+        border-radius: 15px;
+      }
+
+      .machine-stage {
+        min-height: 460px;
+      }
+
+      .machine {
+        width: 450px;
+        max-width: 114vw;
+        transform: scale(0.78);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-shell">
+    <div class="arena-glow" aria-hidden="true"></div>
+    <div class="light-beam" aria-hidden="true"></div>
+    <div class="particles" id="particles" aria-hidden="true"></div>
+
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">TCWR</div>
+        <div class="brand-copy">
+          <span class="brand-name">TCWR Dynasty League</span>
+          <span class="brand-subtitle">Official Rookie Draft Lottery</span>
+        </div>
+      </div>
+
+      <div class="broadcast-chip" aria-label="Broadcast countdown status">
+        <span>Broadcast Countdown</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">The War Room Awaits</div>
+
+          <h1>
+            Rookie Draft
+            <span class="gold">Lottery Reveal</span>
+          </h1>
+
+          <p class="hero-description">
+            Eight teams. Eight lottery balls. One live reveal that will determine the
+            opening order of the 2027 TCWR rookie draft.
+          </p>
+
+          <div class="event-details" aria-label="Event details">
+            <div class="detail-pill">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 2v3M17 2v3M3.5 9h17M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              February 14, 2027
+            </div>
+
+            <div class="detail-pill">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              8:30 PM Eastern
+            </div>
+
+            <div class="detail-pill">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 17V7m4 10V10m4 7V5m4 12v-7m4 7V8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              Weighted Lottery
+            </div>
+          </div>
+
+          <section class="countdown-panel" aria-labelledby="countdownHeading">
+            <div id="countdownView">
+              <div class="countdown-header">
+                <div>
+                  <div class="countdown-kicker">Live event begins in</div>
+                  <div class="countdown-title" id="countdownHeading">Countdown to the Lottery</div>
+                </div>
+                <div class="sync-status" id="syncStatus">Synced to Eastern Time</div>
+              </div>
+
+              <div class="countdown" id="countdown" aria-live="polite">
+                <div class="time-card">
+                  <span class="time-value" id="days">00</span>
+                  <span class="time-label">Days</span>
+                </div>
+
+                <div class="time-card">
+                  <span class="time-value" id="hours">00</span>
+                  <span class="time-label">Hours</span>
+                </div>
+
+                <div class="time-card">
+                  <span class="time-value" id="minutes">00</span>
+                  <span class="time-label">Minutes</span>
+                </div>
+
+                <div class="time-card">
+                  <span class="time-value" id="seconds">00</span>
+                  <span class="time-label">Seconds</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="live-state" id="liveState" aria-live="assertive">
+              <div class="live-badge">Now Live</div>
+              <h2 class="live-title">The War Room Is Open</h2>
+              <p class="live-copy">
+                The countdown is complete. Enter the official TCWR rookie draft lottery
+                room to watch the order unfold.
+              </p>
+              <a
+                class="enter-button"
+                id="liveLink"
+                href="https://tcwrdynasty.github.io/draftlottery/"
+              >
+                Enter the Draft Lottery
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </section>
+        </div>
+
+        <div class="machine-stage" aria-label="Animated preview of the TCWR lottery machine">
+          <div class="machine-halo" aria-hidden="true"></div>
+
+          <div class="machine" aria-hidden="true">
+            <div class="globe">
+              <div class="ball ball-1">1</div>
+              <div class="ball ball-2">2</div>
+              <div class="ball ball-3">3</div>
+              <div class="ball ball-4">4</div>
+              <div class="ball ball-5">5</div>
+              <div class="ball ball-6">6</div>
+              <div class="ball ball-7">7</div>
+              <div class="ball ball-8">8</div>
+            </div>
+
+            <div class="intake"></div>
+            <div class="chute"></div>
+            <div class="reveal-cup"></div>
+            <div class="globe-stand"></div>
+
+            <div class="machine-frame">
+              <div class="frame-logo">
+                <div>
+                  <strong>TCWR Lottery</strong>
+                  <span>Rookie Draft Selection System</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="stage-caption">Official lottery room preview</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span><strong>TCWR Dynasty League</strong> · 2027 Rookie Draft Lottery</span>
+      <span>One ball changes everything.</span>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const LIVE_STREAM_URL = "https://tcwrdynasty.github.io/draftlottery/";
+      const LOTTERY_START = new Date("2027-02-14T20:30:00-05:00").getTime();
+
+      const countdownView = document.getElementById("countdownView");
+      const liveState = document.getElementById("liveState");
+      const liveLink = document.getElementById("liveLink");
+      const syncStatus = document.getElementById("syncStatus");
+
+      const timeElements = {
+        days: document.getElementById("days"),
+        hours: document.getElementById("hours"),
+        minutes: document.getElementById("minutes"),
+        seconds: document.getElementById("seconds")
+      };
+
+      let timerId = null;
+      let isLive = false;
+
+      liveLink.href = LIVE_STREAM_URL;
+
+      function pad(value) {
+        return String(Math.max(0, value)).padStart(2, "0");
+      }
+
+      function setLiveState() {
+        if (isLive) return;
+
+        isLive = true;
+        countdownView.hidden = true;
+        liveState.classList.add("is-visible");
+
+        if (timerId !== null) {
+          window.clearInterval(timerId);
+          timerId = null;
+        }
+
+        document.title = "Lottery Live | TCWR Rookie Draft";
+      }
+
+      function updateCountdown() {
+        const now = Date.now();
+        const distance = LOTTERY_START - now;
+
+        if (distance <= 0) {
+          setLiveState();
+          return;
+        }
+
+        const days = Math.floor(distance / 86_400_000);
+        const hours = Math.floor((distance % 86_400_000) / 3_600_000);
+        const minutes = Math.floor((distance % 3_600_000) / 60_000);
+        const seconds = Math.floor((distance % 60_000) / 1_000);
+
+        timeElements.days.textContent = pad(days);
+        timeElements.hours.textContent = pad(hours);
+        timeElements.minutes.textContent = pad(minutes);
+        timeElements.seconds.textContent = pad(seconds);
+
+        const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        syncStatus.textContent = localZone
+          ? `Your time zone: ${localZone.replaceAll("_", " ")}`
+          : "Synced to event time";
+      }
+
+      function createParticles() {
+        const container = document.getElementById("particles");
+        const particleCount = window.matchMedia("(max-width: 700px)").matches ? 18 : 34;
+
+        for (let index = 0; index < particleCount; index += 1) {
+          const particle = document.createElement("span");
+          particle.className = "particle";
+          particle.style.left = `${Math.random() * 100}%`;
+          particle.style.bottom = `${-10 - Math.random() * 35}px`;
+          particle.style.setProperty("--drift", `${Math.random() * 100 - 50}px`);
+          particle.style.animationDuration = `${12 + Math.random() * 20}s`;
+          particle.style.animationDelay = `${-Math.random() * 24}s`;
+          particle.style.opacity = `${0.25 + Math.random() * 0.55}`;
+          particle.style.transform = `scale(${0.65 + Math.random() * 1.25})`;
+          container.appendChild(particle);
+        }
+      }
+
+      updateCountdown();
+      timerId = window.setInterval(updateCountdown, 1000);
+      createParticles();
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./service-worker.js").catch((error) => {
+            console.info("Service worker was not registered:", error);
+          });
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tcwr-main-v8';
+const CACHE_NAME = 'tcwr-main-v10';
 
 const urlsToCache = [
   './',
@@ -6,17 +6,17 @@ const urlsToCache = [
   './manifest.json',
   './service-worker.js',
   './Bylaws.html',
-  './Flushables.html',
-  './HallofChampions.html',
   './Records.html',
   './contactcommish.html',
-  './dynastychat.html',
+  './legends.html',
   './rookiedraftcountdown.html',
 
   './DYNASTYLOGO.png',
   './ainteasy.jpeg',
   './thehomies.jpeg',
+  './toilet.png',
   './trophy3.jpeg',
+  './wildlifeentrance.jpeg',
 
   './tcwr-icon-192.png',
   './tcwr-icon-512.png'

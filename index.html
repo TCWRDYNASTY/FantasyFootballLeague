@@ -2507,6 +2507,32 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+
+    // =====================================================
+// LEAGUE CHAT BUTTON
+// =====================================================
+
+window.openLeagueChat = function () {
+    const communityInvite = "https://m.me/ch/5578168545617800/";
+
+    const isMobile =
+        /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent
+        );
+
+    if (isMobile) {
+        // Phone or tablet
+        window.location.href = communityInvite;
+    } else {
+        // Desktop
+        window.open(
+            communityInvite,
+            "_blank",
+            "noopener,noreferrer"
+        );
+    }
+};
+    
 </script>
 
 </body>

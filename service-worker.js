@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tcwr-main-v7';
+const CACHE_NAME = 'tcwr-main-v8';
 
 const urlsToCache = [
   './',
@@ -11,11 +11,9 @@ const urlsToCache = [
   './Records.html',
   './contactcommish.html',
   './dynastychat.html',
-  './main.html',
   './rookiedraftcountdown.html',
 
   './DYNASTYLOGO.png',
-  './Subject.jpeg',
   './ainteasy.jpeg',
   './thehomies.jpeg',
   './trophy3.jpeg',
@@ -48,6 +46,7 @@ self.addEventListener('install', event => {
               }
 
               await cache.put(request, response);
+
               console.log(
                 `[Service Worker] Cached successfully: ${url}`
               );
@@ -266,7 +265,7 @@ self.addEventListener('notificationclick', event => {
     })
       .then(windowClients => {
         const absoluteUrl =
-          new URL(urlToOpen, self.location.origin).href;
+          new URL(urlToOpen, self.location.href).href;
 
         const matchingClient = windowClients.find(
           windowClient =>

@@ -485,18 +485,18 @@ tr.playoff-divider td {
 }
 
 .standings-status {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   align-items: center;
-  margin-left: 5px;
-  padding: 2px 5px;
+  margin-top: 5px;
+  padding: 2px 6px;
   border-radius: 999px;
-  font-size: 0.56rem;
+  font-size: 0.52rem;
   font-weight: 900;
   line-height: 1.2;
   letter-spacing: 0.35px;
   text-transform: uppercase;
   white-space: nowrap;
-  vertical-align: middle;
 }
 
 .standings-status.bye {
@@ -935,10 +935,13 @@ async function fetchStandings() {
                     <tr class="${rowClasses.join(" ")}">
                         <td class="standings-rank">${seed}</td>
 
-                        <td class="standings-team">
-                            ${escapeStandingsHtml(team.teamName)}
-                            ${statusBadge}
-                        </td>
+                       <td class="standings-team">
+    <div class="standings-team-name">
+        ${escapeStandingsHtml(team.teamName)}
+    </div>
+
+    ${statusBadge}
+</td>
 
                         <td class="standings-record">${team.record}</td>
                     </tr>

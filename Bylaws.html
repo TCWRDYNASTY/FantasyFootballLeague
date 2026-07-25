@@ -1,404 +1,690 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Fantasy Football League By-Laws</title>
-    <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
-    <style>
-        :root {
-            --primary-color: #2c3e50; /* Dark blue/grey for text */
-            --secondary-color: #e74c3c; /* Red for accents */
-            --tertiary-color: #f39c12; /* Orange for highlights */
-            --background-transparency: 0.95;
-            --border-color: #34495e; /* Slightly darker than primary */
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#061426" />
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-image: url("bylawsbackground.jpeg"); /* Ensure this image exists */
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-            margin: 0;
-            padding: 30px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--primary-color);
-        }
+  <title>TCWR Official League Constitution</title>
 
-        .header {
-            background-color: rgba(255, 255, 255, var(--background-transparency));
-            border: 3px solid var(--border-color);
-            padding: 15px 30px;
-            /* margin-bottom adjusted to make space for subtitle */
-            margin-bottom: 10px;
-            font-family: 'Oswald', sans-serif;
-            font-size: 60px;
-            text-align: center;
-            color: var(--secondary-color);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            width: 90%;
-            max-width: 1000px;
-        }
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-        .subtitle {
-            background-color: rgba(255, 255, 255, var(--background-transparency));
-            border: 2px solid var(--border-color);
-            padding: 8px 15px;
-            margin-bottom: 30px; /* Space below the subtitle */
-            font-family: 'Roboto', sans-serif;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            color: var(--primary-color);
-            border-radius: 8px;
-            width: 80%; /* Slightly narrower than header for visual hierarchy */
-            max-width: 800px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-
-        .container {
-            display: flex;
-            flex-wrap: wrap; /* Allows columns to wrap on smaller screens */
-            gap: 30px;
-            width: 90%;
-            max-width: 1200px;
-            justify-content: center;
-        }
-
-        .column {
-            background-color: rgba(255, 255, 255, var(--background-transparency));
-            border: 2px solid var(--border-color);
-            flex: 1;
-            padding: 20px 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            min-width: 300px; /* Ensures columns don't get too narrow */
-        }
-
-        .section-title {
-            font-family: 'Oswald', sans-serif;
-            font-size: 28px;
-            font-weight: bold;
-            text-align: center;
-            color: var(--secondary-color);
-            margin-bottom: 15px;
-            border-bottom: 2px solid var(--tertiary-color);
-            padding-bottom: 5px;
-        }
-
-        .subsection-title {
-            font-family: 'Roboto', sans-serif;
-            font-size: 22px;
-            font-weight: bold;
-            text-indent: 0; /* Remove previous indent */
-            text-align: left;
-            text-decoration: underline;
-            color: var(--primary-color);
-            margin-top: 25px;
-            margin-bottom: 10px;
-        }
-
-        .main-text {
-            font-size: 16px;
-            line-height: 1.6;
-            margin-left: 1.5em; /* Adjusted for better spacing */
-            margin-top: 0.5em;
-            margin-bottom: 1em;
-            color: var(--primary-color);
-        }
-
-        .main-text ul {
-            list-style-type: none; /* Remove default bullet points */
-            padding: 0;
-            margin: 0;
-        }
-
-        .main-text ul li:before {
-            content: '🏈 '; /* Custom bullet point */
-            color: var(--tertiary-color);
-            display: inline-block;
-            width: 1.5em;
-            margin-left: -1.5em;
-        }
-
-        .odds-list {
-            list-style-type: none;
-            padding: 0;
-            margin-left: 60px;
-            font-size: 15px;
-        }
-
-        .odds-list li:before {
-            content: '• '; /* Simple bullet for odds */
-            color: var(--tertiary-color);
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .header {
-                font-size: 40px;
-                padding: 10px 20px;
-                margin-bottom: 10px;
-            }
-            .subtitle {
-                font-size: 16px;
-                padding: 6px 10px;
-                margin-bottom: 20px;
-            }
-            .container {
-                flex-direction: column;
-                align-items: center;
-                gap: 20px;
-            }
-            .column {
-                width: 90%;
-                min-width: unset;
-                padding: 15px 20px;
-            }
-            .section-title {
-                font-size: 24px;
-            }
-            .subsection-title {
-                font-size: 20px;
-            }
-            .main-text {
-                font-size: 14px;
-                margin-left: 1em;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        Official League Constitution
-    </div>
-    <div class="subtitle">
-        Updated April 2026
-    </div>
-    <div class="container">
-        <div class="column">
-            <h2 class="section-title">General Rules & Structure</h2>
-
-            <h3 class="subsection-title">1. Entry and Fees</h3>
-            <p class="main-text">
-                <ul>
-                    <li>$25 buy-in fee per season.</li>
-                    <li>$25 buyout fee if a manager decides to leave the league.</li>
-                    <li>All buyout money will be added to the following year’s winning pot, increasing the stakes!</li>
-                </ul>
-            </p>
-
-            <h3 class="subsection-title">2. Winning Pot Breakdown</h3>
-            <p class="main-text">
-                <ul>
-                    <li>First place: $205</li>
-                    <li>Second place: $50</li>
-                    <li>Third place: $25</li>
-                    <li>$70 from the pot is allocated for trophy maintenance, covering engraving, shipping to the current champion, and nameplate updates. Any remaining funds from this allocation will be awarded to the previous year’s champion.</li>
-                </ul>
-                <br/>
-                *Note: Any buyout fees collected will be split evenly among the first, second, and third-place winners.
-            </p>
-
-            <h3 class="subsection-title">3. League Size</h3>
-            <p class="main-text">
-                <ul>
-                    <li>14 teams, operating without divisions.</li>
-                </ul>
-            </p>
-
-            <h3 class="subsection-title">4. Playoffs</h3>
-            <p class="main-text">
-                <ul>
-                    <li>A 6-team playoff format will be used.</li>
-                    <li>The first and second-place teams will receive first-round byes.</li>
-                    <li>Playoff seeding follows a highest-seed vs. lowest-seed format.</li>
-                    <li>Playoffs officially kick off in Week 15 of the NFL season.</li>
-                </ul>
-            </p>
-
-            <h3 class="subsection-title">5. Trade Deadline</h3>
-            <p class="main-text">
-                <ul>
-                    <li>The trade deadline is set for Week 11.</li>
-                    <li>All accepted trades will be processed; there are no trade vetoes.</li>
-                    <li>Trades will be reviewed and processed within 1 day to ensure timely roster updates.</li>
-                </ul>
-            </p>
-
-            <h3 class="subsection-title">6. Waivers</h3>
-            <p class="main-text">
-                <ul>
-                    <li>The league utilizes rolling continuous waivers.</li>
-                </ul>
-            </p>
-
-            <h3 class="subsection-title">7. New League Year Timeline</h3>
-            <p class="main-text">
-                <ul>
-                    <li>The trade window opens at the start of the NFL league year (typically in March).</li>
-                    <li>The rookie draft starts the Saturday of the actual NFL Draft and will run over the weekend, with adjustable pick times per round. <br/>
-                        Round 1 = 1 hour per pick <br/>
-                        Round 2 = 30 min per pick <br/>
-                        Round 3 = 15 min per pick </li>
-                    <li>Free agents can be added to rosters one week after the rookie draft concludes.</li>
-                </ul>
-            </p>
-
-            <h3 class="subsection-title">8. Rookie Draft</h3>
-            <p class="main-text">
-                <ul>
-                    <li>A three-round linear draft.</li>
-                    <li>Draft order follows an NBA-style weighted lottery:
-                        <ul class="odds-list">
-                            <li>Teams ranked 7–14 will be entered into a lottery for the first overall pick with reverse odds drawn. Eight pick is drawn first!</li>
-                            <li>Teams ranked 1–6 will be placed at the back of the draft and are excluded from the lottery, with the 1st place team receiving the 14th overall pick.</li>
-                        </ul>
-                    </li>
-                    <li>The final draft order will be released during Super Bowl weekend.</li>
-                    <li>**Lottery Odds:**
-                        <ul class="odds-list">
-                            <li>14th place = 5% chance at 8th overall</li>
-                            <li>13th place = 6% chance at 8th overall</li>
-                            <li>12th place = 8% chance at 8th overall</li>
-                            <li>11th place = 12% chance at 8th overall</li>
-                            <li>10th place = 14% chance at 8th overall</li>
-                            <li>9th place = 17% chance at 8th overall</li>
-                            <li>8th place = 18.5% chance at 8th overall</li>
-                            <li>7th place = 19.5% chance at 8th overall</li>
-                        </ul>
-                    </li>
-                </ul>
-            </p>
-
-            <h3 class="subsection-title">9. Roster Composition</h3>
-            <p class="main-text">
-                <ul>
-                    <li>1 Starting QB</li>
-                    <li>2 Starting RB</li>
-                    <li>2 Starting WR</li>
-                    <li>1 Starting TE</li>
-                    <li>1 Starting Flex (TE/WR/RB)</li>
-                    <li>1 Starting Defense</li>
-                    <li>1 Starting Kicker</li>
-                    <li>10 Bench Spots</li>
-                    <li>5 Taxi Squad Spots</li>
-                    <li>5 IR Spots</li>
-                </ul>
-            </p>
-
-            <h3 class="subsection-title">10. Taxi Squad Eligibility</h3>
-            <p class="main-text">
-                <ul>
-                    <li>Only rookies with less than one year of NFL experience are eligible for the taxi squad.</li>
-                    <li>Eligible players can be moved to taxi squad spots at any point during the season.</li>
-                </ul>
-            </p>
-        </div>
-
-        <div class="column">
-            <h2 class="section-title">Scoring Settings</h2>
-
-            <h3 class="subsection-title">Offensive Scoring</h3>
-            <p class="main-text">
-                <ul>
-                    <li>Passing Yard: 0.04 points</li>
-                    <li>Passing TD: 4 points</li>
-                    <li>2-Point Conversion: 2 points</li>
-                    <li>Pass Intercepted: -2 points</li>
-                    <li>Rushing Yard: 0.10 points</li>
-                    <li>Rushing TD: 6 points</li>
-                    <li>Fumble Lost: -2 points</li>
-                    <li>Receiving Yard: 0.10 points</li>
-                    <li>Reception (PPR): 0.5 points</li>
-                    <li>Receiving TD: 6 points</li>
-                </ul>
-            </p>
-
-            <h3 class="subsection-title">Defensive Scoring (Team D/ST)</h3>
-            <p class="main-text">
-                <ul>
-                    <li>Defensive TD: 6 points</li>
-                    <li>0 Points Allowed: 5 points</li>
-                    <li>1-6 Points Allowed: 4 points</li>
-                    <li>7-13 Points Allowed: 3 points</li>
-                    <li>14-20 Points Allowed: 1 point</li>
-                    <li>21-27 Points Allowed: 0 points</li>
-                    <li>28-34 Points Allowed: -1 point</li>
-                    <li>35+ Points Allowed: -4 points</li>
-                    <li>Less Than 100 Yards Allowed: 5 points</li>
-                    <li>100-199 Yards Allowed: 3 points</li>
-                    <li>200-299 Yards Allowed: 2 points</li>
-                    <li>300-349 Yards Allowed: 0 points</li>
-                    <li>350-399 Yards Allowed: -1 point</li>
-                    <li>400-449 Yards Allowed: -3 points</li>
-                    <li>450-499 Yards Allowed: -5 points</li>
-                    <li>500-549 Yards Allowed: -6 points</li>
-                    <li>500+ Yards Allowed: -7 points</li>
-                    <li>Sack: 1 point</li>
-                    <li>Interception: 2 points</li>
-                    <li>Fumble Forced: 1 point</li>
-                    <li>Fumble Recovery: 2 points</li>
-                    <li>Safety: 2 points</li>
-                    <li>Blocked Kick: 2 points</li>
-                </ul>
-            </p>
-
-            <h3 class="subsection-title">Special Teams Scoring (Kicker)</h3>
-            <p class="main-text">
-                <ul>
-                    <li>Special Team TD: 6 points</li>
-                    <li>Special Team Forced Fumble: 1 point</li>
-                    <li>Special Team Fumble Recovery: 1 point</li>
-                    <li>40+ Yard Big Play (Return): 1 point</li>
-                    <li>40+ Yard Big Play + TD: 1.5 points</li>
-                    <li>50+ Yard Big Play + TD: 2 points</li>
-                    <li>Field Goal 0-39 Yards: 3 points</li>
-                    <li>Field Goal 40-49 Yards: 4 points</li>
-                    <li>Field Goal 50+ Yards: 5 points</li>
-                    <li>Field Goal Missed: -1 point</li>
-                    <li>Extra Point (PAT): 1 point</li>
-                    <li>Extra Point (PAT) Missed: -1 point</li>
-                </ul>
-            </p>
-        </div>
-    </div>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(registration => {
-          console.log('Service Worker registered!');
-        })
-        .catch(error => {
-          console.log('Service Worker registration failed:', error);
-        });
-    });
-  }
-</script>
-    <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            // FIX: Renamed Service Worker file reference to ensure re-registration
-            navigator.serviceWorker.register('service-worker-2.js') 
-                .then(registration => {
-                    console.log('Service Worker registered!');
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
-                });
-        });
+  <style>
+    :root {
+      --navy-950: #020914;
+      --navy-900: #061426;
+      --navy-850: #081b31;
+      --navy-800: #0b2440;
+      --navy-700: #12385e;
+      --blue-500: #2386d8;
+      --blue-400: #45a8ef;
+      --cyan-300: #79d8ff;
+      --red-500: #e94c52;
+      --red-400: #ff7478;
+      --orange-400: #f8a93d;
+      --gold-400: #ffd56b;
+      --white: #f7fbff;
+      --muted: #a8bdd2;
+      --line: rgba(142, 205, 255, 0.18);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
     }
-</script>
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-height: 100%;
+      background: var(--navy-950);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--white);
+      font-family: "Montserrat", sans-serif;
+      background:
+        linear-gradient(rgba(2, 9, 20, 0.82), rgba(2, 9, 20, 0.94)),
+        url("bylawsbackground.jpeg") center / cover fixed,
+        radial-gradient(circle at 50% 12%, rgba(35, 134, 216, 0.24), transparent 32%),
+        linear-gradient(160deg, var(--navy-950), var(--navy-900) 48%, #071d34);
+    }
+
+    a { color: inherit; }
+
+    .page-shell {
+      position: relative;
+      min-height: 100vh;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, transparent 49.85%, rgba(121, 216, 255, 0.1) 50%, transparent 50.15%),
+        repeating-linear-gradient(90deg, transparent 0, transparent 119px, rgba(255,255,255,0.015) 120px);
+      mask-image: linear-gradient(to bottom, black, transparent 92%);
+    }
+
+    .light-beam {
+      position: fixed;
+      top: -28vh;
+      left: 50%;
+      width: 58vw;
+      height: 110vh;
+      transform: translateX(-50%);
+      z-index: -4;
+      pointer-events: none;
+      opacity: 0.32;
+      background: linear-gradient(180deg, rgba(92,190,255,.28), rgba(92,190,255,.06) 52%, transparent 82%);
+      clip-path: polygon(43% 0,57% 0,100% 100%,0 100%);
+      filter: blur(18px);
+      animation: beamPulse 6s ease-in-out infinite;
+    }
+
+    .top-bar {
+      width: min(1480px, calc(100% - 36px));
+      min-height: 72px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid rgba(142,205,255,.16);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 44px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,213,107,.58);
+      border-radius: 50%;
+      color: var(--gold-400);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: .04em;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,.25), transparent 20%),
+        linear-gradient(145deg, rgba(244,190,61,.28), rgba(244,190,61,.03));
+      box-shadow: inset 0 0 18px rgba(244,190,61,.1), 0 0 24px rgba(244,190,61,.08);
+    }
+
+    .brand-copy { min-width: 0; }
+
+    .brand-name,
+    .brand-subtitle {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-name {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1.16rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .brand-subtitle {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      flex: 0 0 auto;
+      padding: 9px 13px;
+      border: 1px solid rgba(142,205,255,.2);
+      border-radius: 999px;
+      color: #c9e7fa;
+      background: rgba(9,33,58,.72);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: .82rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .status-chip::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red-400);
+      box-shadow: 0 0 12px rgba(255,116,120,.8);
+      animation: statusBlink 1.7s ease-in-out infinite;
+    }
+
+    main {
+      width: min(1480px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: clamp(30px, 5vw, 72px) 0 56px;
+    }
+
+    .hero {
+      max-width: 1040px;
+      margin: 0 auto clamp(32px, 6vw, 70px);
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      margin-bottom: 18px;
+      color: var(--orange-400);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(.8rem, 1.3vw, .98rem);
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before,
+    .eyebrow::after {
+      content: "";
+      width: 30px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--orange-400));
+    }
+
+    .eyebrow::after {
+      background: linear-gradient(90deg, var(--orange-400), transparent);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(3.5rem, 8.8vw, 8rem);
+      line-height: .86;
+      font-weight: 900;
+      letter-spacing: -.035em;
+      text-transform: uppercase;
+      text-wrap: balance;
+    }
+
+    h1 .accent {
+      display: block;
+      color: var(--red-400);
+      text-shadow: 0 0 30px rgba(233,76,82,.22), 0 4px 0 rgba(72,10,13,.4);
+    }
+
+    .hero-copy {
+      max-width: 780px;
+      margin: 24px auto 0;
+      color: #c0d2e4;
+      font-size: clamp(.98rem, 1.5vw, 1.12rem);
+      line-height: 1.75;
+    }
+
+    .update-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 22px;
+      padding: 9px 13px;
+      border: 1px solid rgba(248,169,61,.35);
+      border-radius: 999px;
+      color: #ffd28f;
+      background: rgba(65,34,8,.36);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .constitution-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.22fr) minmax(330px, .78fr);
+      gap: clamp(22px, 3vw, 36px);
+      align-items: start;
+    }
+
+    .rules-panel {
+      position: relative;
+      padding: clamp(17px, 2.2vw, 28px);
+      border: 1px solid rgba(142,205,255,.2);
+      border-radius: var(--radius-xl);
+      background: linear-gradient(145deg, rgba(15,48,80,.74), rgba(4,18,33,.9));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      overflow: hidden;
+    }
+
+    .rules-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--panel-accent), transparent);
+    }
+
+    .general-panel { --panel-accent: var(--red-400); }
+    .scoring-panel { --panel-accent: var(--orange-400); }
+
+    .panel-header {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 18px;
+      padding: 2px 2px 18px;
+      border-bottom: 1px solid rgba(142,205,255,.13);
+    }
+
+    .panel-kicker {
+      color: var(--panel-accent);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    .panel-title {
+      margin: 4px 0 0;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: .95;
+      font-weight: 900;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    .rule-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .rule-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      gap: 14px;
+      padding: clamp(16px, 1.8vw, 22px);
+      border: 1px solid rgba(142,205,255,.16);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(155deg, rgba(28,68,104,.56), rgba(6,23,41,.82));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .rule-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--panel-accent);
+      box-shadow: 0 16px 30px rgba(0,0,0,.23), 0 0 18px color-mix(in srgb, var(--panel-accent) 20%, transparent);
+    }
+
+    .rule-number {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid color-mix(in srgb, var(--panel-accent) 58%, transparent);
+      border-radius: 50%;
+      color: var(--panel-accent);
+      background: rgba(4,18,33,.52);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1.05rem;
+      font-weight: 900;
+      box-shadow: 0 0 16px color-mix(in srgb, var(--panel-accent) 14%, transparent);
+    }
+
+    .rule-content h3 {
+      margin: 2px 0 12px;
+      color: var(--white);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(1.35rem, 2vw, 1.75rem);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    .rule-content p {
+      margin: 0;
+      color: #c4d6e5;
+      font-size: .91rem;
+      line-height: 1.65;
+    }
+
+    .rule-content ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 9px;
+    }
+
+    .rule-content li {
+      position: relative;
+      padding-left: 22px;
+      color: #c4d6e5;
+      font-size: .91rem;
+      line-height: 1.58;
+    }
+
+    .rule-content li::before {
+      content: "";
+      position: absolute;
+      top: .58em;
+      left: 1px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--panel-accent);
+      box-shadow: 0 0 9px color-mix(in srgb, var(--panel-accent) 65%, transparent);
+    }
+
+    .rule-content li ul {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-left: 2px solid color-mix(in srgb, var(--panel-accent) 60%, transparent);
+      border-radius: 0 10px 10px 0;
+      background: rgba(2,9,20,.24);
+    }
+
+    .rule-content li ul li::before {
+      width: 5px;
+      height: 5px;
+      background: var(--muted);
+      box-shadow: none;
+    }
+
+    .rule-note {
+      margin-top: 13px !important;
+      padding: 11px 13px;
+      border: 1px solid rgba(248,169,61,.2);
+      border-radius: 10px;
+      color: #f6c47b !important;
+      background: rgba(75,39,6,.28);
+      font-style: italic;
+    }
+
+    .footer {
+      width: min(1480px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 20px 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid rgba(142,205,255,.13);
+      color: #7f9cb4;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+
+    .footer strong { color: #aac2d6; }
+
+    @keyframes beamPulse {
+      0%,100% { opacity:.25; transform:translateX(-50%) scaleX(.94); }
+      50% { opacity:.44; transform:translateX(-50%) scaleX(1.04); }
+    }
+
+    @keyframes statusBlink {
+      0%,100% { opacity:.45; }
+      50% { opacity:1; }
+    }
+
+    @media (max-width: 1050px) {
+      .constitution-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 650px) {
+      main,
+      .top-bar,
+      .footer {
+        width: min(100% - 24px, 1480px);
+      }
+
+      .top-bar { min-height: 64px; }
+      .brand-subtitle,
+      .status-chip span { display: none; }
+
+      h1 { font-size: clamp(3.25rem, 17vw, 5.5rem); }
+
+      .rules-panel {
+        padding: 15px;
+        border-radius: 21px;
+      }
+
+      .rule-card {
+        grid-template-columns: 38px minmax(0,1fr);
+        gap: 11px;
+        padding: 15px;
+      }
+
+      .rule-number {
+        width: 36px;
+        height: 36px;
+        font-size: .95rem;
+      }
+
+      .rule-content li,
+      .rule-content p {
+        font-size: .86rem;
+      }
+
+      .footer {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .brand-name { font-size: 1rem; }
+      .brand-mark { width: 39px; }
+      .status-chip { padding: 8px 10px; }
+      .eyebrow::before,
+      .eyebrow::after { width: 20px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-shell">
+    <div class="grid-overlay" aria-hidden="true"></div>
+    <div class="light-beam" aria-hidden="true"></div>
+
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">TCWR</div>
+        <div class="brand-copy">
+          <span class="brand-name">TCWR Dynasty League</span>
+          <span class="brand-subtitle">Official Governance Archive</span>
+        </div>
+      </div>
+
+      <div class="status-chip" aria-label="Official league document">
+        <span>Official Document</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="pageTitle">
+        <div class="eyebrow">The Rules of the League</div>
+        <h1 id="pageTitle">
+          Official League
+          <span class="accent">Constitution</span>
+        </h1>
+        <p class="hero-copy">
+          The official structure, procedures, roster rules, draft policies, and scoring
+          settings governing the TCWR Dynasty League.
+        </p>
+        <div class="update-pill">Updated April 2026</div>
+      </section>
+
+      <div class="constitution-layout">
+        <section class="rules-panel general-panel" aria-labelledby="generalRulesTitle">
+          <header class="panel-header">
+            <div class="panel-kicker">League Operations</div>
+            <h2 class="panel-title" id="generalRulesTitle">General Rules &amp; Structure</h2>
+          </header>
+          <div class="rule-stack">
+            
+          <article class="rule-card">
+            <div class="rule-number">1</div>
+            <div class="rule-content">
+              <h3>Entry and Fees</h3>
+              <ul><li><span>$25 buy-in fee per season.</span></li><li><span>$25 buyout fee if a manager decides to leave the league.</span></li><li><span>All buyout money will be added to the following year’s winning pot, increasing the stakes!</span></li></ul>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">2</div>
+            <div class="rule-content">
+              <h3>Winning Pot Breakdown</h3>
+              <ul><li><span>First place: $205</span></li><li><span>Second place: $50</span></li><li><span>Third place: $25</span></li><li><span>$70 from the pot is allocated for trophy maintenance, covering engraving, shipping to the current champion, and nameplate updates. Any remaining funds from this allocation will be awarded to the previous year’s champion.</span></li></ul><p class="rule-note">*Note: Any buyout fees collected will be split evenly among the first, second, and third-place winners.</p>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">3</div>
+            <div class="rule-content">
+              <h3>League Size</h3>
+              <ul><li><span>14 teams, operating without divisions.</span></li></ul>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">4</div>
+            <div class="rule-content">
+              <h3>Playoffs</h3>
+              <ul><li><span>A 6-team playoff format will be used.</span></li><li><span>The first and second-place teams will receive first-round byes.</span></li><li><span>Playoff seeding follows a highest-seed vs. lowest-seed format.</span></li><li><span>Playoffs officially kick off in Week 15 of the NFL season.</span></li></ul>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">5</div>
+            <div class="rule-content">
+              <h3>Trade Deadline</h3>
+              <ul><li><span>The trade deadline is set for Week 11.</span></li><li><span>All accepted trades will be processed; there are no trade vetoes.</span></li><li><span>Trades will be reviewed and processed within 1 day to ensure timely roster updates.</span></li></ul>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">6</div>
+            <div class="rule-content">
+              <h3>Waivers</h3>
+              <ul><li><span>The league utilizes rolling continuous waivers.</span></li></ul>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">7</div>
+            <div class="rule-content">
+              <h3>New League Year Timeline</h3>
+              <ul><li><span>The trade window opens at the start of the NFL league year (typically in March).</span></li><li><span>The rookie draft starts the Saturday of the actual NFL Draft and will run over the weekend, with adjustable pick times per round. Round 1 = 1 hour per pick Round 2 = 30 min per pick Round 3 = 15 min per pick</span></li><li><span>Free agents can be added to rosters one week after the rookie draft concludes.</span></li></ul>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">8</div>
+            <div class="rule-content">
+              <h3>Rookie Draft</h3>
+              <ul><li><span>A three-round linear draft.</span></li><li><span>Draft order follows an NBA-style weighted lottery:</span><ul><li><span>Teams ranked 7–14 will be entered into a lottery for the first overall pick with reverse odds drawn. Eight pick is drawn first!</span></li><li><span>Teams ranked 1–6 will be placed at the back of the draft and are excluded from the lottery, with the 1st place team receiving the 14th overall pick.</span></li></ul></li><li><span>The final draft order will be released during Super Bowl weekend.</span></li><li><span>**Lottery Odds:**</span><ul><li><span>14th place = 5% chance at 8th overall</span></li><li><span>13th place = 6% chance at 8th overall</span></li><li><span>12th place = 8% chance at 8th overall</span></li><li><span>11th place = 12% chance at 8th overall</span></li><li><span>10th place = 14% chance at 8th overall</span></li><li><span>9th place = 17% chance at 8th overall</span></li><li><span>8th place = 18.5% chance at 8th overall</span></li><li><span>7th place = 19.5% chance at 8th overall</span></li></ul></li></ul>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">9</div>
+            <div class="rule-content">
+              <h3>Roster Composition</h3>
+              <ul><li><span>1 Starting QB</span></li><li><span>2 Starting RB</span></li><li><span>2 Starting WR</span></li><li><span>1 Starting TE</span></li><li><span>1 Starting Flex (TE/WR/RB)</span></li><li><span>1 Starting Defense</span></li><li><span>1 Starting Kicker</span></li><li><span>10 Bench Spots</span></li><li><span>5 Taxi Squad Spots</span></li><li><span>5 IR Spots</span></li></ul>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">10</div>
+            <div class="rule-content">
+              <h3>Taxi Squad Eligibility</h3>
+              <ul><li><span>Only rookies with less than one year of NFL experience are eligible for the taxi squad.</span></li><li><span>Eligible players can be moved to taxi squad spots at any point during the season.</span></li></ul>
+            </div>
+          </article>
+          </div>
+        </section>
+
+        <section class="rules-panel scoring-panel" aria-labelledby="scoringTitle">
+          <header class="panel-header">
+            <div class="panel-kicker">Point System</div>
+            <h2 class="panel-title" id="scoringTitle">Scoring Settings</h2>
+          </header>
+          <div class="rule-stack">
+            
+          <article class="rule-card">
+            <div class="rule-number">S</div>
+            <div class="rule-content">
+              <h3>Offensive Scoring</h3>
+              <ul><li><span>Passing Yard: 0.04 points</span></li><li><span>Passing TD: 4 points</span></li><li><span>2-Point Conversion: 2 points</span></li><li><span>Pass Intercepted: -2 points</span></li><li><span>Rushing Yard: 0.10 points</span></li><li><span>Rushing TD: 6 points</span></li><li><span>Fumble Lost: -2 points</span></li><li><span>Receiving Yard: 0.10 points</span></li><li><span>Reception (PPR): 0.5 points</span></li><li><span>Receiving TD: 6 points</span></li></ul>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">S</div>
+            <div class="rule-content">
+              <h3>Defensive Scoring (Team D/ST)</h3>
+              <ul><li><span>Defensive TD: 6 points</span></li><li><span>0 Points Allowed: 5 points</span></li><li><span>1-6 Points Allowed: 4 points</span></li><li><span>7-13 Points Allowed: 3 points</span></li><li><span>14-20 Points Allowed: 1 point</span></li><li><span>21-27 Points Allowed: 0 points</span></li><li><span>28-34 Points Allowed: -1 point</span></li><li><span>35+ Points Allowed: -4 points</span></li><li><span>Less Than 100 Yards Allowed: 5 points</span></li><li><span>100-199 Yards Allowed: 3 points</span></li><li><span>200-299 Yards Allowed: 2 points</span></li><li><span>300-349 Yards Allowed: 0 points</span></li><li><span>350-399 Yards Allowed: -1 point</span></li><li><span>400-449 Yards Allowed: -3 points</span></li><li><span>450-499 Yards Allowed: -5 points</span></li><li><span>500-549 Yards Allowed: -6 points</span></li><li><span>500+ Yards Allowed: -7 points</span></li><li><span>Sack: 1 point</span></li><li><span>Interception: 2 points</span></li><li><span>Fumble Forced: 1 point</span></li><li><span>Fumble Recovery: 2 points</span></li><li><span>Safety: 2 points</span></li><li><span>Blocked Kick: 2 points</span></li></ul>
+            </div>
+          </article>
+          <article class="rule-card">
+            <div class="rule-number">S</div>
+            <div class="rule-content">
+              <h3>Special Teams Scoring (Kicker)</h3>
+              <ul><li><span>Special Team TD: 6 points</span></li><li><span>Special Team Forced Fumble: 1 point</span></li><li><span>Special Team Fumble Recovery: 1 point</span></li><li><span>40+ Yard Big Play (Return): 1 point</span></li><li><span>40+ Yard Big Play + TD: 1.5 points</span></li><li><span>50+ Yard Big Play + TD: 2 points</span></li><li><span>Field Goal 0-39 Yards: 3 points</span></li><li><span>Field Goal 40-49 Yards: 4 points</span></li><li><span>Field Goal 50+ Yards: 5 points</span></li><li><span>Field Goal Missed: -1 point</span></li><li><span>Extra Point (PAT): 1 point</span></li><li><span>Extra Point (PAT) Missed: -1 point</span></li></ul>
+            </div>
+          </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span><strong>TCWR Dynasty League</strong></span>
+      <span>Built on competition. Governed by chaos.</span>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./service-worker.js").catch((error) => {
+            console.info("Service worker was not registered:", error);
+          });
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

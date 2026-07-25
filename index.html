@@ -793,6 +793,31 @@ sidebarLinks.forEach(link => {
                 .tcwr-story.purple .tcwr-story-title { color:#c4b5fd; }
                 .tcwr-empty { padding:22px 16px; color:#94a3b8; text-align:center; font-size:.78rem; }
                 .tcwr-commissioner-heading { margin:0 0 8px; color:#facc15; font-size:.72rem; font-weight:900; letter-spacing:.9px; text-transform:uppercase; }
+                #commissioner-bulletin-content {
+    max-height: 275px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #facc15 rgba(15, 23, 42, 0.5);
+}
+
+#commissioner-bulletin-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+#commissioner-bulletin-content::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+}
+
+#commissioner-bulletin-content::-webkit-scrollbar-thumb {
+    background: #facc15;
+    border-radius: 8px;
+}
+
+#commissioner-bulletin-content::-webkit-scrollbar-thumb:hover {
+    background: #eab308;
+}
                 .tcwr-commissioner-post { padding:13px 14px; border-bottom:1px solid rgba(148,163,184,.14); }
                 .tcwr-commissioner-post:last-child { border-bottom:0; }
                 .tcwr-commissioner-date { margin:0 0 5px; color:#94a3b8; font-size:.64rem; font-weight:900; letter-spacing:.8px; text-transform:uppercase; }

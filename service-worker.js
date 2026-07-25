@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tcwr-main-v6';
+const CACHE_NAME = 'tcwr-main-v7';
 
 const urlsToCache = [
   './',
@@ -14,18 +14,12 @@ const urlsToCache = [
   './main.html',
   './rookiedraftcountdown.html',
 
-  // Images
   './DYNASTYLOGO.png',
   './Subject.jpeg',
   './ainteasy.jpeg',
   './thehomies.jpeg',
   './trophy3.jpeg',
 
-  // Audio
-  './magicword.mp3',
-  './camp-fire.mp3',
-
-  // Icons
   './tcwr-icon-192.png',
   './tcwr-icon-512.png'
 ];

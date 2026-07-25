@@ -2513,24 +2513,18 @@ if ('serviceWorker' in navigator) {
 // =====================================================
 
 window.openLeagueChat = function () {
-    const mobileCommunityInvite =
-        "https://m.me/ch/5578168545617800/";
-
-    const desktopMessenger =
-        "https://www.messenger.com/";
-
     const isMobile =
         /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
             navigator.userAgent
         );
 
     if (isMobile) {
-        // Phone/tablet: opens the Messenger app and league community
-        window.location.href = mobileCommunityInvite;
+        // Opens the Messenger app (if installed)
+        window.location.href = "fb-messenger://";
     } else {
-        // Computer: opens Messenger in the browser
+        // Opens Messenger in the browser
         window.open(
-            desktopMessenger,
+            "https://www.messenger.com/",
             "_blank",
             "noopener,noreferrer"
         );

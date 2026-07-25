@@ -951,6 +951,225 @@
       }
     }
 
+
+    /* Responsive hardening */
+    img, svg { max-width: 100%; }
+
+    .hero-copy,
+    .countdown-panel,
+    .machine-stage,
+    .machine {
+      min-width: 0;
+    }
+
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.72fr);
+    }
+
+    .machine {
+      height: auto;
+      aspect-ratio: 490 / 585;
+    }
+
+    .machine-stage {
+      min-height: clamp(420px, 48vw, 620px);
+    }
+
+    .globe {
+      width: min(390px, 80%);
+      max-width: none;
+    }
+
+    @media (max-width: 1040px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .machine-stage {
+        min-height: clamp(440px, 68vw, 580px);
+      }
+
+      .machine {
+        width: min(490px, 88vw);
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        min-height: 100svh;
+      }
+
+      .page-shell {
+        min-height: 100svh;
+      }
+
+      .top-bar {
+        gap: 10px;
+      }
+
+      .brand {
+        gap: 9px;
+      }
+
+      .brand-name {
+        font-size: clamp(0.92rem, 4vw, 1.05rem);
+      }
+
+      main {
+        padding-top: 22px;
+        padding-bottom: 28px;
+      }
+
+      .hero-grid {
+        gap: 8px;
+      }
+
+      h1 {
+        font-size: clamp(2.75rem, 14.5vw, 4.8rem);
+        line-height: 0.9;
+      }
+
+      .hero-description {
+        margin-top: 18px;
+        font-size: 0.96rem;
+        line-height: 1.65;
+      }
+
+      .event-details {
+        margin-top: 18px;
+      }
+
+      .detail-pill {
+        flex: 1 1 180px;
+      }
+
+      .countdown-panel {
+        margin-top: 24px;
+      }
+
+      .countdown {
+        gap: 9px;
+      }
+
+      .time-card {
+        padding: 14px 8px 12px;
+      }
+
+      .time-value {
+        font-size: clamp(2.5rem, 15vw, 4rem);
+      }
+
+      .time-label {
+        margin-top: 8px;
+        letter-spacing: 0.11em;
+      }
+
+      .machine-stage {
+        min-height: clamp(390px, 104vw, 510px);
+        margin-top: 2px;
+        overflow: hidden;
+      }
+
+      .machine {
+        width: min(490px, 102vw);
+        transform: none;
+      }
+
+      .light-beam {
+        width: 95vw;
+      }
+    }
+
+    @media (max-width: 430px) {
+      main,
+      .top-bar,
+      .footer {
+        width: min(100% - 18px, 1480px);
+      }
+
+      .top-bar {
+        min-height: 58px;
+      }
+
+      .brand-mark {
+        width: 34px;
+        font-size: 0.86rem;
+      }
+
+      .broadcast-chip {
+        padding: 7px 9px;
+      }
+
+      .eyebrow {
+        margin-bottom: 14px;
+        font-size: 0.72rem;
+        letter-spacing: 0.13em;
+      }
+
+      .eyebrow::before,
+      .eyebrow::after {
+        width: 20px;
+      }
+
+      h1 {
+        font-size: clamp(2.45rem, 15.5vw, 4rem);
+      }
+
+      .event-details {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .detail-pill {
+        width: 100%;
+        min-height: 42px;
+      }
+
+      .countdown-panel {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .countdown-header {
+        margin-bottom: 14px;
+      }
+
+      .countdown {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .machine-stage {
+        min-height: clamp(350px, 108vw, 455px);
+      }
+
+      .machine {
+        width: 106vw;
+        max-width: 470px;
+      }
+
+      .footer {
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+      }
+    }
+
+    @media (max-width: 350px) {
+      .broadcast-chip {
+        display: none;
+      }
+
+      h1 {
+        font-size: clamp(2.25rem, 16vw, 3.4rem);
+      }
+
+      .time-value {
+        font-size: clamp(2.15rem, 15vw, 3.2rem);
+      }
+
+      .machine-stage {
+        min-height: 330px;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,

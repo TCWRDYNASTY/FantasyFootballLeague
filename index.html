@@ -2508,12 +2508,16 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-    // =====================================================
+// =====================================================
 // LEAGUE CHAT BUTTON
 // =====================================================
 
 window.openLeagueChat = function () {
-    const communityInvite = "https://m.me/ch/5578168545617800/";
+    const mobileCommunityInvite =
+        "https://m.me/ch/5578168545617800/";
+
+    const desktopMessenger =
+        "https://www.messenger.com/";
 
     const isMobile =
         /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -2521,18 +2525,17 @@ window.openLeagueChat = function () {
         );
 
     if (isMobile) {
-        // Phone or tablet
-        window.location.href = communityInvite;
+        // Phone/tablet: opens the Messenger app and league community
+        window.location.href = mobileCommunityInvite;
     } else {
-        // Desktop
+        // Computer: opens Messenger in the browser
         window.open(
-            communityInvite,
+            desktopMessenger,
             "_blank",
             "noopener,noreferrer"
         );
     }
 };
-    
 </script>
 
 </body>

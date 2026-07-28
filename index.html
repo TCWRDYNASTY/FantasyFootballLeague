@@ -1954,14 +1954,33 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
    Tuesday-Thursday morning: archived weekly awards.
    ========================================================= */
 
+/* =========================================================
+   AUTOMATED SIDE BULLETIN
+
+   Thursday-Monday:
+   Live upset and blowout watches.
+
+   Tuesday-Thursday morning:
+   Awards from the latest completed week.
+
+   Before the season:
+   Displays a preseason waiting message.
+   ========================================================= */
+
 const BULLETIN_THURSDAY_SWITCH_HOUR_ET = 12;
+
 let selectedAwardsWeek = 1;
-let latestCompletedAwardsWeek = 1;
-let bulletinMode = "awards";
+let latestCompletedAwardsWeek = 0;
+let bulletinMode = "preseason";
 let cachedPlayersById = null;
 let cachedLeagueSettings = null;
 let latestLiveBulletinPayload = null;
 let bulletinRequestToken = 0;
+
+
+/* =========================================================
+   EASTERN TIME HELPERS
+   ========================================================= */
 
 function getEasternClockParts(date = new Date()) {
     const formatter = new Intl.DateTimeFormat("en-US", {
@@ -1970,91 +1989,295 @@ function getEasternClockParts(date = new Date()) {
         hour: "2-digit",
         hour12: false
     });
+
     const parts = Object.fromEntries(
-        formatter.formatToParts(date).map(part => [part.type, part.value])
+        formatter
+            .formatToParts(date)
+            .map(part => [part.type, part.value])
     );
+
     return {
         weekday: parts.weekday,
         hour: Number(parts.hour) || 0
     };
 }
 
+
+/* =========================================================
+   BULLETIN MODE HELPERS
+   ========================================================= */
+
 function shouldShowLiveLeagueWatch(date = new Date()) {
     const { weekday, hour } = getEasternClockParts(date);
-    if (["Fri", "Sat", "Sun", "Mon"].includes(weekday)) return true;
-    return weekday === "Thu" && hour >= BULLETIN_THURSDAY_SWITCH_HOUR_ET;
+
+    if (["Fri", "Sat", "Sun", "Mon"].includes(weekday)) {
+        return true;
+    }
+
+    return (
+        weekday === "Thu" &&
+        hour >= BULLETIN_THURSDAY_SWITCH_HOUR_ET
+    );
+}
+
+function hasNflSeasonStarted() {
+    return Date.now() >= NFL_SEASON_KICKOFF.getTime();
 }
 
 function getLatestCompletedWeek(displayWeek) {
-    const week = clampScoreboardWeek(displayWeek || 1);
-    return Math.max(SCOREBOARD_MIN_WEEK, week - 1);
+    const week = Number(displayWeek) || 1;
+
+    /*
+        When Sleeper reports Week 1, no previous week exists.
+
+        Returning zero prevents the site from incorrectly
+        treating Week 1 as completed.
+    */
+    if (week <= SCOREBOARD_MIN_WEEK) {
+        return 0;
+    }
+
+    return Math.min(
+        week - 1,
+        SCOREBOARD_MAX_WEEK
+    );
 }
 
-function bulletinStoryHtml({ className, title, main, sub = "" }) {
+function matchupWeekHasScoring(matchups) {
+    if (!Array.isArray(matchups) || matchups.length === 0) {
+        return false;
+    }
+
+    return matchups.some(matchup => {
+        const points = Number(matchup?.points);
+
+        return Number.isFinite(points) && points !== 0;
+    });
+}
+
+
+/* =========================================================
+   PRESEASON / WAITING DISPLAY
+   ========================================================= */
+
+function renderAwardsWaitingMessage({
+    title = "🏆 WEEKLY AWARDS",
+    main = "Weekly awards will begin after Week 1 is completed.",
+    sub = "Awards will appear automatically once official scores are available."
+} = {}) {
+    ensureLeagueBulletinShell();
+
+    bulletinMode = "preseason";
+
+    const target = document.getElementById(
+        "automated-bulletin-content"
+    );
+
+    if (!target) return;
+
+    target.className = "";
+
+    target.innerHTML = `
+        <div class="tcwr-news-header">
+            ${escapeBulletinHtml(title)}
+        </div>
+
+        ${bulletinStoryHtml({
+            className: "gold",
+            title: "⏳ Awards Pending",
+            main,
+            sub
+        })}
+    `;
+}
+
+
+/* =========================================================
+   BULLETIN STORY TEMPLATE
+   ========================================================= */
+
+function bulletinStoryHtml({
+    className,
+    title,
+    main,
+    sub = ""
+}) {
     return `
         <article class="tcwr-story ${className}">
-            <div class="tcwr-story-title">${escapeBulletinHtml(title)}</div>
-            <div class="tcwr-story-main">${escapeBulletinHtml(main)}</div>
-            ${sub ? `<div class="tcwr-story-sub">${escapeBulletinHtml(sub)}</div>` : ""}
+            <div class="tcwr-story-title">
+                ${escapeBulletinHtml(title)}
+            </div>
+
+            <div class="tcwr-story-main">
+                ${escapeBulletinHtml(main)}
+            </div>
+
+            ${
+                sub
+                    ? `
+                        <div class="tcwr-story-sub">
+                            ${escapeBulletinHtml(sub)}
+                        </div>
+                    `
+                    : ""
+            }
         </article>
     `;
 }
 
-function updateAutomatedBulletinFromScoreboard(analyzedMatchups, week, sleeperDisplayWeek) {
-    latestLiveBulletinPayload = { analyzedMatchups, week, sleeperDisplayWeek };
-    if (!shouldShowLiveLeagueWatch()) return;
-    renderLiveLeagueWatch(analyzedMatchups, week);
+
+/* =========================================================
+   SCOREBOARD-TO-BULLETIN UPDATE
+   ========================================================= */
+
+function updateAutomatedBulletinFromScoreboard(
+    analyzedMatchups,
+    week,
+    sleeperDisplayWeek
+) {
+    latestLiveBulletinPayload = {
+        analyzedMatchups,
+        week,
+        sleeperDisplayWeek
+    };
+
+    if (!hasNflSeasonStarted()) {
+        return;
+    }
+
+    if (!shouldShowLiveLeagueWatch()) {
+        return;
+    }
+
+    renderLiveLeagueWatch(
+        analyzedMatchups,
+        week
+    );
 }
 
-function renderLiveLeagueWatch(analyzedMatchups, week) {
+
+/* =========================================================
+   LIVE LEAGUE WATCH
+   ========================================================= */
+
+function renderLiveLeagueWatch(
+    analyzedMatchups,
+    week
+) {
     ensureLeagueBulletinShell();
+
     bulletinMode = "live";
-    const target = document.getElementById("automated-bulletin-content");
+
+    const target = document.getElementById(
+        "automated-bulletin-content"
+    );
+
     if (!target) return;
 
-    const activeMatchups = analyzedMatchups.filter(matchup => matchup.gamesStarted);
+    const activeMatchups = analyzedMatchups.filter(
+        matchup => matchup.gamesStarted
+    );
+
     const upsetCandidates = activeMatchups
-        .filter(matchup => matchup.statisticalFavorite && matchup.liveLeader)
-        .filter(matchup => matchup.liveLeader !== matchup.statisticalFavorite)
+        .filter(
+            matchup =>
+                matchup.statisticalFavorite &&
+                matchup.liveLeader
+        )
+        .filter(
+            matchup =>
+                matchup.liveLeader !==
+                matchup.statisticalFavorite
+        )
         .map(matchup => ({
             ...matchup,
-            liveMargin: Math.abs(matchup.pointsA - matchup.pointsB),
+
+            liveMargin: Math.abs(
+                matchup.pointsA -
+                matchup.pointsB
+            ),
+
             underdog: matchup.liveLeader,
             favorite: matchup.statisticalFavorite
         }))
-        .sort((a, b) => b.liveMargin - a.liveMargin);
+        .sort(
+            (matchupA, matchupB) =>
+                matchupB.liveMargin -
+                matchupA.liveMargin
+        );
 
     const blowout = [...activeMatchups]
-        .map(matchup => ({ ...matchup, liveMargin: Math.abs(matchup.pointsA - matchup.pointsB) }))
-        .sort((a, b) => b.liveMargin - a.liveMargin)[0];
+        .map(matchup => ({
+            ...matchup,
+
+            liveMargin: Math.abs(
+                matchup.pointsA -
+                matchup.pointsB
+            )
+        }))
+        .sort(
+            (matchupA, matchupB) =>
+                matchupB.liveMargin -
+                matchupA.liveMargin
+        )[0];
 
     let stories = "";
 
     if (upsetCandidates[0]) {
         const upset = upsetCandidates[0];
+
         stories += bulletinStoryHtml({
             className: "red",
             title: "🚨 Upset Brewing",
-            main: `@${upset.underdog} is leading @${upset.favorite}`,
-            sub: `${upset.pointsA.toFixed(1)}–${upset.pointsB.toFixed(1)} • Underdog ahead by ${upset.liveMargin.toFixed(1)}`
+
+            main:
+                `@${upset.underdog} is leading ` +
+                `@${upset.favorite}`,
+
+            sub:
+                `${upset.pointsA.toFixed(1)}–` +
+                `${upset.pointsB.toFixed(1)} • ` +
+                `Underdog ahead by ` +
+                `${upset.liveMargin.toFixed(1)}`
         });
     } else {
         stories += bulletinStoryHtml({
             className: "red",
             title: "🚨 Upset Brewing",
-            main: activeMatchups.length ? "No statistical underdog is currently leading." : "Waiting for live scoring.",
-            sub: activeMatchups.length ? "This updates automatically with the scoreboard." : "The watch begins when points are posted."
+
+            main: activeMatchups.length
+                ? "No statistical underdog is currently leading."
+                : "Waiting for live scoring.",
+
+            sub: activeMatchups.length
+                ? "This updates automatically with the scoreboard."
+                : "The watch begins when points are posted."
         });
     }
 
     if (blowout) {
-        const leader = blowout.pointsA >= blowout.pointsB ? blowout.nameA : blowout.nameB;
-        const trailing = leader === blowout.nameA ? blowout.nameB : blowout.nameA;
+        const leader =
+            blowout.pointsA >= blowout.pointsB
+                ? blowout.nameA
+                : blowout.nameB;
+
+        const trailing =
+            leader === blowout.nameA
+                ? blowout.nameB
+                : blowout.nameA;
+
         stories += bulletinStoryHtml({
             className: "orange",
             title: "💥 Blowout Watch",
-            main: `@${leader} leads @${trailing} by ${blowout.liveMargin.toFixed(1)}`,
-            sub: `${blowout.pointsA.toFixed(1)}–${blowout.pointsB.toFixed(1)}`
+
+            main:
+                `@${leader} leads ` +
+                `@${trailing} by ` +
+                `${blowout.liveMargin.toFixed(1)}`,
+
+            sub:
+                `${blowout.pointsA.toFixed(1)}–` +
+                `${blowout.pointsB.toFixed(1)}`
         });
     } else {
         stories += bulletinStoryHtml({
@@ -2066,84 +2289,320 @@ function renderLiveLeagueWatch(analyzedMatchups, week) {
     }
 
     target.className = "";
+
     target.innerHTML = `
-        <div class="tcwr-news-header">LIVE LEAGUE WATCH • WEEK ${week}</div>
+        <div class="tcwr-news-header">
+            LIVE LEAGUE WATCH • WEEK ${week}
+        </div>
+
         ${stories}
     `;
 }
+
+
+/* =========================================================
+   INITIALIZE AUTOMATED BULLETIN
+   ========================================================= */
 
 async function initializeLeagueBulletin() {
     ensureLeagueBulletinShell();
     loadBulletin();
 
-    const displayWeek = await getSleeperCurrentWeek();
-    latestCompletedAwardsWeek = getLatestCompletedWeek(displayWeek);
-    selectedAwardsWeek = latestCompletedAwardsWeek;
+    /*
+        Do not load live watches or weekly awards
+        before the official NFL kickoff date.
+    */
+    if (!hasNflSeasonStarted()) {
+        renderAwardsWaitingMessage({
+            main: "The season has not started yet.",
+            sub: "Weekly awards will begin after Week 1 is completed."
+        });
 
+        return;
+    }
+
+    const displayWeek =
+        await getSleeperCurrentWeek();
+
+    latestCompletedAwardsWeek =
+        getLatestCompletedWeek(displayWeek);
+
+    /*
+        During the live portion of the week, show
+        the live league watch—even during Week 1.
+    */
     if (shouldShowLiveLeagueWatch()) {
         await loadLiveBulletinWeek(displayWeek);
-    } else {
-        await loadWeeklyAwards(selectedAwardsWeek, displayWeek);
+        return;
     }
+
+    /*
+        If Sleeper is still displaying Week 1,
+        there is no completed week available.
+    */
+    if (latestCompletedAwardsWeek < SCOREBOARD_MIN_WEEK) {
+        renderAwardsWaitingMessage();
+        return;
+    }
+
+    selectedAwardsWeek =
+        latestCompletedAwardsWeek;
+
+    await loadWeeklyAwards(
+        selectedAwardsWeek,
+        displayWeek
+    );
 }
+
+
+/* =========================================================
+   LOAD LIVE BULLETIN
+   ========================================================= */
 
 async function loadLiveBulletinWeek(week) {
-    const requestToken = ++bulletinRequestToken;
-    const target = document.getElementById("automated-bulletin-content");
+    if (!hasNflSeasonStarted()) {
+        renderAwardsWaitingMessage({
+            main: "The season has not started yet.",
+            sub: "Live league coverage begins when Week 1 starts."
+        });
+
+        return;
+    }
+
+    const requestToken =
+        ++bulletinRequestToken;
+
+    const target = document.getElementById(
+        "automated-bulletin-content"
+    );
+
     if (target) {
         target.className = "tcwr-empty";
-        target.textContent = `Loading Week ${week} live watch...`;
+        target.textContent =
+            `Loading Week ${week} live watch...`;
     }
 
     try {
-        const [matchups, users, rosters, stats] = await Promise.all([
-            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`),
-            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/users`),
-            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+        const [
+            matchups,
+            users,
+            rosters,
+            stats
+        ] = await Promise.all([
+            fetchJson(
+                `https://api.sleeper.app/v1/league/` +
+                `${leagueId}/matchups/${week}`
+            ),
+
+            fetchJson(
+                `https://api.sleeper.app/v1/league/` +
+                `${leagueId}/users`
+            ),
+
+            fetchJson(
+                `https://api.sleeper.app/v1/league/` +
+                `${leagueId}/rosters`
+            ),
+
             fetchCsvRows(csvUrl)
         ]);
-        if (requestToken !== bulletinRequestToken) return;
-        const analyzed = analyzeBulletinMatchups(matchups, users, rosters, stats);
-        renderLiveLeagueWatch(analyzed, week);
+
+        if (
+            requestToken !==
+            bulletinRequestToken
+        ) {
+            return;
+        }
+
+        const analyzed =
+            analyzeBulletinMatchups(
+                matchups,
+                users,
+                rosters,
+                stats
+            );
+
+        renderLiveLeagueWatch(
+            analyzed,
+            week
+        );
     } catch (error) {
-        console.error("Live bulletin error:", error);
-        if (target) target.innerHTML = '<div class="tcwr-empty">Unable to load live league watch.</div>';
+        console.error(
+            "Live bulletin error:",
+            error
+        );
+
+        if (target) {
+            target.innerHTML = `
+                <div class="tcwr-empty">
+                    Unable to load live league watch.
+                </div>
+            `;
+        }
     }
 }
 
-async function loadWeeklyAwards(week, displayWeek = null) {
+
+/* =========================================================
+   LOAD WEEKLY AWARDS
+   ========================================================= */
+
+async function loadWeeklyAwards(
+    week,
+    displayWeek = null
+) {
     ensureLeagueBulletinShell();
+
+    /*
+        Extra safety check:
+        awards cannot load before kickoff.
+    */
+    if (!hasNflSeasonStarted()) {
+        renderAwardsWaitingMessage({
+            main: "The season has not started yet.",
+            sub: "Weekly awards will begin after Week 1 is completed."
+        });
+
+        return;
+    }
+
+    const currentDisplayWeek =
+        displayWeek ||
+        await getSleeperCurrentWeek();
+
+    latestCompletedAwardsWeek =
+        getLatestCompletedWeek(
+            currentDisplayWeek
+        );
+
+    /*
+        Sleeper Week 1 means there is no previous
+        completed week available for awards.
+    */
+    if (
+        latestCompletedAwardsWeek <
+        SCOREBOARD_MIN_WEEK
+    ) {
+        renderAwardsWaitingMessage();
+        return;
+    }
+
+    const requestedWeek =
+        Number(week) ||
+        latestCompletedAwardsWeek;
+
+    /*
+        Do not allow someone to navigate beyond
+        the latest completed week.
+    */
+    selectedAwardsWeek = Math.max(
+        SCOREBOARD_MIN_WEEK,
+        Math.min(
+            requestedWeek,
+            latestCompletedAwardsWeek
+        )
+    );
+
     bulletinMode = "awards";
-    selectedAwardsWeek = clampScoreboardWeek(week);
-    const target = document.getElementById("automated-bulletin-content");
+
+    const target = document.getElementById(
+        "automated-bulletin-content"
+    );
+
     if (!target) return;
 
-    const requestToken = ++bulletinRequestToken;
+    const requestToken =
+        ++bulletinRequestToken;
+
     target.className = "tcwr-empty";
-    target.textContent = `Loading Week ${selectedAwardsWeek} awards...`;
+    target.textContent =
+        `Loading Week ${selectedAwardsWeek} awards...`;
 
     try {
-        const currentDisplayWeek = displayWeek || await getSleeperCurrentWeek();
-        latestCompletedAwardsWeek = getLatestCompletedWeek(currentDisplayWeek);
+        const [
+            matchups,
+            users,
+            rosters,
+            stats,
+            league
+        ] = await Promise.all([
+            fetchJson(
+                `https://api.sleeper.app/v1/league/` +
+                `${leagueId}/matchups/` +
+                `${selectedAwardsWeek}`
+            ),
 
-        const [matchups, users, rosters, stats, league] = await Promise.all([
-            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${selectedAwardsWeek}`),
-            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/users`),
-            fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+            fetchJson(
+                `https://api.sleeper.app/v1/league/` +
+                `${leagueId}/users`
+            ),
+
+            fetchJson(
+                `https://api.sleeper.app/v1/league/` +
+                `${leagueId}/rosters`
+            ),
+
             fetchCsvRows(csvUrl),
+
             getLeagueSettings()
         ]);
-        if (requestToken !== bulletinRequestToken) return;
 
-        const awards = await calculateWeeklyAwards(matchups, users, rosters, stats, league);
-        if (requestToken !== bulletinRequestToken) return;
-        renderWeeklyAwards(awards, selectedAwardsWeek);
+        if (
+            requestToken !==
+            bulletinRequestToken
+        ) {
+            return;
+        }
+
+        /*
+            Do not calculate fake zero-point awards.
+        */
+        if (!matchupWeekHasScoring(matchups)) {
+            renderAwardsWaitingMessage({
+                main:
+                    `Week ${selectedAwardsWeek} ` +
+                    `does not have completed scoring yet.`,
+
+                sub:
+                    "Awards will appear automatically once official scores are available."
+            });
+
+            return;
+        }
+
+        const awards =
+            await calculateWeeklyAwards(
+                matchups,
+                users,
+                rosters,
+                stats,
+                league
+            );
+
+        if (
+            requestToken !==
+            bulletinRequestToken
+        ) {
+            return;
+        }
+
+        renderWeeklyAwards(
+            awards,
+            selectedAwardsWeek
+        );
     } catch (error) {
-        console.error("Weekly awards error:", error);
-        target.innerHTML = '<div class="tcwr-empty">Unable to load weekly awards.</div>';
+        console.error(
+            "Weekly awards error:",
+            error
+        );
+
+        target.innerHTML = `
+            <div class="tcwr-empty">
+                Unable to load weekly awards.
+            </div>
+        `;
     }
 }
-
 function renderWeeklyAwards(awards, week) {
     const target = document.getElementById("automated-bulletin-content");
     if (!target) return;

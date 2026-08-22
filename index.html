@@ -655,12 +655,12 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
     .tcwr-champion-name{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.4rem,6vw,3.5rem);line-height:1;font-weight:700;font-style:italic;letter-spacing:.5px;margin-bottom:10px;text-shadow:0 2px 8px rgba(0,0,0,.35)}
     .tcwr-champion-team{color:#cbd5e1;font-size:.9rem;font-weight:700;font-style:italic;margin-bottom:22px;overflow-wrap:anywhere}
     .tcwr-champion-label{color:#94a3b8;font-size:.62rem;font-weight:900;letter-spacing:1.6px;text-transform:uppercase}
-    .tcwr-year-end-subheader{padding:10px 16px;text-align:center;color:#94a3b8;font-size:.62rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid rgba(148,163,184,.12)}
-    .tcwr-year-end-award{padding:15px 16px;border-bottom:1px solid rgba(148,163,184,.14);border-left:4px solid #facc15}
+    .tcwr-year-end-subheader{padding:9px 14px;text-align:center;color:#94a3b8;font-size:.56rem;font-weight:800;letter-spacing:1.25px;text-transform:uppercase;border-bottom:1px solid rgba(148,163,184,.12)}
+    .tcwr-year-end-award{padding:12px 14px;border-bottom:1px solid rgba(148,163,184,.13);border-left:4px solid #facc15}
     .tcwr-year-end-award:last-child{border-bottom:0}
-    .tcwr-year-end-award-title{margin:0 0 6px;font-size:.68rem;font-weight:900;letter-spacing:.9px;text-transform:uppercase}
-    .tcwr-year-end-award-winner{color:#fff;font-size:1rem;font-weight:900;line-height:1.3;overflow-wrap:anywhere}
-    .tcwr-year-end-award-detail{margin-top:4px;color:#94a3b8;font-size:.68rem;font-weight:700;line-height:1.4}
+    .tcwr-year-end-award-title{margin:0 0 4px;font-size:.60rem;font-weight:900;letter-spacing:.72px;text-transform:uppercase}
+    .tcwr-year-end-award-winner{color:#fff;font-family:"Montserrat","Inter",sans-serif;font-size:.86rem;font-weight:700;line-height:1.28;overflow-wrap:anywhere}
+    .tcwr-year-end-award-detail{margin-top:3px;color:#94a3b8;font-size:.60rem;font-weight:600;line-height:1.35}
     .tcwr-year-end-award.manager{border-left-color:#facc15}.tcwr-year-end-award.manager .tcwr-year-end-award-title{color:#facc15}
     .tcwr-year-end-award.improved{border-left-color:#a78bfa}.tcwr-year-end-award.improved .tcwr-year-end-award-title{color:#c4b5fd}
     .tcwr-year-end-award.game{border-left-color:#fb923c}.tcwr-year-end-award.game .tcwr-year-end-award-title{color:#fb923c}
@@ -1132,6 +1132,7 @@ const SCOREBOARD_REFRESH_MS = 60 * 1000;
 /* === END-OF-SEASON AWARDS ===
    Set END_OF_SEASON_TEST_MODE = true to preview the
    championship + year-end awards immediately.
+   Test mode uses synthetic season scoring for layout/testing.
    Set it back to false for normal live-season behavior.
 */
 const END_OF_SEASON_TEST_MODE = true;
@@ -2907,6 +2908,16 @@ function getManagerDisplayName(user) {
         .replace("@", "").trim();
 }
 
+function getFriendlyManagerName(user) {
+    const rawName = getManagerDisplayName(user);
+    return String(nameTranslator[rawName] || rawName).replace("@", "").trim();
+}
+
+function getFriendlyManagerNameFromMap(name) {
+    const rawName = String(name || "").replace("@", "").trim();
+    return String(nameTranslator[rawName] || rawName).replace("@", "").trim();
+}
+
 function getTeamDisplayName(user) {
     return String(user?.metadata?.team_name || user?.display_name || "Unnamed Team")
         .replace("@", "").trim();
@@ -3015,7 +3026,7 @@ async function calculateMostImprovedManager(users, currentRankingRows, testMode 
         }));
 
         const candidates = users.map(user => {
-            const manager = getManagerDisplayName(user);
+            const manager = getFriendlyManagerName(user);
             const current = findRankingRow(currentRows, manager);
             const previous = findRankingRow(previousRows, manager);
             if (!current || !previous) return null;
@@ -3052,7 +3063,7 @@ async function calculateMostImprovedManager(users, currentRankingRows, testMode 
         const currentRows = normalizeRankingRows(currentRankingRows);
 
         const candidates = users.map(user => {
-            const manager = getManagerDisplayName(user);
+            const manager = getFriendlyManagerName(user);
             const current = findRankingRow(currentRows, manager);
             const previous = findRankingRow(previousRows, manager);
             if (!current || !previous) return null;
@@ -3135,8 +3146,8 @@ function calculateGameOfYearFromMatchups(weeklyMatchups, rosterToUser) {
 
             games.push({
                 week:weekIndex + 1,
-                nameA:rosterToUser[a.roster_id] || `Team ${a.roster_id}`,
-                nameB:rosterToUser[b.roster_id] || `Team ${b.roster_id}`,
+                nameA:getFriendlyManagerNameFromMap(rosterToUser[a.roster_id] || `Team ${a.roster_id}`),
+                nameB:getFriendlyManagerNameFromMap(rosterToUser[b.roster_id] || `Team ${b.roster_id}`),
                 pointsA, pointsB,
                 margin:Math.abs(pointsA - pointsB),
                 total:pointsA + pointsB
@@ -3174,7 +3185,7 @@ function calculatePlayerOfYearFromMatchups(weeklyMatchups, rosterToUser, players
         return {
             name:player.full_name || [player.first_name,player.last_name].filter(Boolean).join(" ") || playerId,
             points:data.points,
-            manager:rosterToUser[data.rosterId] || `Team ${data.rosterId}`
+            manager:getFriendlyManagerNameFromMap(rosterToUser[data.rosterId] || `Team ${data.rosterId}`)
         };
     }).filter(player => player.points > 0).sort((a,b) => b.points - a.points)[0];
 
@@ -3191,7 +3202,7 @@ function buildSyntheticEndOfSeasonData(users, rosters, players) {
     const rosterToUser = Object.fromEntries(
         rosters.map(roster => [
             roster.roster_id,
-            getManagerDisplayName(users.find(user => user.user_id === roster.owner_id))
+            getFriendlyManagerName(users.find(user => user.user_id === roster.owner_id))
         ])
     );
 
@@ -3246,8 +3257,11 @@ async function calculateEndOfSeasonAwards({testMode = false} = {}) {
         );
 
         const userLookup = Object.fromEntries(users.map(user => [user.user_id,getManagerDisplayName(user)]));
+        const rawUserLookup = Object.fromEntries(users.map(user => [user.user_id,user]));
         rosterToUser = Object.fromEntries(rosters.map(roster => [
-            roster.roster_id,userLookup[roster.owner_id] || `Team ${roster.roster_id}`
+            roster.roster_id,rawUserLookup[roster.owner_id]
+                ? getFriendlyManagerName(rawUserLookup[roster.owner_id])
+                : `Team ${roster.roster_id}`
         ]));
 
         rankingRows = await fetchCsvRows(csvUrl);
@@ -3271,7 +3285,7 @@ async function calculateEndOfSeasonAwards({testMode = false} = {}) {
         const winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerRosterId)) || rosters[0];
         const winnerUser = users.find(user => user.user_id === winnerRoster?.owner_id);
 
-        champion = {name:getManagerDisplayName(winnerUser),teamName:getTeamDisplayName(winnerUser)};
+        champion = {name:getFriendlyManagerName(winnerUser),teamName:getTeamDisplayName(winnerUser)};
     } else {
         const winnerRosterId =
             league?.metadata?.latest_league_winner_roster_id ??
@@ -3292,7 +3306,7 @@ async function calculateEndOfSeasonAwards({testMode = false} = {}) {
         }
 
         const winnerUser = users.find(user => user.user_id === winnerRoster?.owner_id);
-        champion = {name:getManagerDisplayName(winnerUser),teamName:getTeamDisplayName(winnerUser)};
+        champion = {name:getFriendlyManagerName(winnerUser),teamName:getTeamDisplayName(winnerUser)};
     }
 
     const result = {

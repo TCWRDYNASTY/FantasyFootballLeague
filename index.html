@@ -643,6 +643,29 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
     scroll-behavior:auto!important;
   }
 }
+    /* =========================================================
+       END-OF-SEASON CHAMPION / AWARDS
+       ========================================================= */
+    .tcwr-champion-card,.tcwr-year-end-card{width:100%;box-sizing:border-box;overflow:hidden;color:#fff;background:linear-gradient(145deg,rgba(30,41,59,.98),rgba(15,23,42,.98));border:1px solid rgba(148,163,184,.22);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.28)}
+    .tcwr-champion-header,.tcwr-year-end-header{padding:14px 16px;text-align:center;color:#facc15;font-size:.82rem;font-weight:900;letter-spacing:1.15px;border-bottom:1px solid rgba(148,163,184,.16)}
+    .tcwr-champion-content{padding:34px 20px 38px;text-align:center}
+    .tcwr-champion-trophy{display:block;width:min(190px,60%);max-height:170px;object-fit:contain;margin:0 auto 16px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}
+    .tcwr-champion-trophy-fallback{font-size:44px;margin-bottom:12px}
+    .tcwr-champion-congrats{color:#facc15;font-size:.75rem;font-weight:900;letter-spacing:2px;margin-bottom:12px}
+    .tcwr-champion-name{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.4rem,6vw,3.5rem);line-height:1;font-weight:700;font-style:italic;letter-spacing:.5px;margin-bottom:10px;text-shadow:0 2px 8px rgba(0,0,0,.35)}
+    .tcwr-champion-team{color:#cbd5e1;font-size:.9rem;font-weight:700;font-style:italic;margin-bottom:22px;overflow-wrap:anywhere}
+    .tcwr-champion-label{color:#94a3b8;font-size:.62rem;font-weight:900;letter-spacing:1.6px;text-transform:uppercase}
+    .tcwr-year-end-subheader{padding:10px 16px;text-align:center;color:#94a3b8;font-size:.62rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid rgba(148,163,184,.12)}
+    .tcwr-year-end-award{padding:15px 16px;border-bottom:1px solid rgba(148,163,184,.14);border-left:4px solid #facc15}
+    .tcwr-year-end-award:last-child{border-bottom:0}
+    .tcwr-year-end-award-title{margin:0 0 6px;font-size:.68rem;font-weight:900;letter-spacing:.9px;text-transform:uppercase}
+    .tcwr-year-end-award-winner{color:#fff;font-size:1rem;font-weight:900;line-height:1.3;overflow-wrap:anywhere}
+    .tcwr-year-end-award-detail{margin-top:4px;color:#94a3b8;font-size:.68rem;font-weight:700;line-height:1.4}
+    .tcwr-year-end-award.manager{border-left-color:#facc15}.tcwr-year-end-award.manager .tcwr-year-end-award-title{color:#facc15}
+    .tcwr-year-end-award.improved{border-left-color:#a78bfa}.tcwr-year-end-award.improved .tcwr-year-end-award-title{color:#c4b5fd}
+    .tcwr-year-end-award.game{border-left-color:#fb923c}.tcwr-year-end-award.game .tcwr-year-end-award-title{color:#fb923c}
+    .tcwr-year-end-award.player{border-left-color:#60a5fa}.tcwr-year-end-award.player .tcwr-year-end-award-title{color:#60a5fa}
+    @media(max-width:540px){.tcwr-champion-content{padding:28px 16px 32px}.tcwr-champion-trophy{width:min(160px,58%);max-height:145px}}
 </style>
 
 
@@ -1105,6 +1128,20 @@ const SCOREBOARD_TEST_WEEK = 1;
 const SCOREBOARD_MIN_WEEK = 1;
 const SCOREBOARD_MAX_WEEK = 14;
 const SCOREBOARD_REFRESH_MS = 60 * 1000;
+
+/* === END-OF-SEASON AWARDS ===
+   Set END_OF_SEASON_TEST_MODE = true to preview the
+   championship + year-end awards immediately.
+   Set it back to false for normal live-season behavior.
+*/
+const END_OF_SEASON_TEST_MODE = true;
+const FANTASY_SEASON_FINAL_WEEK = 14;
+
+/* Optional previous-season Manager Rankings CSV.
+   Used only for Most Improved Manager. */
+const PREVIOUS_RANKINGS_CSV_URL = "";
+
+let endOfSeasonAwardsCache = null;
 
 let selectedScoreboardWeek = SCOREBOARD_TEST_WEEK;
 let scoreboardRefreshTimer = null;
@@ -2308,6 +2345,11 @@ async function initializeLeagueBulletin() {
     ensureLeagueBulletinShell();
     loadBulletin();
 
+    if (END_OF_SEASON_TEST_MODE || await hasFantasySeasonEnded()) {
+        await renderEndOfSeasonState({ testMode: END_OF_SEASON_TEST_MODE });
+        return;
+    }
+
     /*
         Do not load live watches or weekly awards
         before the official NFL kickoff date.
@@ -2851,6 +2893,438 @@ function fetchCsvRows(url) {
     });
 }
 
+
+/* =========================================================
+   END-OF-SEASON CHAMPIONSHIP + AWARDS
+   ========================================================= */
+
+function getCurrentSeasonYear(league = {}) {
+    return String(league?.season || new Date().getFullYear());
+}
+
+function getManagerDisplayName(user) {
+    return String(user?.display_name || user?.metadata?.team_name || "Unknown")
+        .replace("@", "").trim();
+}
+
+function getTeamDisplayName(user) {
+    return String(user?.metadata?.team_name || user?.display_name || "Unnamed Team")
+        .replace("@", "").trim();
+}
+
+async function getRawSleeperWeek() {
+    try {
+        const state = await fetchJson("https://api.sleeper.app/v1/state/nfl");
+        return Number(state?.week ?? state?.display_week ?? state?.leg ?? 1) || 1;
+    } catch (error) {
+        console.warn("Unable to determine raw Sleeper week:", error);
+        return 1;
+    }
+}
+
+async function hasFantasySeasonEnded() {
+    if (END_OF_SEASON_TEST_MODE) return true;
+    return (await getRawSleeperWeek()) > FANTASY_SEASON_FINAL_WEEK;
+}
+
+function renderChampionCard(champion, season) {
+    const container = document.getElementById("scoreboard-container");
+    if (!container) return;
+
+    const safeName = escapeBulletinHtml(champion?.name || "Champion");
+    const safeTeam = escapeBulletinHtml(champion?.teamName || "");
+
+    container.innerHTML = `
+        <section class="tcwr-champion-card">
+            <div class="tcwr-champion-header">TCWR DY-NASTY</div>
+            <div class="tcwr-champion-content">
+                <img
+                    class="tcwr-champion-trophy"
+                    src="trophy3.jpeg"
+                    alt="TCWR Dy-NASTY Championship Trophy"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
+                >
+                <div class="tcwr-champion-trophy-fallback" style="display:none;">🏆</div>
+                <div class="tcwr-champion-congrats">CONGRATULATIONS</div>
+                <div class="tcwr-champion-name">${safeName}</div>
+                ${safeTeam ? `<div class="tcwr-champion-team">${safeTeam}</div>` : ""}
+                <div class="tcwr-champion-label">${escapeBulletinHtml(season)} LEAGUE CHAMPION</div>
+            </div>
+        </section>
+    `;
+}
+
+function renderYearEndAwards(awards, season, testMode = false) {
+    const target = document.getElementById("automated-bulletin-content");
+    if (!target) return;
+
+    const row = (className, title, winner, detail) => `
+        <article class="tcwr-year-end-award ${className}">
+            <p class="tcwr-year-end-award-title">${title}</p>
+            <div class="tcwr-year-end-award-winner">${winner}</div>
+            <div class="tcwr-year-end-award-detail">${detail}</div>
+        </article>
+    `;
+
+    target.className = "";
+    target.innerHTML = `
+        <section class="tcwr-year-end-card">
+            <div class="tcwr-year-end-header">🏆 TCWR DY-NASTY AWARDS</div>
+            <div class="tcwr-year-end-subheader">
+                ${escapeBulletinHtml(season)} SEASON${testMode ? " • TEST MODE" : ""}
+            </div>
+            ${row("manager","👑 Manager of the Year",awards.managerOfYear.winner,awards.managerOfYear.detail)}
+            ${row("improved","📈 Most Improved Manager",awards.mostImproved.winner,awards.mostImproved.detail)}
+            ${row("game","🔥 Game of the Year",awards.gameOfYear.winner,awards.gameOfYear.detail)}
+            ${row("player","🏅 Player of the Year",awards.playerOfYear.winner,awards.playerOfYear.detail)}
+        </section>
+    `;
+}
+
+function extractWeightedRankingScore(row) {
+    const keys = ["Weighted Score","WeightedScore","Weighted","Ranking Score","RankingScore","Score","score"];
+    for (const key of keys) {
+        const raw = String(row?.[key] ?? "").replace(/[^0-9.+-]/g, "");
+        const value = Number.parseFloat(raw);
+        if (Number.isFinite(value)) return value;
+    }
+    return null;
+}
+
+function normalizeRankingRows(rows) {
+    return (rows || []).map(row => ({
+        manager: String(row?.Manager ?? row?.manager ?? row?.Name ?? row?.name ?? row?.Team ?? row?.team ?? "").trim(),
+        score: extractWeightedRankingScore(row)
+    })).filter(row => row.manager && Number.isFinite(row.score));
+}
+
+function findRankingRow(rows, managerName) {
+    const targets = [
+        String(managerName || "").trim().toLowerCase(),
+        String(nameTranslator[managerName] || managerName).trim().toLowerCase()
+    ];
+    return rows.find(row => targets.includes(row.manager.toLowerCase()));
+}
+
+async function calculateMostImprovedManager(users, currentRankingRows, testMode = false) {
+    if (testMode && !PREVIOUS_RANKINGS_CSV_URL) {
+        const currentRows = normalizeRankingRows(currentRankingRows);
+        const previousRows = currentRows.map((row, index) => ({
+            manager: row.manager,
+            score: row.score - (0.08 + index * 0.03)
+        }));
+
+        const candidates = users.map(user => {
+            const manager = getManagerDisplayName(user);
+            const current = findRankingRow(currentRows, manager);
+            const previous = findRankingRow(previousRows, manager);
+            if (!current || !previous) return null;
+
+            return {
+                manager,
+                previous: previous.score,
+                current: current.score,
+                improvement: current.score - previous.score
+            };
+        }).filter(Boolean);
+
+        candidates.sort((a,b) => b.improvement - a.improvement || b.current - a.current);
+        const best = candidates[0];
+
+        return best ? {
+            winner: best.manager,
+            detail: `${best.previous.toFixed(2)} → ${best.current.toFixed(2)} (${best.improvement >= 0 ? "+" : ""}${best.improvement.toFixed(2)})`
+        } : {
+            winner: "Unavailable",
+            detail: "No test ranking data is available."
+        };
+    }
+
+    if (!PREVIOUS_RANKINGS_CSV_URL) {
+        return {
+            winner: "Previous ranking data unavailable",
+            detail: "Add the prior season's weighted-score CSV URL to PREVIOUS_RANKINGS_CSV_URL."
+        };
+    }
+
+    try {
+        const previousRows = normalizeRankingRows(await fetchCsvRows(PREVIOUS_RANKINGS_CSV_URL));
+        const currentRows = normalizeRankingRows(currentRankingRows);
+
+        const candidates = users.map(user => {
+            const manager = getManagerDisplayName(user);
+            const current = findRankingRow(currentRows, manager);
+            const previous = findRankingRow(previousRows, manager);
+            if (!current || !previous) return null;
+
+            return {
+                manager,
+                previous: previous.score,
+                current: current.score,
+                improvement: current.score - previous.score
+            };
+        }).filter(Boolean);
+
+        candidates.sort((a,b) => b.improvement - a.improvement || b.current - a.current);
+        const best = candidates[0];
+
+        return best ? {
+            winner: best.manager,
+            detail: `${best.previous.toFixed(2)} → ${best.current.toFixed(2)} (${best.improvement >= 0 ? "+" : ""}${best.improvement.toFixed(2)})`
+        } : {
+            winner: "Ranking comparison unavailable",
+            detail: "Matching manager scores were not found in both seasons."
+        };
+    } catch (error) {
+        console.warn("Most Improved Manager calculation failed:", error);
+        return {
+            winner: "Ranking comparison unavailable",
+            detail: "The previous-season ranking source could not be loaded."
+        };
+    }
+}
+
+function calculateManagerOfYearFromMatchups(weeklyMatchups, rosterToUser) {
+    const wins = {};
+    const points = {};
+
+    weeklyMatchups.forEach(matchups => {
+        if (!matchupWeekHasScoring(matchups)) return;
+
+        const entries = matchups.map(matchup => ({
+            name: rosterToUser[matchup.roster_id] || `Team ${matchup.roster_id}`,
+            points: Number(matchup.points) || 0
+        })).sort((a,b) => b.points - a.points);
+
+        const winner = entries[0];
+        if (!winner) return;
+
+        wins[winner.name] = (wins[winner.name] || 0) + 1;
+        points[winner.name] = (points[winner.name] || 0) + winner.points;
+    });
+
+    const best = Object.keys(wins).map(name => ({
+        name, wins:wins[name], points:points[name] || 0
+    })).sort((a,b) => b.wins - a.wins || b.points - a.points)[0];
+
+    return best ? {
+        winner: best.name,
+        detail: `${best.wins} Manager of the Week award${best.wins === 1 ? "" : "s"}`
+    } : {
+        winner:"Unavailable",
+        detail:"No completed weekly scoring data is available."
+    };
+}
+
+function calculateGameOfYearFromMatchups(weeklyMatchups, rosterToUser) {
+    const games = [];
+
+    weeklyMatchups.forEach((matchups, weekIndex) => {
+        const groups = {};
+        matchups.forEach(matchup => {
+            if (matchup.matchup_id == null) return;
+            (groups[matchup.matchup_id] ||= []).push(matchup);
+        });
+
+        Object.values(groups).forEach(pair => {
+            if (pair.length < 2) return;
+            const a = pair[0], b = pair[1];
+            const pointsA = Number(a.points) || 0;
+            const pointsB = Number(b.points) || 0;
+            if (pointsA === 0 && pointsB === 0) return;
+
+            games.push({
+                week:weekIndex + 1,
+                nameA:rosterToUser[a.roster_id] || `Team ${a.roster_id}`,
+                nameB:rosterToUser[b.roster_id] || `Team ${b.roster_id}`,
+                pointsA, pointsB,
+                margin:Math.abs(pointsA - pointsB),
+                total:pointsA + pointsB
+            });
+        });
+    });
+
+    const best = games.sort((a,b) => a.margin - b.margin || b.total - a.total)[0];
+
+    return best ? {
+        winner:`Week ${best.week}: @${best.nameA} vs. @${best.nameB}`,
+        detail:`${best.pointsA.toFixed(1)}–${best.pointsB.toFixed(1)} • ${best.margin.toFixed(2)}-point margin`
+    } : {
+        winner:"Unavailable",
+        detail:"No completed matchup scoring is available."
+    };
+}
+
+function calculatePlayerOfYearFromMatchups(weeklyMatchups, rosterToUser, players) {
+    const totals = {};
+
+    weeklyMatchups.forEach(matchups => {
+        matchups.forEach(matchup => {
+            Object.entries(matchup?.players_points || {}).forEach(([playerId,value]) => {
+                const points = Number(value) || 0;
+                if (!totals[playerId]) totals[playerId] = {points:0, rosterId:matchup.roster_id};
+                totals[playerId].points += points;
+                totals[playerId].rosterId = matchup.roster_id;
+            });
+        });
+    });
+
+    const best = Object.entries(totals).map(([playerId,data]) => {
+        const player = players?.[playerId] || {};
+        return {
+            name:player.full_name || [player.first_name,player.last_name].filter(Boolean).join(" ") || playerId,
+            points:data.points,
+            manager:rosterToUser[data.rosterId] || `Team ${data.rosterId}`
+        };
+    }).filter(player => player.points > 0).sort((a,b) => b.points - a.points)[0];
+
+    return best ? {
+        winner:best.name,
+        detail:`${best.points.toFixed(1)} fantasy points • Owned by @${best.manager}`
+    } : {
+        winner:"Unavailable",
+        detail:"No player scoring data is available yet."
+    };
+}
+
+function buildSyntheticEndOfSeasonData(users, rosters, players) {
+    const rosterToUser = Object.fromEntries(
+        rosters.map(roster => [
+            roster.roster_id,
+            getManagerDisplayName(users.find(user => user.user_id === roster.owner_id))
+        ])
+    );
+
+    const weeklyMatchups = [];
+
+    for (let week = 1; week <= FANTASY_SEASON_FINAL_WEEK; week++) {
+        weeklyMatchups.push(rosters.map((roster,index) => ({
+            roster_id:roster.roster_id,
+            matchup_id:Math.floor(index / 2) + 1,
+            points:80 + ((index * 7 + week * 3) % 70),
+            players_points:{}
+        })));
+    }
+
+    rosters.forEach((roster,index) => {
+        (roster.players || []).slice(0,5).forEach((playerId,playerIndex) => {
+            weeklyMatchups.forEach((weekMatchups,weekIndex) => {
+                const matchup = weekMatchups.find(item => item.roster_id === roster.roster_id);
+                if (matchup) {
+                    matchup.players_points[playerId] = 5 + ((weekIndex * 4 + playerIndex * 3 + index) % 25);
+                }
+            });
+        });
+    });
+
+    const rankingRows = users.map((user,index) => ({
+        Manager:getManagerDisplayName(user),
+        "Weighted Score":(4 + index * 0.11).toFixed(2)
+    }));
+
+    return {weeklyMatchups,rosterToUser,rankingRows,players};
+}
+
+async function calculateEndOfSeasonAwards({testMode = false} = {}) {
+    if (endOfSeasonAwardsCache && !testMode) return endOfSeasonAwardsCache;
+
+    const [league,users,rosters] = await Promise.all([
+        getLeagueSettings(),
+        fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+        fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
+    ]);
+
+    let weeklyMatchups, rosterToUser, rankingRows, players;
+
+    if (testMode) {
+        const synthetic = buildSyntheticEndOfSeasonData(users,rosters,await getSleeperPlayers());
+        ({weeklyMatchups,rosterToUser,rankingRows,players} = synthetic);
+    } else {
+        weeklyMatchups = await Promise.all(
+            Array.from({length:FANTASY_SEASON_FINAL_WEEK},(_,index) => index + 1)
+                .map(week => fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`))
+        );
+
+        const userLookup = Object.fromEntries(users.map(user => [user.user_id,getManagerDisplayName(user)]));
+        rosterToUser = Object.fromEntries(rosters.map(roster => [
+            roster.roster_id,userLookup[roster.owner_id] || `Team ${roster.roster_id}`
+        ]));
+
+        rankingRows = await fetchCsvRows(csvUrl);
+        players = await getSleeperPlayers();
+    }
+
+    const managerOfYear = calculateManagerOfYearFromMatchups(weeklyMatchups,rosterToUser);
+    const gameOfYear = calculateGameOfYearFromMatchups(weeklyMatchups,rosterToUser);
+    const playerOfYear = calculatePlayerOfYearFromMatchups(weeklyMatchups,rosterToUser,players);
+    const mostImproved = await calculateMostImprovedManager(users,rankingRows,testMode);
+
+    let champion;
+
+    if (testMode) {
+        const totals = {};
+        weeklyMatchups.forEach(matchups => matchups.forEach(matchup => {
+            totals[matchup.roster_id] = (totals[matchup.roster_id] || 0) + (Number(matchup.points) || 0);
+        }));
+
+        const winnerRosterId = Object.entries(totals).sort((a,b) => b[1] - a[1])[0]?.[0];
+        const winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerRosterId)) || rosters[0];
+        const winnerUser = users.find(user => user.user_id === winnerRoster?.owner_id);
+
+        champion = {name:getManagerDisplayName(winnerUser),teamName:getTeamDisplayName(winnerUser)};
+    } else {
+        const winnerRosterId =
+            league?.metadata?.latest_league_winner_roster_id ??
+            league?.settings?.latest_league_winner_roster_id;
+
+        let winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerRosterId));
+
+        if (!winnerRoster) {
+            winnerRoster = [...rosters]
+                .filter(roster => Number.isFinite(Number(roster?.settings?.rank)))
+                .sort((a,b) => Number(a.settings.rank) - Number(b.settings.rank))[0];
+        }
+
+        if (!winnerRoster) {
+            const finalWeek = weeklyMatchups[FANTASY_SEASON_FINAL_WEEK - 1] || [];
+            const winnerEntry = [...finalWeek].sort((a,b) => (Number(b.points)||0) - (Number(a.points)||0))[0];
+            winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerEntry?.roster_id));
+        }
+
+        const winnerUser = users.find(user => user.user_id === winnerRoster?.owner_id);
+        champion = {name:getManagerDisplayName(winnerUser),teamName:getTeamDisplayName(winnerUser)};
+    }
+
+    const result = {
+        season:getCurrentSeasonYear(league),
+        champion,managerOfYear,mostImproved,gameOfYear,playerOfYear
+    };
+
+    if (!testMode) endOfSeasonAwardsCache = result;
+    return result;
+}
+
+async function renderEndOfSeasonState({testMode = false} = {}) {
+    try {
+        const awards = await calculateEndOfSeasonAwards({testMode});
+        renderChampionCard(awards.champion,awards.season);
+        renderYearEndAwards({
+            managerOfYear:awards.managerOfYear,
+            mostImproved:awards.mostImproved,
+            gameOfYear:awards.gameOfYear,
+            playerOfYear:awards.playerOfYear
+        },awards.season,testMode);
+    } catch (error) {
+        console.error("End-of-season awards error:",error);
+
+        const center = document.getElementById("scoreboard-container");
+        if (center) center.innerHTML = `<div style="padding:35px 20px;text-align:center;color:#f87171;">Unable to load end-of-season championship data.</div>`;
+
+        const right = document.getElementById("automated-bulletin-content");
+        if (right) right.innerHTML = `<div class="tcwr-empty">Unable to calculate year-end awards.</div>`;
+    }
+}
+
 /* =========================================================
    NFL SEASON KICKOFF COUNTDOWN
    Shows the countdown before kickoff.
@@ -3020,6 +3494,11 @@ async function showScoreboardAfterKickoff() {
 }
 
 async function initializeCountdownOrScoreboard() {
+    if (END_OF_SEASON_TEST_MODE || await hasFantasySeasonEnded()) {
+        await renderEndOfSeasonState({ testMode: END_OF_SEASON_TEST_MODE });
+        return;
+    }
+
     if (Date.now() < NFL_SEASON_KICKOFF.getTime()) {
        clearScoreboardRefreshTimer();
         createKickoffCountdown();

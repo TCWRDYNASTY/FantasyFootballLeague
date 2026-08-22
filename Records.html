@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +10,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;600;700;900&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    
 
 <style>
 :root{
@@ -118,6 +118,8 @@ body::after{
   letter-spacing:.04em;
   background:linear-gradient(145deg,rgba(244,190,61,.28),rgba(244,190,61,.03));
   box-shadow:inset 0 0 18px rgba(244,190,61,.1),0 0 24px rgba(244,190,61,.08);
+  cursor:pointer;
+  text-decoration:none;
 }
 
 .brand-name,.brand-subtitle{
@@ -600,6 +602,7 @@ main{
   }
 
   .modal-overlay{padding:8px}
+
   .modal-content{
     height:calc(100vh - 16px);
     border-radius:19px;
@@ -620,7 +623,7 @@ main{
 <body>
 <header class="top-bar">
   <div class="brand">
-    <div class="brand-mark" aria-hidden="true">TCWR</div>
+    <a class="brand-mark" href="https://tcwrdynasty.github.io/FantasyFootballLeague/" aria-label="Home">TCWR</a>
     <div>
       <span class="brand-name">TCWR Dynasty League</span>
       <span class="brand-subtitle">Manager Performance Index</span>
@@ -638,25 +641,25 @@ main{
     <div class="heading-chip">Weighted Score / 10</div>
   </header>
 
-<div class="ranking-grid" id="leaderboard">
+  <div class="ranking-grid" id="leaderboard">
     <p style="text-align: center; grid-column: 1/-1;">Loading rankings...</p>
-</div>
+  </div>
 </main>
 
 <div class="footer-action-container">
-    <button class="embed-trigger-btn" id="openModalBtn">The Ranking Algorithm</button>
+  <button class="embed-trigger-btn" id="openModalBtn">The Ranking Algorithm</button>
 </div>
 
 <div class="modal-overlay" id="sheetModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 class="modal-title">TCWR DY-NASTY Manager Ranking Algorithm</h3>
-            <button class="modal-close-btn" id="closeModalBtn">&times;</button>
-        </div>
-        <div class="modal-body">
-            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?widget=true&amp;headers=false&amp;chrome=false"></iframe>
-        </div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">TCWR DY-NASTY Manager Ranking Algorithm</h3>
+      <button class="modal-close-btn" id="closeModalBtn">&times;</button>
     </div>
+    <div class="modal-body">
+      <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?widget=true&amp;headers=false&amp;chrome=false"></iframe>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -681,24 +684,24 @@ async function fetchAndDisplayRankings() {
         const container = document.getElementById('leaderboard');
         container.innerHTML = "";
 
-       // 3. The Loop (Starting at Row 4 / Index 3)
+        // 3. The Loop (Starting at Row 4 / Index 3)
         for (let i = 3; i < rows.length; i++) {
             const col = rows[i];
             
             // Skip rows that don't have a valid Rank in Column A
             if (!col[0] || isNaN(col[0])) continue; 
 
-            const rank = col[0];        // Column A (Index 0)
-            const manager = col[1];     // Column B (Index 1)
-            const totalScore = col[2];  // Column C (Index 2)
+            const rank = col[0];
+            const manager = col[1];
+            const totalScore = col[2];
             
             // Shifting indices to fix the "one column to the right" issue
-            const winPctPts = col[6];   // Column H 
-            const tpfPts = col[8];      // Column J (Index 9)
-            const tpaPts = col[10];     // Column L (Index 11)
-            const playoffPts = col[12]; // Column N (Index 13)
-            const champAppPts = col[14];// Column P (Index 15)
-            const ringsPts = col[16];   // Column R (Index 17)
+            const winPctPts = col[6];
+            const tpfPts = col[8];
+            const tpaPts = col[10];
+            const playoffPts = col[12];
+            const champAppPts = col[14];
+            const ringsPts = col[16];
 
             container.innerHTML += `
                 <div class="ranking-card" data-rank="${rank}">
@@ -722,6 +725,7 @@ async function fetchAndDisplayRankings() {
                     </div>
                 </div>`;
         }
+
         container.innerHTML += `
             <div class="ranking-card info-card">
                 <div class="info-header">Point Assignment</div>
@@ -755,7 +759,7 @@ openBtn.addEventListener('click', () => {
 
 closeBtn.addEventListener('click', () => {
     modal.classList.remove('active');
-    document.body.style.overflow = ''; // Re-enables background scrolling
+    document.body.style.overflow = '';
 });
 
 // Close modal if user clicks outside the dashboard wrapper box
@@ -772,6 +776,7 @@ fetchAndDisplayRankings();
 <script>
 (() => {
   "use strict";
+
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       modal.classList.remove("active");
@@ -788,5 +793,7 @@ fetchAndDisplayRankings();
   }
 })();
 </script>
+
 </body>
 </html>
+```

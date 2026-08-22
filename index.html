@@ -1129,13 +1129,7 @@ const SCOREBOARD_MIN_WEEK = 1;
 const SCOREBOARD_MAX_WEEK = 14;
 const SCOREBOARD_REFRESH_MS = 60 * 1000;
 
-/* === END-OF-SEASON AWARDS ===
-   Set END_OF_SEASON_TEST_MODE = true to preview the
-   championship + year-end awards immediately.
-   Test mode uses synthetic season scoring for layout/testing.
-   Set it back to false for normal live-season behavior.
-*/
-const END_OF_SEASON_TEST_MODE = true;
+/* === END-OF-SEASON AWARDS === */
 const FANTASY_SEASON_FINAL_WEEK = 14;
 
 /* Optional previous-season Manager Rankings CSV.
@@ -2346,8 +2340,8 @@ async function initializeLeagueBulletin() {
     ensureLeagueBulletinShell();
     loadBulletin();
 
-    if (END_OF_SEASON_TEST_MODE || await hasFantasySeasonEnded()) {
-        await renderEndOfSeasonState({ testMode: END_OF_SEASON_TEST_MODE });
+    if (await hasFantasySeasonEnded()) {
+        await renderEndOfSeasonState();
         return;
     }
 
@@ -2934,7 +2928,6 @@ async function getRawSleeperWeek() {
 }
 
 async function hasFantasySeasonEnded() {
-    if (END_OF_SEASON_TEST_MODE) return true;
     return (await getRawSleeperWeek()) > FANTASY_SEASON_FINAL_WEEK;
 }
 
@@ -2965,7 +2958,7 @@ function renderChampionCard(champion, season) {
     `;
 }
 
-function renderYearEndAwards(awards, season, testMode = false) {
+function renderYearEndAwards(awards, season) {
     const target = document.getElementById("automated-bulletin-content");
     if (!target) return;
 
@@ -2982,7 +2975,7 @@ function renderYearEndAwards(awards, season, testMode = false) {
         <section class="tcwr-year-end-card">
             <div class="tcwr-year-end-header">🏆 TCWR DY-NASTY AWARDS</div>
             <div class="tcwr-year-end-subheader">
-                ${escapeBulletinHtml(season)} SEASON${testMode ? " • TEST MODE" : ""}
+                ${escapeBulletinHtml(season)} SEASON
             </div>
             ${row("manager","👑 Manager of the Year",awards.managerOfYear.winner,awards.managerOfYear.detail)}
             ${row("improved","📈 Most Improved Manager",awards.mostImproved.winner,awards.mostImproved.detail)}
@@ -3017,40 +3010,7 @@ function findRankingRow(rows, managerName) {
     return rows.find(row => targets.includes(row.manager.toLowerCase()));
 }
 
-async function calculateMostImprovedManager(users, currentRankingRows, testMode = false) {
-    if (testMode && !PREVIOUS_RANKINGS_CSV_URL) {
-        const currentRows = normalizeRankingRows(currentRankingRows);
-        const previousRows = currentRows.map((row, index) => ({
-            manager: row.manager,
-            score: row.score - (0.08 + index * 0.03)
-        }));
-
-        const candidates = users.map(user => {
-            const manager = getFriendlyManagerName(user);
-            const current = findRankingRow(currentRows, manager);
-            const previous = findRankingRow(previousRows, manager);
-            if (!current || !previous) return null;
-
-            return {
-                manager,
-                previous: previous.score,
-                current: current.score,
-                improvement: current.score - previous.score
-            };
-        }).filter(Boolean);
-
-        candidates.sort((a,b) => b.improvement - a.improvement || b.current - a.current);
-        const best = candidates[0];
-
-        return best ? {
-            winner: best.manager,
-            detail: `${best.previous.toFixed(2)} → ${best.current.toFixed(2)} (${best.improvement >= 0 ? "+" : ""}${best.improvement.toFixed(2)})`
-        } : {
-            winner: "Unavailable",
-            detail: "No test ranking data is available."
-        };
-    }
-
+async function calculateMostImprovedManager(users, currentRankingRows) {
     if (!PREVIOUS_RANKINGS_CSV_URL) {
         return {
             winner: "Previous ranking data unavailable",
@@ -3198,46 +3158,8 @@ function calculatePlayerOfYearFromMatchups(weeklyMatchups, rosterToUser, players
     };
 }
 
-function buildSyntheticEndOfSeasonData(users, rosters, players) {
-    const rosterToUser = Object.fromEntries(
-        rosters.map(roster => [
-            roster.roster_id,
-            getFriendlyManagerName(users.find(user => user.user_id === roster.owner_id))
-        ])
-    );
-
-    const weeklyMatchups = [];
-
-    for (let week = 1; week <= FANTASY_SEASON_FINAL_WEEK; week++) {
-        weeklyMatchups.push(rosters.map((roster,index) => ({
-            roster_id:roster.roster_id,
-            matchup_id:Math.floor(index / 2) + 1,
-            points:80 + ((index * 7 + week * 3) % 70),
-            players_points:{}
-        })));
-    }
-
-    rosters.forEach((roster,index) => {
-        (roster.players || []).slice(0,5).forEach((playerId,playerIndex) => {
-            weeklyMatchups.forEach((weekMatchups,weekIndex) => {
-                const matchup = weekMatchups.find(item => item.roster_id === roster.roster_id);
-                if (matchup) {
-                    matchup.players_points[playerId] = 5 + ((weekIndex * 4 + playerIndex * 3 + index) % 25);
-                }
-            });
-        });
-    });
-
-    const rankingRows = users.map((user,index) => ({
-        Manager:getManagerDisplayName(user),
-        "Weighted Score":(4 + index * 0.11).toFixed(2)
-    }));
-
-    return {weeklyMatchups,rosterToUser,rankingRows,players};
-}
-
-async function calculateEndOfSeasonAwards({testMode = false} = {}) {
-    if (endOfSeasonAwardsCache && !testMode) return endOfSeasonAwardsCache;
+async function calculateEndOfSeasonAwards() {
+    if (endOfSeasonAwardsCache) return endOfSeasonAwardsCache;
 
     const [league,users,rosters] = await Promise.all([
         getLeagueSettings(),
@@ -3245,89 +3167,75 @@ async function calculateEndOfSeasonAwards({testMode = false} = {}) {
         fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
     ]);
 
-    let weeklyMatchups, rosterToUser, rankingRows, players;
+    const weeklyMatchups = await Promise.all(
+        Array.from({length:FANTASY_SEASON_FINAL_WEEK},(_,index) => index + 1)
+            .map(week => fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`))
+    );
 
-    if (testMode) {
-        const synthetic = buildSyntheticEndOfSeasonData(users,rosters,await getSleeperPlayers());
-        ({weeklyMatchups,rosterToUser,rankingRows,players} = synthetic);
-    } else {
-        weeklyMatchups = await Promise.all(
-            Array.from({length:FANTASY_SEASON_FINAL_WEEK},(_,index) => index + 1)
-                .map(week => fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`))
-        );
+    const rawUserLookup = Object.fromEntries(users.map(user => [user.user_id,user]));
+    const rosterToUser = Object.fromEntries(rosters.map(roster => [
+        roster.roster_id,
+        rawUserLookup[roster.owner_id]
+            ? getFriendlyManagerName(rawUserLookup[roster.owner_id])
+            : `Team ${roster.roster_id}`
+    ]));
 
-        const userLookup = Object.fromEntries(users.map(user => [user.user_id,getManagerDisplayName(user)]));
-        const rawUserLookup = Object.fromEntries(users.map(user => [user.user_id,user]));
-        rosterToUser = Object.fromEntries(rosters.map(roster => [
-            roster.roster_id,rawUserLookup[roster.owner_id]
-                ? getFriendlyManagerName(rawUserLookup[roster.owner_id])
-                : `Team ${roster.roster_id}`
-        ]));
-
-        rankingRows = await fetchCsvRows(csvUrl);
-        players = await getSleeperPlayers();
-    }
+    const rankingRows = await fetchCsvRows(csvUrl);
+    const players = await getSleeperPlayers();
 
     const managerOfYear = calculateManagerOfYearFromMatchups(weeklyMatchups,rosterToUser);
     const gameOfYear = calculateGameOfYearFromMatchups(weeklyMatchups,rosterToUser);
     const playerOfYear = calculatePlayerOfYearFromMatchups(weeklyMatchups,rosterToUser,players);
-    const mostImproved = await calculateMostImprovedManager(users,rankingRows,testMode);
+    const mostImproved = await calculateMostImprovedManager(users,rankingRows);
 
-    let champion;
+    const winnerRosterId =
+        league?.metadata?.latest_league_winner_roster_id ??
+        league?.settings?.latest_league_winner_roster_id;
 
-    if (testMode) {
-        const totals = {};
-        weeklyMatchups.forEach(matchups => matchups.forEach(matchup => {
-            totals[matchup.roster_id] = (totals[matchup.roster_id] || 0) + (Number(matchup.points) || 0);
-        }));
+    let winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerRosterId));
 
-        const winnerRosterId = Object.entries(totals).sort((a,b) => b[1] - a[1])[0]?.[0];
-        const winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerRosterId)) || rosters[0];
-        const winnerUser = users.find(user => user.user_id === winnerRoster?.owner_id);
-
-        champion = {name:getFriendlyManagerName(winnerUser),teamName:getTeamDisplayName(winnerUser)};
-    } else {
-        const winnerRosterId =
-            league?.metadata?.latest_league_winner_roster_id ??
-            league?.settings?.latest_league_winner_roster_id;
-
-        let winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerRosterId));
-
-        if (!winnerRoster) {
-            winnerRoster = [...rosters]
-                .filter(roster => Number.isFinite(Number(roster?.settings?.rank)))
-                .sort((a,b) => Number(a.settings.rank) - Number(b.settings.rank))[0];
-        }
-
-        if (!winnerRoster) {
-            const finalWeek = weeklyMatchups[FANTASY_SEASON_FINAL_WEEK - 1] || [];
-            const winnerEntry = [...finalWeek].sort((a,b) => (Number(b.points)||0) - (Number(a.points)||0))[0];
-            winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerEntry?.roster_id));
-        }
-
-        const winnerUser = users.find(user => user.user_id === winnerRoster?.owner_id);
-        champion = {name:getFriendlyManagerName(winnerUser),teamName:getTeamDisplayName(winnerUser)};
+    if (!winnerRoster) {
+        winnerRoster = [...rosters]
+            .filter(roster => Number.isFinite(Number(roster?.settings?.rank)))
+            .sort((a,b) => Number(a.settings.rank) - Number(b.settings.rank))[0];
     }
+
+    if (!winnerRoster) {
+        const finalWeek = weeklyMatchups[FANTASY_SEASON_FINAL_WEEK - 1] || [];
+        const winnerEntry = [...finalWeek]
+            .sort((a,b) => (Number(b.points)||0) - (Number(a.points)||0))[0];
+        winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerEntry?.roster_id));
+    }
+
+    const winnerUser = users.find(user => user.user_id === winnerRoster?.owner_id);
+    const champion = {
+        name:getFriendlyManagerName(winnerUser),
+        teamName:getTeamDisplayName(winnerUser)
+    };
 
     const result = {
         season:getCurrentSeasonYear(league),
-        champion,managerOfYear,mostImproved,gameOfYear,playerOfYear
+        champion,
+        managerOfYear,
+        mostImproved,
+        gameOfYear,
+        playerOfYear
     };
 
-    if (!testMode) endOfSeasonAwardsCache = result;
+    endOfSeasonAwardsCache = result;
     return result;
 }
 
-async function renderEndOfSeasonState({testMode = false} = {}) {
+async function renderEndOfSeasonState() {
     try {
-        const awards = await calculateEndOfSeasonAwards({testMode});
+        const awards = await calculateEndOfSeasonAwards();
         renderChampionCard(awards.champion,awards.season);
         renderYearEndAwards({
             managerOfYear:awards.managerOfYear,
             mostImproved:awards.mostImproved,
             gameOfYear:awards.gameOfYear,
             playerOfYear:awards.playerOfYear
-        },awards.season,testMode);
+        },awards.season);
     } catch (error) {
         console.error("End-of-season awards error:",error);
 
@@ -3508,8 +3416,8 @@ async function showScoreboardAfterKickoff() {
 }
 
 async function initializeCountdownOrScoreboard() {
-    if (END_OF_SEASON_TEST_MODE || await hasFantasySeasonEnded()) {
-        await renderEndOfSeasonState({ testMode: END_OF_SEASON_TEST_MODE });
+    if (await hasFantasySeasonEnded()) {
+        await renderEndOfSeasonState();
         return;
     }
 

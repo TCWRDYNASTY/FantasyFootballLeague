@@ -1,15 +1,16 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#061426" />
-    <title>TCWR FANTASY FOOTBALL DY-NASTY MANAGER RANKINGS</title>
-    <link rel="manifest" href="manifest.json" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;600;700;900&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#061426" />
+
+  <title>TCWR FANTASY FOOTBALL DY-NASTY MANAGER RANKINGS</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;600;700;900&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
 <style>
 :root{
@@ -621,81 +622,139 @@ main{
 </head>
 
 <body>
+
 <header class="top-bar">
   <div class="brand">
-    <a class="brand-mark" href="https://tcwrdynasty.github.io/FantasyFootballLeague/" aria-label="Home">TCWR</a>
+
+    <a
+      class="brand-mark"
+      href="https://tcwrdynasty.github.io/FantasyFootballLeague/"
+      aria-label="Home"
+    >TCWR</a>
+
     <div>
       <span class="brand-name">TCWR Dynasty League</span>
       <span class="brand-subtitle">Manager Performance Index</span>
     </div>
+
   </div>
-  <div class="status-chip"><span>Official Rankings</span></div>
+
+  <div class="status-chip">
+    <span>Official Rankings</span>
+  </div>
 </header>
 
 <main>
+
   <header class="section-heading">
+
     <div>
       <div class="heading-kicker">League Performance Database</div>
       <h1 class="heading-title">Manager Rankings</h1>
     </div>
-    <div class="heading-chip">Weighted Score / 10</div>
+
+    <div class="heading-chip">
+      Weighted Score / 10
+    </div>
+
   </header>
 
   <div class="ranking-grid" id="leaderboard">
-    <p style="text-align: center; grid-column: 1/-1;">Loading rankings...</p>
+    <p style="text-align: center; grid-column: 1/-1;">
+      Loading rankings...
+    </p>
   </div>
+
 </main>
 
 <div class="footer-action-container">
-  <button class="embed-trigger-btn" id="openModalBtn">The Ranking Algorithm</button>
+
+  <button class="embed-trigger-btn" id="openModalBtn">
+    The Ranking Algorithm
+  </button>
+
 </div>
 
 <div class="modal-overlay" id="sheetModal">
+
   <div class="modal-content">
+
     <div class="modal-header">
-      <h3 class="modal-title">TCWR DY-NASTY Manager Ranking Algorithm</h3>
-      <button class="modal-close-btn" id="closeModalBtn">&times;</button>
+
+      <h3 class="modal-title">
+        TCWR DY-NASTY Manager Ranking Algorithm
+      </h3>
+
+      <button class="modal-close-btn" id="closeModalBtn">
+        &times;
+      </button>
+
     </div>
+
     <div class="modal-body">
-      <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?widget=true&amp;headers=false&amp;chrome=false"></iframe>
+
+      <iframe
+        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?widget=true&amp;headers=false&amp;chrome=false">
+      </iframe>
+
     </div>
+
   </div>
+
 </div>
 
 <script>
-const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pub?gid=242455735&single=true&output=csv';
+
+const sheetUrl =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pub?gid=242455735&single=true&output=csv';
 
 async function fetchAndDisplayRankings() {
-    console.log("Status: Fetching CSV data directly..."); 
+
+    console.log("Status: Fetching CSV data directly...");
+
     try {
-        // Fetching directly from Google
-        const response = await fetch(sheetUrl); 
-        
-        if (!response.ok) throw new Error(`Network error: ${response.status}`);
 
-        const csvText = await response.text(); 
-        
-        // 2. The Parser
-        const rows = csvText.split(/\r?\n/).filter(row => row.trim() !== "").map(row => {
-            const matches = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-            return matches ? matches.map(cell => cell.replace(/^"(.*)"$/, '$1').trim()) : [];
-        });
+        const response = await fetch(sheetUrl);
 
-        const container = document.getElementById('leaderboard');
+        if (!response.ok) {
+            throw new Error(`Network error: ${response.status}`);
+        }
+
+        const csvText = await response.text();
+
+        const rows = csvText
+            .split(/\r?\n/)
+            .filter(row => row.trim() !== "")
+            .map(row => {
+
+                const matches =
+                    row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+
+                return matches
+                    ? matches.map(cell =>
+                        cell.replace(/^"(.*)"$/, '$1').trim()
+                    )
+                    : [];
+
+            });
+
+        const container =
+            document.getElementById('leaderboard');
+
         container.innerHTML = "";
 
-        // 3. The Loop (Starting at Row 4 / Index 3)
         for (let i = 3; i < rows.length; i++) {
+
             const col = rows[i];
-            
-            // Skip rows that don't have a valid Rank in Column A
-            if (!col[0] || isNaN(col[0])) continue; 
+
+            if (!col[0] || isNaN(col[0])) {
+                continue;
+            }
 
             const rank = col[0];
             const manager = col[1];
             const totalScore = col[2];
-            
-            // Shifting indices to fix the "one column to the right" issue
+
             const winPctPts = col[6];
             const tpfPts = col[8];
             const tpaPts = col[10];
@@ -704,96 +763,233 @@ async function fetchAndDisplayRankings() {
             const ringsPts = col[16];
 
             container.innerHTML += `
-                <div class="ranking-card" data-rank="${rank}">
-                    <div class="rank-number">${rank}</div>
-                    <div class="manager-info">
-                        <span class="real-name">${manager}</span>
+
+                <div
+                  class="ranking-card"
+                  data-rank="${rank}"
+                >
+
+                    <div class="rank-number">
+                      ${rank}
                     </div>
-                    <div class="total-score">${totalScore} <span>/ 10</span></div>
-                    
+
+                    <div class="manager-info">
+
+                        <span class="real-name">
+                          ${manager}
+                        </span>
+
+                    </div>
+
+                    <div class="total-score">
+                      ${totalScore}
+                      <span>/ 10</span>
+                    </div>
+
                     <div class="stats-sub-grid">
-                        <div class="stat-item"><span class="stat-label">Win %</span><span class="stat-value">${winPctPts}</span></div>
-                        <div class="stat-item"><span class="stat-label">TPF</span><span class="stat-value">${tpfPts}</span></div>
-                        <div class="stat-item"><span class="stat-label">TPA</span><span class="stat-value">${tpaPts}</span></div>
-                        <div class="stat-item"><span class="stat-label">Playoffs</span><span class="stat-value">${playoffPts}</span></div>
-                        <div class="stat-item"><span class="stat-label">Champ App</span><span class="stat-value">${champAppPts}</span></div>
-                        <div class="stat-item"><span class="stat-label">Rings</span><span class="stat-value">${ringsPts}</span></div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">Win %</span>
+                          <span class="stat-value">${winPctPts}</span>
+                        </div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">TPF</span>
+                          <span class="stat-value">${tpfPts}</span>
+                        </div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">TPA</span>
+                          <span class="stat-value">${tpaPts}</span>
+                        </div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">Playoffs</span>
+                          <span class="stat-value">${playoffPts}</span>
+                        </div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">Champ App</span>
+                          <span class="stat-value">${champAppPts}</span>
+                        </div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">Rings</span>
+                          <span class="stat-value">${ringsPts}</span>
+                        </div>
+
                     </div>
 
                     <div class="win-bar-container">
-                        <div class="win-bar-fill" style="width: ${parseFloat(totalScore) * 10}%"></div>
+
+                        <div
+                          class="win-bar-fill"
+                          style="width: ${parseFloat(totalScore) * 10}%">
+                        </div>
+
                     </div>
-                </div>`;
+
+                </div>
+
+            `;
+
         }
 
         container.innerHTML += `
+
             <div class="ranking-card info-card">
-                <div class="info-header">Point Assignment</div>
-                <div class="info-desc">Rankings are weighted based on total performance.</div>
-                <div class="stats-sub-grid">
-                    <div class="stat-item"><span class="stat-label">Win %</span><span class="stat-value">2.0</span></div>
-                    <div class="stat-item"><span class="stat-label">TPF</span><span class="stat-value">2.0</span></div>
-                    <div class="stat-item"><span class="stat-label">TPA</span><span class="stat-value">1.5</span></div>
-                    <div class="stat-item"><span class="stat-label">Playoffs</span><span class="stat-value">1.5</span></div>
-                    <div class="stat-item"><span class="stat-label">Champ App</span><span class="stat-value">1.0</span></div>
-                    <div class="stat-item"><span class="stat-label">Rings</span><span class="stat-value">2.0</span></div>
+
+                <div class="info-header">
+                  Point Assignment
                 </div>
-            </div>`;
+
+                <div class="info-desc">
+                  Rankings are weighted based on total performance.
+                </div>
+
+                <div class="stats-sub-grid">
+
+                    <div class="stat-item">
+                      <span class="stat-label">Win %</span>
+                      <span class="stat-value">2.0</span>
+                    </div>
+
+                    <div class="stat-item">
+                      <span class="stat-label">TPF</span>
+                      <span class="stat-value">2.0</span>
+                    </div>
+
+                    <div class="stat-item">
+                      <span class="stat-label">TPA</span>
+                      <span class="stat-value">1.5</span>
+                    </div>
+
+                    <div class="stat-item">
+                      <span class="stat-label">Playoffs</span>
+                      <span class="stat-value">1.5</span>
+                    </div>
+
+                    <div class="stat-item">
+                      <span class="stat-label">Champ App</span>
+                      <span class="stat-value">1.0</span>
+                    </div>
+
+                    <div class="stat-item">
+                      <span class="stat-label">Rings</span>
+                      <span class="stat-value">2.0</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
 
     } catch (error) {
+
         console.error("Critical Error:", error);
-        document.getElementById('leaderboard').innerHTML = 
-            `<p style="text-align:center; color:#fc8181;"><strong>Data Load Failed</strong><br>${error.message}</p>`;
+
+        document.getElementById('leaderboard').innerHTML =
+
+            `<p style="text-align:center; color:#fc8181;">
+              <strong>Data Load Failed</strong>
+              <br>
+              ${error.message}
+            </p>`;
+
     }
+
 }
 
+
 // --- Modal Control Functionality ---
-const modal = document.getElementById('sheetModal');
-const openBtn = document.getElementById('openModalBtn');
-const closeBtn = document.getElementById('closeModalBtn');
+
+const modal =
+  document.getElementById('sheetModal');
+
+const openBtn =
+  document.getElementById('openModalBtn');
+
+const closeBtn =
+  document.getElementById('closeModalBtn');
+
 
 openBtn.addEventListener('click', () => {
+
     modal.classList.add('active');
+
     document.body.style.overflow = 'hidden';
+
 });
+
 
 closeBtn.addEventListener('click', () => {
+
     modal.classList.remove('active');
+
     document.body.style.overflow = '';
+
 });
 
-// Close modal if user clicks outside the dashboard wrapper box
+
 modal.addEventListener('click', (e) => {
+
     if (e.target === modal) {
+
         modal.classList.remove('active');
+
         document.body.style.overflow = '';
+
     }
+
 });
+
 
 fetchAndDisplayRankings();
+
 </script>
 
 <script>
+
 (() => {
+
   "use strict";
 
   document.addEventListener("keydown", (event) => {
+
     if (event.key === "Escape") {
+
       modal.classList.remove("active");
+
       document.body.style.overflow = "";
+
     }
+
   });
 
+
   if ("serviceWorker" in navigator) {
+
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./service-worker.js").catch((error) => {
-        console.info("Service worker was not registered:", error);
-      });
+
+      navigator.serviceWorker
+        .register("./service-worker.js")
+        .catch((error) => {
+
+          console.info(
+            "Service worker was not registered:",
+            error
+          );
+
+        });
+
     });
+
   }
+
 })();
+
 </script>
 
 </body>
 </html>
-```

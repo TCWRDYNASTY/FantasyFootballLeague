@@ -9,6 +9,7 @@ const urlsToCache = [
   './Records.html',
   './contactcommish.html',
   './legends.html',
+  './media.html',
   './rookiedraftcountdown.html',
 
   './DYNASTYLOGO.png',
@@ -16,6 +17,7 @@ const urlsToCache = [
   './thehomies.jpeg',
   './toilet.png',
   './trophy3.jpeg',
+  './episode1-cover.png',
   './wildlifeentrance.jpeg',
 
   './tcwr-icon-192.png',

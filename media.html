@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#061426">
+<meta name="theme-color" content="#020914">
 
 <title>TCWR Media | Dy-NASTY Podcast</title>
 
@@ -15,25 +15,46 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;600;700;900&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+
 <style>
 
+/* =========================================================
+   TCWR MEDIA
+   ========================================================= */
+
 :root {
+
     --navy-950:#020914;
     --navy-900:#061426;
     --navy-850:#081b31;
     --navy-800:#0b2440;
+
+    --blue-500:#2386d8;
     --blue-400:#45a8ef;
+
+    --cyan-300:#79d8ff;
+
+    --red-500:#e94c52;
     --red-400:#ff7478;
+
     --orange-400:#f8a93d;
     --gold-400:#ffd56b;
+
     --white:#f7fbff;
-    --muted:#a8bdd2;
-    --line:rgba(142,205,255,.16);
-    --shadow:0 24px 70px rgba(0,0,0,.48);
-    --radius-xl:28px;
-    --radius-lg:20px;
-    --radius-md:14px;
+    --muted:#8fa8bd;
+
+    --line:rgba(142,205,255,.15);
+
+    --shadow:
+        0 24px 70px
+        rgba(0,0,0,.48);
+
 }
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
 
 *,
 *::before,
@@ -41,67 +62,110 @@
     box-sizing:border-box;
 }
 
+
 html {
     min-height:100%;
     background:var(--navy-950);
     scroll-behavior:smooth;
 }
 
+
 body {
+
     margin:0;
+
     min-height:100vh;
+
     color:var(--white);
-    font-family:"Montserrat","Inter",sans-serif;
+
+    font-family:
+        "Montserrat",
+        "Inter",
+        sans-serif;
 
     background:
+
         radial-gradient(
             circle at 50% 5%,
             rgba(35,134,216,.22),
+            transparent 32%
+        ),
+
+        radial-gradient(
+            circle at 15% 70%,
+            rgba(233,76,82,.06),
             transparent 30%
         ),
+
         linear-gradient(
             160deg,
             var(--navy-950),
             var(--navy-900) 48%,
             #071d34
         );
+
 }
 
+
+/* =========================================================
+   BACKGROUND EFFECT
+   ========================================================= */
+
 body::before {
+
     content:"";
+
     position:fixed;
+
     inset:0;
+
     z-index:-2;
+
     pointer-events:none;
 
     background:
+
         linear-gradient(
             90deg,
             transparent 49.85%,
-            rgba(121,216,255,.06) 50%,
+            rgba(121,216,255,.055) 50%,
             transparent 50.15%
         ),
+
         repeating-linear-gradient(
             90deg,
             transparent 0,
             transparent 119px,
             rgba(255,255,255,.012) 120px
         );
+
 }
 
+
 body::after {
+
     content:"";
+
     position:fixed;
+
     top:-30vh;
+
     left:50%;
+
     width:60vw;
+
     height:110vh;
+
     transform:translateX(-50%);
+
     z-index:-3;
+
     pointer-events:none;
-    opacity:.28;
+
+    opacity:.25;
 
     background:
+
         linear-gradient(
             180deg,
             rgba(92,190,255,.25),
@@ -109,40 +173,56 @@ body::after {
             transparent 82%
         );
 
-    clip-path:polygon(
-        43% 0,
-        57% 0,
-        100% 100%,
-        0 100%
-    );
+    clip-path:
+        polygon(
+            43% 0,
+            57% 0,
+            100% 100%,
+            0 100%
+        );
 
     filter:blur(18px);
+
 }
 
 
-/* =====================================================
+/* =========================================================
    TOP BAR
-   ===================================================== */
+   ========================================================= */
 
 .topbar {
-    width:min(1480px,calc(100% - 36px));
-    margin:0 auto;
 
-    padding:18px 22px;
+    width:
+        min(
+            1480px,
+            calc(100% - 36px)
+        );
+
+    margin:
+        0 auto;
+
+    padding:
+        18px 22px;
 
     display:flex;
+
     align-items:center;
+
     justify-content:space-between;
 
-    border:1px solid var(--line);
+    border:
+        1px solid
+        var(--line);
+
     border-top:0;
 
     border-radius:
         0 0
-        var(--radius-lg)
-        var(--radius-lg);
+        20px
+        20px;
 
     background:
+
         linear-gradient(
             145deg,
             rgba(15,48,80,.88),
@@ -152,57 +232,107 @@ body::after {
     box-shadow:var(--shadow);
 
     backdrop-filter:blur(18px);
+
 }
+
 
 .brand {
+
     display:flex;
+
     align-items:center;
+
     gap:13px;
+
     text-decoration:none;
+
 }
+
 
 .brand img {
+
     width:48px;
+
     height:48px;
+
     object-fit:contain;
+
 }
+
 
 .brand-text {
+
     display:flex;
+
     flex-direction:column;
+
 }
+
 
 .brand-title {
-    font-family:"Barlow Condensed",sans-serif;
+
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
     font-size:1.35rem;
+
     font-weight:900;
+
     letter-spacing:.04em;
+
     line-height:1;
+
 }
+
 
 .brand-subtitle {
+
     margin-top:4px;
+
     color:#8fa8bd;
-    font-family:"Barlow Condensed",sans-serif;
+
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
     font-size:.65rem;
+
     font-weight:800;
+
     letter-spacing:.13em;
+
     text-transform:uppercase;
+
 }
 
-.home-link {
-    padding:9px 16px;
 
-    border:1px solid rgba(255,213,107,.32);
+.home-link {
+
+    padding:
+        9px 16px;
+
+    border:
+        1px solid
+        rgba(255,213,107,.32);
+
     border-radius:999px;
 
     color:var(--gold-400);
-    background:rgba(2,9,20,.35);
 
-    font-family:"Barlow Condensed",sans-serif;
+    background:
+        rgba(2,9,20,.35);
+
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
     font-size:.78rem;
+
     font-weight:900;
+
     letter-spacing:.08em;
+
     text-transform:uppercase;
 
     text-decoration:none;
@@ -210,48 +340,75 @@ body::after {
     transition:
         transform .18s ease,
         background .18s ease;
+
 }
+
 
 .home-link:hover {
-    transform:translateY(-2px);
-    background:rgba(255,213,107,.08);
+
+    transform:
+        translateY(-2px);
+
+    background:
+        rgba(255,213,107,.08);
+
 }
 
 
-/* =====================================================
+/* =========================================================
    PAGE
-   ===================================================== */
+   ========================================================= */
 
 .page {
-    width:min(1080px,calc(100% - 32px));
-    margin:0 auto;
-    padding:48px 0 70px;
+
+    width:
+        min(
+            1080px,
+            calc(100% - 32px)
+        );
+
+    margin:
+        0 auto;
+
+    padding:
+        48px 0 70px;
+
 }
 
 
-/* =====================================================
+/* =========================================================
    SHOW HEADER
-   ===================================================== */
+   ========================================================= */
 
 .show-header {
+
     display:grid;
-    grid-template-columns:220px minmax(0,1fr);
+
+    grid-template-columns:
+        220px
+        minmax(0,1fr);
 
     gap:30px;
-    align-items:end;
+
+    align-items:center;
 
     padding-bottom:35px;
 
     border-bottom:
         1px solid
         rgba(142,205,255,.14);
+
 }
 
+
 .show-art {
+
     width:220px;
+
     aspect-ratio:1 / 1;
 
     overflow:hidden;
+
     border-radius:18px;
 
     border:
@@ -259,44 +416,66 @@ body::after {
         rgba(255,255,255,.15);
 
     background:
-        linear-gradient(
-            145deg,
-            #102d49,
-            #020914
-        );
+        #061426;
 
     box-shadow:
+
         0 25px 50px
         rgba(0,0,0,.45);
+
 }
+
 
 .show-art img {
+
     width:100%;
+
     height:100%;
+
     object-fit:cover;
+
     display:block;
+
 }
+
 
 .show-info {
+
     min-width:0;
+
 }
+
 
 .show-type {
-    margin:0 0 7px;
 
-    color:var(--orange-400);
+    margin:
+        0 0 7px;
 
-    font-family:"Barlow Condensed",sans-serif;
+    color:
+        var(--orange-400);
+
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
     font-size:.75rem;
+
     font-weight:900;
+
     letter-spacing:.15em;
+
     text-transform:uppercase;
+
 }
 
+
 .show-title {
+
     margin:0;
 
-    font-family:"Barlow Condensed",sans-serif;
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
 
     font-size:
         clamp(
@@ -306,31 +485,49 @@ body::after {
         );
 
     font-weight:900;
+
     line-height:.86;
+
     letter-spacing:-.025em;
+
     text-transform:uppercase;
+
 }
 
+
 .show-description {
+
     max-width:720px;
 
-    margin:18px 0 0;
+    margin:
+        18px 0 0;
 
     color:#b5c8d9;
 
     font-size:.9rem;
+
     line-height:1.65;
+
 }
+
 
 .show-meta {
+
     display:flex;
+
     flex-wrap:wrap;
+
     gap:8px;
+
     margin-top:18px;
+
 }
 
+
 .meta-pill {
-    padding:6px 10px;
+
+    padding:
+        6px 10px;
 
     border:
         1px solid
@@ -339,69 +536,102 @@ body::after {
     border-radius:999px;
 
     color:#9fb8cd;
-    background:rgba(2,9,20,.32);
 
-    font-family:"Barlow Condensed",sans-serif;
+    background:
+        rgba(2,9,20,.32);
+
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
     font-size:.68rem;
+
     font-weight:800;
+
     letter-spacing:.08em;
+
     text-transform:uppercase;
+
 }
 
 
-/* =====================================================
-   EPISODES
-   ===================================================== */
+/* =========================================================
+   EPISODES HEADER
+   ========================================================= */
 
 .episodes-section {
+
     padding-top:32px;
+
 }
 
+
 .section-header {
+
     display:flex;
+
     align-items:center;
+
     justify-content:space-between;
 
     margin-bottom:10px;
+
 }
+
 
 .section-title {
+
     margin:0;
 
-    font-family:"Barlow Condensed",sans-serif;
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
     font-size:2rem;
+
     font-weight:900;
+
     letter-spacing:.04em;
+
     text-transform:uppercase;
+
 }
+
 
 .episode-count {
+
     color:#718ba1;
 
-    font-family:"Barlow Condensed",sans-serif;
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
     font-size:.72rem;
+
     font-weight:900;
+
     letter-spacing:.1em;
+
     text-transform:uppercase;
-}
 
-.episode-list {
-    display:flex;
-    flex-direction:column;
 }
 
 
-/* =====================================================
-   EPISODE
-   ===================================================== */
+/* =========================================================
+   EPISODE ROW
+   ========================================================= */
 
 .episode {
+
     border-bottom:
         1px solid
         rgba(142,205,255,.11);
+
 }
 
+
 .episode-row {
+
     display:grid;
 
     grid-template-columns:
@@ -416,40 +646,50 @@ body::after {
 
     min-height:112px;
 
-    padding:14px 10px;
+    padding:
+        14px 10px;
 
     border-radius:14px;
 
     transition:
         background .18s ease;
+
 }
+
 
 .episode-row:hover {
+
     background:
         rgba(69,168,239,.055);
+
 }
 
-
-/* Episode number */
 
 .episode-number {
+
     color:#657e94;
 
-    font-family:"Barlow Condensed",sans-serif;
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
 
     font-size:1rem;
+
     font-weight:900;
+
     text-align:center;
+
 }
 
 
-/* Episode artwork */
-
 .episode-art {
+
     width:82px;
+
     height:82px;
 
     overflow:hidden;
+
     border-radius:10px;
 
     border:
@@ -457,82 +697,120 @@ body::after {
         rgba(255,255,255,.1);
 
     background:#0b2440;
+
 }
+
 
 .episode-art img {
+
     width:100%;
+
     height:100%;
+
     object-fit:cover;
+
     display:block;
+
 }
 
-
-/* Episode information */
 
 .episode-info {
+
     min-width:0;
+
 }
 
+
 .episode-title {
+
     margin:0;
 
     color:white;
 
-    font-family:"Barlow Condensed",sans-serif;
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
 
     font-size:1.35rem;
+
     font-weight:900;
+
     line-height:1.05;
+
     letter-spacing:.025em;
+
     text-transform:uppercase;
+
 }
 
+
 .episode-description {
-    margin:7px 0 0;
+
+    margin:
+        7px 0 0;
 
     color:#849db2;
 
     font-size:.72rem;
+
     line-height:1.45;
 
     display:-webkit-box;
+
     -webkit-line-clamp:2;
+
     -webkit-box-orient:vertical;
+
     overflow:hidden;
+
 }
 
+
 .episode-meta {
+
     display:flex;
+
     flex-wrap:wrap;
+
     gap:10px;
 
     margin-top:7px;
 
     color:#607a91;
 
-    font-family:"Barlow Condensed",sans-serif;
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
     font-size:.64rem;
+
     font-weight:800;
+
     letter-spacing:.05em;
+
     text-transform:uppercase;
+
 }
 
 
-/* =====================================================
+/* =========================================================
    PLAY BUTTON
-   ===================================================== */
+   ========================================================= */
 
 .play-button {
-    width:46px;
-    height:46px;
+
+    width:48px;
+
+    height:48px;
 
     display:flex;
+
     align-items:center;
+
     justify-content:center;
 
-    flex:0 0 auto;
-
     border:0;
+
     border-radius:50%;
 
     color:white;
@@ -546,7 +824,7 @@ body::after {
 
     box-shadow:
         0 8px 20px
-        rgba(233,76,82,.22);
+        rgba(233,76,82,.25);
 
     cursor:pointer;
 
@@ -555,57 +833,255 @@ body::after {
     transition:
         transform .18s ease,
         filter .18s ease;
+
 }
+
 
 .play-button:hover {
-    transform:scale(1.06);
-    filter:brightness(1.08);
+
+    transform:
+        scale(1.07);
+
+    filter:
+        brightness(1.08);
+
 }
 
-.play-button:active {
-    transform:scale(.96);
+
+.play-button.active {
+
+    background:
+        linear-gradient(
+            135deg,
+            #2386d8,
+            #45a8ef
+        );
+
 }
 
 
-/* =====================================================
-   REDCIRCLE PLAYER
-   ===================================================== */
+/* =========================================================
+   PLAYER SECTION
+   ========================================================= */
 
 .player-area {
+
     display:none;
 
-    padding:
-        0
-        10px
-        18px
-        164px;
+    margin:
+        4px 10px 22px 164px;
+
 }
+
 
 .player-area.active {
+
     display:block;
+
 }
 
-.player-box {
+
+/*
+   This is the dark TCWR shell around
+   the RedCircle player.
+*/
+
+.player-shell {
+
+    position:relative;
+
     overflow:hidden;
 
-    padding:18px;
+    padding:
+        24px;
 
     border:
         1px solid
-        rgba(142,205,255,.14);
+        rgba(121,216,255,.18);
 
-    border-radius:14px;
+    border-radius:20px;
 
     background:
-        rgba(2,9,20,.48);
+
+        radial-gradient(
+            circle at 20% 0%,
+            rgba(69,168,239,.10),
+            transparent 40%
+        ),
+
+        linear-gradient(
+            145deg,
+            rgba(15,48,80,.72),
+            rgba(2,9,20,.96)
+        );
+
+    box-shadow:
+
+        0 20px 45px
+        rgba(0,0,0,.35);
+
 }
 
 
-/* =====================================================
+/* Red accent across the top */
+
+.player-shell::before {
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--red-400),
+            var(--orange-400),
+            transparent
+        );
+
+}
+
+
+/* Player heading */
+
+.player-heading {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    margin-bottom:18px;
+
+}
+
+
+.player-heading-art {
+
+    width:54px;
+
+    height:54px;
+
+    flex:0 0 54px;
+
+    overflow:hidden;
+
+    border-radius:10px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+}
+
+
+.player-heading-art img {
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+
+.player-heading-text {
+
+    min-width:0;
+
+}
+
+
+.now-playing {
+
+    margin:0;
+
+    color:var(--red-400);
+
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
+    font-size:.68rem;
+
+    font-weight:900;
+
+    letter-spacing:.15em;
+
+    text-transform:uppercase;
+
+}
+
+
+.player-title {
+
+    margin:
+        3px 0 0;
+
+    color:white;
+
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
+    font-size:1.25rem;
+
+    font-weight:900;
+
+    line-height:1.05;
+
+    text-transform:uppercase;
+
+}
+
+
+/*
+   IMPORTANT:
+   RedCircle controls the inside of this box.
+   We give it a narrower maximum width so the
+   white area doesn't dominate the entire page.
+*/
+
+.redcircle-container {
+
+    width:100%;
+
+    max-width:850px;
+
+    margin:0 auto;
+
+}
+
+
+/* RedCircle attribution */
+
+.redcircle-link:link,
+.redcircle-link:hover,
+.redcircle-link:active,
+.redcircle-link:visited {
+
+    color:#ea404d;
+
+    text-decoration:none;
+
+}
+
+
+/* =========================================================
    FOOTER
-   ===================================================== */
+   ========================================================= */
 
 .footer {
+
     margin-top:45px;
 
     padding-top:22px;
@@ -616,80 +1092,137 @@ body::after {
 
     color:#5e778d;
 
-    font-family:"Barlow Condensed",sans-serif;
+    font-family:
+        "Barlow Condensed",
+        sans-serif;
+
     font-size:.68rem;
+
     font-weight:800;
+
     letter-spacing:.09em;
+
     text-align:center;
+
     text-transform:uppercase;
+
 }
 
 
-/* =====================================================
+/* =========================================================
    MOBILE
-   ===================================================== */
+   ========================================================= */
 
 @media(max-width:700px) {
 
     .topbar {
-        width:calc(100% - 20px);
-        padding:13px 14px;
+
+        width:
+            calc(100% - 20px);
+
+        padding:
+            13px 14px;
+
     }
+
 
     .brand img {
+
         width:40px;
+
         height:40px;
+
     }
+
 
     .brand-title {
+
         font-size:1.1rem;
+
     }
+
 
     .page {
-        width:calc(100% - 22px);
+
+        width:
+            calc(100% - 22px);
+
         padding-top:30px;
+
     }
+
 
     .show-header {
+
         grid-template-columns:1fr;
+
         gap:20px;
+
         align-items:start;
+
     }
+
 
     .show-art {
-        width:min(220px,65vw);
+
+        width:
+            min(
+                220px,
+                65vw
+            );
+
         margin:0 auto;
+
     }
+
 
     .show-info {
+
         text-align:center;
+
     }
+
 
     .show-description {
+
         margin-left:auto;
+
         margin-right:auto;
+
     }
+
 
     .show-meta {
+
         justify-content:center;
+
     }
 
+
     .show-title {
+
         font-size:
             clamp(
                 3rem,
                 16vw,
                 4.8rem
             );
+
     }
+
 
     .section-header {
-        padding:0 4px;
+
+        padding:
+            0 4px;
+
     }
 
+
     .episode-row {
+
         grid-template-columns:
-            36px
+            30px
             66px
             minmax(0,1fr)
             42px;
@@ -698,55 +1231,100 @@ body::after {
 
         min-height:94px;
 
-        padding:10px 4px;
+        padding:
+            10px 4px;
+
     }
+
 
     .episode-art {
+
         width:66px;
+
         height:66px;
+
     }
+
 
     .episode-number {
+
         font-size:.8rem;
+
     }
+
 
     .episode-title {
+
         font-size:1.05rem;
+
     }
+
 
     .episode-description {
+
         font-size:.67rem;
+
     }
+
 
     .episode-meta {
+
         font-size:.57rem;
+
     }
+
 
     .play-button {
+
         width:42px;
+
         height:42px;
+
     }
+
 
     .player-area {
-        padding:
-            0
-            4px
-            16px
-            112px;
+
+        margin:
+            4px 4px 18px;
+
     }
-}
 
 
-/* =====================================================
-   REDCIRCLE LINK
-   ===================================================== */
+    .player-shell {
 
-.redcircle-link:link,
-.redcircle-link:hover,
-.redcircle-link:active,
-.redcircle-link:visited {
-    color:#ea404d;
-    text-decoration:none;
+        padding:
+            18px 12px;
+
+        border-radius:16px;
+
+    }
+
+
+    .player-heading {
+
+        margin-bottom:14px;
+
+    }
+
+
+    .player-heading-art {
+
+        width:46px;
+
+        height:46px;
+
+        flex-basis:46px;
+
+    }
+
+
+    .player-title {
+
+        font-size:1.05rem;
+
+    }
+
 }
 
 </style>
@@ -756,9 +1334,9 @@ body::after {
 <body>
 
 
-<!-- =====================================================
+<!-- =========================================================
      TOP BAR
-     ===================================================== -->
+     ========================================================= -->
 
 <header class="topbar">
 
@@ -798,16 +1376,16 @@ body::after {
 
 
 
-<!-- =====================================================
-     MAIN PAGE
-     ===================================================== -->
+<!-- =========================================================
+     MAIN
+     ========================================================= -->
 
 <main class="page">
 
 
-    <!-- =================================================
-         SHOW HEADER
-         ================================================= -->
+    <!-- =====================================================
+         SHOW INFORMATION
+         ===================================================== -->
 
     <section class="show-header">
 
@@ -815,8 +1393,8 @@ body::after {
         <div class="show-art">
 
             <img
-                src="DYNASTYLOGO.png"
-                alt="TCWR Dy-NASTY Podcast artwork"
+                src="episode1-cover.png"
+                alt="TCWR Dy-NASTY Podcast"
             >
 
         </div>
@@ -866,9 +1444,9 @@ body::after {
 
 
 
-    <!-- =================================================
+    <!-- =====================================================
          EPISODES
-         ================================================= -->
+         ===================================================== -->
 
     <section class="episodes-section">
 
@@ -884,6 +1462,7 @@ body::after {
             </span>
 
         </div>
+
 
 
         <div class="episode-list">
@@ -902,26 +1481,20 @@ body::after {
                 <div class="episode-row">
 
 
-                    <!-- Episode number -->
-
                     <div class="episode-number">
                         01
                     </div>
 
 
-                    <!-- Episode artwork -->
-
                     <div class="episode-art">
 
                         <img
                             src="episode1-cover.png"
-                            alt="Episode 1 artwork"
+                            alt="Episode 1"
                         >
 
                     </div>
 
-
-                    <!-- Episode information -->
 
                     <div class="episode-info">
 
@@ -964,8 +1537,6 @@ body::after {
                     </div>
 
 
-                    <!-- Play button -->
-
                     <button
                         class="play-button"
                         type="button"
@@ -981,7 +1552,7 @@ body::after {
 
 
                 <!-- =================================================
-                     REDCIRCLE PLAYER
+                     PLAYER
                      ================================================= -->
 
                 <div
@@ -989,44 +1560,84 @@ body::after {
                     id="player-episode1"
                 >
 
-                    <div class="player-box">
+                    <div class="player-shell">
 
 
-                        <script
-                            async
-                            defer
-                            onload="redcircleIframe();"
-                            src="https://api.podcache.net/embedded-player/sh/3dc083a9-aedf-42d1-afc1-766b6fdb76cc/ep/01c97459-9ca2-4d22-a6da-784ab17e32c3">
-                        </script>
+                        <div class="player-heading">
 
 
-                        <div
-                            class="redcirclePlayer-01c97459-9ca2-4d22-a6da-784ab17e32c3">
+                            <div class="player-heading-art">
+
+                                <img
+                                    src="episode1-cover.png"
+                                    alt=""
+                                >
+
+                            </div>
+
+
+                            <div class="player-heading-text">
+
+                                <p class="now-playing">
+                                    Now Playing
+                                </p>
+
+                                <p class="player-title">
+                                    99 Problems, and Every One of Them Is a Roster!
+                                </p>
+
+                            </div>
+
+
                         </div>
 
 
-                        <p
-                            style="
-                                margin-top:3px;
-                                margin-left:11px;
-                                font-family:sans-serif;
-                                font-size:10px;
-                                color:gray;
-                            "
-                        >
 
-                            Powered by
+                        <!-- =========================================
+                             REDCIRCLE PLAYER
+                             ========================================= -->
 
-                            <a
-                                class="redcircle-link"
-                                href="https://redcircle.com?utm_source=rc_embedded_player&utm_medium=web&utm_campaign=embedded_v1"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                        <div class="redcircle-container">
+
+
+                            <script
+                                async
+                                defer
+                                onload="redcircleIframe();"
+                                src="https://api.podcache.net/embedded-player/sh/3dc083a9-aedf-42d1-afc1-766b6fdb76cc/ep/01c97459-9ca2-4d22-a6da-784ab17e32c3">
+                            </script>
+
+
+                            <div
+                                class="redcirclePlayer-01c97459-9ca2-4d22-a6da-784ab17e32c3">
+                            </div>
+
+
+                            <p
+                                style="
+                                    margin-top:3px;
+                                    margin-left:11px;
+                                    font-family:sans-serif;
+                                    font-size:10px;
+                                    color:gray;
+                                "
                             >
-                                RedCircle
-                            </a>
 
-                        </p>
+                                Powered by
+
+                                <a
+                                    class="redcircle-link"
+                                    href="https://redcircle.com?utm_source=rc_embedded_player&utm_medium=web&utm_campaign=embedded_v1"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    RedCircle
+                                </a>
+
+                            </p>
+
+
+                        </div>
 
 
                     </div>
@@ -1035,6 +1646,7 @@ body::after {
 
 
             </article>
+
 
 
             <!-- =================================================
@@ -1048,10 +1660,6 @@ body::after {
 
 
 
-    <!-- =================================================
-         FOOTER
-         ================================================= -->
-
     <footer class="footer">
 
         TCWR DY-NASTY • OFFICIAL LEAGUE MEDIA
@@ -1063,9 +1671,9 @@ body::after {
 
 
 
-<!-- =====================================================
+<!-- =========================================================
      JAVASCRIPT
-     ===================================================== -->
+     ========================================================= -->
 
 <script>
 
@@ -1105,8 +1713,8 @@ document.addEventListener(
 
 
                         /*
-                         * Close any other
-                         * open players.
+                         * Close every other
+                         * player.
                          */
 
                         document
@@ -1131,8 +1739,35 @@ document.addEventListener(
 
 
                         /*
-                         * Open / close
-                         * selected player.
+                         * Reset other buttons.
+                         */
+
+                        document
+                            .querySelectorAll(
+                                ".play-button"
+                            )
+                            .forEach(
+                                function (otherButton) {
+
+                                    if (
+                                        otherButton !== button
+                                    ) {
+
+                                        otherButton.classList.remove(
+                                            "active"
+                                        );
+
+                                        otherButton.textContent =
+                                            "▶";
+
+                                    }
+
+                                }
+                            );
+
+
+                        /*
+                         * Toggle current player.
                          */
 
                         const isOpen =
@@ -1143,20 +1778,36 @@ document.addEventListener(
 
                         if (isOpen) {
 
+
                             player.classList.remove(
                                 "active"
                             );
 
-                            button.textContent = "▶";
+
+                            button.classList.remove(
+                                "active"
+                            );
+
+
+                            button.textContent =
+                                "▶";
 
 
                         } else {
+
 
                             player.classList.add(
                                 "active"
                             );
 
-                            button.textContent = "▲";
+
+                            button.classList.add(
+                                "active"
+                            );
+
+
+                            button.textContent =
+                                "❚❚";
 
 
                             setTimeout(

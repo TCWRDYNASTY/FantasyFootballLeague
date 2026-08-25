@@ -20,7 +20,7 @@
     }
     *{box-sizing:border-box}
     html{min-height:100%;background:var(--n950);scroll-behavior:smooth}
-    body{min-height:100vh;margin:0;padding:0 0 110px;overflow-x:hidden;color:var(--white);font-family:"Montserrat","Inter",sans-serif;background:linear-gradient(rgba(2,9,20,.82),rgba(2,9,20,.96)),url("bylawsbackground.jpeg") center/cover fixed,radial-gradient(circle at 50% 12%,rgba(35,134,216,.24),transparent 32%),linear-gradient(160deg,var(--n950),var(--n900) 48%,#071d34)}
+    body{min-height:100vh;margin:0;padding:0 0 110px;overflow-x:hidden;color:var(--white);font-family:"Montserrat","Inter",sans-serif;background:radial-gradient(circle at 50% 12%,rgba(35,134,216,.24),transparent 32%),linear-gradient(160deg,var(--n950),var(--n900) 48%,#071d34)}
     body.overlay-open{overflow:hidden}
     body::before{content:"";position:fixed;inset:0;z-index:-3;pointer-events:none;background:linear-gradient(90deg,transparent 49.85%,rgba(121,216,255,.1) 50%,transparent 50.15%),repeating-linear-gradient(90deg,transparent 0,transparent 119px,rgba(255,255,255,.015) 120px);mask-image:linear-gradient(to bottom,black,transparent 92%)}
     body::after{content:"";position:fixed;top:-28vh;left:50%;width:58vw;height:110vh;transform:translateX(-50%);z-index:-4;pointer-events:none;opacity:.32;background:linear-gradient(180deg,rgba(92,190,255,.28),rgba(92,190,255,.06) 52%,transparent 82%);clip-path:polygon(43% 0,57% 0,100% 100%,0 100%);filter:blur(18px);animation:beamPulse 6s ease-in-out infinite}
@@ -98,6 +98,12 @@
     };
     firebase.initializeApp(firebaseConfig);
     db=firebase.firestore();
+    // More reliable on GitHub Pages/mobile networks than the default WebChannel transport.
+    try {
+      db.settings({ experimentalForceLongPolling: true });
+    } catch (settingsError) {
+      console.info("Firestore transport setting was not applied:", settingsError);
+    }
 
     // Ranking-sheet manager names are mapped to the Firestore dossier document IDs.
     const dossierIdMap={
@@ -193,50 +199,70 @@
     async function openOverlay(managerId,displayName){
       const overlay=document.getElementById('full-page-overlay');
       const target=document.getElementById('dossier-target');
-      overlay.classList.remove('overlay-hidden');overlay.setAttribute('aria-hidden','false');document.body.classList.add('overlay-open');
-      target.innerHTML=`<div class="dossier-loading"><div class="dossier-loading-title">DECRYPTING DOSSIER...</div><div class="dossier-loading-sub">Accessing Firebase Records for ${escapeHtml(managerId)}</div></div>`;
+      overlay.classList.remove('overlay-hidden');
+      overlay.setAttribute('aria-hidden','false');
+      document.body.classList.add('overlay-open');
+
+      const h2hHtml=generateH2HRows(managerId);
+      target.innerHTML=`
+        <div class="dossier-loading">
+          <div class="dossier-loading-title">LOADING DOSSIER...</div>
+          <div class="dossier-loading-sub">Accessing TCWR career records for ${escapeHtml(displayName||managerId)}</div>
+        </div>`;
+
+      // Build a usable dossier even if Firebase is temporarily unavailable.
+      // The H2H history is already embedded in this page; Firebase adds the career summary.
+      let d={};
+      let firebaseStatus='Live Firebase record';
       try{
+        if(!db) throw new Error('Firestore is not initialized.');
         const doc=await db.collection('managers').doc(managerId).get();
-        if(!doc.exists){
-          target.innerHTML=`<div class="dossier-error">No Firebase dossier was found for <strong>${escapeHtml(displayName||managerId)}</strong>.</div>`;
-          return;
+        if(doc.exists){
+          d=doc.data()||{};
+        }else{
+          firebaseStatus='Firebase record not found';
         }
-        const d=doc.data();
-        const name=d.memberId||displayName||managerId;
-        target.innerHTML=`
-          <div class="dossier-header">
-            <h1>${escapeHtml(name)}</h1>
-            <div class="dossier-subtitle">TCWR Dynasty Manager Dossier</div>
-          </div>
-          <div class="dossier-grid">
-            <div class="dossier-stack">
-              <div class="dossier-section">
-                <h3>Manager Stats</h3>
-                <div class="manager-stat-list">
-                  <div class="manager-stat"><span class="manager-stat-label">Seasons</span><span class="manager-stat-value">${escapeHtml(d.seasons||'0')}</span></div>
-                  <div class="manager-stat"><span class="manager-stat-label">Rank</span><span class="manager-stat-value">#${escapeHtml(d.rank||'N/A')}</span></div>
-                  <div class="manager-stat"><span class="manager-stat-label">Career Record</span><span class="manager-stat-value">${escapeHtml(d.careerRecord||'0-0')}</span></div>
-                  <div class="manager-stat"><span class="manager-stat-label">Win %</span><span class="manager-stat-value">${escapeHtml(d.winPct||'0%')}</span></div>
-                  <div class="manager-stat"><span class="manager-stat-label">Avg PPG</span><span class="manager-stat-value">${escapeHtml(d.careerAvg||'0.00')}</span></div>
-                  <div class="manager-stat"><span class="manager-stat-label">Playoffs</span><span class="manager-stat-value">${escapeHtml(d.playoffAppearances||'0')}</span></div>
-                  <div class="manager-stat" style="grid-column:1/-1"><span class="manager-stat-label">Championships</span><span class="manager-stat-value">${escapeHtml(d.championships||'0')} 🏆</span></div>
-                </div>
-              </div>
-            </div>
-            <div class="dossier-section">
-              <h3>Head-to-Head History</h3>
-              <div class="h2h-scroll">
-                <table>
-                  <thead><tr><th>Opponent</th><th>Rec</th><th>Total PF</th><th>Avg</th><th>Diff</th></tr></thead>
-                  <tbody>${generateH2HRows(managerId)}</tbody>
-                </table>
-              </div>
-            </div>
-          </div>`;
       }catch(e){
-        console.error('Firebase Error:',e);
-        target.innerHTML=`<div class="dossier-error">Failed to decrypt dossier.</div>`;
+        console.warn('Firebase dossier lookup failed; showing local dossier data instead:',e);
+        firebaseStatus='Firebase temporarily unavailable';
       }
+
+      const name=d.memberId||displayName||managerId;
+      const currentRank=d.rank||'N/A';
+      const currentScore=d.totalScore||'N/A';
+      const currentWinPct=d.winPct||'N/A';
+
+      target.innerHTML=`
+        <div class="dossier-header">
+          <h1>${escapeHtml(name)}</h1>
+          <div class="dossier-subtitle">TCWR Dynasty Manager Dossier · ${escapeHtml(firebaseStatus)}</div>
+        </div>
+        <div class="dossier-grid">
+          <div class="dossier-stack">
+            <div class="dossier-section">
+              <h3>Manager Stats</h3>
+              <div class="manager-stat-list">
+                <div class="manager-stat"><span class="manager-stat-label">Seasons</span><span class="manager-stat-value">${escapeHtml(d.seasons||'N/A')}</span></div>
+                <div class="manager-stat"><span class="manager-stat-label">Current Rank</span><span class="manager-stat-value">#${escapeHtml(currentRank)}</span></div>
+                <div class="manager-stat"><span class="manager-stat-label">Career Record</span><span class="manager-stat-value">${escapeHtml(d.careerRecord||'N/A')}</span></div>
+                <div class="manager-stat"><span class="manager-stat-label">Career Win %</span><span class="manager-stat-value">${escapeHtml(currentWinPct)}</span></div>
+                <div class="manager-stat"><span class="manager-stat-label">Avg PPG</span><span class="manager-stat-value">${escapeHtml(d.careerAvg||'N/A')}</span></div>
+                <div class="manager-stat"><span class="manager-stat-label">Playoffs</span><span class="manager-stat-value">${escapeHtml(d.playoffAppearances||'N/A')}</span></div>
+                <div class="manager-stat"><span class="manager-stat-label">Championships</span><span class="manager-stat-value">${escapeHtml(d.championships||'0')} 🏆</span></div>
+                <div class="manager-stat"><span class="manager-stat-label">Ranking Score</span><span class="manager-stat-value">${escapeHtml(currentScore)}${currentScore!=='N/A'?' / 10':''}</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="dossier-section">
+            <h3>Head-to-Head History</h3>
+            <div class="h2h-scroll">
+              <table>
+                <thead><tr><th>Opponent</th><th>Rec</th><th>Total PF</th><th>Avg</th><th>Diff</th></tr></thead>
+                <tbody>${h2hHtml}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>`;
     }
 
     function generateH2HRows(managerId){
@@ -263,7 +289,6 @@
     document.getElementById('full-page-overlay').addEventListener('click',e=>{if(e.target.id==='full-page-overlay')closeOverlay()});
     fetchAndDisplayRankings();
 
-    if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(error=>console.info('Service worker was not registered:',error)))}
   </script>
 </body>
 </html>

@@ -264,6 +264,8 @@ main{
   background:linear-gradient(90deg,transparent,var(--rank-accent),transparent);
 }
 
+.dossier-link{display:block;margin-top:10px;color:var(--orange);font-family:"Barlow Condensed",sans-serif;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.ranking-card{cursor:pointer}
+
 .ranking-card:hover{
   transform:translateY(-6px);
   border-color:color-mix(in srgb,var(--rank-accent) 70%,transparent);
@@ -792,7 +794,7 @@ async function fetchAndDisplayRankings() {
 
                 <div
                   class="ranking-card"
-                  data-rank="${rank}" onclick="openDossier(${JSON.stringify(manager)},${JSON.stringify(manager)},${JSON.stringify(rank)})" role="button" tabindex="0"
+                  data-rank="${String(rank).replace(/"/g,'&quot;')}" data-manager="${String(manager).replace(/"/g,'&quot;')}" role="button" tabindex="0"
                 >
 
                     <div class="rank-number">
@@ -804,6 +806,7 @@ async function fetchAndDisplayRankings() {
                         <span class="real-name">
                           ${manager}
                         </span>
+                        <span class="dossier-link">CLICK TO VIEW DOSSIER</span>
 
                     </div>
 
@@ -1253,7 +1256,12 @@ modal.addEventListener('click', (e) => {
 });
 
 
-document.getElementById("dossierCloseBtn").addEventListener("click",closeDossier);document.getElementById("full-page-overlay").addEventListener("click",e=>{if(e.target.id==="full-page-overlay")closeDossier();});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDossier();});fetchAndDisplayRankings();
+document.getElementById("dossierCloseBtn").addEventListener("click",closeDossier);
+document.getElementById("full-page-overlay").addEventListener("click",e=>{if(e.target.id==="full-page-overlay")closeDossier();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDossier();});
+document.getElementById("leaderboard").addEventListener("click",e=>{const card=e.target.closest(".ranking-card[data-manager]");if(!card)return;openDossier(card.dataset.manager,card.dataset.manager,card.dataset.rank);});
+document.getElementById("leaderboard").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.closest(".ranking-card[data-manager]")){e.preventDefault();const card=e.target.closest(".ranking-card[data-manager]");openDossier(card.dataset.manager,card.dataset.manager,card.dataset.rank);}});
+fetchAndDisplayRankings();
 
 </script>
 

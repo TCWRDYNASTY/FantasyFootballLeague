@@ -4,291 +4,1280 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#061426" />
+
   <title>TCWR FANTASY FOOTBALL DY-NASTY MANAGER RANKINGS</title>
+
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;600;700;900&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-  <style>
-    :root{
-      --n950:#020914;--n900:#061426;--n850:#081b31;--n800:#0b2440;
-      --blue:#45a8ef;--cyan:#79d8ff;--red:#ff7478;--orange:#f8a93d;
-      --gold:#ffd56b;--green:#4ade80;--silver:#d9e2ec;--bronze:#d89a62;
-      --white:#f7fbff;--muted:#a8bdd2;--line:rgba(142,205,255,.18);
-      --shadow:0 24px 70px rgba(0,0,0,.48);--radius-xl:28px;--radius-lg:20px;--radius-md:14px;
-    }
-    *{box-sizing:border-box}
-    html{min-height:100%;background:var(--n950);scroll-behavior:smooth}
-    body{min-height:100vh;margin:0;padding:0 0 110px;overflow-x:hidden;color:var(--white);font-family:"Montserrat","Inter",sans-serif;background:radial-gradient(circle at 50% 12%,rgba(35,134,216,.24),transparent 32%),linear-gradient(160deg,var(--n950),var(--n900) 48%,#071d34)}
-    body.overlay-open{overflow:hidden}
-    body::before{content:"";position:fixed;inset:0;z-index:-3;pointer-events:none;background:linear-gradient(90deg,transparent 49.85%,rgba(121,216,255,.1) 50%,transparent 50.15%),repeating-linear-gradient(90deg,transparent 0,transparent 119px,rgba(255,255,255,.015) 120px);mask-image:linear-gradient(to bottom,black,transparent 92%)}
-    body::after{content:"";position:fixed;top:-28vh;left:50%;width:58vw;height:110vh;transform:translateX(-50%);z-index:-4;pointer-events:none;opacity:.32;background:linear-gradient(180deg,rgba(92,190,255,.28),rgba(92,190,255,.06) 52%,transparent 82%);clip-path:polygon(43% 0,57% 0,100% 100%,0 100%);filter:blur(18px);animation:beamPulse 6s ease-in-out infinite}
+<style>
+:root{
+  --n950:#020914;
+  --n900:#061426;
+  --n850:#081b31;
+  --n800:#0b2440;
+  --blue:#45a8ef;
+  --cyan:#79d8ff;
+  --red:#ff7478;
+  --orange:#f8a93d;
+  --gold:#ffd56b;
+  --green:#4ade80;
+  --silver:#d9e2ec;
+  --bronze:#d89a62;
+  --white:#f7fbff;
+  --muted:#a8bdd2;
+  --line:rgba(142,205,255,.18);
+  --shadow:0 24px 70px rgba(0,0,0,.48);
+  --radius-xl:28px;
+  --radius-lg:20px;
+  --radius-md:14px;
+}
 
-    .top-bar{width:min(1480px,calc(100% - 36px));min-height:72px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid rgba(142,205,255,.16)}
-    .brand{display:flex;align-items:center;gap:12px;min-width:0}.brand-mark{width:44px;aspect-ratio:1;display:grid;place-items:center;flex:0 0 auto;border:1px solid rgba(255,213,107,.58);border-radius:50%;color:var(--gold);font-family:"Barlow Condensed",sans-serif;font-size:1rem;font-weight:900;letter-spacing:.04em;background:linear-gradient(145deg,rgba(244,190,61,.28),rgba(244,190,61,.03));box-shadow:inset 0 0 18px rgba(244,190,61,.1),0 0 24px rgba(244,190,61,.08);cursor:pointer;text-decoration:none}.brand-name,.brand-subtitle{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand-name{font-family:"Barlow Condensed",sans-serif;font-size:1.16rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.brand-subtitle{margin-top:2px;color:var(--muted);font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
-    .status-chip{display:inline-flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid rgba(142,205,255,.2);border-radius:999px;color:#c9e7fa;background:rgba(9,33,58,.72);font-family:"Barlow Condensed",sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.status-chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 12px rgba(255,116,120,.8);animation:statusBlink 1.7s ease-in-out infinite}
-    main{width:min(1480px,calc(100% - 36px));margin:0 auto;padding:clamp(30px,5vw,64px) 0 44px}.section-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(142,205,255,.14)}.heading-kicker{color:var(--orange);font-family:"Barlow Condensed",sans-serif;font-size:.76rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.heading-title{margin:4px 0 0;font-family:"Barlow Condensed",sans-serif;font-size:clamp(2.2rem,4.5vw,4rem);line-height:.94;font-weight:900;letter-spacing:.01em;text-transform:uppercase}.heading-chip{flex:0 0 auto;padding:8px 12px;border:1px solid rgba(248,169,61,.32);border-radius:999px;color:#ffd28f;background:rgba(65,34,8,.32);font-family:"Barlow Condensed",sans-serif;font-size:.82rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-    .ranking-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(18px,2vw,26px);width:100%;margin:0;align-items:stretch}.ranking-grid>p{grid-column:1/-1;margin:0;padding:42px 20px;border:1px solid rgba(142,205,255,.16);border-radius:var(--radius-lg);color:#8fa8bd;background:rgba(4,18,33,.6)}
-    .ranking-card{--rank-accent:var(--blue);position:relative;min-height:355px;display:flex;flex-direction:column;overflow:hidden;padding:26px 22px 22px;border:1px solid rgba(142,205,255,.2);border-radius:var(--radius-lg);background:linear-gradient(150deg,rgba(17,55,91,.82),rgba(4,18,33,.95));box-shadow:0 18px 42px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.04);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;cursor:pointer}.ranking-card::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,transparent,var(--rank-accent),transparent)}.ranking-card:hover{transform:translateY(-6px);border-color:color-mix(in srgb,var(--rank-accent) 70%,transparent);box-shadow:0 24px 54px rgba(0,0,0,.43),0 0 24px color-mix(in srgb,var(--rank-accent) 12%,transparent)}.ranking-card[data-rank="1"]{--rank-accent:var(--gold);background:radial-gradient(circle at 85% 12%,rgba(255,213,107,.18),transparent 30%),linear-gradient(150deg,rgba(76,58,13,.86),rgba(20,17,6,.96))}.ranking-card[data-rank="2"]{--rank-accent:var(--silver);background:radial-gradient(circle at 85% 12%,rgba(217,226,236,.15),transparent 30%),linear-gradient(150deg,rgba(48,61,75,.86),rgba(10,18,28,.96))}.ranking-card[data-rank="3"]{--rank-accent:var(--bronze);background:radial-gradient(circle at 85% 12%,rgba(216,154,98,.16),transparent 30%),linear-gradient(150deg,rgba(77,45,25,.86),rgba(24,13,8,.96))}
-    .rank-number{position:absolute;top:16px;right:16px;width:48px;height:48px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--rank-accent) 65%,transparent);border-radius:50%;color:var(--rank-accent);background:rgba(2,9,20,.46);box-shadow:0 0 18px color-mix(in srgb,var(--rank-accent) 16%,transparent);font-family:"Barlow Condensed",sans-serif;font-size:1.15rem;font-weight:900}.manager-info{margin-bottom:16px;padding:5px 62px 15px 0;border-bottom:1px solid rgba(142,205,255,.12)}.real-name{display:block;color:var(--white);font-family:"Barlow Condensed",sans-serif;font-size:clamp(1.7rem,2.6vw,2.2rem);line-height:.95;font-weight:900;letter-spacing:.02em;text-transform:uppercase}.total-score{margin:8px 0 18px;color:var(--green);font-family:"Barlow Condensed",sans-serif;font-size:3.25rem;line-height:1;font-weight:900;letter-spacing:-.03em}.total-score span{margin-left:3px;color:#8fa8bd;font-family:"Montserrat",sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.04em}.stats-sub-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto;padding:14px;border:1px solid rgba(142,205,255,.1);border-radius:var(--radius-md);background:rgba(2,9,20,.34)}.stat-item{min-width:0;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.025)}.stat-label{display:block;margin-bottom:4px;color:#7891a7;font-family:"Barlow Condensed",sans-serif;font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.stat-value{display:block;color:var(--gold);font-family:"Barlow Condensed",sans-serif;font-size:1.15rem;font-weight:900}.win-bar-container{width:100%;height:8px;margin-top:18px;overflow:hidden;border-radius:999px;background:rgba(2,9,20,.72);box-shadow:inset 0 1px 3px rgba(0,0,0,.45)}.win-bar-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--green));box-shadow:0 0 12px rgba(74,222,128,.34);transition:width 1.5s cubic-bezier(.175,.885,.32,1.275)}
-    .dossier-hint{margin-top:12px;color:#8fa8bd;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-align:center;text-transform:uppercase}.info-card{--rank-accent:var(--green);background:radial-gradient(circle at 85% 12%,rgba(74,222,128,.13),transparent 30%),linear-gradient(150deg,rgba(16,69,65,.78),rgba(4,18,33,.95))}.info-header{margin-bottom:8px;color:var(--green);font-family:"Barlow Condensed",sans-serif;font-size:2rem;line-height:1;font-weight:900;letter-spacing:.02em;text-transform:uppercase}.info-desc{margin-bottom:17px;color:#b6c9d9;font-size:.86rem;line-height:1.55}
+*{box-sizing:border-box}
 
-    .footer-action-container{position:fixed;inset:auto 0 0;z-index:100;display:flex;justify-content:center;padding:18px 16px 20px;pointer-events:none;background:linear-gradient(to top,rgba(2,9,20,1) 52%,rgba(2,9,20,0))}.embed-trigger-btn{min-height:48px;padding:11px 22px;border:1px solid rgba(74,222,128,.48);border-radius:999px;color:#eafff0;background:linear-gradient(135deg,#159447,#0a6a36);box-shadow:0 14px 30px rgba(10,106,54,.34);cursor:pointer;pointer-events:auto;font-family:"Barlow Condensed",sans-serif;font-size:.9rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}.embed-trigger-btn:hover{transform:translateY(-3px);filter:brightness(1.12);box-shadow:0 18px 36px rgba(10,106,54,.44)}
+html{
+  min-height:100%;
+  background:var(--n950);
+  scroll-behavior:smooth;
+}
 
-    #full-page-overlay{position:fixed;inset:0;z-index:1000;padding:clamp(10px,3vw,32px);overflow-y:auto;display:grid;place-items:start center;background:radial-gradient(circle at 50% 0%,rgba(35,134,216,.18),transparent 35%),rgba(1,5,12,.94);backdrop-filter:blur(14px)}.overlay-hidden{display:none!important}.overlay-content{position:relative;width:min(1200px,100%);min-height:min(720px,calc(100vh - 50px));margin:auto;padding:clamp(28px,5vw,58px);border:1px solid rgba(255,213,107,.5);border-radius:var(--radius-xl);background:linear-gradient(145deg,rgba(12,43,72,.98),rgba(3,14,27,.99));box-shadow:0 30px 100px rgba(0,0,0,.72),0 0 38px rgba(255,213,107,.08)}.overlay-content::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}.close-btn{position:absolute;top:14px;right:20px;z-index:1001;width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(255,213,107,.42);border-radius:50%;color:var(--gold);background:rgba(2,9,20,.52);font-size:2rem;cursor:pointer;transition:transform .2s ease,background .2s ease}.close-btn:hover{transform:rotate(90deg);background:rgba(255,213,107,.1)}.dossier-header h1{margin:0;color:var(--gold);font-family:"Barlow Condensed",sans-serif;font-size:clamp(2rem,5vw,3.2rem);line-height:1;text-align:center;text-transform:uppercase}.dossier-subtitle{text-align:center;margin:8px 0 0;color:#8fa8bd;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.dossier-grid{display:grid;grid-template-columns:minmax(260px,.72fr) minmax(0,1.28fr);gap:22px;width:100%;margin-top:30px}.dossier-stack{display:flex;flex-direction:column;gap:20px}.dossier-section{min-width:0;padding:22px;border:1px solid rgba(142,205,255,.17);border-radius:20px;background:linear-gradient(150deg,rgba(25,65,100,.46),rgba(2,9,20,.42))}.dossier-section h3{margin:0 0 18px;padding-bottom:12px;border-bottom:1px solid rgba(255,213,107,.25);color:var(--gold);font-family:"Barlow Condensed",sans-serif;font-size:1.55rem;text-transform:uppercase}.manager-stat-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}.manager-stat{padding:12px;border-radius:12px;background:rgba(255,255,255,.025)}.manager-stat-label{display:block;margin-bottom:4px;color:#7891a7;font-family:"Barlow Condensed",sans-serif;font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.manager-stat-value{display:block;color:#f7fbff;font-family:"Barlow Condensed",sans-serif;font-size:1.3rem;font-weight:900}.h2h-scroll{width:100%;overflow-x:auto;border:1px solid rgba(142,205,255,.12);border-radius:14px;background:rgba(2,9,20,.38)}table{width:100%;min-width:600px;border-collapse:collapse}thead{position:sticky;top:0;z-index:1;background:#07182a;color:var(--gold)}th,td{padding:13px 11px;border-bottom:1px solid rgba(255,255,255,.08);color:#d4e2ee;font-size:.82rem;text-align:center;white-space:nowrap}td:first-child,th:first-child{text-align:left;padding-left:14px}tbody tr:hover{background:rgba(69,168,239,.08)}.dossier-loading{min-height:55vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.dossier-loading-title{font-size:1.5rem;letter-spacing:3px;color:var(--gold);font-family:"Courier New",monospace}.dossier-loading-sub{font-size:.9rem;color:rgba(255,215,0,.5)}.dossier-error{color:#ff7478;text-align:center;padding:50px}
+body{
+  min-height:100vh;
+  margin:0;
+  padding:0 0 110px;
+  overflow-x:hidden;
+  color:var(--white);
+  font-family:"Montserrat","Inter",sans-serif;
+  background:
+    linear-gradient(rgba(2,9,20,.82),rgba(2,9,20,.96)),
+    radial-gradient(circle at 50% 12%,rgba(35,134,216,.24),transparent 32%),
+    linear-gradient(160deg,var(--n950),var(--n900) 48%,#071d34);
+}
 
-    @keyframes beamPulse{0%,100%{opacity:.25;transform:translateX(-50%) scaleX(.94)}50%{opacity:.44;transform:translateX(-50%) scaleX(1.04)}}@keyframes statusBlink{0%,100%{opacity:.45}50%{opacity:1}}
-    @media(max-width:1180px){.ranking-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:900px){.ranking-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dossier-grid{grid-template-columns:1fr}}@media(max-width:650px){.top-bar,main{width:min(100% - 24px,1480px)}.brand-subtitle,.status-chip span{display:none}.section-heading{align-items:flex-start;flex-direction:column}.ranking-grid{grid-template-columns:1fr;gap:18px}.ranking-card{min-height:0}.manager-stat-list{grid-template-columns:1fr 1fr}#full-page-overlay{padding:8px}.overlay-content{min-height:calc(100vh - 16px);padding:62px 14px 22px;border-radius:19px}.footer-action-container{padding-bottom:14px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
-  </style>
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,transparent 49.85%,rgba(121,216,255,.1) 50%,transparent 50.15%),
+    repeating-linear-gradient(90deg,transparent 0,transparent 119px,rgba(255,255,255,.015) 120px);
+  mask-image:linear-gradient(to bottom,black,transparent 92%);
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  top:-28vh;
+  left:50%;
+  width:58vw;
+  height:110vh;
+  transform:translateX(-50%);
+  z-index:-4;
+  pointer-events:none;
+  opacity:.32;
+  background:linear-gradient(180deg,rgba(92,190,255,.28),rgba(92,190,255,.06) 52%,transparent 82%);
+  clip-path:polygon(43% 0,57% 0,100% 100%,0 100%);
+  filter:blur(18px);
+  animation:beamPulse 6s ease-in-out infinite;
+}
+
+.top-bar{
+  width:min(1480px,calc(100% - 36px));
+  min-height:72px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  border-bottom:1px solid rgba(142,205,255,.16);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.brand-mark{
+  width:44px;
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  border:1px solid rgba(255,213,107,.58);
+  border-radius:50%;
+  color:var(--gold);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:1rem;
+  font-weight:900;
+  letter-spacing:.04em;
+  background:linear-gradient(145deg,rgba(244,190,61,.28),rgba(244,190,61,.03));
+  box-shadow:inset 0 0 18px rgba(244,190,61,.1),0 0 24px rgba(244,190,61,.08);
+  cursor:pointer;
+  text-decoration:none;
+}
+
+.brand-name,.brand-subtitle{
+  display:block;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.brand-name{
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:1.16rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.brand-subtitle{
+  margin-top:2px;
+  color:var(--muted);
+  font-size:.7rem;
+  font-weight:600;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.status-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 13px;
+  border:1px solid rgba(142,205,255,.2);
+  border-radius:999px;
+  color:#c9e7fa;
+  background:rgba(9,33,58,.72);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:.82rem;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.status-chip::before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--red);
+  box-shadow:0 0 12px rgba(255,116,120,.8);
+  animation:statusBlink 1.7s ease-in-out infinite;
+}
+
+main{
+  width:min(1480px,calc(100% - 36px));
+  margin:0 auto;
+  padding:clamp(30px,5vw,64px) 0 44px;
+}
+
+.section-heading{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:24px;
+  padding-bottom:16px;
+  border-bottom:1px solid rgba(142,205,255,.14);
+}
+
+.heading-kicker{
+  color:var(--orange);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:.76rem;
+  font-weight:800;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.heading-title{
+  margin:4px 0 0;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:clamp(2.2rem,4.5vw,4rem);
+  line-height:.94;
+  font-weight:900;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+}
+
+.heading-chip{
+  flex:0 0 auto;
+  padding:8px 12px;
+  border:1px solid rgba(248,169,61,.32);
+  border-radius:999px;
+  color:#ffd28f;
+  background:rgba(65,34,8,.32);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:.82rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.ranking-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(18px,2vw,26px);
+  width:100%;
+  margin:0;
+  align-items:stretch;
+}
+
+.ranking-grid>p{
+  grid-column:1/-1;
+  margin:0;
+  padding:42px 20px;
+  border:1px solid rgba(142,205,255,.16);
+  border-radius:var(--radius-lg);
+  color:#8fa8bd;
+  background:rgba(4,18,33,.6);
+}
+
+.ranking-card{
+  --rank-accent:var(--blue);
+  position:relative;
+  min-height:355px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  padding:26px 22px 22px;
+  border:1px solid rgba(142,205,255,.2);
+  border-radius:var(--radius-lg);
+  background:linear-gradient(150deg,rgba(17,55,91,.82),rgba(4,18,33,.95));
+  box-shadow:0 18px 42px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.04);
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+   cursor:pointer;
+}
+
+.ranking-card::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:4px;
+  background:linear-gradient(90deg,transparent,var(--rank-accent),transparent);
+}
+
+.ranking-card:hover{
+  transform:translateY(-6px);
+  border-color:color-mix(in srgb,var(--rank-accent) 70%,transparent);
+  box-shadow:0 24px 54px rgba(0,0,0,.43),0 0 24px color-mix(in srgb,var(--rank-accent) 12%,transparent);
+}
+
+.ranking-card[data-rank="1"]{
+  --rank-accent:var(--gold);
+  background:
+    radial-gradient(circle at 85% 12%,rgba(255,213,107,.18),transparent 30%),
+    linear-gradient(150deg,rgba(76,58,13,.86),rgba(20,17,6,.96));
+}
+
+.ranking-card[data-rank="2"]{
+  --rank-accent:var(--silver);
+  background:
+    radial-gradient(circle at 85% 12%,rgba(217,226,236,.15),transparent 30%),
+    linear-gradient(150deg,rgba(48,61,75,.86),rgba(10,18,28,.96));
+}
+
+.ranking-card[data-rank="3"]{
+  --rank-accent:var(--bronze);
+  background:
+    radial-gradient(circle at 85% 12%,rgba(216,154,98,.16),transparent 30%),
+    linear-gradient(150deg,rgba(77,45,25,.86),rgba(24,13,8,.96));
+}
+
+.rank-number{
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border:1px solid color-mix(in srgb,var(--rank-accent) 65%,transparent);
+  border-radius:50%;
+  color:var(--rank-accent);
+  background:rgba(2,9,20,.46);
+  box-shadow:0 0 18px color-mix(in srgb,var(--rank-accent) 16%,transparent);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:1.15rem;
+  font-weight:900;
+}
+
+.manager-info{
+  margin-bottom:16px;
+  padding:5px 62px 15px 0;
+  border-bottom:1px solid rgba(142,205,255,.12);
+}
+
+.real-name{
+  display:block;
+  color:var(--white);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:clamp(1.7rem,2.6vw,2.2rem);
+  line-height:.95;
+  font-weight:900;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+
+.total-score{
+  margin:8px 0 18px;
+  color:var(--green);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:3.25rem;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:-.03em;
+}
+
+.total-score span{
+  margin-left:3px;
+  color:#8fa8bd;
+  font-family:"Montserrat",sans-serif;
+  font-size:.78rem;
+  font-weight:700;
+  letter-spacing:.04em;
+}
+
+.stats-sub-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:auto;
+  padding:14px;
+  border:1px solid rgba(142,205,255,.1);
+  border-radius:var(--radius-md);
+  background:rgba(2,9,20,.34);
+}
+
+.stat-item{
+  min-width:0;
+  padding:9px 10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.025);
+}
+
+.stat-label{
+  display:block;
+  margin-bottom:4px;
+  color:#7891a7;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:.66rem;
+  font-weight:800;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.stat-value{
+  display:block;
+  color:var(--gold);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:1.15rem;
+  font-weight:900;
+}
+
+.win-bar-container{
+  width:100%;
+  height:8px;
+  margin-top:18px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(2,9,20,.72);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.45);
+}
+
+.win-bar-fill{
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--blue),var(--green));
+  box-shadow:0 0 12px rgba(74,222,128,.34);
+  transition:width 1.5s cubic-bezier(.175,.885,.32,1.275);
+}
+
+.info-card{
+  --rank-accent:var(--green);
+  background:
+    radial-gradient(circle at 85% 12%,rgba(74,222,128,.13),transparent 30%),
+    linear-gradient(150deg,rgba(16,69,65,.78),rgba(4,18,33,.95));
+}
+
+.info-header{
+  margin-bottom:8px;
+  color:var(--green);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:2rem;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+
+.info-desc{
+  margin-bottom:17px;
+  color:#b6c9d9;
+  font-size:.86rem;
+  line-height:1.55;
+}
+
+.footer-action-container{
+  position:fixed;
+  inset:auto 0 0;
+  z-index:100;
+  display:flex;
+  justify-content:center;
+  padding:18px 16px 20px;
+  pointer-events:none;
+  background:linear-gradient(to top,rgba(2,9,20,1) 52%,rgba(2,9,20,0));
+}
+
+.embed-trigger-btn{
+  min-height:48px;
+  padding:11px 22px;
+  border:1px solid rgba(74,222,128,.48);
+  border-radius:999px;
+  color:#eafff0;
+  background:linear-gradient(135deg,#159447,#0a6a36);
+  box-shadow:0 14px 30px rgba(10,106,54,.34);
+  cursor:pointer;
+  pointer-events:auto;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:.9rem;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;
+}
+
+.embed-trigger-btn:hover{
+  transform:translateY(-3px);
+  filter:brightness(1.12);
+  box-shadow:0 18px 36px rgba(10,106,54,.44);
+}
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:grid;
+  place-items:center;
+  padding:clamp(10px,3vw,32px);
+  opacity:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(35,134,216,.18),transparent 35%),
+    rgba(1,5,12,.94);
+  backdrop-filter:blur(14px);
+  transition:opacity .3s ease;
+}
+
+.modal-overlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.modal-content{
+  position:relative;
+  width:min(1200px,100%);
+  height:min(82vh,820px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid rgba(255,213,107,.46);
+  border-radius:var(--radius-xl);
+  background:linear-gradient(145deg,rgba(12,43,72,.98),rgba(3,14,27,.99));
+  box-shadow:0 30px 100px rgba(0,0,0,.72),0 0 38px rgba(255,213,107,.08);
+  transform:translateY(20px) scale(.985);
+  transition:transform .3s ease;
+}
+
+.modal-content::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  z-index:2;
+  height:4px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+
+.modal-overlay.active .modal-content{
+  transform:translateY(0) scale(1);
+}
+
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:18px 20px;
+  border-bottom:1px solid rgba(142,205,255,.13);
+  background:rgba(2,9,20,.34);
+}
+
+.modal-title{
+  margin:0;
+  color:var(--gold);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:clamp(1.4rem,3vw,2rem);
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+
+.modal-close-btn{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  border:1px solid rgba(255,213,107,.35);
+  border-radius:50%;
+  color:var(--gold);
+  background:rgba(2,9,20,.44);
+  font-size:1.8rem;
+  line-height:1;
+  cursor:pointer;
+  transition:transform .2s ease,background .2s ease;
+}
+
+.modal-close-btn:hover{
+  transform:rotate(90deg);
+  background:rgba(255,213,107,.1);
+}
+
+.modal-body{
+  flex:1;
+  min-height:0;
+  width:100%;
+}
+
+.modal-body iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  background:white;
+}
+
+
+.overlay-hidden{display:none!important}
+#full-page-overlay{position:fixed;inset:0;z-index:10000;padding:clamp(14px,3vw,40px);overflow-y:auto;display:grid;place-items:start center;background:radial-gradient(circle at 50% 0%,rgba(35,134,216,.18),transparent 35%),rgba(1,5,12,.94);backdrop-filter:blur(15px)}
+.overlay-content{position:relative;width:min(1200px,100%);min-height:min(720px,calc(100vh - 50px));margin:auto;padding:clamp(28px,5vw,58px);border:1px solid rgba(255,213,107,.5);border-radius:28px;background:linear-gradient(145deg,rgba(12,43,72,.97),rgba(3,14,27,.99));box-shadow:0 30px 100px rgba(0,0,0,.72)}
+.overlay-content:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.close-btn{position:absolute;top:14px;right:20px;z-index:10001;width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(255,213,107,.42);border-radius:50%;color:var(--gold);background:rgba(2,9,20,.52);font-size:2rem;cursor:pointer}
+.dossier-grid{display:grid;grid-template-columns:minmax(260px,.72fr) minmax(0,1.28fr);gap:22px;width:100%;margin-top:30px}
+.dossier-section{min-width:0;padding:22px;border:1px solid rgba(142,205,255,.17);border-radius:20px;background:linear-gradient(150deg,rgba(25,65,100,.46),rgba(2,9,20,.42))}
+.dossier-section h3{margin:0 0 18px;padding-bottom:12px;border-bottom:1px solid rgba(255,213,107,.25);color:var(--gold);font-family:"Barlow Condensed",sans-serif;font-size:1.55rem;text-transform:uppercase}
+.h2h-scroll{width:100%;overflow-x:auto;border:1px solid rgba(142,205,255,.12);border-radius:14px;background:rgba(2,9,20,.38)}
+.dossier-table{width:100%;min-width:600px;border-collapse:collapse}
+.dossier-table thead{position:sticky;top:0;z-index:1;background:#07182a;color:var(--gold)}
+.dossier-table th,.dossier-table td{padding:13px 11px;border-bottom:1px solid rgba(255,255,255,.08);color:#d4e2ee;font-size:.82rem;text-align:center;white-space:nowrap}
+.dossier-table td:first-child,.dossier-table th:first-child{text-align:left;padding-left:14px}
+.dossier-stat-list{font-size:.9rem;line-height:1.8;color:white}
+.dossier-stat-list p{margin:.25rem 0}
+@media(max-width:900px){.dossier-grid{grid-template-columns:1fr}}
+@media(max-width:650px){#full-page-overlay{padding:8px}.overlay-content{min-height:calc(100vh - 16px);padding:62px 14px 22px;border-radius:19px}}
+@keyframes beamPulse{
+  0%,100%{opacity:.25;transform:translateX(-50%) scaleX(.94)}
+  50%{opacity:.44;transform:translateX(-50%) scaleX(1.04)}
+}
+
+@keyframes statusBlink{
+  0%,100%{opacity:.45}
+  50%{opacity:1}
+}
+
+@media(max-width:1180px){
+  .ranking-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+@media(max-width:900px){
+  .ranking-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:650px){
+  .top-bar,main{
+    width:min(100% - 24px,1480px);
+  }
+
+  .brand-subtitle,.status-chip span{display:none}
+
+  .section-heading{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .ranking-grid{
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+
+  .ranking-card{
+    min-height:0;
+  }
+
+  .modal-overlay{padding:8px}
+
+  .modal-content{
+    height:calc(100vh - 16px);
+    border-radius:19px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+  }
+}
+</style>
+
 </head>
+
 <body>
-  <header class="top-bar">
-    <div class="brand">
-      <a class="brand-mark" href="https://tcwrdynasty.github.io/FantasyFootballLeague/" aria-label="Home">TCWR</a>
-      <div><span class="brand-name">TCWR Dynasty League</span><span class="brand-subtitle">Manager Performance Index</span></div>
+
+<header class="top-bar">
+  <div class="brand">
+
+    <a
+      class="brand-mark"
+      href="https://tcwrdynasty.github.io/FantasyFootballLeague/"
+      aria-label="Home"
+    >TCWR</a>
+
+    <div>
+      <span class="brand-name">TCWR Dynasty League</span>
+      <span class="brand-subtitle">Manager Performance Index</span>
     </div>
-    <div class="status-chip"><span>Official Rankings</span></div>
+
+  </div>
+
+  <div class="status-chip">
+    <span>Official Rankings</span>
+  </div>
+</header>
+
+<main>
+
+  <header class="section-heading">
+
+    <div>
+      <div class="heading-kicker">League Performance Database</div>
+      <h1 class="heading-title">Manager Rankings</h1>
+    </div>
+
+    <div class="heading-chip">
+      Weighted Score / 10
+    </div>
+
   </header>
 
-  <main>
-    <header class="section-heading">
-      <div><div class="heading-kicker">League Performance Database</div><h1 class="heading-title">Manager Rankings</h1></div>
-      <div class="heading-chip">Weighted Score / 10</div>
-    </header>
-    <div class="ranking-grid" id="leaderboard"><p style="text-align:center;grid-column:1/-1;">Loading rankings...</p></div>
-  </main>
-
-  <div class="footer-action-container">
-    <button class="embed-trigger-btn" id="openModalBtn">The Ranking Algorithm</button>
+  <div class="ranking-grid" id="leaderboard">
+    <p style="text-align: center; grid-column: 1/-1;">
+      Loading rankings...
+    </p>
   </div>
 
-  <div id="full-page-overlay" class="overlay-hidden" aria-hidden="true">
-    <div class="overlay-content">
-      <button class="close-btn" onclick="closeOverlay()" aria-label="Close dossier">&times;</button>
-      <div id="dossier-target"></div>
+</main>
+
+<div class="footer-action-container">
+
+  <button class="embed-trigger-btn" id="openModalBtn">
+    The Ranking Algorithm
+  </button>
+
+</div>
+
+<div class="modal-overlay" id="sheetModal">
+
+  <div class="modal-content">
+
+    <div class="modal-header">
+
+      <h3 class="modal-title">
+        TCWR DY-NASTY Manager Ranking Algorithm
+      </h3>
+
+      <button class="modal-close-btn" id="closeModalBtn">
+        &times;
+      </button>
+
     </div>
-  </div>
 
-  <div class="modal-overlay" id="sheetModal" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:900;padding:clamp(10px,3vw,32px);place-items:center;background:radial-gradient(circle at 50% 0%,rgba(35,134,216,.18),transparent 35%),rgba(1,5,12,.94);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .3s ease;">
-    <div class="modal-content" style="position:relative;width:min(1200px,100%);height:min(82vh,820px);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,213,107,.46);border-radius:var(--radius-xl);background:linear-gradient(145deg,rgba(12,43,72,.98),rgba(3,14,27,.99));box-shadow:0 30px 100px rgba(0,0,0,.72),0 0 38px rgba(255,213,107,.08);">
-      <div class="modal-header" style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;border-bottom:1px solid rgba(142,205,255,.13);background:rgba(2,9,20,.34);">
-        <h3 class="modal-title" style="margin:0;color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.4rem,3vw,2rem);font-weight:900;letter-spacing:.04em;text-transform:uppercase;">TCWR DY-NASTY Manager Ranking Algorithm</h3>
-        <button class="modal-close-btn" id="closeModalBtn" aria-label="Close algorithm" style="width:42px;height:42px;display:grid;place-items:center;flex:0 0 auto;border:1px solid rgba(255,213,107,.35);border-radius:50%;color:var(--gold);background:rgba(2,9,20,.44);font-size:1.8rem;line-height:1;cursor:pointer;">&times;</button>
-      </div>
-      <div class="modal-body" style="flex:1;min-height:0;width:100%;">
-        <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?widget=true&amp;headers=false&amp;chrome=false" style="width:100%;height:100%;border:0;background:white;"></iframe>
-      </div>
+    <div class="modal-body">
+
+      <iframe
+        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?widget=true&amp;headers=false&amp;chrome=false">
+      </iframe>
+
     </div>
+
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <script>
-    const sheetUrl='https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pub?gid=242455735&single=true&output=csv';
-    let db=null;
+</div>
 
-    const firebaseConfig={
-      apiKey:"AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
-      authDomain:"tcwr-dynasty.firebaseapp.com",
-      projectId:"tcwr-dynasty",
-      storageBucket:"tcwr-dynasty.firebasestorage.app",
-      messagingSenderId:"544187199777",
-      appId:"1:544187199777:web:05753208f1daee32558e60"
-    };
-    firebase.initializeApp(firebaseConfig);
-    db=firebase.firestore();
-    // More reliable on GitHub Pages/mobile networks than the default WebChannel transport.
+<div id="full-page-overlay" class="overlay-hidden" aria-hidden="true"><div class="overlay-content"><button class="close-btn" id="dossierCloseBtn" aria-label="Close dossier">&times;</button><div id="dossier-target"></div></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig={apiKey:"AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",authDomain:"tcwr-dynasty.firebaseapp.com",projectId:"tcwr-dynasty",storageBucket:"tcwr-dynasty.firebasestorage.app",messagingSenderId:"544187199777",appId:"1:544187199777:web:05753208f1daee32558e60"};
+let db=null;try{firebase.initializeApp(firebaseConfig);db=firebase.firestore();}catch(e){console.warn("Firebase unavailable:",e);}
+</script>
+<script>
+
+const sheetUrl =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pub?gid=242455735&single=true&output=csv';
+
+async function fetchAndDisplayRankings() {
+
+    console.log("Status: Fetching CSV data directly...");
+
     try {
-      db.settings({ experimentalForceLongPolling: true });
-    } catch (settingsError) {
-      console.info("Firestore transport setting was not applied:", settingsError);
-    }
 
-    // Ranking-sheet manager names are mapped to the Firestore dossier document IDs.
-    const dossierIdMap={
-      "An":"An","Bonnie":"Bonnie","Brad":"Brad","Brian":"Brian","Brittney":"Brittney",
-      "Dianne":"Dianne","Emily":"Emily","Evelyn":"Evelyn","Jess":"Jess","Matt":"Matt",
-      "Nate":"Nate","Steven":"Steven","Sylvester":"Sylvester","Trevor":"Trevor"
-    };
+        const response = await fetch(sheetUrl);
 
-    const managerDataStore={
-      "An":[["@EmMack","1–2","233.02","77.67","-77.16"],["@bcanfield0913","3–1","501.52","125.38","+29.30"],["@drvargas","2–2","438.42","109.61","+1.92"],["@mgreg00x","3–1","491.40","122.85","+66.12"],["@DawgPound247","1–2","305.12","101.71","-14.26"],["@dudenamedtrevor","1–2","336.36","112.12","-73.34"],["@BUNNIESUPBUDDY","0–3","334.24","111.41","-125.24"],["@CrazyCougars","1–2","303.26","101.09","+6.02"],["@lightmyBONfire","0–3","251.20","83.73","-110.32"],["@SanDiegoSuperBurgers","2–1","378.08","126.03","+22.50"],["@Waddlepenguin","1–2","282.98","94.33","-18.08"],["@LycaonPictus","0–2","156.92","78.46","-18.20"],["@TheBeardedVet","1–1","201.38","100.69","+3.64"],["@kscarney24","1–0","164.36","164.36","+71.10"],["@dianne399","0–1","100.10","100.10","-16.02"]],
-      "Bonnie":[["@TheBeardedVet","2–0","254.46","127.23","+74.32"],["@drvargas","3–0","419.08","139.69","+136.64"],["@SanDiegoSuperBurgers","4–0","485.66","121.42","+100.66"],["@TB12isDaddy","3–0","362.16","120.72","+110.96"],["@bcanfield0913","3–0","385.12","128.37","+85.36"],["@EmMack","2–1","253.60","84.53","-11.00"],["@DawgPound247","3–1","509.94","127.49","+57.90"],["@mgreg00x","1–2","362.56","120.85","+2.82"],["@dianne399","1–0","103.78","103.78","+5.94"],["@kscarney24","1–0","123.50","123.50","+25.52"],["@LycaonPictus","1–1","241.28","120.64","+27.12"],["@Waddlepenguin","1–3","418.52","104.63","-11.36"],["@BUNNIESUPBUDDY","0–3","274.98","91.66","-80.48"],["@dudenamedtrevor","0–3","321.52","107.17","-125.10"],["@CrazyCougars","0–3","338.28","112.76","-106.44"]],
-      "Brad":[["@mgreg00x","2–2","378.40","94.60","-15.10"],["@TheBeardedVet","0–1","77.24","77.24","-21.30"],["@TB12isDaddy","2–0","175.08","87.54","+18.16"],["@dudenamedtrevor","0–2","197.56","98.78","-49.78"],["@BUNNIESUPBUDDY","0–2","214.60","107.30","-39.12"],["@bcanfield0913","0–2","206.70","103.35","-6.90"],["@CrazyCougars","1–1","148.30","74.15","-67.76"],["@drvargas","2–0","236.22","118.11","+22.40"],["@DawgPound247","1–1","199.56","99.78","+9.30"],["@EmMack","0–2","164.94","82.47","-86.40"],["@SanDiegoSuperBurgers","0–2","210.60","105.30","-68.20"],["@Waddlepenguin","1–1","236.90","118.45","+13.70"],["@lightmyBONfire","1–1","214.16","107.08","-27.12"],["@dianne399","0–1","83.46","83.46","-23.98"]],
-      "Brian":[["@EmMack","3–0","416.76","138.92","+104.88"],["@drvargas","3–0","341.08","113.69","+76.18"],["@TheBeardedVet","1–1","220.82","110.41","+26.16"],["@CrazyCougars","2–1","345.62","115.21","+21.20"],["@TB12isDaddy","2–1","319.38","106.46","+14.26"],["@Waddlepenguin","2–1","328.52","109.51","+10.36"],["@dianne399","1–0","112.98","112.98","+9.40"],["@kscarney24","1–0","118.76","118.76","+7.74"],["@LycaonPictus","1–1","190.36","95.18","-9.20"],["@mgreg00x","1–2","335.06","111.69","-19.70"],["@bcanfield0913","1–3","323.60","80.90","-23.18"],["@lightmyBONfire","1–3","452.12","113.03","-57.82"],["@BUNNIESUPBUDDY","0–3","343.60","114.53","-95.32"],["@SanDiegoSuperBurgers","1–3","366.06","91.52","-100.68"],["@dudenamedtrevor","0–3","311.86","103.95","-102.44"]],
-      "Brittney":[["@Waddlepenguin","2–1","368.60","122.87","+41.36"],["@mgreg00x","2–1","282.16","94.05","+35.06"],["@dudenamedtrevor","2–1","386.60","128.87","+50.66"],["@DawgPound247","2–2","346.78","86.70","+23.22"],["@EmMack","2–1","318.80","106.27","-11.40"],["@LycaonPictus","2–0","213.60","106.80","+6.90"],["@TB12isDaddy","1–3","472.22","118.06","-29.30"],["@CrazyCougars","1–2","348.72","116.24","+27.40"],["@BUNNIESUPBUDDY","1–2","318.72","106.24","-65.16"],["@dianne399","1–1","164.96","82.48","+4.74"],["@kscarney24","1–0","124.78","124.78","+26.26"],["@SanDiegoSuperBurgers","1–2","378.14","126.05","+14.86"],["@TheBeardedVet","0–2","172.36","86.18","-46.96"],["@drvargas","0–3","338.28","112.76","-40.38"],["@lightmyBONfire","0–3","299.76","99.92","-85.12"]],
-      "Dianne":[["@LycaonPictus","1–0","107.44","107.44","+23.98"],["@TB12isDaddy","1–0","116.12","116.12","+16.02"],["@SanDiegoSuperBurgers","1–0","97.62","97.62","+13.50"],["@bcanfield0913","1–1","160.22","80.11","-4.74"],["@lightmyBONfire","0–1","97.84","97.84","-5.94"],["@DawgPound247","0–1","103.58","103.58","-9.40"],["@CrazyCougars","0–1","77.36","77.36","-10.46"],["@dudenamedtrevor","0–1","66.16","66.16","-11.86"],["@EmMack","0–1","53.30","53.30","-16.94"],["@BUNNIESUPBUDDY","0–1","72.88","72.88","-18.62"],["@mgreg00x","0–1","88.04","88.04","-19.90"],["@drvargas","0–1","75.98","75.98","-29.38"],["@Waddlepenguin","0–1","94.40","133.66","-39.26"]],
-      "Emily":[["@LycaonPictus","2–0","251.34","125.67","+86.40"],["@dianne399","1–0","70.24","70.24","+16.94"],["@drvargas","2–1","294.62","98.21","+14.70"],["@dudenamedtrevor","1–1","176.62","88.31","+6.70"],["@mgreg00x","1–1","248.88","124.44","+5.44"],["@BUNNIESUPBUDDY","2–2","420.22","105.06","-3.52"],["@CrazyCougars","1–1","249.20","124.60","-3.84"],["@TB12isDaddy","1–2","309.80","103.27","-15.76"],["@SanDiegoSuperBurgers","1–2","303.48","101.16","-20.24"],["@lightmyBONfire","1–2","327.90","109.30","-34.90"],["@Waddlepenguin","1–2","275.52","91.84","-46.04"],["@bcanfield0913","1–3","406.84","101.71","-95.22"],["@DawgPound247","0–3","311.88","103.96","-104.88"]],
-      "Evelyn":[["@TB12isDaddy","3–0","458.94","152.98","+124.70"],["@DawgPound247","3–0","438.92","146.31","+95.32"],["@Waddlepenguin","3–0","391.82","130.61","+66.10"],["@SanDiegoSuperBurgers","3–0","392.20","130.73","+65.64"],["@lightmyBONfire","3–0","355.46","118.49","+80.80"],["@drvargas","3–1","482.96","120.74","+22.80"],["@EmMack","3–1","444.06","111.02","+74.30"],["@dudenamedtrevor","2–2","515.84","128.96","+31.70"],["@bcanfield0913","2–1","383.82","127.94","+65.10"],["@CrazyCougars","2–1","382.80","127.60","+70.64"],["@LycaonPictus","2–0","253.72","126.86","+39.12"],["@TheBeardedVet","1–1","258.36","129.18","-16.36"],["@dianne399","1–0","91.50","91.50","+18.62"],["@mgreg00x","1–2","293.14","97.71","-62.06"],["@kscarney24","0–1","59.64","59.64","-63.96"]],
-      "Jess":[["@TheBeardedVet","4–0","493.06","123.27","+101.34"],["@lightmyBONfire","3–0","445.72","148.57","+107.40"],["@drvargas","2–1","340.36","113.45","+13.68"],["@mgreg00x","2–1","406.10","135.37","+63.02"],["@SanDiegoSuperBurgers","2–1","371.70","123.90","+46.00"],["@TB12isDaddy","2–1","296.24","98.75","-7.02"],["@bcanfield0913","2–1","321.64","107.21","-26.38"],["@dudenamedtrevor","2–2","440.40","110.10","-74.36"],["@EmMack","2–1","333.02","111.01","-16.46"],["@LycaonPictus","1–1","216.06","108.03","+67.76"],["@dianne399","1–0","87.82","87.82","+10.46"],["@DawgPound247","1–2","324.42","108.14","-11.40"],["@BUNNIESUPBUDDY","1–2","312.16","104.05","-70.00"],["@Waddlepenguin","1–3","412.48","103.12","-70.40"],["@kscarney24","0–1","67.40","67.40","-75.86"]],
-      "Matt":[["@dudenamedtrevor","3–0","376.94","125.65","+108.36"],["@drvargas","2–1","360.16","120.05","+107.48"],["@TheBeardedVet","2–0","237.82","118.91","+62.22"],["@BUNNIESUPBUDDY","2–1","354.78","118.26","+61.22"],["@lightmyBONfire","2–1","359.56","119.85","+36.88"],["@DawgPound247","2–1","354.76","118.25","+19.72"],["@LycaonPictus","2–2","386.66","96.67","+13.62"],["@SanDiegoSuperBurgers","2–1","336.24","112.08","+11.28"],["@dianne399","1–0","107.94","107.94","+19.90"],["@kscarney24","1–0","143.82","143.82","+12.74"],["@Waddlepenguin","1–2","319.20","106.40","-21.06"],["@bcanfield0913","1–2","246.10","82.03","-37.04"],["@EmMack","1–2","289.66","96.55","-54.42"],["@TB12isDaddy","1–3","425.28","106.32","-66.12"],["@CrazyCougars","1–2","337.12","112.37","-68.20"]],
-      "Nate":[["@lightmyBONfire","3–1","429.88","107.47","+8.76"],["@CrazyCougars","3–1","482.46","120.62","+42.10"],["@drvargas","2–1","322.64","107.55","+9.08"],["@mgreg00x","2–1","340.26","113.42","+21.06"],["@TB12isDaddy","2–1","301.86","100.62","+18.88"],["@dianne399","1–0","133.66","133.66","+39.26"],["@kscarney24","1–0","126.66","126.66","+15.76"],["@LycaonPictus","1–1","223.20","111.60","-13.70"],["@dudenamedtrevor","1–2","300.16","100.05","-7.38"],["@bcanfield0913","1–2","327.24","109.08","-41.36"],["@TheBeardedVet","1–1","216.40","108.20","-16.92"],["@DawgPound247","1–2","318.16","106.05","-10.36"],["@SanDiegoSuperBurgers","0–3","336.92","112.31","-53.78"],["@BUNNIESUPBUDDY","0–3","325.72","108.57","-66.10"],["@EmMack","0–4","384.36","96.09","-69.40"],["@dianne399","1–0","133.66","94.40","+39.26"]],
-      "Steven":[["@bcanfield0913","3–0","408.74","136.25","+70.46"],["@TheBeardedVet","2–0","264.72","132.36","+46.96"],["@dianne399","1–0","105.36","105.36","+29.38"],["@dudenamedtrevor","2–1","369.86","123.29","-1.10"],["@TB12isDaddy","2–2","436.16","109.04","-2.26"],["@CrazyCougars","1–2","360.74","120.25","+20.38"],["@Waddlepenguin","1–2","313.56","104.52","-9.08"],["@EmMack","1–2","279.92","93.31","-14.70"],["@mgreg00x","1–2","290.28","96.76","-69.88"],["@BUNNIESUPBUDDY","1–3","460.18","115.05","-22.78"],["@kscarney24","0–1","102.08","102.08","-12.18"],["@LycaonPictus","0–2","213.82","106.91","-22.40"],["@SanDiegoSuperBurgers","0–4","415.42","103.86","-68.20"],["@DawgPound247","0–3","264.90","88.30","-76.18"],["@lightmyBONfire","0–3","282.44","94.15","-136.64"]],
-      "Sylvester":[["@drvargas","4–0","483.62","120.91","+68.20"],["@EmMack","3–0","383.60","127.87","+109.24"],["@Waddlepenguin","3–0","390.70","130.23","+53.78"],["@LycaonPictus","2–0","278.80","139.40","+68.20"],["@TheBeardedVet","2–0","219.14","109.57","+9.40"],["@kscarney24","1–0","135.12","135.12","+20.78"],["@DawgPound247","3–1","466.74","116.69","+100.68"],["@bcanfield0913","2–1","357.38","119.13","-20.76"],["@dudenamedtrevor","2–1","310.12","103.37","-20.88"],["@mgreg00x","1–2","325.32","108.44","-10.92"],["@TB12isDaddy","1–2","355.72","118.57","-22.36"],["@CrazyCougars","1–2","325.62","108.54","-46.08"],["@dianne399","0–1","84.12","84.12","-13.50"],["@BUNNIESUPBUDDY","0–3","326.56","108.85","-65.64"],["@lightmyBONfire","0–4","385.00","96.25","-100.66"]],
-      "Trevor":[["@lightmyBONfire","3–0","446.72","148.91","+125.20"],["@DawgPound247","3–0","414.30","138.10","+102.12"],["@TB12isDaddy","2–1","409.70","136.57","+72.78"],["@CrazyCougars","2–2","514.42","128.61","+73.98"],["@TheBeardedVet","1–1","263.26","131.63","+71.10"],["@EmMack","3–1","463.24","115.81","+55.10"],["@LycaonPictus","2–0","247.34","123.67","+49.72"],["@SanDiegoSuperBurgers","1–2","331.00","110.33","+20.94"],["@kscarney24","1–0","121.56","121.56","+20.18"],["@Waddlepenguin","2–1","311.54","103.85","+11.36"],["@dianne399","1–0","78.02","78.02","+11.86"],["@drvargas","1–2","370.96","123.65","+0.40"],["@BUNNIESUPBUDDY","2–2","484.16","121.04","-31.68"],["@bcanfield0913","1–2","336.90","112.30","-50.98"],["@mgreg00x","0–3","269.10","89.70","-107.40"]]
-    };
-
-    function parseCsvLine(line){
-      const cells=[];let current='';let quoted=false;
-      for(let i=0;i<line.length;i++){
-        const ch=line[i];
-        if(ch==='"' && line[i+1]==='"' && quoted){current+='"';i++;continue}
-        if(ch==='"'){quoted=!quoted;continue}
-        if(ch===',' && !quoted){cells.push(current.trim());current='';continue}
-        current+=ch;
-      }
-      cells.push(current.trim());
-      return cells;
-    }
-
-    async function fetchAndDisplayRankings(){
-      try{
-        const response=await fetch(sheetUrl);
-        if(!response.ok)throw new Error(`Network error: ${response.status}`);
-        const csvText=await response.text();
-        const rows=csvText.split(/\r?\n/).filter(r=>r.trim()!=="").map(parseCsvLine);
-        const container=document.getElementById('leaderboard');
-        container.innerHTML='';
-
-        for(let i=3;i<rows.length;i++){
-          const col=rows[i];
-          if(!col[0]||isNaN(col[0]))continue;
-          const rank=col[0],manager=col[1],totalScore=col[2];
-          const winPctPts=col[6],tpfPts=col[8],tpaPts=col[10],playoffPts=col[12],champAppPts=col[14],ringsPts=col[16];
-          const managerId=dossierIdMap[manager]||manager;
-          const card=document.createElement('div');
-          card.className='ranking-card';card.dataset.rank=rank;card.dataset.managerId=managerId;card.setAttribute('role','button');card.setAttribute('tabindex','0');card.setAttribute('aria-label',`Open ${manager} manager dossier`);
-          card.innerHTML=`
-            <div class="rank-number">${rank}</div>
-            <div class="manager-info"><span class="real-name">${manager}</span></div>
-            <div class="total-score">${totalScore}<span>/ 10</span></div>
-            <div class="stats-sub-grid">
-              <div class="stat-item"><span class="stat-label">Win %</span><span class="stat-value">${winPctPts}</span></div>
-              <div class="stat-item"><span class="stat-label">TPF</span><span class="stat-value">${tpfPts}</span></div>
-              <div class="stat-item"><span class="stat-label">TPA</span><span class="stat-value">${tpaPts}</span></div>
-              <div class="stat-item"><span class="stat-label">Playoffs</span><span class="stat-value">${playoffPts}</span></div>
-              <div class="stat-item"><span class="stat-label">Champ App</span><span class="stat-value">${champAppPts}</span></div>
-              <div class="stat-item"><span class="stat-label">Rings</span><span class="stat-value">${ringsPts}</span></div>
-            </div>
-            <div class="win-bar-container"><div class="win-bar-fill" style="width:${Math.max(0,Math.min(100,parseFloat(totalScore)*10||0))}%"></div></div>
-            <div class="dossier-hint">Click for manager dossier</div>`;
-          card.addEventListener('click',()=>openOverlay(managerId,manager));
-          card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openOverlay(managerId,manager)}});
-          container.appendChild(card);
+        if (!response.ok) {
+            throw new Error(`Network error: ${response.status}`);
         }
 
-        container.insertAdjacentHTML('beforeend',`<div class="ranking-card info-card" style="cursor:default">
-          <div class="info-header">Point Assignment</div>
-          <div class="info-desc">Rankings are weighted based on total performance. Click any manager card to open the complete career dossier.</div>
-          <div class="stats-sub-grid">
-            <div class="stat-item"><span class="stat-label">Win %</span><span class="stat-value">2.0</span></div>
-            <div class="stat-item"><span class="stat-label">TPF</span><span class="stat-value">2.0</span></div>
-            <div class="stat-item"><span class="stat-label">TPA</span><span class="stat-value">1.5</span></div>
-            <div class="stat-item"><span class="stat-label">Playoffs</span><span class="stat-value">1.5</span></div>
-            <div class="stat-item"><span class="stat-label">Champ App</span><span class="stat-value">1.0</span></div>
-            <div class="stat-item"><span class="stat-label">Rings</span><span class="stat-value">2.0</span></div>
-          </div>
-        </div>`);
-      }catch(error){
-        console.error('Critical Error:',error);
-        document.getElementById('leaderboard').innerHTML=`<p style="text-align:center;color:#fc8181;"><strong>Data Load Failed</strong><br>${error.message}</p>`;
-      }
-    }
+        const csvText = await response.text();
 
-    async function openOverlay(managerId,displayName){
-      const overlay=document.getElementById('full-page-overlay');
-      const target=document.getElementById('dossier-target');
-      overlay.classList.remove('overlay-hidden');
-      overlay.setAttribute('aria-hidden','false');
-      document.body.classList.add('overlay-open');
+        const rows = csvText
+            .split(/\r?\n/)
+            .filter(row => row.trim() !== "")
+            .map(row => {
 
-      const h2hHtml=generateH2HRows(managerId);
-      target.innerHTML=`
-        <div class="dossier-loading">
-          <div class="dossier-loading-title">LOADING DOSSIER...</div>
-          <div class="dossier-loading-sub">Accessing TCWR career records for ${escapeHtml(displayName||managerId)}</div>
-        </div>`;
+                const matches =
+                    row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
 
-      // Build a usable dossier even if Firebase is temporarily unavailable.
-      // The H2H history is already embedded in this page; Firebase adds the career summary.
-      let d={};
-      let firebaseStatus='Live Firebase record';
-      try{
-        if(!db) throw new Error('Firestore is not initialized.');
-        const doc=await db.collection('managers').doc(managerId).get();
-        if(doc.exists){
-          d=doc.data()||{};
-        }else{
-          firebaseStatus='Firebase record not found';
+                return matches
+                    ? matches.map(cell =>
+                        cell.replace(/^"(.*)"$/, '$1').trim()
+                    )
+                    : [];
+
+            });
+
+        const container =
+            document.getElementById('leaderboard');
+
+        container.innerHTML = "";
+
+        for (let i = 3; i < rows.length; i++) {
+
+            const col = rows[i];
+
+            if (!col[0] || isNaN(col[0])) {
+                continue;
+            }
+
+            const rank = col[0];
+            const manager = col[1];
+            const totalScore = col[2];
+
+            const winPctPts = col[6];
+            const tpfPts = col[8];
+            const tpaPts = col[10];
+            const playoffPts = col[12];
+            const champAppPts = col[14];
+            const ringsPts = col[16];
+
+            container.innerHTML += `
+
+                <div
+                  class="ranking-card"
+                  data-rank="${rank}" onclick="openDossier(${JSON.stringify(manager)},${JSON.stringify(manager)},${JSON.stringify(rank)})" role="button" tabindex="0"
+                >
+
+                    <div class="rank-number">
+                      ${rank}
+                    </div>
+
+                    <div class="manager-info">
+
+                        <span class="real-name">
+                          ${manager}
+                        </span>
+
+                    </div>
+
+                    <div class="total-score">
+                      ${totalScore}
+                      <span>/ 10</span>
+                    </div>
+
+                    <div class="stats-sub-grid">
+
+                        <div class="stat-item">
+                          <span class="stat-label">Win %</span>
+                          <span class="stat-value">${winPctPts}</span>
+                        </div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">TPF</span>
+                          <span class="stat-value">${tpfPts}</span>
+                        </div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">TPA</span>
+                          <span class="stat-value">${tpaPts}</span>
+                        </div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">Playoffs</span>
+                          <span class="stat-value">${playoffPts}</span>
+                        </div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">Champ App</span>
+                          <span class="stat-value">${champAppPts}</span>
+                        </div>
+
+                        <div class="stat-item">
+                          <span class="stat-label">Rings</span>
+                          <span class="stat-value">${ringsPts}</span>
+                        </div>
+
+                    </div>
+
+                    <div class="win-bar-container">
+
+                        <div
+                          class="win-bar-fill"
+                          style="width: ${parseFloat(totalScore) * 10}%">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
         }
-      }catch(e){
-        console.warn('Firebase dossier lookup failed; showing local dossier data instead:',e);
-        firebaseStatus='Firebase temporarily unavailable';
-      }
 
-      const name=d.memberId||displayName||managerId;
-      const currentRank=d.rank||'N/A';
-      const currentScore=d.totalScore||'N/A';
-      const currentWinPct=d.winPct||'N/A';
+        container.innerHTML += `
 
-      target.innerHTML=`
-        <div class="dossier-header">
-          <h1>${escapeHtml(name)}</h1>
-          <div class="dossier-subtitle">TCWR Dynasty Manager Dossier · ${escapeHtml(firebaseStatus)}</div>
-        </div>
-        <div class="dossier-grid">
-          <div class="dossier-stack">
-            <div class="dossier-section">
-              <h3>Manager Stats</h3>
-              <div class="manager-stat-list">
-                <div class="manager-stat"><span class="manager-stat-label">Seasons</span><span class="manager-stat-value">${escapeHtml(d.seasons||'N/A')}</span></div>
-                <div class="manager-stat"><span class="manager-stat-label">Current Rank</span><span class="manager-stat-value">#${escapeHtml(currentRank)}</span></div>
-                <div class="manager-stat"><span class="manager-stat-label">Career Record</span><span class="manager-stat-value">${escapeHtml(d.careerRecord||'N/A')}</span></div>
-                <div class="manager-stat"><span class="manager-stat-label">Career Win %</span><span class="manager-stat-value">${escapeHtml(currentWinPct)}</span></div>
-                <div class="manager-stat"><span class="manager-stat-label">Avg PPG</span><span class="manager-stat-value">${escapeHtml(d.careerAvg||'N/A')}</span></div>
-                <div class="manager-stat"><span class="manager-stat-label">Playoffs</span><span class="manager-stat-value">${escapeHtml(d.playoffAppearances||'N/A')}</span></div>
-                <div class="manager-stat"><span class="manager-stat-label">Championships</span><span class="manager-stat-value">${escapeHtml(d.championships||'0')} 🏆</span></div>
-                <div class="manager-stat"><span class="manager-stat-label">Ranking Score</span><span class="manager-stat-value">${escapeHtml(currentScore)}${currentScore!=='N/A'?' / 10':''}</span></div>
-              </div>
+            <div class="ranking-card info-card">
+
+                <div class="info-header">
+                  Point Assignment
+                </div>
+
+                <div class="info-desc">
+                  Rankings are weighted based on total performance.
+                </div>
+
+                <div class="stats-sub-grid">
+
+                    <div class="stat-item">
+                      <span class="stat-label">Win %</span>
+                      <span class="stat-value">2.0</span>
+                    </div>
+
+                    <div class="stat-item">
+                      <span class="stat-label">TPF</span>
+                      <span class="stat-value">2.0</span>
+                    </div>
+
+                    <div class="stat-item">
+                      <span class="stat-label">TPA</span>
+                      <span class="stat-value">1.5</span>
+                    </div>
+
+                    <div class="stat-item">
+                      <span class="stat-label">Playoffs</span>
+                      <span class="stat-value">1.5</span>
+                    </div>
+
+                    <div class="stat-item">
+                      <span class="stat-label">Champ App</span>
+                      <span class="stat-value">1.0</span>
+                    </div>
+
+                    <div class="stat-item">
+                      <span class="stat-label">Rings</span>
+                      <span class="stat-value">2.0</span>
+                    </div>
+
+                </div>
+
             </div>
-          </div>
-          <div class="dossier-section">
-            <h3>Head-to-Head History</h3>
-            <div class="h2h-scroll">
-              <table>
-                <thead><tr><th>Opponent</th><th>Rec</th><th>Total PF</th><th>Avg</th><th>Diff</th></tr></thead>
-                <tbody>${h2hHtml}</tbody>
-              </table>
-            </div>
-          </div>
-        </div>`;
+
+        `;
+
+    } catch (error) {
+
+        console.error("Critical Error:", error);
+
+        document.getElementById('leaderboard').innerHTML =
+
+            `<p style="text-align:center; color:#fc8181;">
+              <strong>Data Load Failed</strong>
+              <br>
+              ${error.message}
+            </p>`;
+
     }
 
-    function generateH2HRows(managerId){
-      const data=managerDataStore[managerId]||[];
-      if(!data.length)return '<tr><td colspan="5" style="text-align:center;color:#8fa8bd;padding:28px;">No head-to-head history available.</td></tr>';
-      return data.map(r=>`<tr><td>${escapeHtml(r[0])}</td><td>${escapeHtml(r[1])}</td><td>${escapeHtml(r[2])}</td><td>${escapeHtml(r[3])}</td><td style="font-weight:bold;color:${String(r[4]).startsWith('+')?'#4ade80':'#f87171'}">${escapeHtml(r[4])}</td></tr>`).join('');
+}
+
+
+const managerDataStore = {
+    "An": [
+        ["@EmMack", "1–2", "233.02", "77.67", "-77.16"],
+        ["@bcanfield0913", "3–1", "501.52", "125.38", "+29.30"],
+        ["@drvargas", "2–2", "438.42", "109.61", "+1.92"],
+        ["@mgreg00x", "3–1", "491.40", "122.85", "+66.12"],
+        ["@DawgPound247", "1–2", "305.12", "101.71", "-14.26"],
+        ["@dudenamedtrevor", "1–2", "336.36", "112.12", "-73.34"],
+        ["@BUNNIESUPBUDDY", "0–3", "334.24", "111.41", "-125.24"],
+        ["@CrazyCougars", "1–2", "303.26", "101.09", "+6.02"],
+        ["@lightmyBONfire", "0–3", "251.20", "83.73", "-110.32"],
+        ["@SanDiegoSuperBurgers", "2–1", "378.08", "126.03", "+22.50"],
+        ["@Waddlepenguin", "1–2", "282.98", "94.33", "-18.08"],
+        ["@LycaonPictus", "0–2", "156.92", "78.46", "-18.20"],
+        ["@TheBeardedVet", "1–1", "201.38", "100.69", "+3.64"],
+        ["@kscarney24", "1–0", "164.36", "164.36", "+71.10"],
+        ["@dianne399", "0–1", "100.10", "100.10", "-16.02"]
+    ],
+    "Bonnie": [
+        ["@TheBeardedVet", "2–0", "254.46", "127.23", "+74.32"],
+        ["@drvargas", "3–0", "419.08", "139.69", "+136.64"],
+        ["@SanDiegoSuperBurgers", "4–0", "485.66", "121.42", "+100.66"],
+        ["@TB12isDaddy", "3–0", "362.16", "120.72", "+110.96"],
+        ["@bcanfield0913", "3–0", "385.12", "128.37", "+85.36"],
+        ["@EmMack", "2–1", "253.60", "84.53", "-11.00"],
+        ["@DawgPound247", "3–1", "509.94", "127.49", "+57.90"],
+        ["@mgreg00x", "1–2", "362.56", "120.85", "+2.82"],
+        ["@dianne399", "1–0", "103.78", "103.78", "+5.94"],
+        ["@kscarney24", "1–0", "123.50", "123.50", "+25.52"],
+        ["@LycaonPictus", "1–1", "241.28", "120.64", "+27.12"],
+        ["@Waddlepenguin", "1–3", "418.52", "104.63", "-11.36"],
+        ["@BUNNIESUPBUDDY", "0–3", "274.98", "91.66", "-80.48"],
+        ["@dudenamedtrevor", "0–3", "321.52", "107.17", "-125.10"],
+        ["@CrazyCougars", "0–3", "338.28", "112.76", "-106.44"]
+    ],
+    "Brad": [
+        ["@mgreg00x", "2–2", "378.40", "94.60", "-15.10"],
+        ["@TheBeardedVet", "0–1", "77.24", "77.24", "-21.30"],
+        ["@TB12isDaddy", "2–0", "175.08", "87.54", "+18.16"],
+        ["@dudenamedtrevor", "0–2", "197.56", "98.78", "-49.78"],
+        ["@BUNNIESUPBUDDY", "0–2", "214.60", "107.30", "-39.12"],
+        ["@bcanfield0913", "0–2", "206.70", "103.35", "-6.90"],
+        ["@CrazyCougars", "1–1", "148.30", "74.15", "-67.76"],
+        ["@drvargas", "2–0", "236.22", "118.11", "+22.40"],
+        ["@DawgPound247", "1–1", "199.56", "99.78", "+9.30"],
+        ["@EmMack", "0–2", "164.94", "82.47", "-86.40"],
+        ["@SanDiegoSuperBurgers", "0–2", "210.60", "105.30", "-68.20"],
+        ["@Waddlepenguin", "1–1", "236.90", "118.45", "+13.70"],
+        ["@lightmyBONfire", "1–1", "214.16", "107.08", "-27.12"],
+        ["@dianne399", "0–1", "83.46", "83.46", "-23.98"]
+    ],
+    "Brian": [
+        ["@EmMack", "3–0", "416.76", "138.92", "+104.88"],
+        ["@drvargas", "3–0", "341.08", "113.69", "+76.18"],
+        ["@TheBeardedVet", "1–1", "220.82", "110.41", "+26.16"],
+        ["@CrazyCougars", "2–1", "345.62", "115.21", "+21.20"],
+        ["@TB12isDaddy", "2–1", "319.38", "106.46", "+14.26"],
+        ["@Waddlepenguin", "2–1", "328.52", "109.51", "+10.36"],
+        ["@dianne399", "1–0", "112.98", "112.98", "+9.40"],
+        ["@kscarney24", "1–0", "118.76", "118.76", "+7.74"],
+        ["@LycaonPictus", "1–1", "190.36", "95.18", "-9.20"],
+        ["@mgreg00x", "1–2", "335.06", "111.69", "-19.70"],
+        ["@bcanfield0913", "1–3", "323.60", "80.90", "-23.18"],
+        ["@lightmyBONfire", "1–3", "452.12", "113.03", "-57.82"],
+        ["@BUNNIESUPBUDDY", "0–3", "343.60", "114.53", "-95.32"],
+        ["@SanDiegoSuperBurgers", "1–3", "366.06", "91.52", "-100.68"],
+        ["@dudenamedtrevor", "0–3", "311.86", "103.95", "-102.44"]
+    ],
+    "Brittney": [
+        ["@Waddlepenguin", "2–1", "368.60", "122.87", "+41.36"],
+        ["@mgreg00x", "2–1", "282.16", "94.05", "+35.06"],
+        ["@dudenamedtrevor", "2–1", "386.60", "128.87", "+50.66"],
+        ["@DawgPound247", "2–2", "346.78", "86.70", "+23.22"],
+        ["@EmMack", "2–1", "318.80", "106.27", "-11.40"],
+        ["@LycaonPictus", "2–0", "213.60", "106.80", "+6.90"],
+        ["@TB12isDaddy", "1–3", "472.22", "118.06", "-29.30"],
+        ["@CrazyCougars", "1–2", "348.72", "116.24", "+27.40"],
+        ["@BUNNIESUPBUDDY", "1–2", "318.72", "106.24", "-65.16"],
+        ["@dianne399", "1–1", "164.96", "82.48", "+4.74"],
+        ["@kscarney24", "1–0", "124.78", "124.78", "+26.26"],
+        ["@SanDiegoSuperBurgers", "1–2", "378.14", "126.05", "+14.86"],
+        ["@TheBeardedVet", "0–2", "172.36", "86.18", "-46.96"],
+        ["@drvargas", "0–3", "338.28", "112.76", "-40.38"],
+        ["@lightmyBONfire", "0–3", "299.76", "99.92", "-85.12"]
+    ],
+    "Dianne": [
+        ["@LycaonPictus", "1–0", "107.44", "107.44", "+23.98"],
+        ["@TB12isDaddy", "1–0", "116.12", "116.12", "+16.02"],
+        ["@SanDiegoSuperBurgers", "1–0", "97.62", "97.62", "+13.50"],
+        ["@bcanfield0913", "1–1", "160.22", "80.11", "-4.74"],
+        ["@lightmyBONfire", "0–1", "97.84", "97.84", "-5.94"],
+        ["@DawgPound247", "0–1", "103.58", "103.58", "-9.40"],
+        ["@CrazyCougars", "0–1", "77.36", "77.36", "-10.46"],
+        ["@dudenamedtrevor", "0–1", "66.16", "66.16", "-11.86"],
+        ["@EmMack", "0–1", "53.30", "53.30", "-16.94"],
+        ["@BUNNIESUPBUDDY", "0–1", "72.88", "72.88", "-18.62"],
+        ["@mgreg00x", "0–1", "88.04", "88.04", "-19.90"],
+        ["@drvargas", "0–1", "75.98", "75.98", "-29.38"],
+        ["@Waddlepenguin", "0–1", "94.40", "133.66", "-39.26"]
+    ],
+    "Emily": [
+        ["@LycaonPictus", "2–0", "251.34", "125.67", "+86.40"],
+        ["@dianne399", "1–0", "70.24", "70.24", "+16.94"],
+        ["@drvargas", "2–1", "294.62", "98.21", "+14.70"],
+        ["@dudenamedtrevor", "1–1", "176.62", "88.31", "+6.70"],
+        ["@mgreg00x", "1–1", "248.88", "124.44", "+5.44"],
+        ["@BUNNIESUPBUDDY", "2–2", "420.22", "105.06", "-3.52"],
+        ["@CrazyCougars", "1–1", "249.20", "124.60", "-3.84"],
+        ["@TB12isDaddy", "1–2", "309.80", "103.27", "-15.76"],
+        ["@SanDiegoSuperBurgers", "1–2", "303.48", "101.16", "-20.24"],
+        ["@lightmyBONfire", "1–2", "327.90", "109.30", "-34.90"],
+        ["@Waddlepenguin", "1–2", "275.52", "91.84", "-46.04"],
+        ["@bcanfield0913", "1–3", "406.84", "101.71", "-95.22"],
+        ["@DawgPound247", "0–3", "311.88", "103.96", "-104.88"]
+    ],
+    "Evelyn": [
+        ["@TB12isDaddy", "3–0", "458.94", "152.98", "+124.70"],
+        ["@DawgPound247", "3–0", "438.92", "146.31", "+95.32"],
+        ["@Waddlepenguin", "3–0", "391.82", "130.61", "+66.10"],
+        ["@SanDiegoSuperBurgers", "3–0", "392.20", "130.73", "+65.64"],
+        ["@lightmyBONfire", "3–0", "355.46", "118.49", "+80.80"],
+        ["@drvargas", "3–1", "482.96", "120.74", "+22.80"],
+        ["@EmMack", "3–1", "444.06", "111.02", "+74.30"],
+        ["@dudenamedtrevor", "2–2", "515.84", "128.96", "+31.70"],
+        ["@bcanfield0913", "2–1", "383.82", "127.94", "+65.10"],
+        ["@CrazyCougars", "2–1", "382.80", "127.60", "+70.64"],
+        ["@LycaonPictus", "2–0", "253.72", "126.86", "+39.12"],
+        ["@TheBeardedVet", "1–1", "258.36", "129.18", "-16.36"],
+        ["@dianne399", "1–0", "91.50", "91.50", "+18.62"],
+        ["@mgreg00x", "1–2", "293.14", "97.71", "-62.06"],
+        ["@kscarney24", "0–1", "59.64", "59.64", "-63.96"]
+    ],
+    "Jess": [
+        ["@TheBeardedVet", "4–0", "493.06", "123.27", "+101.34"],
+        ["@lightmyBONfire", "3–0", "445.72", "148.57", "+107.40"],
+        ["@drvargas", "2–1", "340.36", "113.45", "+13.68"],
+        ["@mgreg00x", "2–1", "406.10", "135.37", "+63.02"],
+        ["@SanDiegoSuperBurgers", "2–1", "371.70", "123.90", "+46.00"],
+        ["@TB12isDaddy", "2–1", "296.24", "98.75", "-7.02"],
+        ["@bcanfield0913", "2–1", "321.64", "107.21", "-26.38"],
+        ["@dudenamedtrevor", "2–2", "440.40", "110.10", "-74.36"],
+        ["@EmMack", "2–1", "333.02", "111.01", "-16.46"],
+        ["@LycaonPictus", "1–1", "216.06", "108.03", "+67.76"],
+        ["@dianne399", "1–0", "87.82", "87.82", "+10.46"],
+        ["@DawgPound247", "1–2", "324.42", "108.14", "-11.40"],
+        ["@BUNNIESUPBUDDY", "1–2", "312.16", "104.05", "-70.00"],
+        ["@Waddlepenguin", "1–3", "412.48", "103.12", "-70.40"],
+        ["@kscarney24", "0–1", "67.40", "67.40", "-75.86"]
+    ],
+    "Matt": [
+        ["@dudenamedtrevor", "3–0", "376.94", "125.65", "+108.36"],
+        ["@drvargas", "2–1", "360.16", "120.05", "+107.48"],
+        ["@TheBeardedVet", "2–0", "237.82", "118.91", "+62.22"],
+        ["@BUNNIESUPBUDDY", "2–1", "354.78", "118.26", "+61.22"],
+        ["@lightmyBONfire", "2–1", "359.56", "119.85", "+36.88"],
+        ["@DawgPound247", "2–1", "354.76", "118.25", "+19.72"],
+        ["@LycaonPictus", "2–2", "386.66", "96.67", "+13.62"],
+        ["@SanDiegoSuperBurgers", "2–1", "336.24", "112.08", "+11.28"],
+        ["@dianne399", "1–0", "107.94", "107.94", "+19.90"],
+        ["@kscarney24", "1–0", "143.82", "143.82", "+12.74"],
+        ["@Waddlepenguin", "1–2", "319.20", "106.40", "-21.06"],
+        ["@bcanfield0913", "1–2", "246.10", "82.03", "-37.04"],
+        ["@EmMack", "1–2", "289.66", "96.55", "-54.42"],
+        ["@TB12isDaddy", "1–3", "425.28", "106.32", "-66.12"],
+        ["@CrazyCougars", "1–2", "337.12", "112.37", "-68.20"]
+    ],
+    "Nate": [
+        ["@lightmyBONfire", "3–1", "429.88", "107.47", "+8.76"],
+        ["@CrazyCougars", "3–1", "482.46", "120.62", "+42.10"],
+        ["@drvargas", "2–1", "322.64", "107.55", "+9.08"],
+        ["@mgreg00x", "2–1", "340.26", "113.42", "+21.06"],
+        ["@TB12isDaddy", "2–1", "301.86", "100.62", "+18.88"],
+        ["@dianne399", "1–0", "133.66", "133.66", "+39.26"],
+        ["@kscarney24", "1–0", "126.66", "126.66", "+15.76"],
+        ["@LycaonPictus", "1–1", "223.20", "111.60", "-13.70"],
+        ["@dudenamedtrevor", "1–2", "300.16", "100.05", "-7.38"],
+        ["@bcanfield0913", "1–2", "327.24", "109.08", "-41.36"],
+        ["@TheBeardedVet", "1–1", "216.40", "108.20", "-16.92"],
+        ["@DawgPound247", "1–2", "318.16", "106.05", "-10.36"],
+        ["@SanDiegoSuperBurgers", "0–3", "336.92", "112.31", "-53.78"],
+        ["@BUNNIESUPBUDDY", "0–3", "325.72", "108.57", "-66.10"],
+        ["@EmMack", "0–4", "384.36", "96.09", "-69.40"],
+        ["@dianne399", "1–0", "133.66", "94.40", "+39.26"]
+    ],
+    "Steven": [
+        ["@bcanfield0913", "3–0", "408.74", "136.25", "+70.46"],
+        ["@TheBeardedVet", "2–0", "264.72", "132.36", "+46.96"],
+        ["@dianne399", "1–0", "105.36", "105.36", "+29.38"],
+        ["@dudenamedtrevor", "2–1", "369.86", "123.29", "-1.10"],
+        ["@TB12isDaddy", "2–2", "436.16", "109.04", "-2.26"],
+        ["@CrazyCougars", "1–2", "360.74", "120.25", "+20.38"],
+        ["@Waddlepenguin", "1–2", "313.56", "104.52", "-9.08"],
+        ["@EmMack", "1–2", "279.92", "93.31", "-14.70"],
+        ["@mgreg00x", "1–2", "290.28", "96.76", "-69.88"],
+        ["@BUNNIESUPBUDDY", "1–3", "460.18", "115.05", "-22.78"],
+        ["@kscarney24", "0–1", "102.08", "102.08", "-12.18"],
+        ["@LycaonPictus", "0–2", "213.82", "106.91", "-22.40"],
+        ["@SanDiegoSuperBurgers", "0–4", "415.42", "103.86", "-68.20"],
+        ["@DawgPound247", "0–3", "264.90", "88.30", "-76.18"],
+        ["@lightmyBONfire", "0–3", "282.44", "94.15", "-136.64"]
+    ],
+    "Sylvester": [
+        ["@drvargas", "4–0", "483.62", "120.91", "+68.20"],
+        ["@EmMack", "3–0", "383.60", "127.87", "+109.24"],
+        ["@Waddlepenguin", "3–0", "390.70", "130.23", "+53.78"],
+        ["@LycaonPictus", "2–0", "278.80", "139.40", "+68.20"],
+        ["@TheBeardedVet", "2–0", "219.14", "109.57", "+9.40"],
+        ["@kscarney24", "1–0", "135.12", "135.12", "+20.78"],
+        ["@DawgPound247", "3–1", "466.74", "116.69", "+100.68"],
+        ["@bcanfield0913", "2–1", "357.38", "119.13", "-20.76"],
+        ["@dudenamedtrevor", "2–1", "310.12", "103.37", "-20.88"],
+        ["@mgreg00x", "1–2", "325.32", "108.44", "-10.92"],
+        ["@TB12isDaddy", "1–2", "355.72", "118.57", "-22.36"],
+        ["@CrazyCougars", "1–2", "325.62", "108.54", "-46.08"],
+        ["@dianne399", "0–1", "84.12", "84.12", "-13.50"],
+        ["@BUNNIESUPBUDDY", "0–3", "326.56", "108.85", "-65.64"],
+        ["@lightmyBONfire", "0–4", "385.00", "96.25", "-100.66"]
+    ],
+    "Trevor": [
+        ["@lightmyBONfire", "3–0", "446.72", "148.91", "+125.20"],
+        ["@DawgPound247", "3–0", "414.30", "138.10", "+102.12"],
+        ["@TB12isDaddy", "2–1", "409.70", "136.57", "+72.78"],
+        ["@CrazyCougars", "2–2", "514.42", "128.61", "+73.98"],
+        ["@TheBeardedVet", "1–1", "263.26", "131.63", "+71.10"],
+        ["@EmMack", "3–1", "463.24", "115.81", "+55.10"],
+        ["@LycaonPictus", "2–0", "247.34", "123.67", "+49.72"],
+        ["@SanDiegoSuperBurgers", "1–2", "331.00", "110.33", "+20.94"],
+        ["@kscarney24", "1–0", "121.56", "121.56", "+20.18"],
+        ["@Waddlepenguin", "2–1", "311.54", "103.85", "+11.36"],
+        ["@dianne399", "1–0", "78.02", "78.02", "+11.86"],
+        ["@drvargas", "1–2", "370.96", "123.65", "+0.40"],
+        ["@BUNNIESUPBUDDY", "2–2", "484.16", "121.04", "-31.68"],
+        ["@bcanfield0913", "1–2", "336.90", "112.30", "-50.98"],
+        ["@mgreg00x", "0–3", "269.10", "89.70", "-107.40"]
+    ],
+    "MattS": [
+        ["@bcanfield0913", "2–0", "219.32", "109.66", "+46.96"],
+        ["@LycaonPictus", "1–0", "98.54", "98.54", "+21.30"],
+        ["@BUNNIESUPBUDDY", "1–1", "275.70", "137.85", "+17.34"],
+        ["@Waddlepenguin", "1–1", "233.32", "116.66", "+13.04"],
+        ["@EmMack", "2–0", "245.86", "122.93", "+6.98"],
+        ["@TB12isDaddy", "1–1", "197.74", "98.87", "-3.64"],
+        ["@SanDiegoSuperBurgers", "0–2", "209.74", "104.87", "-9.40"],
+        ["@DawgPound247", "1–1", "194.66", "97.33", "-25.72"],
+        ["@dudenamedtrevor", "1–1", "192.16", "96.08", "-31.10"],
+        ["@drvargas", "0–2", "217.76", "108.88", "-47.00"],
+        ["@kscarney24", "0–2", "220.54", "110.27", "-47.76"],
+        ["@mgreg00x", "0–2", "175.60", "87.80", "-62.22"],
+        ["@lightmyBONfire", "0–2", "180.14", "90.07", "-64.34"],
+        ["@CrazyCougars", "0–3", "291.20", "97.07", "-110.04"]
+    ],
+    "Kurt": [
+        ["@TheBeardedVet", "2–0", "273.30", "136.65", "+52.76"],
+        ["@CrazyCougars", "1–0", "143.26", "143.26", "+75.86"],
+        ["@BUNNIESUPBUDDY", "1–0", "123.60", "123.60", "+63.96"],
+        ["@EmMack", "1–0", "132.18", "132.18", "+62.48"],
+        ["@drvargas", "1–0", "114.26", "114.26", "+12.18"],
+        ["@DawgPound247", "0–1", "111.02", "111.02", "-7.74"],
+        ["@mgreg00x", "0–1", "131.08", "131.08", "-12.74"],
+        ["@Waddlepenguin", "0–1", "110.90", "110.90", "-15.76"],
+        ["@dudenamedtrevor", "0–1", "101.38", "101.38", "-20.18"],
+        ["@SanDiegoSuperBurgers", "0–1", "114.34", "114.34", "-20.78"],
+        ["@lightmyBONfire", "0–1", "97.98", "97.98", "-25.52"],
+        ["@bcanfield0913", "0–1", "98.52", "98.52", "-26.26"],
+        ["@TB12isDaddy", "0–1", "93.26", "93.26", "-71.10"]
+    ],
+    "Alex": [
+        ["QUIT BEFORE WE STARTED", "0–0", "???.??", "0.00", "N/A"]
+    ]
+};
+
+const managerStatsCsvUrl='https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pub?output=csv';
+async function fetchManagerStats(managerId){try{const r=await fetch(managerStatsCsvUrl,{cache:'no-store'});if(!r.ok)throw new Error(r.status);const text=await r.text();const rows=text.split(/\r?\n/).filter(Boolean).map(parseCsvLine);if(rows.length<2)return null;const headers=rows[0].map(x=>String(x).trim().toLowerCase());const norm=v=>String(v??'').toLowerCase().replace(/^@/,'').replace(/[^a-z0-9]/g,'');const target=norm(managerId);const row=rows.slice(1).find(r=>r.some(c=>{const n=norm(c);return n===target||n.includes(target)||target.includes(n)}));if(!row)return null;const out={};headers.forEach((h,i)=>out[h]=row[i]??'');return out;}catch(e){console.warn('Manager statistics unavailable:',e);return null;}}
+function parseCsvLine(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){cur+='"';i++;}else q=!q;}else if(ch===','&&!q){out.push(cur.trim());cur='';}else cur+=ch;}out.push(cur.trim());return out;}
+function val(d,names,fallback){if(!d)return fallback;for(const n of names){const k=Object.keys(d).find(x=>x===n||x.replace(/[^a-z0-9]/g,'')===n.replace(/[^a-z0-9]/g,''));if(k&&d[k]!=='')return d[k];}return fallback;}
+function generateH2HRows(id){return(managerDataStore[id]||[]).map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td style="font-weight:bold;color:${String(r[4]).startsWith('+')?'#4ade80':'#f87171'}">${r[4]}</td></tr>`).join('');}
+async function openDossier(id,name,rank){const overlay=document.getElementById('full-page-overlay'),target=document.getElementById('dossier-target');overlay.classList.remove('overlay-hidden');overlay.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';target.innerHTML=`<div style="text-align:center;padding:60px;color:#ffd56b;font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;letter-spacing:.12em">LOADING DOSSIER...</div>`;const stats=await fetchManagerStats(id);let fb=null;try{if(db){const doc=await db.collection('managers').doc(id).get();if(doc.exists)fb=doc.data();}}catch(e){console.warn('Firebase fallback unavailable:',e);}const d=stats||fb||{};const displayName=val(d,['memberid','manager','name'],name);target.innerHTML=`<div><h1 style="text-align:center;color:#FFD700;font-size:2.5rem;margin:0 0 20px">${displayName}</h1></div><div class="dossier-grid"><div class="dossier-section"><h3>Manager Stats</h3><div class="dossier-stat-list"><p><strong>Seasons:</strong> ${val(d,['seasons'],'0')}</p><p><strong>Rank:</strong> #${val(d,['rank'],rank||'N/A')}</p><p><strong>Record:</strong> ${val(d,['careerrecord','record'],'0-0')} (${val(d,['winpct','winpercentage'],'0%')})</p><p><strong>Avg PPG:</strong> ${val(d,['careeravg','averageppg','avgppg'],'0.00')}</p><p><strong>Playoffs:</strong> ${val(d,['playoffappearances','playoffs'],'0')}</p><p><strong>Rings:</strong> ${val(d,['championships','rings'],'0')} 🏆</p></div></div><div class="dossier-section"><h3>Head-to-Head History</h3><div class="h2h-scroll"><table class="dossier-table"><thead><tr><th>Opponent</th><th>Rec</th><th>Total PF</th><th>Avg</th><th>Diff</th></tr></thead><tbody>${generateH2HRows(id)}</tbody></table></div></div></div>`;}
+function closeDossier(){const o=document.getElementById('full-page-overlay');o.classList.add('overlay-hidden');o.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+
+// --- Modal Control Functionality ---
+
+const modal =
+  document.getElementById('sheetModal');
+
+const openBtn =
+  document.getElementById('openModalBtn');
+
+const closeBtn =
+  document.getElementById('closeModalBtn');
+
+
+openBtn.addEventListener('click', () => {
+
+    modal.classList.add('active');
+
+    document.body.style.overflow = 'hidden';
+
+});
+
+
+closeBtn.addEventListener('click', () => {
+
+    modal.classList.remove('active');
+
+    document.body.style.overflow = '';
+
+});
+
+
+modal.addEventListener('click', (e) => {
+
+    if (e.target === modal) {
+
+        modal.classList.remove('active');
+
+        document.body.style.overflow = '';
+
     }
 
-    function escapeHtml(value){
-      return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+});
+
+
+document.getElementById("dossierCloseBtn").addEventListener("click",closeDossier);document.getElementById("full-page-overlay").addEventListener("click",e=>{if(e.target.id==="full-page-overlay")closeDossier();});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDossier();});fetchAndDisplayRankings();
+
+</script>
+
+<script>
+
+(() => {
+
+  "use strict";
+
+  document.addEventListener("keydown", (event) => {
+
+    if (event.key === "Escape") {
+
+      modal.classList.remove("active");
+
+      document.body.style.overflow = "";
+
     }
 
-    function closeOverlay(){
-      const overlay=document.getElementById('full-page-overlay');overlay.classList.add('overlay-hidden');overlay.setAttribute('aria-hidden','true');document.body.classList.remove('overlay-open');
-    }
+  });
 
-    const sheetModal=document.getElementById('sheetModal');
-    const openModalBtn=document.getElementById('openModalBtn');
-    const closeModalBtn=document.getElementById('closeModalBtn');
-    function openAlgorithm(){sheetModal.style.display='grid';requestAnimationFrame(()=>{sheetModal.style.opacity='1';sheetModal.style.pointerEvents='auto';sheetModal.setAttribute('aria-hidden','false')});document.body.classList.add('overlay-open')}
-    function closeAlgorithm(){sheetModal.style.opacity='0';sheetModal.style.pointerEvents='none';sheetModal.setAttribute('aria-hidden','true');setTimeout(()=>{if(sheetModal.getAttribute('aria-hidden')==='true')sheetModal.style.display='none'},300);document.body.classList.remove('overlay-open')}
-    openModalBtn.addEventListener('click',openAlgorithm);closeModalBtn.addEventListener('click',closeAlgorithm);sheetModal.addEventListener('click',e=>{if(e.target===sheetModal)closeAlgorithm()});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!document.getElementById('full-page-overlay').classList.contains('overlay-hidden'))closeOverlay();else if(sheetModal.getAttribute('aria-hidden')==='false')closeAlgorithm()}});
-    document.getElementById('full-page-overlay').addEventListener('click',e=>{if(e.target.id==='full-page-overlay')closeOverlay()});
-    fetchAndDisplayRankings();
 
-  </script>
+
+
+})();
+
+</script>
+
 </body>
 </html>

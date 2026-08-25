@@ -1248,7 +1248,7 @@ function buildRecord(d){
     const direct=val(d,['careerrecord','career_record','record','careerrecordtotal'],null);
     if(direct!==null)return direct;
     const wins=numericValue(d,['wins','careerwins','totalwins']);
-    const losses=numericValue(d,['losses','careerl losses','careerlLosses','totallosses']);
+    const losses=numericValue(d,['losses','careerlosses','careerlLosses','totallosses']);
     if(wins!==null&&losses!==null)return `${wins}-${losses}`;
     return '0-0';
 }
@@ -1281,7 +1281,8 @@ async function openDossier(login,name,rank){
         }
     }catch(e){console.warn('Firebase dossier lookup unavailable:',e);}
 
-    const d=stats||fb||{};
+    // Firebase is the authoritative dossier source. The Manager Statistics sheet is only a fallback.
+    const d=fb||stats||{};
     const displayName=val(d,['memberid','manager','name'],name);
     const seasons=val(d,['seasons','seasoncount','yearsinleague'],'0');
     const managerRank=val(d,['rank','ranking'],rank||'N/A');

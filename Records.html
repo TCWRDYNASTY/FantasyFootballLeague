@@ -712,7 +712,7 @@ main{
     <div class="modal-body">
 
       <iframe
-        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?widget=true&amp;headers=false&amp;chrome=false">
+        data-src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQjIjcUVkLUwsSErcmBR-WHYSu6WxbAlckp2oZOGkDQFoqea7El8QLa2shDlyrUPSAXZtv89DzcMcvk/pubhtml?widget=true&amp;headers=false&amp;chrome=false">
       </iframe>
 
     </div>
@@ -1221,6 +1221,9 @@ const closeBtn =
 
 openBtn.addEventListener('click', () => {
 
+    const frame = modal.querySelector('iframe');
+    if (frame && !frame.src) frame.src = frame.dataset.src;
+
     modal.classList.add('active');
 
     document.body.style.overflow = 'hidden';
@@ -1279,5 +1282,23 @@ document.getElementById("dossierCloseBtn").addEventListener("click",closeDossier
 
 </script>
 
+<script>
+// Remove any older TCWR service worker/cache that may still control this page.
+// This page no longer registers a service worker.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(reg => reg.unregister()));
+      if (window.caches) {
+        const names = await caches.keys();
+        await Promise.all(names.filter(n => /tcwr|workbox|firebase/i.test(n)).map(n => caches.delete(n)));
+      }
+    } catch (e) {
+      console.info('Service worker cleanup skipped:', e);
+    }
+  });
+}
+</script>
 </body>
 </html>

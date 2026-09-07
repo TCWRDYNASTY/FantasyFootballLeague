@@ -1307,10 +1307,6 @@ async function enableCommissionerNotifications() {
             return;
         }
 
-        /*
-         * Use the service worker already registered by Section 10.
-         * If registration is not ready yet, wait for it.
-         */
         const registration =
             tcwrServiceWorkerRegistration ||
             await navigator.serviceWorker.ready;
@@ -1329,30 +1325,28 @@ async function enableCommissionerNotifications() {
             return;
         }
 
-        /* Save this browser's notification token */
         await setDoc(
             doc(db, "notificationTokens", token),
             {
                 token: token,
                 createdAt: new Date().toISOString(),
                 active: true
+            },
+            {
+                merge: true
             }
         );
 
-        console.log(
-            "Commissioner notification token saved:",
-            token
+        localStorage.setItem(
+            "commissionerNotificationsEnabled",
+            "true"
         );
 
-        const button =
-            document.getElementById(
-                "commissioner-notification-btn"
-            );
+        updateCommissionerNotificationButton();
 
-        if (button) {
-            button.textContent =
-                "CLICK TO TURN OFF UPDATES";
-        }
+        console.log(
+            "Commissioner notifications enabled."
+        );
     }
 
     catch (error) {
@@ -1363,14 +1357,87 @@ async function enableCommissionerNotifications() {
     }
 }
 
+
+async function disableCommissionerNotifications() {
+    try {
+        const registration =
+            tcwrServiceWorkerRegistration ||
+            await navigator.serviceWorker.ready;
+
+        const token =
+            await getToken(
+                messaging,
+                {
+                    vapidKey,
+                    serviceWorkerRegistration: registration
+                }
+            );
+
+        if (token) {
+            await setDoc(
+                doc(db, "notificationTokens", token),
+                {
+                    active: false
+                },
+                {
+                    merge: true
+                }
+            );
+        }
+
+        localStorage.setItem(
+            "commissionerNotificationsEnabled",
+            "false"
+        );
+
+        updateCommissionerNotificationButton();
+
+        console.log(
+            "Commissioner notifications disabled."
+        );
+    }
+
+    catch (error) {
+        console.error(
+            "Unable to disable commissioner notifications:",
+            error
+        );
+    }
+}
+
+
+function updateCommissionerNotificationButton() {
+    const button =
+        document.getElementById(
+            "commissioner-notification-btn"
+        );
+
+    if (!button) return;
+
+    const enabled =
+        localStorage.getItem(
+            "commissionerNotificationsEnabled"
+        ) === "true";
+
+    button.textContent = enabled
+        ? "CLICK TO TURN OFF UPDATES"
+        : "🔔 GET COMMISSIONER UPDATES";
+}
+
+
 function initializeCommissionerNotifications() {
     const button =
         document.getElementById(
             "commissioner-notification-btn"
         );
 
+    if (!button) {
+        return;
+    }
+
+    updateCommissionerNotificationButton();
+
     if (
-        !button ||
         button.dataset.pushReady === "true"
     ) {
         return;
@@ -1381,11 +1448,21 @@ function initializeCommissionerNotifications() {
     button.addEventListener(
         "click",
         async () => {
-            await enableCommissionerNotifications();
+
+            const enabled =
+                localStorage.getItem(
+                    "commissionerNotificationsEnabled"
+                ) === "true";
+
+            if (enabled) {
+                await disableCommissionerNotifications();
+            } else {
+                await enableCommissionerNotifications();
+            }
+
         }
     );
 }
-
 /* === 7. SLEEPER STANDINGS DATA === */
 
 async function fetchStandings() {

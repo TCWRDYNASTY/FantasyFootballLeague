@@ -1294,111 +1294,96 @@ function escapeBulletinHtml(value) {
 /* === 6. COMMISSIONER PUSH NOTIFICATIONS === */
 
 async function enableCommissionerNotifications() {
-
     try {
-
         if (!("Notification" in window)) {
-
-            alert(
-                "This browser does not support notifications."
-            );
-
+            alert("This browser does not support notifications.");
             return;
         }
-
 
         const permission =
             await Notification.requestPermission();
 
-
         if (permission !== "granted") {
-
             return;
         }
 
+        /*
+         * Use the service worker already registered by Section 10.
+         * If registration is not ready yet, wait for it.
+         */
+        const registration =
+            tcwrServiceWorkerRegistration ||
+            await navigator.serviceWorker.ready;
 
         const token =
             await getToken(
                 messaging,
-                { vapidKey }
+                {
+                    vapidKey,
+                    serviceWorkerRegistration: registration
+                }
             );
-
 
         if (!token) {
-
-            console.error(
-                "No notification token was returned."
-            );
-
+            console.error("No notification token was returned.");
             return;
         }
 
-
-        console.log(
-            "Commissioner notification token:",
-            token
+        /* Save this browser's notification token */
+        await setDoc(
+            doc(db, "notificationTokens", token),
+            {
+                token: token,
+                createdAt: new Date().toISOString(),
+                active: true
+            }
         );
 
+        console.log(
+            "Commissioner notification token saved:",
+            token
+        );
 
         const button =
             document.getElementById(
                 "commissioner-notification-btn"
             );
 
-
         if (button) {
-
             button.textContent =
                 "CLICK TO TURN OFF UPDATES";
-
         }
-
     }
 
     catch (error) {
-
         console.error(
             "Unable to enable commissioner notifications:",
             error
         );
-
     }
-
 }
 
-
-/* === INITIALIZE COMMISSIONER NOTIFICATIONS === */
-
 function initializeCommissionerNotifications() {
-
     const button =
         document.getElementById(
             "commissioner-notification-btn"
         );
 
-
     if (
         !button ||
         button.dataset.pushReady === "true"
     ) {
-
         return;
-
     }
 
-
     button.dataset.pushReady = "true";
-
 
     button.addEventListener(
         "click",
         async () => {
-
             await enableCommissionerNotifications();
-
         }
     );
-
 }
 
 /* === 7. SLEEPER STANDINGS DATA === */
@@ -3868,21 +3853,27 @@ fetchStandings();
 
 
 /* === 10. SERVICE WORKER === */
+
+let tcwrServiceWorkerRegistration = null;
+
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then(registration => {
-                console.log(
-                    'Service Worker registered successfully!',
-                    registration
+    window.addEventListener('load', async () => {
+        try {
+            tcwrServiceWorkerRegistration =
+                await navigator.serviceWorker.register(
+                    './service-worker.js'
                 );
-            })
-            .catch(error => {
-                console.error(
-                    'Service Worker registration failed:',
-                    error
-                );
-            });
+
+            console.log(
+                'Service Worker registered successfully!',
+                tcwrServiceWorkerRegistration
+            );
+        } catch (error) {
+            console.error(
+                'Service Worker registration failed:',
+                error
+            );
+        }
     });
 }
 

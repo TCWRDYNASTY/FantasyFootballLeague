@@ -1,0 +1,114 @@
+name: Send Commissioner Notification
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+jobs:
+  send-notification:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Firebase Admin SDK
+        run: npm install firebase-admin
+
+      - name: Send commissioner notifications
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          cat > send-notification.js <<'EOF'
+          const admin = require("firebase-admin");
+
+          const serviceAccount = JSON.parse(
+            process.env.FIREBASE_SERVICE_ACCOUNT
+          );
+
+          admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+          });
+
+          const db = admin.firestore();
+
+          async function main() {
+            console.log("Checking for new commissioner announcements...");
+
+            const announcements = await db
+              .collection("announcements")
+              .orderBy("timestamp", "desc")
+              .limit(1)
+              .get();
+
+            if (announcements.empty) {
+              console.log("No announcements found.");
+              return;
+            }
+
+            const announcement = announcements.docs[0];
+
+            const sentRef = db
+              .collection("notificationLog")
+              .doc(announcement.id);
+
+            const alreadySent = await sentRef.get();
+
+            if (alreadySent.exists) {
+              console.log("Notification already sent for this announcement.");
+              return;
+            }
+
+            const tokensSnapshot = await db
+              .collection("notificationTokens")
+              .where("active", "==", true)
+              .get();
+
+            if (tokensSnapshot.empty) {
+              console.log("No active notification tokens found.");
+              return;
+            }
+
+            const tokens = tokensSnapshot.docs
+              .map(doc => doc.data().token)
+              .filter(Boolean);
+
+            console.log(`Sending to ${tokens.length} device(s)...`);
+
+            for (const token of tokens) {
+              try {
+                await admin.messaging().send({
+                  token: token,
+                  data: {
+                    type: "commissioner",
+                    url: "./"
+                  }
+                });
+
+                console.log("Notification sent.");
+              } catch (error) {
+                console.error("Failed to send notification:", error.message);
+              }
+            }
+
+            await sentRef.set({
+              announcementId: announcement.id,
+              sentAt: new Date().toISOString()
+            });
+
+            console.log("Notification process complete.");
+          }
+
+          main().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          EOF
+
+          node send-notification.js

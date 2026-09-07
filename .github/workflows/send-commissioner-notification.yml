@@ -3,7 +3,7 @@ name: Send Commissioner Notification
 on:
   workflow_dispatch:
   schedule:
-    - cron: "2-59/5 * * * *"
+    - cron: "7,17,27,37,47,57 * * * *"
 
 jobs:
   send-notification:
@@ -81,6 +81,8 @@ jobs:
 
             console.log(`Sending to ${tokens.length} device(s)...`);
 
+            let successfulSends = 0;
+
             for (const token of tokens) {
               try {
                 await admin.messaging().send({
@@ -91,18 +93,30 @@ jobs:
                   }
                 });
 
+                successfulSends++;
                 console.log("Notification sent.");
               } catch (error) {
-                console.error("Failed to send notification:", error.message);
+                console.error(
+                  "Failed to send notification:",
+                  error.message
+                );
               }
             }
 
-            await sentRef.set({
-              announcementId: announcement.id,
-              sentAt: new Date().toISOString()
-            });
+            if (successfulSends > 0) {
+              await sentRef.set({
+                announcementId: announcement.id,
+                sentAt: new Date().toISOString()
+              });
 
-            console.log("Notification process complete.");
+              console.log(
+                `Notification process complete. ${successfulSends} notification(s) sent.`
+              );
+            } else {
+              console.log(
+                "No notifications were successfully sent. Announcement was not marked as sent."
+              );
+            }
           }
 
           main().catch(error => {

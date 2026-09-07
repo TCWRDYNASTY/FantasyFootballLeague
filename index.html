@@ -782,12 +782,27 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
 
 <script type="module">
     /* === 1. EXTERNAL LIBRARIES & CONFIG === */
-    import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getMessaging } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
-   /* === 2. UI SIDEBAR NAVIGATION === */
+    import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+    import {
+        getFirestore,
+        collection,
+        query,
+        orderBy,
+        onSnapshot,
+        doc,
+        setDoc
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    import {
+        getMessaging,
+        getToken
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+
+    /* === 2. UI SIDEBAR NAVIGATION === */
 
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 const sidebarLeft = document.getElementById('sidebarLeft');
@@ -837,154 +852,556 @@ sidebarLinks.forEach(link => {
         "drvargas": "Steven"
     };
 
-    /* === 4. FIREBASE CONFIG & DATA SETUP === */
-    const leagueId = "1328431789223477248";
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
+  /* === 4. FIREBASE CONFIG & DATA SETUP === */
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
-        authDomain: "tcwr-dynasty.firebaseapp.com",
-        projectId: "tcwr-dynasty",
-        storageBucket: "tcwr-dynasty.firebasestorage.app",
-        messagingSenderId: "544187199777",
-        appId: "1:544187199777:web:05753208f1daee32558e60"
-    };
+const leagueId = "1328431789223477248";
 
-    const app = initializeApp(firebaseConfig);
-    
- const db = getFirestore(app);
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
+    authDomain: "tcwr-dynasty.firebaseapp.com",
+    projectId: "tcwr-dynasty",
+    storageBucket: "tcwr-dynasty.firebasestorage.app",
+    messagingSenderId: "544187199777",
+    appId: "1:544187199777:web:05753208f1daee32558e60"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 const messaging = getMessaging(app);
 
+const vapidKey = "BDG9YGVEEduAp3caX-Q6mx0wFTyxC9yXaG4pyIVsVPmYVg8GSupckf3uteDpWpM04vZKMxMq656v3j1KwdC4vJg";
+
+
 /* === 5. LEAGUE BULLETIN (AUTOMATED + FIREBASE) === */
+
 let commissionerBulletinUnsubscribe = null;
 
-    function ensureLeagueBulletinShell() {
-        const display = document.getElementById("bulletin-display");
-        if (!display) return null;
+function ensureLeagueBulletinShell() {
 
-        if (!document.getElementById("tcwr-bulletin-styles")) {
-            const style = document.createElement("style");
-            style.id = "tcwr-bulletin-styles";
-            style.textContent = `
-                #bulletin-display { display:flex; flex-direction:column; gap:14px; }
-                .tcwr-news-panel { overflow:hidden; color:#fff; background:linear-gradient(145deg,rgba(30,41,59,.98),rgba(15,23,42,.98)); border:1px solid rgba(148,163,184,.22); border-radius:14px; box-shadow:0 12px 30px rgba(0,0,0,.28); }
-                .tcwr-news-header { padding:14px 16px; text-align:center; color:#facc15; font-size:.82rem; font-weight:900; letter-spacing:1.15px; border-bottom:1px solid rgba(148,163,184,.16); }
-                .tcwr-award-nav { display:grid; grid-template-columns:38px minmax(0,1fr) 38px; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid rgba(148,163,184,.14); }
-                .tcwr-award-nav button { width:38px; height:34px; border-radius:9px; border:1px solid rgba(250,204,21,.35); background:rgba(15,23,42,.82); color:#facc15; font-weight:900; cursor:pointer; }
-                .tcwr-award-nav button:disabled { opacity:.3; cursor:not-allowed; }
-                .tcwr-award-week { text-align:center; color:#cbd5e1; font-size:.72rem; font-weight:900; letter-spacing:.9px; text-transform:uppercase; }
-                .tcwr-story { padding:15px 16px; border-bottom:1px solid rgba(148,163,184,.14); }
-                .tcwr-story:last-child { border-bottom:0; }
-                .tcwr-story-title { margin:0 0 7px; font-size:.76rem; font-weight:900; letter-spacing:.75px; text-transform:uppercase; }
-                .tcwr-story-main { color:#fff; font-size:.94rem; font-weight:900; line-height:1.35; overflow-wrap:anywhere; }
-                .tcwr-story-sub { margin-top:4px; color:#94a3b8; font-size:.74rem; font-weight:700; line-height:1.4; }
-                .tcwr-story.red { border-left:4px solid #ef4444; }
-                .tcwr-story.red .tcwr-story-title { color:#f87171; }
-                .tcwr-story.orange { border-left:4px solid #f97316; }
-                .tcwr-story.orange .tcwr-story-title { color:#fb923c; }
-                .tcwr-story.gold { border-left:4px solid #facc15; }
-                .tcwr-story.gold .tcwr-story-title { color:#facc15; }
-                .tcwr-story.green { border-left:4px solid #22c55e; }
-                .tcwr-story.green .tcwr-story-title { color:#4ade80; }
-                .tcwr-story.blue { border-left:4px solid #38bdf8; }
-                .tcwr-story.blue .tcwr-story-title { color:#38bdf8; }
-                .tcwr-story.purple { border-left:4px solid #a78bfa; }
-                .tcwr-story.purple .tcwr-story-title { color:#c4b5fd; }
-                .tcwr-empty { padding:22px 16px; color:#94a3b8; text-align:center; font-size:.78rem; }
-                .tcwr-commissioner-heading { margin:0 0 8px; color:#facc15; font-size:.72rem; font-weight:900; letter-spacing:.9px; text-transform:uppercase; }
-                #commissioner-bulletin-content {
-    max-height: 275px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: #facc15 rgba(15, 23, 42, 0.5);
-}
+    const display = document.getElementById("bulletin-display");
 
-#commissioner-bulletin-content::-webkit-scrollbar {
-    width: 8px;
-}
+    if (!display) return null;
 
-#commissioner-bulletin-content::-webkit-scrollbar-track {
-    background: rgba(15, 23, 42, 0.5);
-}
 
-#commissioner-bulletin-content::-webkit-scrollbar-thumb {
-    background: #facc15;
-    border-radius: 8px;
-}
+    /* === BULLETIN STYLES === */
 
-#commissioner-bulletin-content::-webkit-scrollbar-thumb:hover {
-    background: #eab308;
-}
-                .tcwr-commissioner-post { padding:13px 14px; border-bottom:1px solid rgba(148,163,184,.14); }
-                .tcwr-commissioner-post:last-child { border-bottom:0; }
-                .tcwr-commissioner-date { margin:0 0 5px; color:#94a3b8; font-size:.64rem; font-weight:900; letter-spacing:.8px; text-transform:uppercase; }
-                .tcwr-commissioner-text { margin:0; color:#fff; font-size:.8rem; line-height:1.45; }
-            `;
-            document.head.appendChild(style);
-        }
+    if (!document.getElementById("tcwr-bulletin-styles")) {
 
-        if (!document.getElementById("automated-bulletin-panel")) {
-            display.innerHTML = `
-                <section id="automated-bulletin-panel" class="tcwr-news-panel">
-                    <div id="automated-bulletin-content" class="tcwr-empty">Loading league bulletin...</div>
-                </section>
-                <section id="commissioner-bulletin-panel" class="tcwr-news-panel">
-                    <div class="tcwr-news-header">📣 COMMISSIONER PANEL</div>
-                    <div id="commissioner-bulletin-content" class="tcwr-empty">Loading commissioner posts...</div>
-                </section>
-            `;
-        }
+        const style = document.createElement("style");
 
-        return display;
+        style.id = "tcwr-bulletin-styles";
+
+        style.textContent = `
+
+            #bulletin-display {
+                display:flex;
+                flex-direction:column;
+                gap:14px;
+            }
+
+            .tcwr-news-panel {
+                overflow:hidden;
+                color:#fff;
+                background:linear-gradient(
+                    145deg,
+                    rgba(30,41,59,.98),
+                    rgba(15,23,42,.98)
+                );
+                border:1px solid rgba(148,163,184,.22);
+                border-radius:14px;
+                box-shadow:0 12px 30px rgba(0,0,0,.28);
+            }
+
+            .tcwr-news-header {
+                padding:14px 16px;
+                text-align:center;
+                color:#facc15;
+                font-size:.82rem;
+                font-weight:900;
+                letter-spacing:1.15px;
+                border-bottom:1px solid rgba(148,163,184,.16);
+            }
+
+            .tcwr-award-nav {
+                display:grid;
+                grid-template-columns:38px minmax(0,1fr) 38px;
+                align-items:center;
+                gap:8px;
+                padding:10px 12px;
+                border-bottom:1px solid rgba(148,163,184,.14);
+            }
+
+            .tcwr-award-nav button {
+                width:38px;
+                height:34px;
+                border-radius:9px;
+                border:1px solid rgba(250,204,21,.35);
+                background:rgba(15,23,42,.82);
+                color:#facc15;
+                font-weight:900;
+                cursor:pointer;
+            }
+
+            .tcwr-award-nav button:disabled {
+                opacity:.3;
+                cursor:not-allowed;
+            }
+
+            .tcwr-award-week {
+                text-align:center;
+                color:#cbd5e1;
+                font-size:.72rem;
+                font-weight:900;
+                letter-spacing:.9px;
+                text-transform:uppercase;
+            }
+
+            .tcwr-story {
+                padding:15px 16px;
+                border-bottom:1px solid rgba(148,163,184,.14);
+            }
+
+            .tcwr-story:last-child {
+                border-bottom:0;
+            }
+
+            .tcwr-story-title {
+                margin:0 0 7px;
+                font-size:.76rem;
+                font-weight:900;
+                letter-spacing:.75px;
+                text-transform:uppercase;
+            }
+
+            .tcwr-story-main {
+                color:#fff;
+                font-size:.94rem;
+                font-weight:900;
+                line-height:1.35;
+                overflow-wrap:anywhere;
+            }
+
+            .tcwr-story-sub {
+                margin-top:4px;
+                color:#94a3b8;
+                font-size:.74rem;
+                font-weight:700;
+                line-height:1.4;
+            }
+
+            .tcwr-story.red {
+                border-left:4px solid #ef4444;
+            }
+
+            .tcwr-story.red .tcwr-story-title {
+                color:#f87171;
+            }
+
+            .tcwr-story.orange {
+                border-left:4px solid #f97316;
+            }
+
+            .tcwr-story.orange .tcwr-story-title {
+                color:#fb923c;
+            }
+
+            .tcwr-story.gold {
+                border-left:4px solid #facc15;
+            }
+
+            .tcwr-story.gold .tcwr-story-title {
+                color:#facc15;
+            }
+
+            .tcwr-story.green {
+                border-left:4px solid #22c55e;
+            }
+
+            .tcwr-story.green .tcwr-story-title {
+                color:#4ade80;
+            }
+
+            .tcwr-story.blue {
+                border-left:4px solid #38bdf8;
+            }
+
+            .tcwr-story.blue .tcwr-story-title {
+                color:#38bdf8;
+            }
+
+            .tcwr-story.purple {
+                border-left:4px solid #a78bfa;
+            }
+
+            .tcwr-story.purple .tcwr-story-title {
+                color:#c4b5fd;
+            }
+
+            .tcwr-empty {
+                padding:22px 16px;
+                color:#94a3b8;
+                text-align:center;
+                font-size:.78rem;
+            }
+
+            .tcwr-commissioner-heading {
+                margin:0 0 8px;
+                color:#facc15;
+                font-size:.72rem;
+                font-weight:900;
+                letter-spacing:.9px;
+                text-transform:uppercase;
+            }
+
+            #commissioner-bulletin-content {
+                max-height:275px;
+                overflow-y:auto;
+                overflow-x:hidden;
+                -webkit-overflow-scrolling:touch;
+                scrollbar-width:thin;
+                scrollbar-color:#facc15 rgba(15,23,42,.5);
+            }
+
+            #commissioner-bulletin-content::-webkit-scrollbar {
+                width:8px;
+            }
+
+            #commissioner-bulletin-content::-webkit-scrollbar-track {
+                background:rgba(15,23,42,.5);
+            }
+
+            #commissioner-bulletin-content::-webkit-scrollbar-thumb {
+                background:#facc15;
+                border-radius:8px;
+            }
+
+            #commissioner-bulletin-content::-webkit-scrollbar-thumb:hover {
+                background:#eab308;
+            }
+
+            .tcwr-commissioner-post {
+                padding:13px 14px;
+                border-bottom:1px solid rgba(148,163,184,.14);
+            }
+
+            .tcwr-commissioner-post:last-child {
+                border-bottom:0;
+            }
+
+            .tcwr-commissioner-date {
+                margin:0 0 5px;
+                color:#94a3b8;
+                font-size:.64rem;
+                font-weight:900;
+                letter-spacing:.8px;
+                text-transform:uppercase;
+            }
+
+            .tcwr-commissioner-text {
+                margin:0;
+                color:#fff;
+                font-size:.8rem;
+                line-height:1.45;
+                text-align:left;
+            }
+
+            .commissioner-notification-btn {
+                display:block;
+                width:calc(100% - 28px);
+                margin:12px 14px 14px;
+                padding:11px 14px;
+                border:1px solid rgba(250,204,21,.45);
+                border-radius:9px;
+                background:rgba(15,23,42,.85);
+                color:#facc15;
+                font-size:.75rem;
+                font-weight:900;
+                letter-spacing:.5px;
+                cursor:pointer;
+            }
+
+            .commissioner-notification-btn:hover {
+                background:rgba(250,204,21,.12);
+            }
+
+        `;
+
+        document.head.appendChild(style);
     }
 
-    function loadBulletin() {
-        ensureLeagueBulletinShell();
-        const display = document.getElementById("commissioner-bulletin-content");
-        if (!display) return;
 
-        if (commissionerBulletinUnsubscribe) commissionerBulletinUnsubscribe();
+    /* === CREATE BULLETIN PANELS === */
 
-        const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
-        commissionerBulletinUnsubscribe = onSnapshot(q, snapshot => {
+    if (!document.getElementById("automated-bulletin-panel")) {
+
+        display.innerHTML = `
+
+            <section id="automated-bulletin-panel" class="tcwr-news-panel">
+
+                <div id="automated-bulletin-content" class="tcwr-empty">
+                    Loading league bulletin...
+                </div>
+
+            </section>
+
+
+            <section id="commissioner-bulletin-panel" class="tcwr-news-panel">
+
+                <div class="tcwr-news-header">
+                    📣 COMMISSIONER PANEL
+                </div>
+
+                <div id="commissioner-bulletin-content" class="tcwr-empty">
+                    Loading commissioner posts...
+                </div>
+
+                <button
+                    id="commissioner-notification-btn"
+                    class="commissioner-notification-btn"
+                >
+                    🔔 GET COMMISSIONER UPDATES
+                </button>
+
+            </section>
+
+        `;
+    }
+
+
+    /* Initialize notification button */
+
+    initializeCommissionerNotifications();
+
+
+    return display;
+}
+
+
+/* === LOAD COMMISSIONER ANNOUNCEMENTS === */
+
+function loadBulletin() {
+
+    ensureLeagueBulletinShell();
+
+    const display = document.getElementById(
+        "commissioner-bulletin-content"
+    );
+
+    if (!display) return;
+
+
+    if (commissionerBulletinUnsubscribe) {
+        commissionerBulletinUnsubscribe();
+    }
+
+
+    const q = query(
+        collection(db, "announcements"),
+        orderBy("timestamp", "desc")
+    );
+
+
+    commissionerBulletinUnsubscribe = onSnapshot(
+
+        q,
+
+        snapshot => {
+
             display.innerHTML = "";
 
+
             if (snapshot.empty) {
-                display.innerHTML = '<div class="tcwr-empty">No recent announcements.</div>';
+
+                display.innerHTML =
+                    '<div class="tcwr-empty">No recent announcements.</div>';
+
                 return;
             }
 
+
             snapshot.forEach(documentSnapshot => {
+
                 const post = documentSnapshot.data();
+
                 const item = document.createElement("article");
+
                 item.className = "tcwr-commissioner-post";
 
-                const displayDate = post.Date || post.date || "UPDATE";
-                const displayText = post.text || "";
+
+                const displayDate =
+                    post.Date ||
+                    post.date ||
+                    "UPDATE";
+
+                const displayText =
+                    post.text ||
+                    "";
+
+
                 item.innerHTML = `
-                    <p class="tcwr-commissioner-date">${escapeBulletinHtml(String(displayDate).toUpperCase())}</p>
-                    <p class="tcwr-commissioner-text">${escapeBulletinHtml(displayText)}</p>
+
+                    <p class="tcwr-commissioner-date">
+                        ${escapeBulletinHtml(
+                            String(displayDate).toUpperCase()
+                        )}
+                    </p>
+
+                    <p class="tcwr-commissioner-text">
+                        ${escapeBulletinHtml(displayText)}
+                    </p>
+
                 `;
+
+
                 display.appendChild(item);
+
             });
-        }, error => {
-            console.error("Commissioner bulletin error:", error);
-            display.innerHTML = '<div class="tcwr-empty">Unable to load commissioner posts.</div>';
-        });
+
+        },
+
+        error => {
+
+            console.error(
+                "Commissioner bulletin error:",
+                error
+            );
+
+            display.innerHTML =
+                '<div class="tcwr-empty">Unable to load commissioner posts.</div>';
+
+        }
+
+    );
+}
+
+
+/* === ESCAPE COMMISSIONER TEXT === */
+
+function escapeBulletinHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+
+/* === 6. COMMISSIONER PUSH NOTIFICATIONS === */
+
+async function enableCommissionerNotifications() {
+
+    try {
+
+        if (!("Notification" in window)) {
+
+            alert(
+                "This browser does not support notifications."
+            );
+
+            return;
+        }
+
+
+        const permission =
+            await Notification.requestPermission();
+
+
+        if (permission !== "granted") {
+
+            return;
+        }
+
+
+        const token =
+            await getToken(
+                messaging,
+                { vapidKey }
+            );
+
+
+        if (!token) {
+
+            console.error(
+                "No notification token was returned."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "Commissioner notification token:",
+            token
+        );
+
+
+        const button =
+            document.getElementById(
+                "commissioner-notification-btn"
+            );
+
+
+        if (button) {
+
+            button.textContent =
+                "CLICK TO TURN OFF UPDATES";
+
+        }
+
     }
 
-    function escapeBulletinHtml(value) {
-        return String(value ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
+    catch (error) {
+
+        console.error(
+            "Unable to enable commissioner notifications:",
+            error
+        );
+
     }
 
-/* === 6. SLEEPER STANDINGS DATA === */
+}
+
+
+/* === INITIALIZE COMMISSIONER NOTIFICATIONS === */
+
+function initializeCommissionerNotifications() {
+
+    const button =
+        document.getElementById(
+            "commissioner-notification-btn"
+        );
+
+
+    if (
+        !button ||
+        button.dataset.pushReady === "true"
+    ) {
+
+        return;
+
+    }
+
+
+    button.dataset.pushReady = "true";
+
+
+    button.addEventListener(
+        "click",
+        async () => {
+
+            await enableCommissionerNotifications();
+
+        }
+    );
+
+}
+
+/* === 7. SLEEPER STANDINGS DATA === */
 
 async function fetchStandings() {
     try {
@@ -1120,7 +1537,7 @@ function escapeStandingsHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
-/* === 7. WEEKLY SCOREBOARD & PREDICTIONS === */
+/* === 8. WEEKLY SCOREBOARD & PREDICTIONS === */
 
 /*
     TEST MODE:
@@ -3445,12 +3862,12 @@ async function initializeCountdownOrScoreboard() {
 /* === INITIALIZE SCOREBOARD / COUNTDOWN === */
 initializeCountdownOrScoreboard();
     
-/* === 8. INITIALIZE PAGE === */
+/* === 9. INITIALIZE PAGE === */
 initializeLeagueBulletin();
 fetchStandings();
 
 
-/* === 9. SERVICE WORKER === */
+/* === 10. SERVICE WORKER === */
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')

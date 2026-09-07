@@ -852,10 +852,11 @@ sidebarLinks.forEach(link => {
 
     const app = initializeApp(firebaseConfig);
     
-    const db = getFirestore(app);
+ const db = getFirestore(app);
+const messaging = getMessaging(app);
 
-    /* === 5. LEAGUE BULLETIN (AUTOMATED + FIREBASE) === */
-    let commissionerBulletinUnsubscribe = null;
+/* === 5. LEAGUE BULLETIN (AUTOMATED + FIREBASE) === */
+let commissionerBulletinUnsubscribe = null;
 
     function ensureLeagueBulletinShell() {
         const display = document.getElementById("bulletin-display");

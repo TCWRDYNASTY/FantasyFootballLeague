@@ -785,6 +785,7 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
     import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getMessaging } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
    /* === 2. UI SIDEBAR NAVIGATION === */
 
@@ -817,6 +818,7 @@ sidebarLinks.forEach(link => {
         }, 300);
     });
 });
+
     /* === 3. TRANSLATORS === */
     const nameTranslator = {
         "mgreg00x": "Matt",
@@ -849,6 +851,7 @@ sidebarLinks.forEach(link => {
     };
 
     const app = initializeApp(firebaseConfig);
+    
     const db = getFirestore(app);
 
     /* === 5. LEAGUE BULLETIN (AUTOMATED + FIREBASE) === */

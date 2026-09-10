@@ -945,6 +945,7 @@ sidebarLinks.forEach(link => {
         "mgreg00x": "Matt",
         "SanDiegoSuperBurgers": "Sylvester", 
         "BUNNIESUPBUDDY": "Evelyn",
+    "BUNNIESUPBUDDYEV": "Evelyn",
         "lightmyBONfire": "Bonnie",
         "dudenamedtrevor": "Trevor",
         "bcanfield0913": "Brittany",
@@ -1368,8 +1369,8 @@ function escapeBulletinHtml(value) {
 async function fetchStandings() {
     try {
         const [rostersRes, usersRes] = await Promise.all([
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters?_=${Date.now()}`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users?_=${Date.now()}`)
         ]);
 
         if (!rostersRes.ok || !usersRes.ok) {
@@ -1525,37 +1526,6 @@ let selectedScoreboardWeek = SCOREBOARD_TEST_WEEK;
 let scoreboardRefreshTimer = null;
 let scoreboardRequestInProgress = false;
 
-function getFeaturedStorageKey(week, type) {
-    return `tcwr-${type}-featured-${leagueId}-week-${week}`;
-}
-
-function readStoredFeaturedMatchup(week, type) {
-    try {
-        const rawValue = window.localStorage.getItem(
-            getFeaturedStorageKey(week, type)
-        );
-
-        return rawValue ? JSON.parse(rawValue) : null;
-    } catch (error) {
-        console.warn("Unable to read featured matchup lock:", error);
-        return null;
-    }
-}
-
-function storeFeaturedMatchup(week, type, matchup, cardType) {
-    try {
-        window.localStorage.setItem(
-            getFeaturedStorageKey(week, type),
-            JSON.stringify({
-                matchId: String(matchup.matchId),
-                cardType
-            })
-        );
-    } catch (error) {
-        console.warn("Unable to store featured matchup lock:", error);
-    }
-}
-
 async function getSleeperCurrentWeek() {
     try {
         const response = await fetch("https://api.sleeper.app/v1/state/nfl");
@@ -1690,9 +1660,9 @@ async function fetchScoreboard(requestedWeek = selectedScoreboardWeek, options =
 
     try {
         const [matchRes, usersRes, rostersRes, stateRes] = await Promise.all([
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}?_=${Date.now()}`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users?_=${Date.now()}`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters?_=${Date.now()}`),
             fetch("https://api.sleeper.app/v1/state/nfl")
         ]);
 
@@ -1730,7 +1700,7 @@ async function fetchScoreboard(requestedWeek = selectedScoreboardWeek, options =
             return;
         }
 
-        Papa.parse(csvUrl, {
+        Papa.parse(`${csvUrl}&_=${Date.now()}`, {
             download: true,
             header: true,
             skipEmptyLines: true,
@@ -1919,63 +1889,39 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         matchup => matchup.gamesStarted
     );
 
+    /*
+     * FEATURED MATCHUP SELECTION
+     *
+     * This must NOT use localStorage. localStorage is different on every
+     * device/browser and was the reason desktop and phone could show
+     * different Matchup of the Week cards.
+     *
+     * The ranking below is deterministic, so identical league data produces
+     * the same featured matchup on desktop, phone, tablet, etc.
+     */
     let featuredMatchup;
     let cardType;
 
-    const lockedSelection = readStoredFeaturedMatchup(week, "locked");
-    const candidateSelection = readStoredFeaturedMatchup(week, "candidate");
-
-    if (anyGameStarted && lockedSelection) {
-        featuredMatchup = analyzedMatchups.find(
-            matchup => String(matchup.matchId) === lockedSelection.matchId
+    if (disagreementMatchups.length > 0) {
+        disagreementMatchups.sort((a, b) =>
+            (b.sleeperProjectionMargin || 0) - (a.sleeperProjectionMargin || 0) ||
+            b.confidence - a.confidence ||
+            a.averageGap - b.averageGap ||
+            b.combinedAverage - a.combinedAverage ||
+            String(a.matchId).localeCompare(String(b.matchId))
         );
 
-        cardType = lockedSelection.cardType || "matchup";
-    }
-
-    if (!featuredMatchup && anyGameStarted && candidateSelection) {
-        featuredMatchup = analyzedMatchups.find(
-            matchup => String(matchup.matchId) === candidateSelection.matchId
-        );
-
-        cardType = candidateSelection.cardType || "matchup";
-    }
-
-    if (!featuredMatchup) {
-        if (disagreementMatchups.length > 0) {
-            disagreementMatchups.sort((a, b) =>
-                (b.sleeperProjectionMargin || 0) -
-                    (a.sleeperProjectionMargin || 0) ||
-                b.confidence - a.confidence
-            );
-
-            featuredMatchup = disagreementMatchups[0];
-            cardType = "prediction-clash";
-        } else {
-            analyzedMatchups.sort((a, b) =>
-                a.averageGap - b.averageGap ||
-                b.combinedAverage - a.combinedAverage
-            );
-
-            featuredMatchup = analyzedMatchups[0];
-            cardType = "matchup";
-        }
-    }
-
-    if (anyGameStarted) {
-        storeFeaturedMatchup(
-            week,
-            "locked",
-            featuredMatchup,
-            cardType
-        );
+        featuredMatchup = disagreementMatchups[0];
+        cardType = "prediction-clash";
     } else {
-        storeFeaturedMatchup(
-            week,
-            "candidate",
-            featuredMatchup,
-            cardType
+        analyzedMatchups.sort((a, b) =>
+            a.averageGap - b.averageGap ||
+            b.combinedAverage - a.combinedAverage ||
+            String(a.matchId).localeCompare(String(b.matchId))
         );
+
+        featuredMatchup = analyzedMatchups[0];
+        cardType = "matchup";
     }
 
     const {
@@ -3820,6 +3766,23 @@ async function initializeCountdownOrScoreboard() {
     await showScoreboardAfterKickoff();
 }
 
+
+/* === REMOVE OLD PUSH-NOTIFICATION SERVICE WORKERS ===
+   Push notifications have been removed. This unregisters an old service
+   worker left behind by the previous notification experiment. */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+        try {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registrations.map(registration => registration.unregister()));
+            if (registrations.length > 0) {
+                console.log('Old TCWR service worker removed.');
+            }
+        } catch (error) {
+            console.warn('Unable to remove old service worker:', error);
+        }
+    });
+}
 
 /* === INITIALIZE SCOREBOARD / COUNTDOWN === */
 initializeCountdownOrScoreboard();

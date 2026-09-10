@@ -908,11 +908,6 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
         setDoc
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    import {
-        getMessaging,
-        getToken
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
-
     /* === 2. UI SIDEBAR NAVIGATION === */
 
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -950,7 +945,6 @@ sidebarLinks.forEach(link => {
         "mgreg00x": "Matt",
         "SanDiegoSuperBurgers": "Sylvester", 
         "BUNNIESUPBUDDY": "Evelyn",
-        "BUNNIESUPBUDDYEV": "Evelyn",
         "lightmyBONfire": "Bonnie",
         "dudenamedtrevor": "Trevor",
         "bcanfield0913": "Brittany",
@@ -981,10 +975,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const messaging = getMessaging(app);
-
-const vapidKey = "BDG9YGVEEduAp3caX-Q6mx0wFTyxC9yXaG4pyIVsVPmYVg8GSupckf3uteDpWpM04vZKMxMq656v3j1KwdC4vJg";
-
 
 /* === 5. LEAGUE BULLETIN (AUTOMATED + FIREBASE) === */
 
@@ -1219,25 +1209,6 @@ function ensureLeagueBulletinShell() {
                 text-align:left;
             }
 
-            .commissioner-notification-btn {
-                display:block;
-                width:calc(100% - 28px);
-                margin:12px 14px 14px;
-                padding:11px 14px;
-                border:1px solid rgba(250,204,21,.45);
-                border-radius:9px;
-                background:rgba(15,23,42,.85);
-                color:#facc15;
-                font-size:.75rem;
-                font-weight:900;
-                letter-spacing:.5px;
-                cursor:pointer;
-            }
-
-            .commissioner-notification-btn:hover {
-                background:rgba(250,204,21,.12);
-            }
-
         `;
 
         document.head.appendChild(style);
@@ -1269,22 +1240,10 @@ function ensureLeagueBulletinShell() {
                     Loading commissioner posts...
                 </div>
 
-                <button
-                    id="commissioner-notification-btn"
-                    class="commissioner-notification-btn"
-                >
-                    🔔 GET COMMISSIONER UPDATES
-                </button>
-
             </section>
 
         `;
     }
-
-
-    /* Initialize notification button */
-
-    initializeCommissionerNotifications();
 
 
     return display;
@@ -1403,184 +1362,13 @@ function escapeBulletinHtml(value) {
 
 
 
-/* === 6. COMMISSIONER PUSH NOTIFICATIONS === */
+/* === 6. SLEEPER STANDINGS DATA === */
 
-async function enableCommissionerNotifications() {
-    try {
-        if (!("Notification" in window)) {
-            alert("This browser does not support notifications.");
-            return;
-        }
-
-        const permission =
-            await Notification.requestPermission();
-
-        if (permission !== "granted") {
-            return;
-        }
-
-        const registration =
-            tcwrServiceWorkerRegistration ||
-            await navigator.serviceWorker.ready;
-
-        const token =
-            await getToken(
-                messaging,
-                {
-                    vapidKey,
-                    serviceWorkerRegistration: registration
-                }
-            );
-
-        if (!token) {
-            console.error("No notification token was returned.");
-            return;
-        }
-
-        await setDoc(
-            doc(db, "notificationTokens", token),
-            {
-                token: token,
-                createdAt: new Date().toISOString(),
-                active: true
-            },
-            {
-                merge: true
-            }
-        );
-
-        localStorage.setItem(
-            "commissionerNotificationsEnabled",
-            "true"
-        );
-
-        updateCommissionerNotificationButton();
-
-        console.log(
-            "Commissioner notifications enabled."
-        );
-    }
-
-    catch (error) {
-        console.error(
-            "Unable to enable commissioner notifications:",
-            error
-        );
-    }
-}
-
-
-async function disableCommissionerNotifications() {
-    try {
-        const registration =
-            tcwrServiceWorkerRegistration ||
-            await navigator.serviceWorker.ready;
-
-        const token =
-            await getToken(
-                messaging,
-                {
-                    vapidKey,
-                    serviceWorkerRegistration: registration
-                }
-            );
-
-        if (token) {
-            await setDoc(
-                doc(db, "notificationTokens", token),
-                {
-                    active: false
-                },
-                {
-                    merge: true
-                }
-            );
-        }
-
-        localStorage.setItem(
-            "commissionerNotificationsEnabled",
-            "false"
-        );
-
-        updateCommissionerNotificationButton();
-
-        console.log(
-            "Commissioner notifications disabled."
-        );
-    }
-
-    catch (error) {
-        console.error(
-            "Unable to disable commissioner notifications:",
-            error
-        );
-    }
-}
-
-
-function updateCommissionerNotificationButton() {
-    const button =
-        document.getElementById(
-            "commissioner-notification-btn"
-        );
-
-    if (!button) return;
-
-    const enabled =
-        localStorage.getItem(
-            "commissionerNotificationsEnabled"
-        ) === "true";
-
-    button.textContent = enabled
-        ? "CLICK TO TURN OFF UPDATES"
-        : "🔔 GET COMMISSIONER UPDATES";
-}
-
-
-function initializeCommissionerNotifications() {
-    const button =
-        document.getElementById(
-            "commissioner-notification-btn"
-        );
-
-    if (!button) {
-        return;
-    }
-
-    updateCommissionerNotificationButton();
-
-    if (
-        button.dataset.pushReady === "true"
-    ) {
-        return;
-    }
-
-    button.dataset.pushReady = "true";
-
-    button.addEventListener(
-        "click",
-        async () => {
-
-            const enabled =
-                localStorage.getItem(
-                    "commissionerNotificationsEnabled"
-                ) === "true";
-
-            if (enabled) {
-                await disableCommissionerNotifications();
-            } else {
-                await enableCommissionerNotifications();
-            }
-
-        }
-    );
-}
-/* === 7. SLEEPER STANDINGS DATA === */
 
 async function fetchStandings() {
     try {
         const [rostersRes, usersRes] = await Promise.all([
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters?tcwr_cache=${Date.now()}`, { cache: "no-store" }),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
             fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`)
         ]);
 
@@ -1770,7 +1558,7 @@ function storeFeaturedMatchup(week, type, matchup, cardType) {
 
 async function getSleeperCurrentWeek() {
     try {
-        const response = await fetch(`https://api.sleeper.app/v1/state/nfl?tcwr_cache=${Date.now()}`, { cache: "no-store" });
+        const response = await fetch("https://api.sleeper.app/v1/state/nfl");
         if (!response.ok) throw new Error(`Sleeper NFL state request failed: ${response.status}`);
         const state = await response.json();
         const sleeperWeek = Number(state.display_week ?? state.leg ?? state.week ?? 1);
@@ -1902,10 +1690,10 @@ async function fetchScoreboard(requestedWeek = selectedScoreboardWeek, options =
 
     try {
         const [matchRes, usersRes, rostersRes, stateRes] = await Promise.all([
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}?tcwr_cache=${Date.now()}`, { cache: "no-store" }),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users?tcwr_cache=${Date.now()}`, { cache: "no-store" }),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters?tcwr_cache=${Date.now()}`, { cache: "no-store" }),
-            fetch(`https://api.sleeper.app/v1/state/nfl?tcwr_cache=${Date.now()}`, { cache: "no-store" })
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+            fetch("https://api.sleeper.app/v1/state/nfl")
         ]);
 
         if (!matchRes.ok || !usersRes.ok || !rostersRes.ok) {
@@ -1942,7 +1730,7 @@ async function fetchScoreboard(requestedWeek = selectedScoreboardWeek, options =
             return;
         }
 
-        Papa.parse(`${csvUrl}&tcwr_cache=${Date.now()}`, {
+        Papa.parse(csvUrl, {
             download: true,
             header: true,
             skipEmptyLines: true,
@@ -2131,40 +1919,63 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         matchup => matchup.gamesStarted
     );
 
-    /*
-        IMPORTANT: Featured matchup selection must be identical on every device.
-
-        The old version used browser localStorage to lock the featured matchup.
-        That meant a desktop could have Matchup #7 saved while a phone had
-        Matchup #5 saved.  The two devices could therefore show different cards.
-
-        We now select the matchup deterministically from the current league data.
-        No device-specific featured-matchup lock is used.  With the same Sleeper
-        and historical-stat data, every device will select the same matchup.
-    */
     let featuredMatchup;
     let cardType;
 
-    if (disagreementMatchups.length > 0) {
-        disagreementMatchups.sort((a, b) =>
-            (b.sleeperProjectionMargin || 0) -
-                (a.sleeperProjectionMargin || 0) ||
-            b.confidence - a.confidence ||
-            b.combinedAverage - a.combinedAverage ||
-            String(a.matchId).localeCompare(String(b.matchId), undefined, { numeric: true })
+    const lockedSelection = readStoredFeaturedMatchup(week, "locked");
+    const candidateSelection = readStoredFeaturedMatchup(week, "candidate");
+
+    if (anyGameStarted && lockedSelection) {
+        featuredMatchup = analyzedMatchups.find(
+            matchup => String(matchup.matchId) === lockedSelection.matchId
         );
 
-        featuredMatchup = disagreementMatchups[0];
-        cardType = "prediction-clash";
+        cardType = lockedSelection.cardType || "matchup";
+    }
+
+    if (!featuredMatchup && anyGameStarted && candidateSelection) {
+        featuredMatchup = analyzedMatchups.find(
+            matchup => String(matchup.matchId) === candidateSelection.matchId
+        );
+
+        cardType = candidateSelection.cardType || "matchup";
+    }
+
+    if (!featuredMatchup) {
+        if (disagreementMatchups.length > 0) {
+            disagreementMatchups.sort((a, b) =>
+                (b.sleeperProjectionMargin || 0) -
+                    (a.sleeperProjectionMargin || 0) ||
+                b.confidence - a.confidence
+            );
+
+            featuredMatchup = disagreementMatchups[0];
+            cardType = "prediction-clash";
+        } else {
+            analyzedMatchups.sort((a, b) =>
+                a.averageGap - b.averageGap ||
+                b.combinedAverage - a.combinedAverage
+            );
+
+            featuredMatchup = analyzedMatchups[0];
+            cardType = "matchup";
+        }
+    }
+
+    if (anyGameStarted) {
+        storeFeaturedMatchup(
+            week,
+            "locked",
+            featuredMatchup,
+            cardType
+        );
     } else {
-        analyzedMatchups.sort((a, b) =>
-            a.averageGap - b.averageGap ||
-            b.combinedAverage - a.combinedAverage ||
-            String(a.matchId).localeCompare(String(b.matchId), undefined, { numeric: true })
+        storeFeaturedMatchup(
+            week,
+            "candidate",
+            featuredMatchup,
+            cardType
         );
-
-        featuredMatchup = analyzedMatchups[0];
-        cardType = "matchup";
     }
 
     const {
@@ -4017,31 +3828,6 @@ initializeCountdownOrScoreboard();
 initializeLeagueBulletin();
 fetchStandings();
 
-
-/* === 10. SERVICE WORKER === */
-
-let tcwrServiceWorkerRegistration = null;
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-        try {
-            tcwrServiceWorkerRegistration =
-                await navigator.serviceWorker.register(
-                    './service-worker.js'
-                );
-
-            console.log(
-                'Service Worker registered successfully!',
-                tcwrServiceWorkerRegistration
-            );
-        } catch (error) {
-            console.error(
-                'Service Worker registration failed:',
-                error
-            );
-        }
-    });
-}
 
 // =====================================================
 // LEAGUE CHAT BUTTON

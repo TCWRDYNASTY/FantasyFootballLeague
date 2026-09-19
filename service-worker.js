@@ -99,6 +99,7 @@ const urlsToCache = [
   './rookiedraftcountdown.html',
 
   './DYNASTYLOGO.png',
+  './retrotv.jpeg',
   './ainteasy.jpeg',
   './thehomies.jpeg',
   './toilet.png',

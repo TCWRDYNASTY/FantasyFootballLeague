@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#061426" />
 
-<title>Media | TCWR Dynasty League</title>
+<title>Media Archive | TCWR Dynasty League</title>
 
 <link rel="manifest" href="manifest.json" />
 
@@ -406,6 +406,100 @@ main{
     white-space:nowrap;
 }
 
+
+
+/* =========================================================
+   ARCHIVE CHAMPS
+   ========================================================= */
+
+.archive-champs-link{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    min-width:300px;
+    padding:10px 18px 10px 12px;
+    border:1px solid rgba(255,213,107,.5);
+    border-radius:18px;
+    color:var(--white);
+    background:linear-gradient(135deg,rgba(72,43,8,.72),rgba(12,28,45,.9));
+    box-shadow:0 12px 28px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.06);
+    text-decoration:none;
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,filter .18s ease;
+}
+.archive-champs-link:hover{
+    transform:translateY(-2px);
+    border-color:rgba(255,213,107,.9);
+    box-shadow:0 16px 34px rgba(0,0,0,.34),0 0 24px rgba(255,213,107,.08);
+    filter:brightness(1.05);
+}
+.archive-champs-folder{
+    position:relative;
+    width:76px;
+    height:58px;
+    flex:0 0 auto;
+    border:1px solid rgba(255,213,107,.65);
+    border-radius:7px 7px 10px 10px;
+    background:linear-gradient(180deg,#f5cc68 0%,#c99532 48%,#8c611d 100%);
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.32),0 8px 18px rgba(0,0,0,.3);
+}
+.archive-champs-folder:before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:-10px;
+    width:32px;
+    height:13px;
+    border:1px solid rgba(255,213,107,.65);
+    border-bottom:0;
+    border-radius:7px 7px 0 0;
+    background:#d8aa49;
+}
+.archive-champs-folder:after{
+    content:"♛";
+    position:absolute;
+    inset:0;
+    display:grid;
+    place-items:center;
+    color:#182331;
+    font-size:28px;
+    line-height:1;
+}
+.archive-champs-copy{min-width:0;}
+.archive-champs-title{
+    display:block;
+    color:var(--gold);
+    font-family:"Barlow Condensed",sans-serif;
+    font-size:1.35rem;
+    font-weight:900;
+    letter-spacing:.06em;
+    line-height:1;
+    text-transform:uppercase;
+}
+.archive-champs-subtitle{
+    display:block;
+    margin-top:5px;
+    color:#b9cad9;
+    font-size:.7rem;
+    font-weight:600;
+    line-height:1.35;
+}
+.archive-champs-arrow{
+    margin-left:auto;
+    color:#ffd56b;
+    font-size:1.35rem;
+    transition:transform .18s ease;
+}
+.archive-champs-link:hover .archive-champs-arrow{transform:translateX(3px);}
+
+@media(max-width:800px){
+    .archive-champs-link{min-width:260px;}
+    .archive-champs-folder{width:64px;height:50px;}
+}
+@media(max-width:650px){
+    .archive-champs-link{width:100%;min-width:0;}
+    .archive-champs-title{font-size:1.15rem;}
+    .archive-champs-subtitle{font-size:.65rem;}
+}
 
 /* =========================================================
    EPISODE LIST
@@ -963,9 +1057,7 @@ main{
 
     <main>
 
-        <header class="episodes-header">
-
-            <div class="episodes-heading-left">
+        <header class="episodes-header">            <div class="episodes-heading-left">
 
                 <div class="episodes-kicker">
                     TCWR Dynasty Podcast
@@ -976,6 +1068,31 @@ main{
                 </h1>
 
             </div>
+
+
+            <a
+                class="archive-champs-link"
+                href="https://www.youtube.com/playlist?list=PLJrpJn0autaM"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open Past Champs Rode to Glory on YouTube"
+            >
+                <span class="archive-champs-folder" aria-hidden="true"></span>
+
+                <span class="archive-champs-copy">
+                    <span class="archive-champs-title">
+                        Past Champs Rode to Glory
+                    </span>
+                    <span class="archive-champs-subtitle">
+                        Championship videos from past seasons
+                    </span>
+                </span>
+
+                <span class="archive-champs-arrow" aria-hidden="true">
+                    →
+                </span>
+            </a>
+
 
             <div class="season-label">
                 Season 1

@@ -2311,24 +2311,20 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
 
 /* =========================================================
    AUTOMATED SIDE BULLETIN
-   Thursday-Monday: live upset + blowout watches.
-   Tuesday-Thursday morning: archived weekly awards.
-   ========================================================= */
 
-/* =========================================================
-   AUTOMATED SIDE BULLETIN
+   PACIFIC TIME SCHEDULE:
 
-   Thursday-Monday:
+   Thursday 5:00 PM - Tuesday 12:00 AM:
    Live upset and blowout watches.
 
-   Tuesday-Thursday morning:
+   Tuesday 12:00 AM - Thursday 5:00 PM:
    Awards from the latest completed week.
 
    Before the season:
    Displays a preseason waiting message.
    ========================================================= */
 
-const BULLETIN_THURSDAY_SWITCH_HOUR_ET = 12;
+const BULLETIN_LIVE_START_HOUR_PT = 17; // Thursday 5:00 PM Pacific
 
 let selectedAwardsWeek = 1;
 let latestCompletedAwardsWeek = 0;
@@ -2340,12 +2336,12 @@ let bulletinRequestToken = 0;
 
 
 /* =========================================================
-   EASTERN TIME HELPERS
+   PACIFIC TIME HELPERS
    ========================================================= */
 
-function getEasternClockParts(date = new Date()) {
+function getPacificClockParts(date = new Date()) {
     const formatter = new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/New_York",
+        timeZone: "America/Los_Angeles",
         weekday: "short",
         hour: "2-digit",
         hour12: false
@@ -2369,15 +2365,19 @@ function getEasternClockParts(date = new Date()) {
    ========================================================= */
 
 function shouldShowLiveLeagueWatch(date = new Date()) {
-    const { weekday, hour } = getEasternClockParts(date);
+    const { weekday, hour } = getPacificClockParts(date);
 
+    /*
+        Live League Watch runs from Thursday at 5:00 PM Pacific
+        through Monday night.
+    */
     if (["Fri", "Sat", "Sun", "Mon"].includes(weekday)) {
         return true;
     }
 
     return (
         weekday === "Thu" &&
-        hour >= BULLETIN_THURSDAY_SWITCH_HOUR_ET
+        hour >= BULLETIN_LIVE_START_HOUR_PT
     );
 }
 
@@ -2506,13 +2506,45 @@ function updateAutomatedBulletinFromScoreboard(
         return;
     }
 
-    if (!shouldShowLiveLeagueWatch()) {
+    const showLive = shouldShowLiveLeagueWatch();
+
+    /*
+        Keep the bulletin synchronized with the Pacific-time schedule
+        while the page remains open. The scoreboard refreshes every
+        minute, so this also catches the Tuesday 12:00 AM and Thursday
+        5:00 PM transitions without requiring a page reload.
+    */
+    if (showLive) {
+        if (bulletinMode !== "live") {
+            loadLiveBulletinWeek(sleeperDisplayWeek || week);
+            return;
+        }
+
+        renderLiveLeagueWatch(
+            analyzedMatchups,
+            week
+        );
         return;
     }
 
-    renderLiveLeagueWatch(
-        analyzedMatchups,
-        week
+    if (bulletinMode === "awards") {
+        return;
+    }
+
+    const latestWeek = getLatestCompletedWeek(
+        sleeperDisplayWeek || week
+    );
+
+    if (latestWeek < SCOREBOARD_MIN_WEEK) {
+        renderAwardsWaitingMessage();
+        return;
+    }
+
+    selectedAwardsWeek = latestWeek;
+
+    loadWeeklyAwards(
+        selectedAwardsWeek,
+        sleeperDisplayWeek || week
     );
 }
 

@@ -777,6 +777,197 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
     .tcwr-year-end-award.game{border-left-color:#fb923c}.tcwr-year-end-award.game .tcwr-year-end-award-title{color:#fb923c}
     .tcwr-year-end-award.player{border-left-color:#60a5fa}.tcwr-year-end-award.player .tcwr-year-end-award-title{color:#60a5fa}
     @media(max-width:540px){.tcwr-champion-content{padding:28px 16px 32px}.tcwr-champion-trophy{width:min(160px,58%);max-height:145px}}
+
+    /* =========================================================
+       SEASONAL CENTER-SCREEN EXPERIENCE
+       ========================================================= */
+    .tcwr-recap-coming-card{
+        width:100%;
+        min-height:520px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        padding:48px 26px;
+        text-align:center;
+        border:1px solid rgba(255,213,107,.24);
+        border-radius:20px;
+        background:
+            radial-gradient(circle at 50% 18%,rgba(248,169,61,.16),transparent 34%),
+            linear-gradient(145deg,rgba(30,41,59,.98),rgba(7,20,35,.98));
+        box-shadow:0 18px 44px rgba(0,0,0,.34);
+    }
+    .tcwr-recap-coming-kicker{
+        margin-bottom:14px;
+        color:#f8a93d;
+        font-family:"Barlow Condensed",sans-serif;
+        font-size:.82rem;
+        font-weight:900;
+        letter-spacing:.18em;
+        text-transform:uppercase;
+    }
+    .tcwr-recap-coming-title{
+        margin:0;
+        color:#ffd56b;
+        font-family:"Barlow Condensed",sans-serif;
+        font-size:clamp(3rem,7vw,5.8rem);
+        line-height:.9;
+        font-weight:900;
+        letter-spacing:.02em;
+        text-transform:uppercase;
+        text-shadow:0 8px 30px rgba(0,0,0,.4);
+    }
+    .tcwr-recap-coming-date{
+        margin:22px 0 0;
+        color:#fff;
+        font-family:"Barlow Condensed",sans-serif;
+        font-size:clamp(1.3rem,3vw,2rem);
+        font-weight:900;
+        letter-spacing:.1em;
+        text-transform:uppercase;
+    }
+    .tcwr-recap-coming-copy{
+        max-width:560px;
+        margin:14px auto 0;
+        color:#a8bdd2;
+        font-size:.82rem;
+        font-weight:700;
+        line-height:1.6;
+        letter-spacing:.03em;
+    }
+    .tcwr-recap-tv-shell{
+        position:relative;
+        width:100%;
+        aspect-ratio:3 / 2;
+        overflow:hidden;
+        border-radius:18px;
+        background:#000;
+        box-shadow:0 20px 48px rgba(0,0,0,.48);
+    }
+    .tcwr-recap-tv-image{
+        position:absolute;
+        inset:0;
+        z-index:1;
+        width:100%;
+        height:100%;
+        display:block;
+        object-fit:cover;
+    }
+    .tcwr-recap-tv-screen{
+        position:absolute;
+        z-index:2;
+        left:8.25%;
+        top:11.2%;
+        width:75.15%;
+        height:75.5%;
+        overflow:hidden;
+        border-radius:8% 8% 9% 9% / 8% 8% 9% 9%;
+        background:#000;
+        box-shadow:inset 0 0 28px rgba(0,0,0,.65);
+    }
+    .tcwr-recap-tv-screen iframe{
+        width:100%;
+        height:100%;
+        display:block;
+        border:0;
+    }
+    .tcwr-recap-tv-fallback-link{
+        position:absolute;
+        left:8.25%;
+        bottom:5.2%;
+        z-index:3;
+        color:rgba(255,255,255,.7);
+        font-size:.55rem;
+        font-weight:800;
+        letter-spacing:.08em;
+        text-transform:uppercase;
+        text-decoration:none;
+    }
+    .tcwr-recap-tv-fallback-link:hover{color:#ffd56b}
+    .tcwr-offseason-card{
+        width:100%;
+        min-height:520px;
+        padding:30px 24px 34px;
+        text-align:center;
+        border:1px solid rgba(69,168,239,.22);
+        border-radius:20px;
+        background:
+            radial-gradient(circle at 50% 0%,rgba(35,134,216,.18),transparent 38%),
+            linear-gradient(145deg,rgba(20,57,92,.76),rgba(4,18,33,.96));
+        box-shadow:0 18px 44px rgba(0,0,0,.34);
+    }
+    .tcwr-offseason-kicker{
+        color:#79d8ff;
+        font-family:"Barlow Condensed",sans-serif;
+        font-size:.82rem;
+        font-weight:900;
+        letter-spacing:.18em;
+        text-transform:uppercase;
+    }
+    .tcwr-offseason-title{
+        margin:8px 0 0;
+        color:#fff;
+        font-family:"Barlow Condensed",sans-serif;
+        font-size:clamp(2.6rem,6vw,5rem);
+        line-height:.9;
+        font-weight:900;
+        letter-spacing:.02em;
+        text-transform:uppercase;
+    }
+    .tcwr-offseason-target{
+        margin:12px 0 26px;
+        color:#ffd56b;
+        font-family:"Barlow Condensed",sans-serif;
+        font-size:1.05rem;
+        font-weight:900;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+    }
+    .tcwr-offseason-grid{
+        display:grid;
+        grid-template-columns:repeat(4,minmax(0,1fr));
+        gap:12px;
+        max-width:720px;
+        margin:0 auto;
+    }
+    .tcwr-offseason-unit{
+        min-width:0;
+        padding:18px 8px;
+        border:1px solid rgba(142,205,255,.18);
+        border-radius:12px;
+        background:rgba(2,9,20,.42);
+    }
+    .tcwr-offseason-number{
+        color:#ffd56b;
+        font-size:clamp(1.65rem,4vw,2.8rem);
+        line-height:1;
+        font-weight:900;
+        font-variant-numeric:tabular-nums;
+    }
+    .tcwr-offseason-label{
+        margin-top:8px;
+        color:#8fa8bd;
+        font-size:.62rem;
+        font-weight:900;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+    }
+    .tcwr-offseason-note{
+        margin:24px 0 0;
+        color:#a8bdd2;
+        font-size:.74rem;
+        font-weight:700;
+        line-height:1.5;
+        letter-spacing:.04em;
+        text-transform:uppercase;
+    }
+    @media(max-width:650px){
+        .tcwr-recap-coming-card,.tcwr-offseason-card{min-height:420px;padding:32px 16px}
+        .tcwr-recap-tv-shell{border-radius:14px}
+    }
+    @media(max-width:540px){
+        .tcwr-offseason-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
 </style>
 
 
@@ -1515,6 +1706,23 @@ const SCOREBOARD_REFRESH_MS = 60 * 1000;
 
 /* === END-OF-SEASON AWARDS === */
 const FANTASY_SEASON_FINAL_WEEK = 14;
+
+/* === TCWR SEASONAL CENTER-SCREEN CONFIG === */
+const CHAMPION_RECAP_PLAYLIST_ID = "PLZEKYTPqxrBo";
+const CHAMPION_RECAP_PLAYLIST_URL =
+    `https://www.youtube.com/playlist?list=${CHAMPION_RECAP_PLAYLIST_ID}`;
+
+/* These dates are intentionally recurring every year.
+   - Champion Recap Coming Soon begins when Sleeper reports Week 14 is over.
+   - Champion Recap TV begins December 28.
+   - Offseason countdown begins March 12.
+   - The countdown reaches zero September 3, when the normal scoreboard returns. */
+const CHAMPION_RECAP_LIVE_MONTH = 12;
+const CHAMPION_RECAP_LIVE_DAY = 28;
+const OFFSEASON_COUNTDOWN_MONTH = 3;
+const OFFSEASON_COUNTDOWN_DAY = 12;
+const NFL_SEASON_START_MONTH = 9;
+const NFL_SEASON_START_DAY = 3;
 
 /* Optional previous-season Manager Rankings CSV.
    Used only for Most Improved Manager. */
@@ -2381,8 +2589,16 @@ function shouldShowLiveLeagueWatch(date = new Date()) {
     );
 }
 
-function hasNflSeasonStarted() {
-    return Date.now() >= NFL_SEASON_KICKOFF.getTime();
+function getAnnualNflSeasonStartDate(year) {
+    /* September 3 at 12:00 AM Pacific. The site uses the date as the
+       annual transition point; the live NFL schedule continues to come
+       from Sleeper once the regular-season screen is active. */
+    return new Date(`${year}-09-03T00:00:00-07:00`);
+}
+
+function hasNflSeasonStarted(date = new Date()) {
+    const year = date.getFullYear();
+    return date.getTime() >= getAnnualNflSeasonStartDate(year).getTime();
 }
 
 function getLatestCompletedWeek(displayWeek) {
@@ -3587,151 +3803,162 @@ async function calculateEndOfSeasonAwards() {
     return result;
 }
 
-async function renderEndOfSeasonState() {
-    try {
-        const awards = await calculateEndOfSeasonAwards();
-        renderChampionCard(awards.champion,awards.season);
-        renderYearEndAwards({
-            managerOfYear:awards.managerOfYear,
-            mostImproved:awards.mostImproved,
-            gameOfYear:awards.gameOfYear,
-            playerOfYear:awards.playerOfYear
-        },awards.season);
-    } catch (error) {
-        console.error("End-of-season awards error:",error);
-
-        const center = document.getElementById("scoreboard-container");
-        if (center) center.innerHTML = `<div style="padding:35px 20px;text-align:center;color:#f87171;">Unable to load end-of-season championship data.</div>`;
-
-        const right = document.getElementById("automated-bulletin-content");
-        if (right) right.innerHTML = `<div class="tcwr-empty">Unable to calculate year-end awards.</div>`;
-    }
+function setCenterColumnTitle(title) {
+    const titleElement = document.querySelector(".center-column .column-title");
+    if (titleElement) titleElement.textContent = title;
 }
 
-/* =========================================================
-   NFL SEASON KICKOFF COUNTDOWN
-   Shows the countdown before kickoff.
-   At zero, removes the countdown and loads the matchup card.
-   ========================================================= */
+function getPacificDateParts(date = new Date()) {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Los_Angeles",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    });
 
-const NFL_SEASON_KICKOFF = new Date("2026-09-09T20:20:00-04:00");
-let nflKickoffCountdownTimer = null;
+    const parts = Object.fromEntries(
+        formatter.formatToParts(date).map(part => [part.type, part.value])
+    );
 
-function createKickoffCountdown() {
+    return {
+        year: Number(parts.year),
+        month: Number(parts.month),
+        day: Number(parts.day)
+    };
+}
+
+function isPacificDateOnOrAfter(date, month, day) {
+    const parts = getPacificDateParts(date);
+    return parts.month > month || (parts.month === month && parts.day >= day);
+}
+
+function isPacificDateBefore(date, month, day) {
+    const parts = getPacificDateParts(date);
+    return parts.month < month || (parts.month === month && parts.day < day);
+}
+
+function renderChampionRecapComingSoon() {
+    const container = document.getElementById("scoreboard-container");
+    if (!container) return;
+
+    stopKickoffCountdown();
+    clearScoreboardRefreshTimer();
+    setCenterColumnTitle("Champion Recap");
+
+    const seasonYear = getPacificDateParts().year;
+
+    container.innerHTML = `
+        <section class="tcwr-recap-coming-card">
+            <div class="tcwr-recap-coming-kicker">🏆 TCWR DY-NASTY</div>
+            <h2 class="tcwr-recap-coming-title">Champion Recap</h2>
+            <div class="tcwr-recap-coming-date">Check Back December 28</div>
+            <p class="tcwr-recap-coming-copy">
+                The ${seasonYear} fantasy season is complete. The Champion Recap will take over the screen on December 28.
+            </p>
+        </section>
+    `;
+}
+
+function renderChampionRecapTv() {
+    const container = document.getElementById("scoreboard-container");
+    if (!container) return;
+
+    stopKickoffCountdown();
+    clearScoreboardRefreshTimer();
+    setCenterColumnTitle("Champion Recap");
+
+    const playlistEmbedUrl =
+        `https://www.youtube.com/embed?listType=playlist` +
+        `&list=${encodeURIComponent(CHAMPION_RECAP_PLAYLIST_ID)}` +
+        `&autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1`;
+
+    container.innerHTML = `
+        <section class="tcwr-recap-tv-shell" aria-label="TCWR Champion Recap">
+            <img
+                class="tcwr-recap-tv-image"
+                src="retrotv.jpeg?v=1"
+                alt="Retro television frame for the TCWR Champion Recap"
+            >
+            <div class="tcwr-recap-tv-screen">
+                <iframe
+                    src="${playlistEmbedUrl}"
+                    title="TCWR Champion Recap"
+                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                    allowfullscreen
+                    referrerpolicy="strict-origin-when-cross-origin"
+                ></iframe>
+            </div>
+            <a
+                class="tcwr-recap-tv-fallback-link"
+                href="${CHAMPION_RECAP_PLAYLIST_URL}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >Open playlist on YouTube</a>
+        </section>
+    `;
+}
+
+function getNextNflSeasonStartDate() {
+    const now = new Date();
+    const pacific = getPacificDateParts(now);
+    const targetYear =
+        pacific.month < NFL_SEASON_START_MONTH ||
+        (pacific.month === NFL_SEASON_START_MONTH && pacific.day < NFL_SEASON_START_DAY)
+            ? pacific.year
+            : pacific.year + 1;
+
+    return getAnnualNflSeasonStartDate(targetYear);
+}
+
+function createOffseasonCountdown() {
     const container = document.getElementById("scoreboard-container");
     if (!container) return null;
 
+    stopKickoffCountdown();
+    clearScoreboardRefreshTimer();
+    setCenterColumnTitle("Countdown to Football");
     container.innerHTML = "";
 
-    const countdownCard = document.createElement("div");
+    const targetDate = getNextNflSeasonStartDate();
+    const targetYear = targetDate.getFullYear();
+
+    const countdownCard = document.createElement("section");
     countdownCard.id = "nfl-kickoff-countdown";
-    countdownCard.style.cssText = `
-        width:100%;
-        box-sizing:border-box;
-        padding:28px 20px;
-        color:white;
-        text-align:center;
-        background:linear-gradient(145deg, rgba(30,41,59,.98), rgba(15,23,42,.98));
-        border:1px solid rgba(148,163,184,.22);
-        border-top:4px solid #facc15;
-        border-radius:14px;
-        box-shadow:0 12px 30px rgba(0,0,0,.35);
-    `;
+    countdownCard.className = "tcwr-offseason-card";
 
     countdownCard.innerHTML = `
-        <div style="
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            padding:9px 18px;
-            margin-bottom:18px;
-            border-radius:999px;
-            background:linear-gradient(135deg,#92400e,#f59e0b);
-            color:white;
-            font-size:.82rem;
-            font-weight:900;
-            letter-spacing:.8px;
-            box-shadow:0 5px 15px rgba(0,0,0,.3);
-        ">
-            🏈 NFL SEASON KICKOFF
-        </div>
+        <div class="tcwr-offseason-kicker">🏈 TCWR DY-NASTY</div>
+        <h2 class="tcwr-offseason-title">Countdown to Football</h2>
+        <div class="tcwr-offseason-target">September 3, ${targetYear}</div>
 
-        <div id="kickoff-countdown-grid" style="
-            display:grid;
-            grid-template-columns:repeat(4,minmax(0,1fr));
-            gap:12px;
-            max-width:680px;
-            margin:0 auto;
-        ">
+        <div id="kickoff-countdown-grid" class="tcwr-offseason-grid">
             ${createCountdownUnit("days", "Days")}
             ${createCountdownUnit("hours", "Hours")}
             ${createCountdownUnit("minutes", "Minutes")}
             ${createCountdownUnit("seconds", "Seconds")}
         </div>
 
-        <p style="
-            margin:20px 0 0;
-            color:#94a3b8;
-            font-size:.78rem;
-            font-weight:700;
-            letter-spacing:.6px;
-        ">
-            UNTIL THE 2026 NFL SEASON BEGINS
+        <p class="tcwr-offseason-note">
+            Until the next football season
         </p>
     `;
 
     container.appendChild(countdownCard);
-
-    const responsiveStyle = document.createElement("style");
-    responsiveStyle.id = "kickoff-countdown-responsive-style";
-    responsiveStyle.textContent = `
-        @media (max-width: 540px) {
-            #kickoff-countdown-grid {
-                grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-            }
-        }
-    `;
-
-    if (!document.getElementById(responsiveStyle.id)) {
-        document.head.appendChild(responsiveStyle);
-    }
-
     return countdownCard;
 }
 
 function createCountdownUnit(id, label) {
     return `
-        <div style="
-            min-width:0;
-            padding:16px 8px;
-            background:rgba(15,23,42,.72);
-            border:1px solid rgba(148,163,184,.18);
-            border-radius:10px;
-        ">
-            <div id="kickoff-${id}" style="
-                color:#facc15;
-                font-size:clamp(1.65rem,4vw,2.65rem);
-                line-height:1;
-                font-weight:900;
-            ">
-                00
-            </div>
-            <div style="
-                margin-top:7px;
-                color:#94a3b8;
-                font-size:.68rem;
-                font-weight:800;
-                letter-spacing:1px;
-                text-transform:uppercase;
-            ">
-                ${label}
-            </div>
+        <div class="tcwr-offseason-unit">
+            <div id="kickoff-${id}" class="tcwr-offseason-number">00</div>
+            <div class="tcwr-offseason-label">${label}</div>
         </div>
     `;
 }
 
 function updateKickoffCountdown() {
-    const remaining = NFL_SEASON_KICKOFF.getTime() - Date.now();
+    const target = getNextNflSeasonStartDate();
+    const remaining = target.getTime() - Date.now();
 
     if (remaining <= 0) {
         stopKickoffCountdown();
@@ -3768,6 +3995,8 @@ async function showScoreboardAfterKickoff() {
     const container = document.getElementById("scoreboard-container");
     if (container) container.innerHTML = "";
 
+    setCenterColumnTitle("Weekly Scoreboard & Predictions");
+
     selectedScoreboardWeek = SCOREBOARD_TEST_MODE
         ? SCOREBOARD_TEST_WEEK
         : await getSleeperCurrentWeek();
@@ -3776,28 +4005,117 @@ async function showScoreboardAfterKickoff() {
     startScoreboardRefreshTimer();
 }
 
-async function initializeCountdownOrScoreboard() {
+async function getSeasonalCenterMode() {
+    const now = new Date();
+    const pacific = getPacificDateParts(now);
+
+    /* December 28 always begins the Champion Recap TV. */
+    if (
+        pacific.month > CHAMPION_RECAP_LIVE_MONTH ||
+        (pacific.month === CHAMPION_RECAP_LIVE_MONTH && pacific.day >= CHAMPION_RECAP_LIVE_DAY) ||
+        pacific.month === 1 ||
+        pacific.month === 2
+    ) {
+        /* January and February are part of the Champion Recap window. */
+        if (pacific.month === 12 && pacific.day < CHAMPION_RECAP_LIVE_DAY) {
+            // December 1–27: fall through to the post-Week-14 check below.
+        } else if (pacific.month === 3 && pacific.day >= OFFSEASON_COUNTDOWN_DAY) {
+            return "offseason-countdown";
+        } else {
+            return "champion-recap";
+        }
+    }
+
+    /* March 12 through September 2 is the annual offseason countdown. */
+    if (
+        (pacific.month > OFFSEASON_COUNTDOWN_MONTH && pacific.month < NFL_SEASON_START_MONTH) ||
+        (pacific.month === OFFSEASON_COUNTDOWN_MONTH && pacific.day >= OFFSEASON_COUNTDOWN_DAY) ||
+        (pacific.month === NFL_SEASON_START_MONTH && pacific.day < NFL_SEASON_START_DAY)
+    ) {
+        return "offseason-countdown";
+    }
+
+    /* December 15-ish onward, once Sleeper has moved past fantasy Week 14,
+       shows the post-season waiting screen until December 28. */
     if (await hasFantasySeasonEnded()) {
-        await renderEndOfSeasonState();
+        return "champion-coming-soon";
+    }
+
+    return "scoreboard";
+}
+
+async function renderSeasonalCenterScreen() {
+    const mode = await getSeasonalCenterMode();
+
+    if (mode === "champion-coming-soon") {
+        renderChampionRecapComingSoon();
         return;
     }
 
-    if (Date.now() < NFL_SEASON_KICKOFF.getTime()) {
-       clearScoreboardRefreshTimer();
-        createKickoffCountdown();
+    if (mode === "champion-recap") {
+        renderChampionRecapTv();
+        return;
+    }
+
+    if (mode === "offseason-countdown") {
+        createOffseasonCountdown();
         updateKickoffCountdown();
-
-        nflKickoffCountdownTimer = setInterval(
-            updateKickoffCountdown,
-            1000
-        );
-
+        nflKickoffCountdownTimer = setInterval(updateKickoffCountdown, 1000);
         return;
     }
 
     await showScoreboardAfterKickoff();
 }
 
+async function renderEndOfSeasonState() {
+    try {
+        const awards = await calculateEndOfSeasonAwards();
+
+        /* The right column keeps the year-end awards throughout the
+           Champion Recap and offseason portions of the calendar. */
+        renderYearEndAwards({
+            managerOfYear:awards.managerOfYear,
+            mostImproved:awards.mostImproved,
+            gameOfYear:awards.gameOfYear,
+            playerOfYear:awards.playerOfYear
+        },awards.season);
+    } catch (error) {
+        console.error("End-of-season awards error:",error);
+
+        const center = document.getElementById("scoreboard-container");
+        if (center) center.innerHTML = `<div style="padding:35px 20px;text-align:center;color:#f87171;">Unable to load end-of-season championship data.</div>`;
+
+        const right = document.getElementById("automated-bulletin-content");
+        if (right) right.innerHTML = `<div class="tcwr-empty">Unable to calculate year-end awards.</div>`;
+    }
+}
+
+/* =========================================================
+   SEASONAL CENTER-SCREEN INITIALIZATION
+   ========================================================= */
+
+async function initializeCountdownOrScoreboard() {
+    const mode = await getSeasonalCenterMode();
+
+    if (mode === "champion-coming-soon") {
+        renderChampionRecapComingSoon();
+        return;
+    }
+
+    if (mode === "champion-recap") {
+        renderChampionRecapTv();
+        return;
+    }
+
+    if (mode === "offseason-countdown") {
+        createOffseasonCountdown();
+        updateKickoffCountdown();
+        nflKickoffCountdownTimer = setInterval(updateKickoffCountdown, 1000);
+        return;
+    }
+
+    await showScoreboardAfterKickoff();
+}
 
 /* === REMOVE OLD PUSH-NOTIFICATION SERVICE WORKERS ===
    Push notifications have been removed. This unregisters an old service
@@ -3816,7 +4134,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-/* === INITIALIZE SCOREBOARD / COUNTDOWN === */
+/* === INITIALIZE SEASONAL CENTER SCREEN === */
 initializeCountdownOrScoreboard();
     
 /* === 9. INITIALIZE PAGE === */

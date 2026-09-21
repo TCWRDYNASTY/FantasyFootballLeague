@@ -1090,13 +1090,22 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
     import {
+        getAuth,
+        signInWithEmailAndPassword,
+        signOut,
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    import {
         getFirestore,
         collection,
         query,
         orderBy,
         onSnapshot,
         doc,
-        setDoc
+        setDoc,
+        addDoc,
+        serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     /* === 2. UI SIDEBAR NAVIGATION === */
@@ -1167,6 +1176,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 /* === 5. LEAGUE BULLETIN (AUTOMATED + FIREBASE) === */
 
@@ -1401,6 +1411,185 @@ function ensureLeagueBulletinShell() {
                 text-align:left;
             }
 
+            .tcwr-commissioner-title-button {
+                appearance:none;
+                border:0;
+                background:transparent;
+                color:inherit;
+                font:inherit;
+                font-weight:inherit;
+                letter-spacing:inherit;
+                text-transform:inherit;
+                cursor:pointer;
+                padding:0;
+                margin:0;
+            }
+
+            .tcwr-commissioner-title-button:hover {
+                color:#fff;
+                text-decoration:underline;
+                text-underline-offset:3px;
+            }
+
+            .tcwr-commissioner-admin {
+                margin:10px 12px 0;
+                padding:12px;
+                border:1px solid rgba(250,204,21,.18);
+                border-radius:10px;
+                background:rgba(2,9,20,.35);
+            }
+
+            .tcwr-commissioner-admin-title {
+                margin:0 0 9px;
+                color:#facc15;
+                font-size:.68rem;
+                font-weight:900;
+                letter-spacing:.8px;
+                text-transform:uppercase;
+            }
+
+            .tcwr-commissioner-admin-input,
+            .tcwr-commissioner-admin-textarea {
+                width:100%;
+                box-sizing:border-box;
+                border:1px solid rgba(148,163,184,.25);
+                border-radius:7px;
+                background:rgba(15,23,42,.8);
+                color:#fff;
+                padding:8px 9px;
+                font:inherit;
+                font-size:.76rem;
+                outline:none;
+            }
+
+            .tcwr-commissioner-admin-input:focus,
+            .tcwr-commissioner-admin-textarea:focus {
+                border-color:#facc15;
+            }
+
+            .tcwr-commissioner-admin-textarea {
+                min-height:82px;
+                resize:vertical;
+            }
+
+            .tcwr-commissioner-admin-row {
+                display:grid;
+                grid-template-columns:1fr 1fr;
+                gap:8px;
+                margin-bottom:8px;
+            }
+
+            .tcwr-commissioner-admin-actions {
+                display:flex;
+                gap:8px;
+                align-items:center;
+                margin-top:8px;
+            }
+
+            .tcwr-commissioner-admin-button {
+                appearance:none;
+                border:1px solid rgba(250,204,21,.45);
+                border-radius:7px;
+                padding:8px 11px;
+                background:#facc15;
+                color:#111827;
+                font:inherit;
+                font-size:.7rem;
+                font-weight:900;
+                cursor:pointer;
+            }
+
+            .tcwr-commissioner-admin-button.secondary {
+                background:transparent;
+                color:#cbd5e1;
+                border-color:rgba(148,163,184,.28);
+            }
+
+            .tcwr-commissioner-admin-status {
+                min-height:16px;
+                margin-top:7px;
+                color:#94a3b8;
+                font-size:.67rem;
+            }
+
+            .tcwr-commissioner-modal-backdrop {
+                position:fixed;
+                inset:0;
+                z-index:99999;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                padding:20px;
+                background:rgba(0,0,0,.68);
+                backdrop-filter:blur(4px);
+            }
+
+            .tcwr-commissioner-modal {
+                width:min(360px,100%);
+                box-sizing:border-box;
+                padding:18px;
+                border:1px solid rgba(250,204,21,.25);
+                border-radius:12px;
+                background:linear-gradient(145deg,#12263b,#06111f);
+                box-shadow:0 24px 70px rgba(0,0,0,.5);
+            }
+
+            .tcwr-commissioner-modal h3 {
+                margin:0 0 4px;
+                color:#facc15;
+                font-size:.82rem;
+                font-weight:900;
+                letter-spacing:.9px;
+                text-transform:uppercase;
+            }
+
+            .tcwr-commissioner-modal p {
+                margin:0 0 12px;
+                color:#94a3b8;
+                font-size:.7rem;
+            }
+
+            .tcwr-commissioner-modal label {
+                display:block;
+                margin:9px 0 4px;
+                color:#cbd5e1;
+                font-size:.66rem;
+                font-weight:800;
+            }
+
+            .tcwr-commissioner-modal input {
+                width:100%;
+                box-sizing:border-box;
+                border:1px solid rgba(148,163,184,.25);
+                border-radius:7px;
+                background:#020914;
+                color:#fff;
+                padding:9px;
+                font:inherit;
+                font-size:.76rem;
+                outline:none;
+            }
+
+            .tcwr-commissioner-modal-actions {
+                display:flex;
+                justify-content:flex-end;
+                gap:8px;
+                margin-top:13px;
+            }
+
+            .tcwr-commissioner-modal-status {
+                min-height:16px;
+                margin-top:8px;
+                color:#f87171;
+                font-size:.67rem;
+            }
+
+            @media (max-width:430px) {
+                .tcwr-commissioner-admin-row {
+                    grid-template-columns:1fr;
+                }
+            }
+
         `;
 
         document.head.appendChild(style);
@@ -1425,8 +1614,17 @@ function ensureLeagueBulletinShell() {
             <section id="commissioner-bulletin-panel" class="tcwr-news-panel">
 
                 <div class="tcwr-news-header">
-                    📣 COMMISSIONER PANEL
+                    <button
+                        type="button"
+                        id="commissioner-login-trigger"
+                        class="tcwr-commissioner-title-button"
+                        title="Commissioner login"
+                    >
+                        📣 COMMISSIONER PANEL
+                    </button>
                 </div>
+
+                <div id="commissioner-admin-container"></div>
 
                 <div id="commissioner-bulletin-content" class="tcwr-empty">
                     Loading commissioner posts...
@@ -1437,8 +1635,214 @@ function ensureLeagueBulletinShell() {
         `;
     }
 
+    initializeCommissionerLogin();
 
     return display;
+}
+
+
+/* === COMMISSIONER LOGIN / POSTING === */
+
+let commissionerAuthUser = null;
+
+function getTodayDateLabel() {
+    const now = new Date();
+    return now.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+    }).toUpperCase();
+}
+
+function showCommissionerLoginModal() {
+    if (document.getElementById("tcwr-commissioner-login-modal")) return;
+
+    const backdrop = document.createElement("div");
+    backdrop.id = "tcwr-commissioner-login-modal";
+    backdrop.className = "tcwr-commissioner-modal-backdrop";
+
+    backdrop.innerHTML = `
+        <div class="tcwr-commissioner-modal" role="dialog" aria-modal="true" aria-label="Commissioner login">
+            <h3>🔐 Commissioner Login</h3>
+            <p>Private access to post league announcements.</p>
+
+            <label for="tcwr-commissioner-email">Email</label>
+            <input id="tcwr-commissioner-email" type="email" autocomplete="username">
+
+            <label for="tcwr-commissioner-password">Password</label>
+            <input id="tcwr-commissioner-password" type="password" autocomplete="current-password">
+
+            <div class="tcwr-commissioner-modal-status" id="tcwr-commissioner-login-status"></div>
+
+            <div class="tcwr-commissioner-modal-actions">
+                <button type="button" class="tcwr-commissioner-admin-button secondary" id="tcwr-commissioner-login-cancel">Cancel</button>
+                <button type="button" class="tcwr-commissioner-admin-button" id="tcwr-commissioner-login-submit">Sign In</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(backdrop);
+
+    const emailInput = document.getElementById("tcwr-commissioner-email");
+    const passwordInput = document.getElementById("tcwr-commissioner-password");
+    const status = document.getElementById("tcwr-commissioner-login-status");
+    const submit = document.getElementById("tcwr-commissioner-login-submit");
+
+    document.getElementById("tcwr-commissioner-login-cancel")?.addEventListener("click", () => {
+        backdrop.remove();
+    });
+
+    backdrop.addEventListener("click", event => {
+        if (event.target === backdrop) backdrop.remove();
+    });
+
+    const submitLogin = async () => {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+            status.textContent = "Enter your email and password.";
+            return;
+        }
+
+        submit.disabled = true;
+        submit.textContent = "Signing In...";
+        status.textContent = "";
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            backdrop.remove();
+        } catch (error) {
+            console.error("Commissioner login error:", error);
+            status.textContent = "Login failed. Check your email and password.";
+            submit.disabled = false;
+            submit.textContent = "Sign In";
+        }
+    };
+
+    submit.addEventListener("click", submitLogin);
+    passwordInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") submitLogin();
+    });
+
+    emailInput.focus();
+}
+
+function renderCommissionerAdmin() {
+    const container = document.getElementById("commissioner-admin-container");
+    if (!container) return;
+
+    if (!commissionerAuthUser) {
+        container.innerHTML = "";
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="tcwr-commissioner-admin">
+            <div class="tcwr-commissioner-admin-title">Commissioner Tools</div>
+
+            <div class="tcwr-commissioner-admin-row">
+                <input
+                    id="tcwr-commissioner-date"
+                    class="tcwr-commissioner-admin-input"
+                    type="text"
+                    value="${escapeBulletinHtml(getTodayDateLabel())}"
+                    placeholder="Date / label"
+                >
+                <input
+                    id="tcwr-commissioner-subject"
+                    class="tcwr-commissioner-admin-input"
+                    type="text"
+                    placeholder="Optional subject"
+                >
+            </div>
+
+            <textarea
+                id="tcwr-commissioner-message"
+                class="tcwr-commissioner-admin-textarea"
+                placeholder="Type your commissioner announcement..."
+            ></textarea>
+
+            <div class="tcwr-commissioner-admin-actions">
+                <button type="button" id="tcwr-commissioner-post" class="tcwr-commissioner-admin-button">📣 POST ANNOUNCEMENT</button>
+                <button type="button" id="tcwr-commissioner-logout" class="tcwr-commissioner-admin-button secondary">Sign Out</button>
+            </div>
+
+            <div id="tcwr-commissioner-admin-status" class="tcwr-commissioner-admin-status"></div>
+        </div>
+    `;
+
+    const postButton = document.getElementById("tcwr-commissioner-post");
+    const logoutButton = document.getElementById("tcwr-commissioner-logout");
+    const messageInput = document.getElementById("tcwr-commissioner-message");
+    const dateInput = document.getElementById("tcwr-commissioner-date");
+    const subjectInput = document.getElementById("tcwr-commissioner-subject");
+    const status = document.getElementById("tcwr-commissioner-admin-status");
+
+    postButton?.addEventListener("click", async () => {
+        const message = messageInput.value.trim();
+        const dateLabel = dateInput.value.trim() || getTodayDateLabel();
+        const subject = subjectInput.value.trim();
+
+        if (!message) {
+            status.textContent = "Type an announcement first.";
+            return;
+        }
+
+        postButton.disabled = true;
+        postButton.textContent = "Posting...";
+        status.textContent = "";
+
+        try {
+            const announcement = {
+                Date: dateLabel,
+                text: subject ? `${subject}: ${message}` : message,
+                timestamp: serverTimestamp(),
+                postedBy: commissionerAuthUser.email || "commissioner"
+            };
+
+            await addDoc(collection(db, "announcements"), announcement);
+
+            messageInput.value = "";
+            subjectInput.value = "";
+            status.textContent = "Posted. It is now live on the site.";
+        } catch (error) {
+            console.error("Commissioner post error:", error);
+            status.textContent = "Unable to post. Check your Firebase permissions.";
+        } finally {
+            postButton.disabled = false;
+            postButton.textContent = "📣 POST ANNOUNCEMENT";
+        }
+    });
+
+    logoutButton?.addEventListener("click", async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Commissioner logout error:", error);
+        }
+    });
+}
+
+function initializeCommissionerLogin() {
+    const trigger = document.getElementById("commissioner-login-trigger");
+    if (!trigger || trigger.dataset.loginReady === "true") return;
+
+    trigger.dataset.loginReady = "true";
+
+    trigger.addEventListener("click", () => {
+        if (commissionerAuthUser) {
+            renderCommissionerAdmin();
+            return;
+        }
+
+        showCommissionerLoginModal();
+    });
+
+    onAuthStateChanged(auth, user => {
+        commissionerAuthUser = user || null;
+        renderCommissionerAdmin();
+    });
 }
 
 

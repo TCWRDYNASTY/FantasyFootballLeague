@@ -2259,6 +2259,8 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         const {
             nameA: rivalryNameA,
             nameB: rivalryNameB,
+            pointsA: rivalryPointsA,
+            pointsB: rivalryPointsB,
             rivalryRecordOwner,
             rivalryH2H
         } = rivalry;
@@ -2353,6 +2355,14 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
                     white-space:normal;
                     overflow-wrap:anywhere;
                     word-break:normal;
+                }
+
+                .tcwr-rivalry-score {
+                    color:#facc15;
+                    font-size:1rem;
+                    font-weight:900;
+                    line-height:1;
+                    font-variant-numeric:tabular-nums;
                 }
 
                 .tcwr-rivalry-avatar {
@@ -2496,12 +2506,14 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
                     <div class="tcwr-rivalry-manager">
                         <div class="tcwr-rivalry-avatar">${getInitials(rivalryNameA)}</div>
                         <div class="tcwr-rivalry-name">@${rivalryNameA}</div>
+                        <div class="tcwr-rivalry-score">${rivalryPointsA.toFixed(1)}</div>
                     </div>
 
                     <div class="tcwr-rivalry-swords" style="color:#f59e0b; font-size:1rem; font-weight:900;">⚔️</div>
 
                     <div class="tcwr-rivalry-manager right">
                         <div class="tcwr-rivalry-name" style="text-align:right;">@${rivalryNameB}</div>
+                        <div class="tcwr-rivalry-score">${rivalryPointsB.toFixed(1)}</div>
                         <div class="tcwr-rivalry-avatar">${getInitials(rivalryNameB)}</div>
                     </div>
                 </div>
@@ -2523,7 +2535,7 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
    PACIFIC TIME SCHEDULE:
 
    Thursday 5:00 PM - Tuesday 12:00 AM:
-   Live upset and blowout watches.
+   Live blowout watch.
 
    Tuesday 12:00 AM - Thursday 5:00 PM:
    Awards from the latest completed week.
@@ -2787,34 +2799,6 @@ function renderLiveLeagueWatch(
         matchup => matchup.gamesStarted
     );
 
-    const upsetCandidates = activeMatchups
-        .filter(
-            matchup =>
-                matchup.statisticalFavorite &&
-                matchup.liveLeader
-        )
-        .filter(
-            matchup =>
-                matchup.liveLeader !==
-                matchup.statisticalFavorite
-        )
-        .map(matchup => ({
-            ...matchup,
-
-            liveMargin: Math.abs(
-                matchup.pointsA -
-                matchup.pointsB
-            ),
-
-            underdog: matchup.liveLeader,
-            favorite: matchup.statisticalFavorite
-        }))
-        .sort(
-            (matchupA, matchupB) =>
-                matchupB.liveMargin -
-                matchupA.liveMargin
-        );
-
     const blowout = [...activeMatchups]
         .map(matchup => ({
             ...matchup,
@@ -2831,38 +2815,6 @@ function renderLiveLeagueWatch(
         )[0];
 
     let stories = "";
-
-    if (upsetCandidates[0]) {
-        const upset = upsetCandidates[0];
-
-        stories += bulletinStoryHtml({
-            className: "red",
-            title: "🚨 Upset Brewing",
-
-            main:
-                `@${upset.underdog} is leading ` +
-                `@${upset.favorite}`,
-
-            sub:
-                `${upset.pointsA.toFixed(1)}–` +
-                `${upset.pointsB.toFixed(1)} • ` +
-                `Underdog ahead by ` +
-                `${upset.liveMargin.toFixed(1)}`
-        });
-    } else {
-        stories += bulletinStoryHtml({
-            className: "red",
-            title: "🚨 Upset Brewing",
-
-            main: activeMatchups.length
-                ? "No statistical underdog is currently leading."
-                : "Waiting for live scoring.",
-
-            sub: activeMatchups.length
-                ? "This updates automatically with the scoreboard."
-                : "The watch begins when points are posted."
-        });
-    }
 
     if (blowout) {
         const leader =

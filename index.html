@@ -2690,16 +2690,14 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
 
     container.appendChild(card);
 
-    const rivalryCandidates = analyzedMatchups
-        .filter(matchup => matchup.rivalryH2H.total > 0)
-        .sort((a, b) =>
-            b.rivalryH2H.total - a.rivalryH2H.total ||
-            a.rivalryCloseness - b.rivalryCloseness ||
-            b.combinedAverage - a.combinedAverage
-        );
+    /*
+     * Use the same deterministic rivalry selector as Weekly Awards.
+     * This guarantees that the scoreboard's "Rivalry of the Week" and
+     * the bulletin's "Rivalry Winner" always refer to the same matchup.
+     */
+    const rivalry = selectDesignatedRivalry(analyzedMatchups);
 
-    if (rivalryCandidates.length > 0) {
-        const rivalry = rivalryCandidates[0];
+    if (rivalry) {
         const {
             nameA: rivalryNameA,
             nameB: rivalryNameB,
@@ -3783,31 +3781,99 @@ async function calculateWeeklyAwards(matchupsRaw, users, rosters, stats, league)
     return { managerOfWeek, firstLoser, secondLoser, luckiestWin, overachiever, sharpshooter, rivalryWinner };
 }
 
+function selectDesignatedRivalry(candidates) {
+    const eligible = (candidates || [])
+        .filter(matchup => {
+            const h2h = matchup?.rivalryH2H;
+            return h2h && Number(h2h.total) > 0;
+        })
+        .sort((a, b) =>
+            Number(b.rivalryH2H.total) - Number(a.rivalryH2H.total) ||
+            Number(a.rivalryCloseness) - Number(b.rivalryCloseness) ||
+            Number(b.combinedAverage) - Number(a.combinedAverage) ||
+            String(a.matchId).localeCompare(String(b.matchId))
+        );
+
+    return eligible[0] || null;
+}
+
 function calculateRivalryWinner(entries, grouped, stats) {
-    const byName = Object.fromEntries(entries.map(entry => [entry.name, entry]));
     const candidates = [];
+
+    const historicalAverageFor = name => {
+        const translated = nameTranslator[name] || name;
+        const rows = stats.filter(row =>
+            String(row.Manager || "").trim().toLowerCase() === translated.trim().toLowerCase()
+        );
+        const values = rows
+            .map(row => Number(row.AvgPts))
+            .filter(Number.isFinite);
+        return values.length
+            ? values.reduce((sum, value) => sum + value, 0) / values.length
+            : 0;
+    };
 
     Object.values(grouped).forEach(pair => {
         if (pair.length < 2) return;
+
         const [a, b] = pair;
         const rowA = findBulletinStat(stats, a.name, b.name);
         const rowB = findBulletinStat(stats, b.name, a.name);
         const record = rowA?.H2H_Record || rowB?.H2H_Record;
         const parsed = parseBulletinH2H(record);
+
         if (parsed.total <= 0) return;
-        candidates.push({ a, b, total:parsed.total, closeness:Math.abs(parsed.wins - parsed.losses), combined:a.points + b.points });
+
+        const avgA = Number(rowA?.AvgPts);
+        const avgB = Number(rowB?.AvgPts);
+        const safeAvgA = Number.isFinite(avgA) ? avgA : historicalAverageFor(a.name);
+        const safeAvgB = Number.isFinite(avgB) ? avgB : historicalAverageFor(b.name);
+
+        candidates.push({
+            matchId: a.matchupId,
+            nameA: a.name,
+            nameB: b.name,
+            pointsA: a.points,
+            pointsB: b.points,
+            avgA: safeAvgA,
+            avgB: safeAvgB,
+            rivalryH2H: parsed,
+            rivalryCloseness: Math.abs(parsed.wins - parsed.losses),
+            combinedAverage: safeAvgA + safeAvgB,
+            a,
+            b
+        });
     });
 
-    candidates.sort((a, b) => b.total - a.total || a.closeness - b.closeness || b.combined - a.combined);
-    const rivalry = candidates[0];
-    if (!rivalry) return { main:"No designated rivalry was found", sub:"" };
+    const rivalry = selectDesignatedRivalry(candidates);
 
-    if (rivalry.a.points === rivalry.b.points) {
-        return { main:`@${rivalry.a.name} tied @${rivalry.b.name}`, sub:`${rivalry.a.points.toFixed(1)}–${rivalry.b.points.toFixed(1)}` };
+    if (!rivalry) {
+        return {
+            main: "No designated rivalry was found",
+            sub: ""
+        };
     }
-    const winner = rivalry.a.points > rivalry.b.points ? rivalry.a : rivalry.b;
-    const loser = winner === rivalry.a ? rivalry.b : rivalry.a;
-    return { main:`@${winner.name} defeated @${loser.name}`, sub:`${winner.points.toFixed(1)}–${loser.points.toFixed(1)}` };
+
+    if (rivalry.pointsA === rivalry.pointsB) {
+        return {
+            main: `@${rivalry.nameA} tied @${rivalry.nameB}`,
+            sub: `${rivalry.pointsA.toFixed(1)}–${rivalry.pointsB.toFixed(1)}`
+        };
+    }
+
+    const winner = rivalry.pointsA > rivalry.pointsB
+        ? rivalry.nameA
+        : rivalry.nameB;
+    const loser = rivalry.pointsA > rivalry.pointsB
+        ? rivalry.nameB
+        : rivalry.nameA;
+    const winnerPoints = Math.max(rivalry.pointsA, rivalry.pointsB);
+    const loserPoints = Math.min(rivalry.pointsA, rivalry.pointsB);
+
+    return {
+        main: `@${winner} defeated @${loser}`,
+        sub: `${winnerPoints.toFixed(1)}–${loserPoints.toFixed(1)}`
+    };
 }
 
 async function calculateSharpshooter(entries, league) {

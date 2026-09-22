@@ -2135,6 +2135,9 @@ const PREVIOUS_RANKINGS_CSV_URL = "";
 let endOfSeasonAwardsCache = null;
 
 let selectedScoreboardWeek = SCOREBOARD_TEST_WEEK;
+let latestVisibleScoreboardWeek = SCOREBOARD_TEST_MODE
+    ? SCOREBOARD_TEST_WEEK
+    : SCOREBOARD_MIN_WEEK;
 let scoreboardRefreshTimer = null;
 let scoreboardRequestInProgress = false;
 
@@ -2151,8 +2154,22 @@ async function getSleeperCurrentWeek() {
     }
 }
 
-function clampScoreboardWeek(week) {
-    return Math.max(SCOREBOARD_MIN_WEEK, Math.min(Number(week) || SCOREBOARD_MIN_WEEK, SCOREBOARD_MAX_WEEK));
+function clampScoreboardWeek(week, maximumWeek = latestVisibleScoreboardWeek) {
+    const maxWeek = Math.max(
+        SCOREBOARD_MIN_WEEK,
+        Math.min(
+            Number(maximumWeek) || SCOREBOARD_MIN_WEEK,
+            SCOREBOARD_MAX_WEEK
+        )
+    );
+
+    return Math.max(
+        SCOREBOARD_MIN_WEEK,
+        Math.min(
+            Number(week) || SCOREBOARD_MIN_WEEK,
+            maxWeek
+        )
+    );
 }
 
 function clearScoreboardRefreshTimer() {
@@ -2170,6 +2187,14 @@ function startScoreboardRefreshTimer() {
 }
 
 function createWeekNavigation(week) {
+    const maxVisibleWeek = Math.max(
+        SCOREBOARD_MIN_WEEK,
+        Math.min(
+            Number(latestVisibleScoreboardWeek) || SCOREBOARD_MIN_WEEK,
+            SCOREBOARD_MAX_WEEK
+        )
+    );
+
     const wrapper = document.createElement("div");
     wrapper.style.cssText = `
         display:grid;
@@ -2189,7 +2214,7 @@ function createWeekNavigation(week) {
     nextButton.type = "button";
     nextButton.setAttribute("aria-label", "Show next week");
     nextButton.textContent = "→";
-    nextButton.disabled = week >= SCOREBOARD_MAX_WEEK;
+    nextButton.disabled = week >= maxVisibleWeek;
 
     [previousButton, nextButton].forEach(button => {
         button.style.cssText = `
@@ -2227,7 +2252,7 @@ function createWeekNavigation(week) {
     });
 
     nextButton.addEventListener("click", () => {
-        if (week >= SCOREBOARD_MAX_WEEK) return;
+        if (week >= maxVisibleWeek) return;
         selectedScoreboardWeek = clampScoreboardWeek(week + 1);
         fetchScoreboard(selectedScoreboardWeek);
     });
@@ -2258,7 +2283,22 @@ async function fetchScoreboard(requestedWeek = selectedScoreboardWeek, options =
     const container = document.getElementById("scoreboard-container");
     if (!container || scoreboardRequestInProgress) return;
 
-    const week = clampScoreboardWeek(requestedWeek);
+    /*
+        Future scoreboard weeks stay hidden.
+
+        Sleeper's current display week is the furthest week the user
+        is allowed to view. Historical weeks remain available through
+        the left arrow, but the right arrow stops at the current week.
+    */
+    latestVisibleScoreboardWeek = SCOREBOARD_TEST_MODE
+        ? SCOREBOARD_TEST_WEEK
+        : await getSleeperCurrentWeek();
+
+    const week = clampScoreboardWeek(
+        requestedWeek,
+        latestVisibleScoreboardWeek
+    );
+
     selectedScoreboardWeek = week;
     scoreboardRequestInProgress = true;
 
@@ -3017,23 +3057,65 @@ function hasNflSeasonStarted(date = new Date()) {
     return date.getTime() >= getAnnualNflSeasonStartDate(year).getTime();
 }
 
-function getLatestCompletedWeek(displayWeek) {
-    const week = Number(displayWeek) || 1;
+async function getLatestCompletedWeek(displayWeek) {
+    const week = Math.max(
+        SCOREBOARD_MIN_WEEK,
+        Math.min(
+            Number(displayWeek) || SCOREBOARD_MIN_WEEK,
+            SCOREBOARD_MAX_WEEK
+        )
+    );
 
     /*
-        When Sleeper reports Week 1, no previous week exists.
+        The key distinction is timing:
 
-        Returning zero prevents the site from incorrectly
-        treating Week 1 as completed.
+        • Thursday 5 PM through Monday = the current fantasy week is live,
+          so the latest completed week is normally the previous week.
+
+        • Tuesday/Wednesday = the most recent fantasy week has finished,
+          so it may already be the latest completed week.
+
+        Sleeper can advance display_week before the first game of the new
+        week has scored, so we verify the candidate week with its actual
+        matchup data. If it has no scoring yet, we walk backward until we
+        find the latest week with official points.
     */
-    if (week <= SCOREBOARD_MIN_WEEK) {
+    let candidateWeek = shouldShowLiveLeagueWatch(new Date())
+        ? week - 1
+        : week;
+
+    candidateWeek = Math.min(
+        candidateWeek,
+        SCOREBOARD_MAX_WEEK
+    );
+
+    if (candidateWeek < SCOREBOARD_MIN_WEEK) {
         return 0;
     }
 
-    return Math.min(
-        week - 1,
-        SCOREBOARD_MAX_WEEK
-    );
+    for (
+        let checkWeek = candidateWeek;
+        checkWeek >= SCOREBOARD_MIN_WEEK;
+        checkWeek--
+    ) {
+        try {
+            const matchups = await fetchJson(
+                `https://api.sleeper.app/v1/league/` +
+                `${leagueId}/matchups/${checkWeek}?_=${Date.now()}`
+            );
+
+            if (matchupWeekHasScoring(matchups)) {
+                return checkWeek;
+            }
+        } catch (error) {
+            console.warn(
+                `Unable to verify completed scoring for Week ${checkWeek}:`,
+                error
+            );
+        }
+    }
+
+    return 0;
 }
 
 function matchupWeekHasScoring(matchups) {
@@ -3123,7 +3205,7 @@ function bulletinStoryHtml({
    SCOREBOARD-TO-BULLETIN UPDATE
    ========================================================= */
 
-function updateAutomatedBulletinFromScoreboard(
+async function updateAutomatedBulletinFromScoreboard(
     analyzedMatchups,
     week,
     sleeperDisplayWeek
@@ -3163,7 +3245,7 @@ function updateAutomatedBulletinFromScoreboard(
         return;
     }
 
-    const latestWeek = getLatestCompletedWeek(
+    const latestWeek = await getLatestCompletedWeek(
         sleeperDisplayWeek || week
     );
 
@@ -3203,19 +3285,27 @@ function renderLiveLeagueWatch(
         matchup => matchup.gamesStarted
     );
 
-    const blowout = [...activeMatchups]
+    const matchupMargins = activeMatchups
         .map(matchup => ({
             ...matchup,
-
             liveMargin: Math.abs(
                 matchup.pointsA -
                 matchup.pointsB
             )
-        }))
+        }));
+
+    const blowout = [...matchupMargins]
         .sort(
             (matchupA, matchupB) =>
                 matchupB.liveMargin -
                 matchupA.liveMargin
+        )[0];
+
+    const nailBiter = [...matchupMargins]
+        .sort(
+            (matchupA, matchupB) =>
+                matchupA.liveMargin -
+                matchupB.liveMargin
         )[0];
 
     let stories = "";
@@ -3244,12 +3334,45 @@ function renderLiveLeagueWatch(
                 `${blowout.pointsA.toFixed(1)}–` +
                 `${blowout.pointsB.toFixed(1)}`
         });
+
+        if (nailBiter) {
+            const nailLeader =
+                nailBiter.pointsA >= nailBiter.pointsB
+                    ? nailBiter.nameA
+                    : nailBiter.nameB;
+
+            const nailTrailer =
+                nailLeader === nailBiter.nameA
+                    ? nailBiter.nameB
+                    : nailBiter.nameA;
+
+            stories += bulletinStoryHtml({
+                className: "blue",
+                title: "⚔️ Nail Biter",
+
+                main:
+                    `@${nailLeader} leads ` +
+                    `@${nailTrailer} by ` +
+                    `${nailBiter.liveMargin.toFixed(1)}`,
+
+                sub:
+                    `${nailBiter.pointsA.toFixed(1)}–` +
+                    `${nailBiter.pointsB.toFixed(1)}`
+            });
+        }
     } else {
         stories += bulletinStoryHtml({
             className: "orange",
             title: "💥 Blowout Watch",
             main: "Waiting for live scoring.",
             sub: "The largest active scoring margin will appear here."
+        });
+
+        stories += bulletinStoryHtml({
+            className: "blue",
+            title: "⚔️ Nail Biter",
+            main: "Waiting for live scoring.",
+            sub: "The closest active matchup will appear here."
         });
     }
 
@@ -3295,7 +3418,7 @@ async function initializeLeagueBulletin() {
         await getSleeperCurrentWeek();
 
     latestCompletedAwardsWeek =
-        getLatestCompletedWeek(displayWeek);
+        await getLatestCompletedWeek(displayWeek);
 
     /*
         During the live portion of the week, show
@@ -3441,7 +3564,7 @@ async function loadWeeklyAwards(
         await getSleeperCurrentWeek();
 
     latestCompletedAwardsWeek =
-        getLatestCompletedWeek(
+        await getLatestCompletedWeek(
             currentDisplayWeek
         );
 

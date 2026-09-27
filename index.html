@@ -1075,6 +1075,24 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
                     ">
                     Open League Chat
                 </button>
+
+                <button
+                    type="button"
+                    onclick="enableTCWRNotifications()"
+                    style="
+                        display: inline-block;
+                        margin-top: 8px;
+                        background: #12385e;
+                        color: white;
+                        padding: 8px 16px;
+                        border: 1px solid #2386d8;
+                        border-radius: 20px;
+                        font-weight: bold;
+                        font-size: 0.8rem;
+                        cursor: pointer;
+                    ">
+                    🔔 Enable League Notifications
+                </button>
             </div>
 
         </div>
@@ -4662,22 +4680,62 @@ async function initializeCountdownOrScoreboard() {
     await showScoreboardAfterKickoff();
 }
 
-/* === REMOVE OLD PUSH-NOTIFICATION SERVICE WORKERS ===
-   Push notifications have been removed. This unregisters an old service
-   worker left behind by the previous notification experiment. */
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-        try {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(registrations.map(registration => registration.unregister()));
-            if (registrations.length > 0) {
-                console.log('Old TCWR service worker removed.');
-            }
-        } catch (error) {
-            console.warn('Unable to remove old service worker:', error);
-        }
-    });
+/* =========================================================
+   TCWR WEB PUSH NOTIFICATIONS
+   ========================================================= */
+
+let tcwrPushRegistration = null;
+
+async function initializePushNotifications() {
+    if (!('serviceWorker' in navigator)) {
+        console.warn('Service workers are not supported.');
+        return;
+    }
+
+    if (!('PushManager' in window)) {
+        console.warn('Web Push is not supported.');
+        return;
+    }
+
+    try {
+        tcwrPushRegistration = await navigator.serviceWorker.register(
+            './service-worker.js'
+        );
+
+        console.log('TCWR service worker registered.');
+    } catch (error) {
+        console.error('TCWR service worker registration failed:', error);
+    }
 }
+
+async function enableTCWRNotifications() {
+    try {
+        if (!tcwrPushRegistration) {
+            await initializePushNotifications();
+        }
+
+        if (!tcwrPushRegistration) {
+            alert('Notifications are not available on this device.');
+            return;
+        }
+
+        const permission = await Notification.requestPermission();
+
+        if (permission !== 'granted') {
+            alert('Notifications were not enabled.');
+            return;
+        }
+
+        console.log('Notification permission granted.');
+        alert('TCWR notifications are enabled.');
+    } catch (error) {
+        console.error('Notification setup failed:', error);
+        alert('Unable to enable notifications.');
+    }
+}
+
+window.enableTCWRNotifications = enableTCWRNotifications;
+initializePushNotifications();
 
 /* === INITIALIZE SEASONAL CENTER SCREEN === */
 initializeCountdownOrScoreboard();

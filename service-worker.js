@@ -1,114 +1,40 @@
 /* =========================================================
    TCWR DYNASTY SERVICE WORKER
-   Website caching + Firebase Cloud Messaging
+   Website caching + Web Push
+   No Firebase
+   No Supabase
    ========================================================= */
-
-
-/* =========================================================
-   FIREBASE CLOUD MESSAGING
-   ========================================================= */
-
-importScripts(
-  'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js'
-);
-
-importScripts(
-  'https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js'
-);
-
-
-firebase.initializeApp({
-  apiKey: "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
-  authDomain: "tcwr-dynasty.firebaseapp.com",
-  projectId: "tcwr-dynasty",
-  storageBucket: "tcwr-dynasty.firebasestorage.app",
-  messagingSenderId: "544187199777",
-  appId: "1:544187199777:web:05753208f1daee32558e60"
-});
-
-
-const firebaseMessaging = firebase.messaging();
-
-
-/* =========================================================
-   FIREBASE BACKGROUND MESSAGE HANDLER
-   ========================================================= */
-
-firebaseMessaging.onBackgroundMessage(payload => {
-
-  console.log(
-    '[Service Worker] Firebase background message received:',
-    payload
-  );
-
-
-  const messageType =
-    payload.data?.type ||
-    payload.data?.messageType ||
-    '';
-
-
-  /* Commissioner notification */
-
-  if (messageType === 'commissioner') {
-
-    const notificationTitle =
-      'Message from Commissioner';
-
-
-    const notificationOptions = {
-
-      body: '',
-
-      icon: './tcwr-icon-192.png',
-
-      badge: './tcwr-icon-192.png',
-
-      data: {
-        url: './'
-      }
-
-    };
-
-
-    return self.registration.showNotification(
-      notificationTitle,
-      notificationOptions
-    );
-  }
-
-});
 
 
 /* =========================================================
    CACHE
    ========================================================= */
 
-const CACHE_NAME = 'tcwr-main-v10';
+const CACHE_NAME = 'tcwr-main-v11';
 
 const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json',
-  './service-worker.js',
-  './Bylaws.html',
-  './Records.html',
-  './contactcommish.html',
-  './legends.html',
-  './media.html',
-  './rookiedraftcountdown.html',
+    './',
+    './index.html',
+    './manifest.json',
+    './service-worker.js',
+    './Bylaws.html',
+    './Records.html',
+    './contactcommish.html',
+    './legends.html',
+    './media.html',
+    './rookiedraftcountdown.html',
 
-  './DYNASTYLOGO.png',
-  './retrotv.jpeg',
-  './ainteasy.jpeg',
-  './thehomies.jpeg',
-  './toilet.png',
-  './trophy3.jpeg',
-  './episode1-cover.png',
-  './wildlifeentrance.jpeg',
+    './DYNASTYLOGO.png',
+    './retrotv.jpeg',
+    './ainteasy.jpeg',
+    './thehomies.jpeg',
+    './toilet.png',
+    './trophy3.jpeg',
+    './episode1-cover.png',
+    './wildlifeentrance.jpeg',
 
-  './tcwr-icon-192.png',
-  './tcwr-icon-512.png'
+    './tcwr-icon-192.png',
+    './tcwr-icon-512.png'
 ];
 
 
@@ -118,91 +44,86 @@ const urlsToCache = [
 
 self.addEventListener('install', event => {
 
-  console.log(
-    '[Service Worker] Install event received, beginning caching.'
-  );
+    console.log(
+        '[Service Worker] Install event received, beginning caching.'
+    );
+
+    event.waitUntil(
+
+        caches.open(CACHE_NAME)
+
+            .then(async cache => {
+
+                const results =
+                    await Promise.allSettled(
+
+                        urlsToCache.map(async url => {
+
+                            try {
+
+                                const request =
+                                    new Request(url, {
+                                        cache: 'reload'
+                                    });
+
+                                const response =
+                                    await fetch(request);
+
+                                if (!response.ok) {
+
+                                    throw new Error(
+                                        `${url} returned HTTP ${response.status}`
+                                    );
+
+                                }
+
+                                await cache.put(
+                                    request,
+                                    response
+                                );
+
+                                console.log(
+                                    `[Service Worker] Cached successfully: ${url}`
+                                );
+
+                            }
+
+                            catch (error) {
+
+                                console.error(
+                                    `[Service Worker] Failed to cache: ${url}`,
+                                    error
+                                );
+
+                                throw error;
+
+                            }
+
+                        })
+
+                    );
 
 
-  event.waitUntil(
-
-    caches.open(CACHE_NAME)
-
-      .then(async cache => {
-
-        const results =
-          await Promise.allSettled(
-
-            urlsToCache.map(async url => {
-
-              try {
-
-                const request =
-                  new Request(url, {
-                    cache: 'reload'
-                  });
+                const failedResources =
+                    results.filter(
+                        result =>
+                            result.status === 'rejected'
+                    );
 
 
-                const response =
-                  await fetch(request);
+                if (failedResources.length > 0) {
 
-
-                if (!response.ok) {
-
-                  throw new Error(
-                    `${url} returned HTTP ${response.status}`
-                  );
+                    console.warn(
+                        `[Service Worker] ${failedResources.length} resource(s) failed to cache.`
+                    );
 
                 }
 
-
-                await cache.put(
-                  request,
-                  response
-                );
-
-
-                console.log(
-                  `[Service Worker] Cached successfully: ${url}`
-                );
-
-              }
-
-              catch (error) {
-
-                console.error(
-                  `[Service Worker] Failed to cache: ${url}`,
-                  error
-                );
-
-                throw error;
-
-              }
-
             })
 
-          );
+            .then(() => self.skipWaiting())
 
-
-        const failedResources =
-          results.filter(
-            result =>
-              result.status === 'rejected'
-          );
-
-
-        if (failedResources.length > 0) {
-
-          console.warn(
-            `[Service Worker] ${failedResources.length} resource(s) failed to cache.`
-          );
-
-        }
-
-      })
-
-      .then(() => self.skipWaiting())
-
-  );
+    );
 
 });
 
@@ -213,167 +134,350 @@ self.addEventListener('install', event => {
 
 self.addEventListener('fetch', event => {
 
-  const request = event.request;
+    const request = event.request;
 
 
-  if (request.method !== 'GET') {
-
-    return;
-
-  }
+    if (request.method !== 'GET') {
+        return;
+    }
 
 
-  const url =
-    new URL(request.url);
+    const url =
+        new URL(request.url);
 
 
-  const isPageRequest =
-    request.mode === 'navigate' ||
-    url.pathname.endsWith('.html') ||
-    url.pathname.endsWith('.js');
+    const isPageRequest =
+        request.mode === 'navigate' ||
+        url.pathname.endsWith('.html') ||
+        url.pathname.endsWith('.js');
 
 
-  if (isPageRequest) {
+    /* -----------------------------------------------------
+       PAGE / HTML / JS REQUESTS
+       Network first, cache fallback
+       ----------------------------------------------------- */
+
+    if (isPageRequest) {
+
+        event.respondWith(
+
+            fetch(request)
+
+                .then(networkResponse => {
+
+                    if (
+                        networkResponse &&
+                        networkResponse.ok &&
+                        networkResponse.type !== 'opaque'
+                    ) {
+
+                        const responseClone =
+                            networkResponse.clone();
+
+
+                        caches.open(CACHE_NAME)
+
+                            .then(cache => {
+
+                                return cache.put(
+                                    request,
+                                    responseClone
+                                );
+
+                            })
+
+                            .catch(error => {
+
+                                console.warn(
+                                    '[Service Worker] Unable to update page cache:',
+                                    error
+                                );
+
+                            });
+
+                    }
+
+
+                    return networkResponse;
+
+                })
+
+                .catch(async () => {
+
+                    const cachedResponse =
+                        await caches.match(request);
+
+
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+
+
+                    if (request.mode === 'navigate') {
+
+                        return caches.match(
+                            './index.html'
+                        );
+
+                    }
+
+
+                    throw new Error(
+                        `No network or cached response available for ${request.url}`
+                    );
+
+                })
+
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------------------
+       STATIC ASSETS
+       Cache first, network fallback
+       ----------------------------------------------------- */
 
     event.respondWith(
 
-      fetch(request)
+        caches.match(request)
 
-        .then(networkResponse => {
+            .then(cachedResponse => {
 
-          if (
-            networkResponse &&
-            networkResponse.ok &&
-            networkResponse.type !== 'opaque'
-          ) {
-
-            const responseClone =
-              networkResponse.clone();
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
 
 
-            caches.open(CACHE_NAME)
+                return fetch(request)
 
-              .then(cache => {
+                    .then(networkResponse => {
 
-                return cache.put(
-                  request,
-                  responseClone
-                );
+                        if (
+                            !networkResponse ||
+                            !networkResponse.ok ||
+                            networkResponse.type === 'opaque'
+                        ) {
 
-              })
+                            return networkResponse;
 
-              .catch(error => {
-
-                console.warn(
-                  '[Service Worker] Unable to update page cache:',
-                  error
-                );
-
-              });
-
-          }
+                        }
 
 
-          return networkResponse;
-
-        })
-
-        .catch(async () => {
-
-          const cachedResponse =
-            await caches.match(request);
+                        const responseClone =
+                            networkResponse.clone();
 
 
-          if (cachedResponse) {
+                        caches.open(CACHE_NAME)
 
-            return cachedResponse;
+                            .then(cache => {
 
-          }
+                                return cache.put(
+                                    request,
+                                    responseClone
+                                );
+
+                            })
+
+                            .catch(error => {
+
+                                console.warn(
+                                    '[Service Worker] Unable to cache static asset:',
+                                    error
+                                );
+
+                            });
 
 
-          if (request.mode === 'navigate') {
+                        return networkResponse;
 
-            return caches.match(
-              './index.html'
-            );
+                    });
 
-          }
-
-
-          throw new Error(
-            `No network or cached response available for ${request.url}`
-          );
-
-        })
+            })
 
     );
 
-
-    return;
-
-  }
+});
 
 
-  event.respondWith(
+/* =========================================================
+   WEB PUSH
+   ========================================================= */
 
-    caches.match(request)
+self.addEventListener('push', event => {
 
-      .then(cachedResponse => {
+    let payload = {};
 
-        if (cachedResponse) {
 
-          return cachedResponse;
+    /* -----------------------------------------------------
+       Read incoming push data
+       ----------------------------------------------------- */
 
+    try {
+
+        payload =
+            event.data
+                ? event.data.json()
+                : {};
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            '[Service Worker] Push payload was not valid JSON:',
+            error
+        );
+
+
+        payload = {
+
+            title: 'TCWR Dy-NASTY',
+
+            body:
+                event.data
+                    ? event.data.text()
+                    : 'You have a new league notification.'
+
+        };
+
+    }
+
+
+    console.log(
+        '[Service Worker] Push received:',
+        payload
+    );
+
+
+    /* -----------------------------------------------------
+       Notification content
+       ----------------------------------------------------- */
+
+    const title =
+        payload.title ||
+        payload.sender ||
+        'TCWR Dy-NASTY';
+
+
+    const body =
+        payload.body ||
+        payload.content ||
+        'You have a new league notification.';
+
+
+    const url =
+        payload.url ||
+        './dynastychat.html';
+
+
+    const notificationOptions = {
+
+        body: body,
+
+        icon: './tcwr-icon-192.png',
+
+        badge: './tcwr-icon-192.png',
+
+        vibrate: [
+            100,
+            50,
+            100
+        ],
+
+        data: {
+            url: url
         }
 
-
-        return fetch(request)
-
-          .then(networkResponse => {
-
-            if (
-              !networkResponse ||
-              !networkResponse.ok ||
-              networkResponse.type === 'opaque'
-            ) {
-
-              return networkResponse;
-
-            }
+    };
 
 
-            const responseClone =
-              networkResponse.clone();
+    /* -----------------------------------------------------
+       Display notification
+       ----------------------------------------------------- */
+
+    event.waitUntil(
+
+        self.registration.showNotification(
+            title,
+            notificationOptions
+        )
+
+    );
+
+});
 
 
-            caches.open(CACHE_NAME)
+/* =========================================================
+   NOTIFICATION CLICK
+   ========================================================= */
 
-              .then(cache => {
+self.addEventListener('notificationclick', event => {
 
-                return cache.put(
-                  request,
-                  responseClone
+    event.notification.close();
+
+
+    const urlToOpen =
+        event.notification.data?.url ||
+        './';
+
+
+    event.waitUntil(
+
+        clients.matchAll({
+
+            type: 'window',
+
+            includeUncontrolled: true
+
+        })
+
+            .then(windowClients => {
+
+                const absoluteUrl =
+                    new URL(
+                        urlToOpen,
+                        self.location.href
+                    ).href;
+
+
+                const matchingClient =
+                    windowClients.find(
+
+                        windowClient =>
+
+                            windowClient.url === absoluteUrl ||
+
+                            windowClient.url.endsWith(
+                                urlToOpen
+                            )
+
+                    );
+
+
+                /* -----------------------------------------
+                   Existing TCWR tab
+                   ----------------------------------------- */
+
+                if (matchingClient) {
+
+                    return matchingClient.focus();
+
+                }
+
+
+                /* -----------------------------------------
+                   No existing tab
+                   ----------------------------------------- */
+
+                return clients.openWindow(
+                    urlToOpen
                 );
 
-              })
+            })
 
-              .catch(error => {
-
-                console.warn(
-                  '[Service Worker] Unable to cache static asset:',
-                  error
-                );
-
-              });
-
-
-            return networkResponse;
-
-          });
-
-      })
-
-  );
+    );
 
 });
 
@@ -384,219 +488,49 @@ self.addEventListener('fetch', event => {
 
 self.addEventListener('activate', event => {
 
-  console.log(
-    '[Service Worker] Activate event received, cleaning up old caches.'
-  );
-
-
-  event.waitUntil(
-
-    caches.keys()
-
-      .then(cacheNames => {
-
-        return Promise.all(
-
-          cacheNames.map(cacheName => {
-
-            if (cacheName !== CACHE_NAME) {
-
-              console.log(
-                `[Service Worker] Deleting old cache: ${cacheName}`
-              );
-
-
-              return caches.delete(
-                cacheName
-              );
-
-            }
-
-
-            return Promise.resolve(false);
-
-          })
-
-        );
-
-      })
-
-      .then(() => self.clients.claim())
-
-  );
-
-});
-
-
-/* =========================================================
-   EXISTING PUSH RECEIVER
-   ========================================================= */
-
-self.addEventListener('push', event => {
-
-  let payload = {};
-
-
-  try {
-
-    payload =
-      event.data
-        ? event.data.json()
-        : {};
-
-  }
-
-  catch (error) {
-
-    console.warn(
-      '[Service Worker] Push payload was not valid JSON:',
-      error
-    );
-
-
-    payload = {
-
-      content:
-        event.data
-          ? event.data.text()
-          : ''
-
-    };
-
-  }
-
-
-  /*
-     Firebase Cloud Messaging messages are handled
-     by firebaseMessaging.onBackgroundMessage above.
-
-     Do not display the old notification for Firebase
-     messages or the user could receive two notifications.
-  */
-
-  const isFirebaseMessage =
-    !!(
-      payload.from ||
-      payload.messageId ||
-      payload.collapse_key ||
-      payload.notification
-    );
-
-
-  if (isFirebaseMessage) {
-
     console.log(
-      '[Service Worker] Firebase push detected. Firebase Messaging will handle it.'
+        '[Service Worker] Activate event received, cleaning up old caches.'
     );
 
-    return;
 
-  }
+    event.waitUntil(
 
+        caches.keys()
 
-  /* Existing TCWR push notification behavior */
+            .then(cacheNames => {
 
-  const title =
-    payload.sender ||
-    'New Message Received';
+                return Promise.all(
 
+                    cacheNames.map(cacheName => {
 
-  const bodyText =
-    payload.content ||
-    'Tap to view the latest chat.';
+                        if (
+                            cacheName !== CACHE_NAME
+                        ) {
 
-
-  console.log(
-    '[Service Worker] Push received with payload:',
-    payload
-  );
+                            console.log(
+                                `[Service Worker] Deleting old cache: ${cacheName}`
+                            );
 
 
-  const options = {
+                            return caches.delete(
+                                cacheName
+                            );
 
-    body: bodyText,
-
-    icon: './tcwr-icon-192.png',
-
-    badge: './tcwr-icon-192.png',
-
-    vibrate: [100, 50, 100],
-
-    data: {
-      url: './dynastychat.html'
-    }
-
-  };
+                        }
 
 
-  event.waitUntil(
+                        return Promise.resolve(false);
 
-    self.registration.showNotification(
-      title,
-      options
-    )
+                    })
 
-  );
+                );
 
-});
+            })
 
+            .then(() =>
+                self.clients.claim()
+            )
 
-/* =========================================================
-   NOTIFICATION CLICK LOGIC
-   ========================================================= */
-
-self.addEventListener('notificationclick', event => {
-
-  event.notification.close();
-
-
-  const urlToOpen =
-    event.notification.data?.url ||
-    './';
-
-
-  event.waitUntil(
-
-    clients.matchAll({
-
-      type: 'window',
-
-      includeUncontrolled: true
-
-    })
-
-      .then(windowClients => {
-
-        const absoluteUrl =
-          new URL(
-            urlToOpen,
-            self.location.href
-          ).href;
-
-
-        const matchingClient =
-          windowClients.find(
-
-            windowClient =>
-              windowClient.url === absoluteUrl ||
-              windowClient.url.endsWith(urlToOpen)
-
-          );
-
-
-        if (matchingClient) {
-
-          return matchingClient.focus();
-
-        }
-
-
-        return clients.openWindow(
-          urlToOpen
-        );
-
-      })
-
-  );
+    );
 
 });

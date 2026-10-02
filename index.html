@@ -4684,67 +4684,210 @@ async function initializeCountdownOrScoreboard() {
    TCWR WEB PUSH NOTIFICATIONS
    ========================================================= */
 
+const TCWR_PUSH_WORKER =
+    "https://tcwr-commissioner-push.svargas1183.workers.dev";
+
+const TCWR_VAPID_PUBLIC_KEY =
+    "BAxitNAnuPolRhu-9OgtRDe6bGQIByGgHNXCusicO9cydFHt9oEfA4d9MfAJ7HB23izytI-ywwDwmeof9e4HzZg";
+
 let tcwrPushRegistration = null;
 
+function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat(
+        (4 - (base64String.length % 4)) % 4
+    );
+
+    const base64 = (
+        base64String +
+        padding
+    )
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+    const rawData = atob(base64);
+
+    return Uint8Array.from(
+        [...rawData].map(char => char.charCodeAt(0))
+    );
+}
+
 async function initializePushNotifications() {
-    if (!('serviceWorker' in navigator)) {
-        console.warn('Service workers are not supported.');
-        return;
+
+    if (!("serviceWorker" in navigator)) {
+        console.warn("Service workers are not supported.");
+        return null;
     }
 
-    if (!('PushManager' in window)) {
-        console.warn('Web Push is not supported.');
-        return;
+    if (!("PushManager" in window)) {
+        console.warn("Web Push is not supported.");
+        return null;
     }
 
     try {
-        tcwrPushRegistration = await navigator.serviceWorker.register(
-            './service-worker.js'
+
+        tcwrPushRegistration =
+            await navigator.serviceWorker.register(
+                "./service-worker.js"
+            );
+
+        console.log(
+            "TCWR service worker registered."
         );
 
-        console.log('TCWR service worker registered.');
+        return tcwrPushRegistration;
+
     } catch (error) {
-        console.error('TCWR service worker registration failed:', error);
+
+        console.error(
+            "TCWR service worker registration failed:",
+            error
+        );
+
+        return null;
     }
 }
 
 async function enableTCWRNotifications() {
+
     try {
+
         if (!tcwrPushRegistration) {
-            await initializePushNotifications();
+
+            tcwrPushRegistration =
+                await initializePushNotifications();
         }
 
         if (!tcwrPushRegistration) {
-            alert('Notifications are not available on this device.');
+
+            alert(
+                "Notifications are not available on this device."
+            );
+
             return;
         }
 
-        const permission = await Notification.requestPermission();
+        const permission =
+            await Notification.requestPermission();
 
-        if (permission !== 'granted') {
-            alert('Notifications were not enabled.');
+        if (permission !== "granted") {
+
+            alert(
+                "Notifications were not enabled."
+            );
+
             return;
         }
 
-        console.log('Notification permission granted.');
-        alert('TCWR notifications are enabled.');
+
+        console.log(
+            "Notification permission granted."
+        );
+
+        let subscription =
+            await tcwrPushRegistration.pushManager
+                .getSubscription();
+
+        if (!subscription) {
+
+            subscription =
+                await tcwrPushRegistration.pushManager.subscribe({
+
+                    userVisibleOnly: true,
+
+                    applicationServerKey:
+                        urlBase64ToUint8Array(
+                            TCWR_VAPID_PUBLIC_KEY
+                        )
+                });
+
+            console.log(
+                "New push subscription created."
+            );
+
+        } else {
+
+            console.log(
+                "Existing push subscription found."
+            );
+        }
+
+
+        const subscriptionJSON =
+            subscription.toJSON();
+
+        const response =
+            await fetch(
+                `${TCWR_PUSH_WORKER}/subscribe`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        endpoint:
+                            subscriptionJSON.endpoint,
+
+                        keys: {
+                            p256dh:
+                                subscriptionJSON.keys.p256dh,
+
+                            auth:
+                                subscriptionJSON.keys.auth
+                        }
+                    })
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok || !result.ok) {
+
+            console.error(
+                "Cloudflare subscription error:",
+                result
+            );
+
+            throw new Error(
+                result.error ||
+                "Unable to save push subscription."
+            );
+        }
+
+
+        console.log(
+            "Push subscription saved to Cloudflare."
+        );
+
+
+        alert(
+            "TCWR notifications are enabled!"
+        );
+
     } catch (error) {
-        console.error('Notification setup failed:', error);
-        alert('Unable to enable notifications.');
+
+        console.error(
+            "Notification setup failed:",
+            error
+        );
+
+        alert(
+            "Unable to enable notifications. Check the browser console."
+        );
     }
 }
 
-window.enableTCWRNotifications = enableTCWRNotifications;
+
+window.enableTCWRNotifications =
+    enableTCWRNotifications;
+
 initializePushNotifications();
-
-/* === INITIALIZE SEASONAL CENTER SCREEN === */
-initializeCountdownOrScoreboard();
     
-/* === 9. INITIALIZE PAGE === */
-initializeLeagueBulletin();
-fetchStandings();
-
-
 // =====================================================
 // LEAGUE CHAT BUTTON
 // =====================================================
@@ -4756,10 +4899,10 @@ window.openLeagueChat = function () {
         );
 
     if (isMobile) {
-        // Opens the Messenger app (if installed)
+       
         window.location.href = "fb-messenger://";
     } else {
-        // Opens Messenger in the browser
+     
         window.open(
             "https://www.messenger.com/",
             "_blank",

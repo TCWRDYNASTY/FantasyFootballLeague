@@ -127,11 +127,6 @@ button{
 
   width:100%;
 
-  /*
-     racefield.png is a wide football field.
-     Keep the container at the same proportions.
-  */
-
   aspect-ratio:2 / 1;
 
   overflow:hidden;
@@ -260,6 +255,56 @@ button{
 .result-list li:first-child{
   color:#d8b45a;
   font-size:1.08em;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media(max-width:900px){
+
+  .teams{
+    grid-template-columns:1fr;
+  }
+
+  .team-edit{
+    grid-template-columns:
+      minmax(110px,1fr)
+      70px
+      minmax(150px,1.5fr);
+  }
+}
+
+
+@media(max-width:560px){
+
+  .wrap{
+    padding:12px;
+  }
+
+  .team-edit{
+    grid-template-columns:1fr 65px;
+  }
+
+  .team-edit input[data-type="image"]{
+    grid-column:1 / -1;
+  }
+
+  .field{
+    aspect-ratio:2 / 1;
+  }
+
+  .player-image{
+    width:44px;
+    height:44px;
+  }
+
+  .tag{
+    left:50px;
+    font-size:11px;
+    padding:6px 7px;
+  }
 }
 
 
@@ -407,59 +452,13 @@ button{
   pointer-events:none;
 }
 
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
 @media(max-width:900px){
-
-  .teams{
-    grid-template-columns:1fr;
-  }
-
-  .team-edit{
-    grid-template-columns:
-      minmax(110px,1fr)
-      70px
-      minmax(150px,1.5fr);
-  }
-
   .permanent-labels{
     grid-template-columns:repeat(2,1fr);
   }
 }
 
-
 @media(max-width:560px){
-
-  .wrap{
-    padding:12px;
-  }
-
-  .team-edit{
-    grid-template-columns:1fr 65px;
-  }
-
-  .team-edit input[data-type="image"]{
-    grid-column:1 / -1;
-  }
-
-  .field{
-    aspect-ratio:2 / 1;
-  }
-
-  .player-image{
-    width:44px;
-    height:44px;
-  }
-
-  .tag{
-    left:50px;
-    font-size:11px;
-    padding:6px 7px;
-  }
-
   .permanent-labels{
     grid-template-columns:1fr 1fr;
   }
@@ -586,9 +585,16 @@ button{
 
 <!-- =======================================================
      TEAM EDITOR
+     
+     IMPORTANT:
+     This entire section is hidden unless Commissioner
+     tools are unlocked.
      ======================================================= -->
 
-<div class="panel">
+<div
+  class="panel hidden"
+  id="teamSettingsPanel"
+>
 
   <div
     class="teams"
@@ -596,8 +602,7 @@ button{
   ></div>
 
   <div class="lock-note">
-    Team settings are locked.
-    Use Commissioner to edit them.
+    Team settings are available while Commissioner tools are unlocked.
   </div>
 
 </div>
@@ -660,11 +665,15 @@ import {
 
 
 /* =========================================================
-   SUPABASE
+   COMMISSIONER
    ========================================================= */
 
-const COMMISSIONER_PASSWORD =
-  'Asher';
+const COMMISSIONER_PASSWORD = 'Asher';
+
+
+/* =========================================================
+   SUPABASE
+   ========================================================= */
 
 const SUPABASE_URL =
   'https://jheqfwykhvyngfqawknr.supabase.co';
@@ -799,6 +808,11 @@ const permanentLabels =
     "permanentLabels"
   );
 
+const teamSettingsPanel =
+  document.getElementById(
+    "teamSettingsPanel"
+  );
+
 const commissionerBtn =
   document.getElementById(
     "commissionerBtn"
@@ -893,14 +907,14 @@ function showStatus(message){
 }
 
 
-function setCommissionerInputsEnabled(
-  enabled
-){
+/* =========================================================
+   COMMISSIONER INPUT VISIBILITY
+   ========================================================= */
+
+function setCommissionerInputsEnabled(enabled){
 
   inputs
-    .querySelectorAll(
-      "input"
-    )
+    .querySelectorAll("input")
     .forEach(
       input => {
 
@@ -919,8 +933,26 @@ function setCommissionerInputsEnabled(
 
 function renderInputs(){
 
+  /*
+     THIS IS THE IMPORTANT CHANGE.
+
+     The entire team settings panel is hidden
+     unless Commissioner tools are unlocked.
+  */
+
+  if(teamSettingsPanel){
+
+    teamSettingsPanel.classList.toggle(
+      "hidden",
+      !commissionerUnlocked
+    );
+
+  }
+
+
   inputs.innerHTML =
     "";
+
 
   teams.forEach(
     t => {
@@ -933,10 +965,11 @@ function renderInputs(){
       box.className =
         "team-edit";
 
+
       box.innerHTML = `
 
         <input
-          data-id="${t.id}"
+          data-id="${escapeHTML(t.id)}"
           data-type="name"
           value="${escapeHTML(t.name)}"
           placeholder="Team name"
@@ -944,7 +977,7 @@ function renderInputs(){
         >
 
         <input
-          data-id="${t.id}"
+          data-id="${escapeHTML(t.id)}"
           data-type="weight"
           type="number"
           min="1"
@@ -953,7 +986,7 @@ function renderInputs(){
         >
 
         <input
-          data-id="${t.id}"
+          data-id="${escapeHTML(t.id)}"
           data-type="image"
           value="${escapeHTML(t.image || "")}"
           placeholder="Permanent image URL"
@@ -962,12 +995,14 @@ function renderInputs(){
 
       `;
 
+
       inputs.appendChild(
         box
       );
 
     }
   );
+
 
   setCommissionerInputsEnabled(
     commissionerUnlocked
@@ -989,19 +1024,31 @@ inputs.addEventListener(
     if(!commissionerUnlocked)
       return;
 
+
+    /*
+       Keep IDs as strings.
+
+       This also makes the code work whether
+       Supabase is returning numeric IDs or
+       text/UUID IDs.
+    */
+
     const id =
-      Number(
+      String(
         e.target.dataset.id
       );
+
 
     const team =
       teams.find(
         t =>
-          t.id === id
+          String(t.id) === id
       );
+
 
     if(!team)
       return;
+
 
     const type =
       e.target.dataset.type;
@@ -1035,6 +1082,7 @@ inputs.addEventListener(
 
     }
 
+
     renderPermanentLabels();
 
     refreshRunnerLabels();
@@ -1052,8 +1100,10 @@ function renderPermanentLabels(){
   if(!permanentLabels)
     return;
 
+
   permanentLabels.innerHTML =
     "";
+
 
   teams.forEach(
     team => {
@@ -1075,10 +1125,7 @@ function renderPermanentLabels(){
             <img
               src="${escapeHTML(team.image)}"
               alt="${escapeHTML(team.name)}"
-              onerror="
-                this.style.display='none';
-                this.nextElementSibling.style.display='flex';
-              "
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
             >
 
             <div
@@ -1133,6 +1180,7 @@ function renderPermanentLabels(){
 
       `;
 
+
       permanentLabels.appendChild(
         box
       );
@@ -1155,20 +1203,24 @@ function refreshRunnerLabels(){
       const team =
         teams.find(
           t =>
-            t.id ===
-            r.team.id
+            String(t.id) ===
+            String(r.team.id)
         );
+
 
       if(!team)
         return;
 
+
       r.team =
         team;
+
 
       const tag =
         r.el.querySelector(
           ".tag"
         );
+
 
       if(tag){
 
@@ -1177,10 +1229,12 @@ function refreshRunnerLabels(){
 
       }
 
+
       const image =
         r.el.querySelector(
           ".player-image"
         );
+
 
       if(
         image &&
@@ -1205,25 +1259,40 @@ function refreshRunnerLabels(){
    WEIGHTED DRAW
    ========================================================= */
 
-function weightedPick(
-  pool
-){
+function weightedPick(pool){
 
-  if(!pool.length)
+  if(
+    !Array.isArray(pool) ||
+    pool.length === 0
+  ){
+
     return null;
 
+  }
+
+
+  const cleanPool =
+    pool.filter(
+      team =>
+        Number.isFinite(
+          Number(team.weight)
+        ) &&
+        Number(team.weight) > 0
+    );
+
+
+  if(!cleanPool.length)
+    return null;
+
+
   const totalWeight =
-    pool.reduce(
-      (
-        sum,
-        team
-      ) =>
+    cleanPool.reduce(
+      (sum,team) =>
         sum +
-        Number(
-          team.weight
-        ),
+        Number(team.weight),
       0
     );
+
 
   let random =
     Math.random() *
@@ -1231,22 +1300,24 @@ function weightedPick(
 
 
   for(
-    const team of pool
+    const team of cleanPool
   ){
 
     random -=
-      Number(
-        team.weight
-      );
+      Number(team.weight);
 
-    if(random <= 0)
+
+    if(random <= 0){
+
       return team;
+
+    }
 
   }
 
 
-  return pool[
-    pool.length - 1
+  return cleanPool[
+    cleanPool.length - 1
   ];
 
 }
@@ -1277,12 +1348,10 @@ function createReverseDraftOrder(){
       })
     );
 
-  const order = [];
 
+  const order =
+    [];
 
-  /*
-     Picks 8 through 2
-  */
 
   for(
     let pick =
@@ -1297,6 +1366,7 @@ function createReverseDraftOrder(){
       weightedPick(
         pool
       );
+
 
     if(!winner)
       break;
@@ -1313,11 +1383,20 @@ function createReverseDraftOrder(){
     });
 
 
+    /*
+       IMPORTANT:
+
+       Remove the selected team using
+       string comparison so the code works
+       regardless of whether Supabase IDs
+       are numbers or strings.
+    */
+
     pool =
       pool.filter(
         team =>
-          team.id !==
-          winner.id
+          String(team.id) !==
+          String(winner.id)
       );
 
   }
@@ -1377,9 +1456,11 @@ async function loadTeamsFromSupabase(){
       error
     );
 
+
     showStatus(
       "Using local teams — Supabase could not be loaded."
     );
+
 
     return defaultTeams.map(
       t => ({...t})
@@ -1410,21 +1491,24 @@ async function loadTeamsFromSupabase(){
             row.members_data ||
             {};
 
+
           return {
 
+            /*
+               Preserve the Supabase ID
+               instead of forcing Number().
+            */
+
             id:
-              Number(
-                row.id
-              ),
+              String(row.id),
 
             name:
               d.name ||
               `Team ${row.id}`,
 
             weight:
-              Number(
-                d.weight
-              ) || 1,
+              Number(d.weight) ||
+              1,
 
             image:
               d.image ||
@@ -1441,7 +1525,13 @@ async function loadTeamsFromSupabase(){
 
       .sort(
         (a,b) =>
-          a.id - b.id
+          String(a.id).localeCompare(
+            String(b.id),
+            undefined,
+            {
+              numeric:true
+            }
+          )
       );
 
 
@@ -1475,9 +1565,7 @@ async function saveTeamsToSupabase(){
             team.name,
 
           weight:
-            Number(
-              team.weight
-            ),
+            Number(team.weight),
 
           image:
             team.image || "",
@@ -1515,9 +1603,11 @@ async function saveTeamsToSupabase(){
       error
     );
 
+
     showStatus(
       "Error saving configuration to Supabase."
     );
+
 
     return false;
 
@@ -1588,6 +1678,7 @@ async function saveDraftOrderToSupabase(
       error
     );
 
+
     return false;
 
   }
@@ -1626,6 +1717,7 @@ async function loadDraftOrderFromSupabase(){
       error
     );
 
+
     return [];
 
   }
@@ -1650,22 +1742,22 @@ async function loadDraftOrderFromSupabase(){
           row.order_data ||
           {};
 
+
         const team =
           teams.find(
             t =>
-              Number(t.id) ===
-              Number(d.memberId)
+              String(t.id) ===
+              String(d.memberId)
           );
 
 
         return {
 
           pick:
-            Number(
-              d.pick
-            ),
+            Number(d.pick),
 
           team:
+
             team
 
               ? {
@@ -1675,7 +1767,7 @@ async function loadDraftOrderFromSupabase(){
               : {
 
                   id:
-                    Number(
+                    String(
                       d.memberId
                     ),
 
@@ -1703,7 +1795,8 @@ async function loadDraftOrderFromSupabase(){
 
     .sort(
       (a,b) =>
-        b.pick - a.pick
+        b.pick -
+        a.pick
     );
 
 }
@@ -1740,9 +1833,11 @@ async function clearDraftOrderFromSupabase(){
       error
     );
 
+
     showStatus(
       "Error resetting saved draft."
     );
+
 
     return false;
 
@@ -1751,6 +1846,7 @@ async function clearDraftOrderFromSupabase(){
 
   savedDraftOrder =
     [];
+
 
   return true;
 
@@ -1769,8 +1865,8 @@ function openCommissioner(){
       "hidden"
     );
 
-  commissionerPassword
-    .focus();
+
+  commissionerPassword.focus();
 
 }
 
@@ -1783,6 +1879,7 @@ function closeCommissioner(){
       "hidden"
     );
 
+
   commissionerPassword.value =
     "";
 
@@ -1794,15 +1891,24 @@ function lockCommissioner(){
   commissionerUnlocked =
     false;
 
+
   commissionerPanel
     .classList
     .add(
       "hidden"
     );
 
+
   closeCommissioner();
 
+
+  /*
+     renderInputs() also hides the
+     team settings panel.
+  */
+
   renderInputs();
+
 
   showStatus(
     "Commissioner tools locked."
@@ -1822,7 +1928,9 @@ function unlockCommissioner(){
       "Incorrect commissioner password."
     );
 
+
     commissionerPassword.select();
+
 
     return;
 
@@ -1832,11 +1940,13 @@ function unlockCommissioner(){
   commissionerUnlocked =
     true;
 
+
   commissionerLoginBox
     .classList
     .add(
       "hidden"
     );
+
 
   commissionerPanel
     .classList
@@ -1844,10 +1954,18 @@ function unlockCommissioner(){
       "hidden"
     );
 
+
   commissionerPassword.value =
     "";
 
+
+  /*
+     renderInputs() now reveals the
+     team settings panel.
+  */
+
   renderInputs();
+
 
   showStatus(
     "Commissioner tools unlocked."
@@ -1880,6 +1998,7 @@ async function saveConfiguration(){
       "Every team needs a name and positive odds."
     );
 
+
     return;
 
   }
@@ -1894,6 +2013,7 @@ async function saveConfiguration(){
     showStatus(
       "Configuration saved to Supabase."
     );
+
 
     renderInputs();
 
@@ -1917,6 +2037,7 @@ function addRunner(
     document.createElement(
       "div"
     );
+
 
   el.className =
     "runner";
@@ -1942,7 +2063,6 @@ function addRunner(
 
 
   const imageHTML =
-
     team.image
 
       ? `
@@ -1951,21 +2071,12 @@ function addRunner(
           class="player-image"
           src="${escapeHTML(team.image)}"
           alt="${escapeHTML(team.name)}"
-          onerror="
-            this.style.display='none';
-            this.nextElementSibling.style.display='flex';
-          "
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
         >
 
         <div
           class="player-image"
-          style="
-            display:none;
-            align-items:center;
-            justify-content:center;
-            font-weight:900;
-            color:#fff;
-          "
+          style="display:none;align-items:center;justify-content:center;font-weight:900;color:#fff;"
         >
           ${escapeHTML(
             team.name
@@ -1980,13 +2091,7 @@ function addRunner(
 
         <div
           class="player-image"
-          style="
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-weight:900;
-            color:#fff;
-          "
+          style="display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;"
         >
           ${escapeHTML(
             team.name
@@ -2003,9 +2108,15 @@ function addRunner(
     ${imageHTML}
 
     <div class="tag">
-      ${escapeHTML(team.name)}
+
+      ${escapeHTML(
+        team.name
+      )}
+
       •
+
       ${team.weight}%
+
     </div>
 
   `;
@@ -2031,8 +2142,10 @@ function resetVisuals(){
     raf
   );
 
+
   raceRunning =
     false;
+
 
   runners =
     [];
@@ -2074,7 +2187,7 @@ function renderResults(
 
 
   /*
-     Display actual draft order:
+     Display in actual draft order:
      Pick #1 through Pick #8.
   */
 
@@ -2083,7 +2196,8 @@ function renderResults(
 
       .sort(
         (a,b) =>
-          a.pick - b.pick
+          a.pick -
+          b.pick
       );
 
 
@@ -2112,7 +2226,9 @@ function renderResults(
 
 
         <span>
+
           ${item.team.weight}% odds
+
         </span>
 
       `;
@@ -2129,7 +2245,7 @@ function renderResults(
 
 
 /* =========================================================
-   START THE RACE
+   RUN THE DASH
    ========================================================= */
 
 async function start(){
@@ -2167,9 +2283,11 @@ async function start(){
     raceRunning =
       false;
 
+
     showStatus(
       "Could not create a complete draft order."
     );
+
 
     return;
 
@@ -2192,8 +2310,8 @@ async function start(){
 
 
   /*
-     Save immediately so the result
-     survives a refresh.
+     Save the actual reverse-odds result
+     immediately.
   */
 
   const saved =
@@ -2207,9 +2325,11 @@ async function start(){
     raceRunning =
       false;
 
+
     showStatus(
       "Draft generated, but Supabase could not save it."
     );
+
 
     return;
 
@@ -2217,11 +2337,11 @@ async function start(){
 
 
   /*
-     Create every runner.
+     Create all runners.
 
      IMPORTANT:
      They are NOT removed when they finish.
-     Their images and labels remain visible.
+     Their images and labels remain permanently visible.
   */
 
   runners =
@@ -2267,7 +2387,7 @@ async function start(){
 
 
   /*
-     The first item is Pick #8.
+     The first item in order is Pick #8.
      It gets the earliest finish.
 
      The last item is Pick #1.
@@ -2283,8 +2403,8 @@ async function start(){
       const runner =
         runners.find(
           r =>
-            r.team.id ===
-            item.team.id
+            String(r.team.id) ===
+            String(item.team.id)
         );
 
 
@@ -2298,17 +2418,14 @@ async function start(){
           ? .5
 
           : (
-
               (
                 item.team.weight -
                 min
               ) /
-
               (
                 max -
                 min
               )
-
             );
 
 
@@ -2417,7 +2534,8 @@ async function start(){
 
           target < .18
 
-            ? target * .65
+            ? target *
+              .65
 
             : target < .65
 
@@ -2445,7 +2563,6 @@ async function start(){
 
 
         const currentPosition =
-
           startPosition +
 
           Math.min(
@@ -2474,6 +2591,7 @@ async function start(){
 
           r.el.style.left =
             "84%";
+
 
           revealRunner(
             r
@@ -2528,7 +2646,7 @@ async function start(){
 
 
 /* =========================================================
-   LOAD SAVED RESULT
+   LOAD SAVED RESULT WITHOUT RUNNING THE RACE
    ========================================================= */
 
 function showSavedDraft(){
@@ -2536,8 +2654,11 @@ function showSavedDraft(){
   if(
     !savedDraftOrder ||
     !savedDraftOrder.length
-  )
+  ){
+
     return;
+
+  }
 
 
   resetVisuals();
@@ -2545,9 +2666,6 @@ function showSavedDraft(){
 
   /*
      Keep every image and label on the field.
-
-     Saved drafts display the runners at
-     the finish line rather than removing them.
   */
 
   runners =
@@ -2620,6 +2738,14 @@ async function initialize(){
     await loadTeamsFromSupabase();
 
 
+  /*
+     This renders the team editor while
+     commissionerUnlocked is false.
+
+     renderInputs() immediately hides the
+     entire teamSettingsPanel.
+  */
+
   renderInputs();
 
   renderPermanentLabels();
@@ -2635,7 +2761,9 @@ async function initialize(){
 
     showSavedDraft();
 
-  }else{
+  }
+
+  else{
 
     showStatus(
       "Ready at the starting line."
@@ -2670,9 +2798,11 @@ document
 
       resetVisuals();
 
+
       showStatus(
         "Ready at the starting line."
       );
+
 
       renderPermanentLabels();
 

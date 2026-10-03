@@ -499,6 +499,7 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
   box-shadow:18px 0 50px rgba(0,0,0,.55);
   transition:left .28s ease;
 }
+    }
 .sidebar-left.active{left:0!important}
 .sidebar-overlay{
   position:fixed;
@@ -998,7 +999,7 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
             <div class="standings-table-wrapper">
                 <table id="standings-table">
                     <thead>
-                        <tr>
+                                                <tr>
                             <th>Rank</th>
                             <th>Team</th>
                             <th>Record</th>
@@ -1196,7 +1197,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/* === 5. LEAGUE BULLETIN (AUTOMATED + FIREBASE) === */
+/* === 5. LEAGUE BULLETIN (AUTOMATED + FIREBASE) */
 
 let commissionerBulletinUnsubscribe = null;
 
@@ -1205,7 +1206,6 @@ function ensureLeagueBulletinShell() {
     const display = document.getElementById("bulletin-display");
 
     if (!display) return null;
-
 
     /* === BULLETIN STYLES === */
 
@@ -1998,1500 +1998,1204 @@ async function fetchStandings() {
         const users = await usersRes.json();
 
         const userMap = Object.fromEntries(
-            users.map(user => [user.user_id, user])
-        );
 
-        const teams = rosters.map(roster => {
-            const user = userMap[roster.owner_id] || {};
-            const settings = roster.settings || {};
+                    const currentSeasonRecordA = parseH2H(statA?.Record);
+        const currentSeasonRecordB = parseH2H(statB?.Record);
 
-            const pointsFor =
-                Number(settings.fpts || 0) +
-                Number(settings.fpts_decimal || 0) / 100;
+        const averageA = avgA || pointsA;
+        const averageB = avgB || pointsB;
 
-            const wins = Number(settings.wins || 0);
-            const losses = Number(settings.losses || 0);
-            const ties = Number(settings.ties || 0);
-            const completedGames = wins + losses + ties;
+        let projectedA =
+            projectionA !== null
+                ? projectionA
+                : averageA;
 
-            return {
-                teamName:
-                    user.metadata?.team_name ||
-                    user.display_name ||
-                    "Unnamed Team",
+        let projectedB =
+            projectionB !== null
+                ? projectionB
+                : averageB;
 
-                record: `${wins}-${losses}-${ties}`,
+        /*
+            If there is no actual Sleeper projection available,
+            use the spreadsheet average as the baseline projection.
 
-                winPct:
-                    completedGames > 0
-                        ? (wins + ties * 0.5) / completedGames
-                        : 0,
+            This keeps the prediction display populated while still
+            preferring Sleeper's own projection when available.
+        */
+        const totalProjected =
+            projectedA + projectedB;
 
-                pointsFor
-            };
-        });
+        const projectedMargin =
+            projectedA - projectedB;
 
-        teams.sort(
-            (teamA, teamB) =>
-                teamB.winPct - teamA.winPct ||
-                teamB.pointsFor - teamA.pointsFor
-        );
+        const favorite =
+            projectedA >= projectedB
+                ? nameA
+                : nameB;
 
-        const tbody = document.querySelector("#standings-table tbody");
-        if (!tbody) return;
+        const underdog =
+            projectedA >= projectedB
+                ? nameB
+                : nameA;
 
-        tbody.innerHTML = teams
-            .map((team, index) => {
-                const seed = index + 1;
-                const rowClasses = [];
-                let statusBadge = "";
+        const favoriteProjection =
+            projectedA >= projectedB
+                ? projectedA
+                : projectedB;
 
-                if (seed <= 2) {
-                    rowClasses.push("bye-seed");
-                    statusBadge =
-                        '<span class="standings-status bye">Bye</span>';
-                } else if (seed <= 6) {
-                    rowClasses.push("playoff-seed");
-                    statusBadge =
-                        '<span class="standings-status playoff">Playoff</span>';
-                }
+        const underdogProjection =
+            projectedA >= projectedB
+                ? projectedB
+                : projectedA;
 
-                if (seed === 6) {
-                    rowClasses.push("playoff-cutoff");
-                }
+        const margin =
+            Math.abs(projectedMargin);
 
-                if (seed === teams.length) {
-                    rowClasses.push("lottery-leader");
-                    statusBadge =
-                        '<span class="standings-status lottery">1.01 Odds</span>';
-                }
+        /*
+            Simple confidence estimate.
 
-                return `
-                    <tr class="${rowClasses.join(" ")}">
-                        <td class="standings-rank">${seed}</td>
-
-                       <td class="standings-team">
-    <div class="standings-team-name">
-        ${escapeStandingsHtml(team.teamName)}
-    </div>
-
-    ${statusBadge}
-</td>
-
-                        <td class="standings-record">${team.record}</td>
-                    </tr>
-                `;
-            })
-            .join("");
-    } catch (error) {
-        console.error("Standings Error:", error);
-
-        const tbody = document.querySelector("#standings-table tbody");
-
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="3" style="
-                        padding:24px 12px;
-                        text-align:center;
-                        color:#f87171;
-                    ">
-                        Unable to load league standings.
-                    </td>
-                </tr>
-            `;
-        }
-    }
-}
-
-function escapeStandingsHtml(value) {
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-/* === 8. WEEKLY SCOREBOARD & PREDICTIONS === */
-
-/*
-    TEST MODE:
-    true  = start on SCOREBOARD_TEST_WEEK
-    false = start on Sleeper's current display week
-*/
-const SCOREBOARD_TEST_MODE = false;
-const SCOREBOARD_TEST_WEEK = 1;
-const SCOREBOARD_MIN_WEEK = 1;
-const SCOREBOARD_MAX_WEEK = 14;
-const SCOREBOARD_REFRESH_MS = 60 * 1000;
-
-/* === END-OF-SEASON AWARDS === */
-const FANTASY_SEASON_FINAL_WEEK = 14;
-
-/* === TCWR SEASONAL CENTER-SCREEN CONFIG === */
-const CHAMPION_RECAP_PLAYLIST_ID = "PLZEKYTPqxrBo";
-const CHAMPION_RECAP_PLAYLIST_URL =
-    `https://www.youtube.com/playlist?list=${CHAMPION_RECAP_PLAYLIST_ID}`;
-
-/* These dates are intentionally recurring every year.
-   - Champion Recap Coming Soon begins when Sleeper reports Week 14 is over.
-   - Champion Recap TV begins December 28.
-   - Offseason countdown begins March 12.
-   - The countdown reaches zero September 3, when the normal scoreboard returns. */
-const CHAMPION_RECAP_LIVE_MONTH = 12;
-const CHAMPION_RECAP_LIVE_DAY = 28;
-const OFFSEASON_COUNTDOWN_MONTH = 3;
-const OFFSEASON_COUNTDOWN_DAY = 12;
-const NFL_SEASON_START_MONTH = 9;
-const NFL_SEASON_START_DAY = 3;
-
-/* Optional previous-season Manager Rankings CSV.
-   Used only for Most Improved Manager. */
-const PREVIOUS_RANKINGS_CSV_URL = "";
-
-let endOfSeasonAwardsCache = null;
-
-let selectedScoreboardWeek = SCOREBOARD_TEST_WEEK;
-let latestVisibleScoreboardWeek = SCOREBOARD_TEST_MODE
-    ? SCOREBOARD_TEST_WEEK
-    : SCOREBOARD_MIN_WEEK;
-let scoreboardRefreshTimer = null;
-let scoreboardRequestInProgress = false;
-
-async function getSleeperCurrentWeek() {
-    try {
-        const response = await fetch("https://api.sleeper.app/v1/state/nfl");
-        if (!response.ok) throw new Error(`Sleeper NFL state request failed: ${response.status}`);
-        const state = await response.json();
-        const sleeperWeek = Number(state.display_week ?? state.leg ?? state.week ?? 1);
-        return Math.max(SCOREBOARD_MIN_WEEK, Math.min(sleeperWeek, SCOREBOARD_MAX_WEEK));
-    } catch (error) {
-        console.warn("Unable to load Sleeper current week:", error);
-        return SCOREBOARD_TEST_WEEK;
-    }
-}
-
-function clampScoreboardWeek(week, maximumWeek = latestVisibleScoreboardWeek) {
-    const maxWeek = Math.max(
-        SCOREBOARD_MIN_WEEK,
-        Math.min(
-            Number(maximumWeek) || SCOREBOARD_MIN_WEEK,
-            SCOREBOARD_MAX_WEEK
-        )
-    );
-
-    return Math.max(
-        SCOREBOARD_MIN_WEEK,
-        Math.min(
-            Number(week) || SCOREBOARD_MIN_WEEK,
-            maxWeek
-        )
-    );
-}
-
-function clearScoreboardRefreshTimer() {
-    if (scoreboardRefreshTimer) {
-        window.clearInterval(scoreboardRefreshTimer);
-        scoreboardRefreshTimer = null;
-    }
-}
-
-function startScoreboardRefreshTimer() {
-    clearScoreboardRefreshTimer();
-    scoreboardRefreshTimer = window.setInterval(() => {
-        fetchScoreboard(selectedScoreboardWeek, { showLoading: false });
-    }, SCOREBOARD_REFRESH_MS);
-}
-
-function createWeekNavigation(week) {
-    const maxVisibleWeek = Math.max(
-        SCOREBOARD_MIN_WEEK,
-        Math.min(
-            Number(latestVisibleScoreboardWeek) || SCOREBOARD_MIN_WEEK,
-            SCOREBOARD_MAX_WEEK
-        )
-    );
-
-    const wrapper = document.createElement("div");
-    wrapper.style.cssText = `
-        display:grid;
-        grid-template-columns:44px minmax(0, 1fr) 44px;
-        align-items:center;
-        gap:10px;
-        margin-bottom:16px;
-    `;
-
-    const previousButton = document.createElement("button");
-    previousButton.type = "button";
-    previousButton.setAttribute("aria-label", "Show previous week");
-    previousButton.textContent = "←";
-    previousButton.disabled = week <= SCOREBOARD_MIN_WEEK;
-
-    const nextButton = document.createElement("button");
-    nextButton.type = "button";
-    nextButton.setAttribute("aria-label", "Show next week");
-    nextButton.textContent = "→";
-    nextButton.disabled = week >= maxVisibleWeek;
-
-    [previousButton, nextButton].forEach(button => {
-        button.style.cssText = `
-            width:44px;
-            height:40px;
-            border-radius:10px;
-            border:1px solid rgba(250, 204, 21, 0.35);
-            background:rgba(15, 23, 42, 0.8);
-            color:#facc15;
-            font-size:1.1rem;
-            font-weight:900;
-            cursor:pointer;
-        `;
-        if (button.disabled) {
-            button.style.opacity = "0.35";
-            button.style.cursor = "not-allowed";
-        }
-    });
-
-    const label = document.createElement("div");
-    label.style.cssText = `
-        text-align:center;
-        color:#cbd5e1;
-        font-size:0.78rem;
-        font-weight:800;
-        letter-spacing:1px;
-        text-transform:uppercase;
-    `;
-    label.textContent = `Week ${week} of ${SCOREBOARD_MAX_WEEK}`;
-
-    previousButton.addEventListener("click", () => {
-        if (week <= SCOREBOARD_MIN_WEEK) return;
-        selectedScoreboardWeek = clampScoreboardWeek(week - 1);
-        fetchScoreboard(selectedScoreboardWeek);
-    });
-
-    nextButton.addEventListener("click", () => {
-        if (week >= maxVisibleWeek) return;
-        selectedScoreboardWeek = clampScoreboardWeek(week + 1);
-        fetchScoreboard(selectedScoreboardWeek);
-    });
-
-    wrapper.append(previousButton, label, nextButton);
-    return wrapper;
-}
-
-function extractSleeperProjection(matchup) {
-    const possibleValues = [
-        matchup.projected_points,
-        matchup.projected,
-        matchup.projection,
-        matchup.points_projected,
-        matchup.projected_total
-    ];
-
-    for (const value of possibleValues) {
-        const number = Number.parseFloat(value);
-        if (Number.isFinite(number)) return number;
-    }
-
-    return null;
-}
-
-async function fetchScoreboard(requestedWeek = selectedScoreboardWeek, options = {}) {
-    const { showLoading = true } = options;
-    const container = document.getElementById("scoreboard-container");
-    if (!container || scoreboardRequestInProgress) return;
-
-    /*
-        Future scoreboard weeks stay hidden.
-
-        Sleeper's current display week is the furthest week the user
-        is allowed to view. Historical weeks remain available through
-        the left arrow, but the right arrow stops at the current week.
-    */
-    latestVisibleScoreboardWeek = SCOREBOARD_TEST_MODE
-        ? SCOREBOARD_TEST_WEEK
-        : await getSleeperCurrentWeek();
-
-    const week = clampScoreboardWeek(
-        requestedWeek,
-        latestVisibleScoreboardWeek
-    );
-
-    selectedScoreboardWeek = week;
-    scoreboardRequestInProgress = true;
-
-    if (showLoading) {
-        container.innerHTML = `
-            <p style="text-align:center; color:#94a3b8; padding:30px;">
-                Loading Week ${week} matchup of the week...
-            </p>
-        `;
-    }
-
-    try {
-        const [matchRes, usersRes, rostersRes, stateRes] = await Promise.all([
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}?_=${Date.now()}`),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users?_=${Date.now()}`),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters?_=${Date.now()}`),
-            fetch("https://api.sleeper.app/v1/state/nfl")
-        ]);
-
-        if (!matchRes.ok || !usersRes.ok || !rostersRes.ok) {
-            throw new Error(
-                `Sleeper scoreboard request failed. ` +
-                `Matchups: ${matchRes.status}, Users: ${usersRes.status}, Rosters: ${rostersRes.status}`
+            This is not intended to be a sportsbook-style probability.
+            It is a visual confidence indicator based on the projected
+            point difference.
+        */
+        const confidence =
+            clamp(
+                50 + (margin * 2.5),
+                50,
+                95
             );
-        }
 
-        const matchupsRaw = await matchRes.json();
-        const users = await usersRes.json();
-        const rosters = await rostersRes.json();
-        const nflState = stateRes.ok ? await stateRes.json() : {};
+        const favoriteWinChance =
+            confidence / 100;
 
-        console.log("Scoreboard test mode:", SCOREBOARD_TEST_MODE);
-        console.log("Requested Sleeper week:", week);
-        console.log("Raw Sleeper matchup data:", matchupsRaw);
+        const underdogWinChance =
+            1 - favoriteWinChance;
 
-        const userLookup = Object.fromEntries(
-            users.map(user => [user.user_id, user.display_name || "Unknown"])
-        );
+        const currentScoreA =
+            pointsA.toFixed(1);
 
-        const rosterToNameMap = Object.fromEntries(
-            rosters.map(roster => [roster.roster_id, userLookup[roster.owner_id] || "Unknown"])
-        );
+        const currentScoreB =
+            pointsB.toFixed(1);
 
-        if (!Array.isArray(matchupsRaw) || matchupsRaw.length === 0) {
-            container.innerHTML = "";
-            container.appendChild(createWeekNavigation(week));
-            const message = document.createElement("p");
-            message.style.cssText = "text-align:center; color:white; padding:40px;";
-            message.textContent = `Sleeper returned no matchup data for Week ${week}.`;
-            container.appendChild(message);
-            return;
-        }
+        const recordTextA =
+            statA?.Record ||
+            "0-0";
 
-        Papa.parse(`${csvUrl}&_=${Date.now()}`, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: results => {
-                if (results.errors.length > 0) {
-                    console.warn("Spreadsheet parsing warnings:", results.errors);
-                }
-                renderMatchupCards(matchupsRaw, rosterToNameMap, results.data, week, nflState);
-            },
-            error: error => {
-                console.error("Spreadsheet loading error:", error);
-                container.innerHTML = "";
-                container.appendChild(createWeekNavigation(week));
-                const message = document.createElement("p");
-                message.style.cssText = "text-align:center; color:#f87171; padding:40px;";
-                message.textContent = "Unable to load matchup statistics.";
-                container.appendChild(message);
-            }
-        });
-    } catch (error) {
-        console.error("Scoreboard Error:", error);
-        container.innerHTML = "";
-        container.appendChild(createWeekNavigation(week));
-        const message = document.createElement("p");
-        message.style.cssText = "text-align:center; color:#f87171; padding:40px;";
-        message.textContent = "Unable to load the scoreboard.";
-        container.appendChild(message);
-    } finally {
-        scoreboardRequestInProgress = false;
-    }
-}
-
-function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return;
-
-    container.innerHTML = "";
-    container.style.display = "block";
-    container.style.height = "auto";
-    container.appendChild(createWeekNavigation(week));
-
-    const groups = {};
-    matchups.forEach(matchup => {
-        if (matchup.matchup_id === null || matchup.matchup_id === undefined) return;
-        if (!groups[matchup.matchup_id]) groups[matchup.matchup_id] = [];
-        groups[matchup.matchup_id].push(matchup);
-    });
-
-    const safeNumber = value => {
-        const number = Number.parseFloat(value);
-        return Number.isFinite(number) ? number : 0;
-    };
-
-    const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
-
-    const parseH2H = record => {
-        const normalizedRecord = String(record || "0-0")
-            .trim()
-            .replace(/[–—−]/g, "-");
-
-        const parts = normalizedRecord
-            .split("-")
-            .map(value => Number.parseInt(value.trim(), 10) || 0);
-
-        const wins = parts[0] || 0;
-        const losses = parts[1] || 0;
-        const ties = parts[2] || 0;
-        const total = wins + losses + ties;
-
-        return {
-            wins,
-            losses,
-            ties,
-            total,
-            winPercentage:
-                total > 0
-                    ? (wins + ties * 0.5) / total
-                    : 0.5
-        };
-    };
-
-    const formatSignedNumber = value => {
-        const number = safeNumber(value);
-        if (number > 0) return `+${number.toFixed(1)}`;
-        if (number < 0) return number.toFixed(1);
-        return "0.0";
-    };
-
-    const getInitials = name => String(name)
-        .split(/[\s_-]+/)
-        .filter(Boolean)
-        .map(part => part.charAt(0))
-        .join("")
-        .slice(0, 2)
-        .toUpperCase() || "TM";
-
-    const findStat = (managerName, opponentName) => {
-        const realManager = nameTranslator[managerName] || managerName;
-        return stats.find(stat => {
-            const spreadsheetManager = stat.Manager?.trim().toLowerCase();
-            const spreadsheetOpponent = stat.Opponent?.trim().toLowerCase();
-            const expectedManager = realManager.trim().toLowerCase();
-            const expectedOpponent = `@${opponentName}`.trim().toLowerCase();
-            return spreadsheetManager === expectedManager && spreadsheetOpponent === expectedOpponent;
-        });
-    };
-
-    const sleeperDisplayWeek = safeNumber(nflState.display_week ?? nflState.leg ?? nflState.week);
-    const analyzedMatchups = [];
-
-    Object.keys(groups).forEach(matchId => {
-        const pair = groups[matchId];
-        if (pair.length < 2) return;
-
-        let nameA = nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`;
-        let nameB = nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`;
-        nameA = nameA.replace("@", "").trim();
-        nameB = nameB.replace("@", "").trim();
-
-        const statA = findStat(nameA, nameB);
-        const statB = findStat(nameB, nameA);
-        const avgA = safeNumber(statA?.AvgPts);
-        const avgB = safeNumber(statB?.AvgPts);
-        const pointsA = safeNumber(pair[0].points);
-        const pointsB = safeNumber(pair[1].points);
-        const projectionA = extractSleeperProjection(pair[0]);
-        const projectionB = extractSleeperProjection(pair[1]);
-        const hasSleeperProjection = projectionA !== null && projectionB !== null;
-
-        const statisticalFavorite = avgA === avgB ? null : (avgA > avgB ? nameA : nameB);
-        const sleeperPredictedWinner = !hasSleeperProjection || projectionA === projectionB
-            ? null
-            : (projectionA > projectionB ? nameA : nameB);
-        const sleeperProjectionMargin = hasSleeperProjection ? Math.abs(projectionA - projectionB) : null;
-        const liveLeader = pointsA === pointsB ? null : (pointsA > pointsB ? nameA : nameB);
-        const gamesStarted = pointsA !== 0 || pointsB !== 0;
-        const predictionDisagreement = Boolean(
-            statisticalFavorite && sleeperPredictedWinner && statisticalFavorite !== sleeperPredictedWinner
-        );
-
-        const favoriteStat = statisticalFavorite === nameA ? statA : (statisticalFavorite === nameB ? statB : null);
-        const favoriteAverage = statisticalFavorite === nameA ? avgA : (statisticalFavorite === nameB ? avgB : Math.max(avgA, avgB));
-        const opponentAverage = statisticalFavorite === nameA ? avgB : (statisticalFavorite === nameB ? avgA : Math.min(avgA, avgB));
-        const averageAdvantage = Math.abs(favoriteAverage - opponentAverage);
-        const favoriteH2H = favoriteStat?.H2H_Record || "0-0";
-        const h2hData = parseH2H(favoriteH2H);
-
-        const rivalryRecordOwner = statA ? nameA : (statB ? nameB : nameA);
-        const rivalryRecord = statA?.H2H_Record || statB?.H2H_Record || "0-0";
-        const rivalryH2H = parseH2H(rivalryRecord);
-
-        const pointDifferential = safeNumber(favoriteStat?.Pt_Diff);
-        const averageScore = Math.min(averageAdvantage, 20) * 1.2;
-        const h2hScore = Math.max(0, h2hData.winPercentage - 0.5) * 30;
-        const differentialScore = Math.min(Math.abs(pointDifferential), 300) * 0.03;
-        const confidence = clamp(Math.round(50 + averageScore + h2hScore + differentialScore), 55, 95);
+        const recordTextB =
+            statB?.Record ||
+            "0-0";
 
         analyzedMatchups.push({
-            matchId, nameA, nameB, avgA, avgB, pointsA, pointsB,
-            projectionA, projectionB, hasSleeperProjection,
-            statisticalFavorite, sleeperPredictedWinner, sleeperProjectionMargin,
-            liveLeader, gamesStarted, predictionDisagreement, confidence,
-            averageAdvantage, favoriteH2H, h2hData, pointDifferential,
-            statA, statB, rivalryRecordOwner, rivalryRecord, rivalryH2H,
-            rivalryCloseness: Math.abs(rivalryH2H.wins - rivalryH2H.losses),
-            averageGap: Math.abs(avgA - avgB),
-            combinedAverage: avgA + avgB
+            matchId,
+            nameA,
+            nameB,
+            statA,
+            statB,
+            pointsA,
+            pointsB,
+            projectedA,
+            projectedB,
+            totalProjected,
+            projectedMargin,
+            favorite,
+            underdog,
+            favoriteProjection,
+            underdogProjection,
+            margin,
+            confidence,
+            favoriteWinChance,
+            underdogWinChance,
+            currentScoreA,
+            currentScoreB,
+            recordTextA,
+            recordTextB,
+            currentSeasonRecordA,
+            currentSeasonRecordB
         });
     });
 
     if (analyzedMatchups.length === 0) {
         const message = document.createElement("p");
-        message.style.cssText = "text-align:center; color:#94a3b8; padding:30px;";
-        message.textContent = "No matchup data is currently available.";
+        message.style.cssText =
+            "text-align:center;color:#94a3b8;padding:40px;";
+        message.textContent =
+            `No completed matchups found for Week ${week}.`;
+
         container.appendChild(message);
         return;
     }
 
-    updateAutomatedBulletinFromScoreboard(analyzedMatchups, week, sleeperDisplayWeek);
+    analyzedMatchups.forEach(matchup => {
+        const card =
+            document.createElement("div");
 
-    const disagreementMatchups = analyzedMatchups.filter(
-        matchup => matchup.predictionDisagreement
-    );
+        card.className =
+            "tcwr-scoreboard-main-card";
 
-    const anyGameStarted = analyzedMatchups.some(
-        matchup => matchup.gamesStarted
-    );
-
-    /*
-     * FEATURED MATCHUP SELECTION
-     *
-     * This must NOT use localStorage. localStorage is different on every
-     * device/browser and was the reason desktop and phone could show
-     * different Matchup of the Week cards.
-     *
-     * The ranking below is deterministic, so identical league data produces
-     * the same featured matchup on desktop, phone, tablet, etc.
-     */
-    let featuredMatchup;
-    let cardType;
-
-    if (disagreementMatchups.length > 0) {
-        disagreementMatchups.sort((a, b) =>
-            (b.sleeperProjectionMargin || 0) - (a.sleeperProjectionMargin || 0) ||
-            b.confidence - a.confidence ||
-            a.averageGap - b.averageGap ||
-            b.combinedAverage - a.combinedAverage ||
-            String(a.matchId).localeCompare(String(b.matchId))
-        );
-
-        featuredMatchup = disagreementMatchups[0];
-        cardType = "prediction-clash";
-    } else {
-        analyzedMatchups.sort((a, b) =>
-            a.averageGap - b.averageGap ||
-            b.combinedAverage - a.combinedAverage ||
-            String(a.matchId).localeCompare(String(b.matchId))
-        );
-
-        featuredMatchup = analyzedMatchups[0];
-        cardType = "matchup";
-    }
-
-    const {
-        matchId, nameA, nameB, avgA, avgB, pointsA, pointsB,
-        projectionA, projectionB, hasSleeperProjection,
-        statisticalFavorite, sleeperPredictedWinner, sleeperProjectionMargin,
-        liveLeader, gamesStarted, averageAdvantage, favoriteH2H,
-        h2hData, pointDifferential
-    } = featuredMatchup;
-
-    const isPredictionClash = cardType === "prediction-clash";
-    const isPastWeek = sleeperDisplayWeek > 0 && week < sleeperDisplayWeek;
-    const gameStatus = isPastWeek ? "FINAL" : (gamesStarted ? "LIVE" : "SCHEDULED");
-    const badgeText = isPredictionClash ? "⚡ PREDICTION CLASH" : "🏆 MATCHUP OF THE WEEK";
-    const badgeBackground = isPredictionClash
-        ? "linear-gradient(135deg, #7c2d12, #f97316)"
-        : "linear-gradient(135deg, #92400e, #f59e0b)";
-    const borderColor = isPredictionClash ? "#fb923c" : "#facc15";
-    const statisticalText = statisticalFavorite ? `@${statisticalFavorite}` : "Even matchup";
-
-    let sleeperPanelLabel;
-    let sleeperPanelText;
-    let sleeperPanelSubtext = "";
-
-    if (hasSleeperProjection) {
-        sleeperPanelLabel = "Sleeper Predicted Winner";
-        sleeperPanelText = sleeperPredictedWinner ? `@${sleeperPredictedWinner}` : "Projected tie";
-        sleeperPanelSubtext = `${projectionA.toFixed(1)}–${projectionB.toFixed(1)}` +
-            (sleeperProjectionMargin !== null ? ` • by ${sleeperProjectionMargin.toFixed(1)}` : "");
-    } else if (gamesStarted || isPastWeek) {
-        sleeperPanelLabel = isPastWeek ? "Final Winner" : "Live Leader";
-        sleeperPanelText = liveLeader ? `@${liveLeader}` : "Currently tied";
-        sleeperPanelSubtext = `${pointsA.toFixed(1)}–${pointsB.toFixed(1)}`;
-    } else {
-        sleeperPanelLabel = "Sleeper Prediction";
-        sleeperPanelText = "Waiting for kickoff";
-        sleeperPanelSubtext =
-            "Sleeper projections will appear before kickoff.";
-    }
-
-    const explanationTitle = statisticalFavorite
-        ? `Why the numbers favor @${statisticalFavorite}`
-        : "Why this matchup was selected";
-
-    const card = document.createElement("div");
-    card.className = "bulletin-item tcwr-scoreboard-main-card";
-    card.style.cssText = `
-        width:100%; box-sizing:border-box; margin-bottom:15px; padding:20px; color:white;
-        background:linear-gradient(145deg, rgba(30,41,59,.98), rgba(15,23,42,.98));
-        border:1px solid rgba(148,163,184,.22); border-top:4px solid ${borderColor};
-        border-radius:14px; box-shadow:0 12px 30px rgba(0,0,0,.35);
-    `;
-
-    card.innerHTML = `
-        <div style="display:flex; justify-content:center; margin-bottom:18px;">
-            <div style="display:inline-flex; align-items:center; justify-content:center; padding:9px 16px; border-radius:999px; background:${badgeBackground}; color:white; font-size:.82rem; font-weight:800; letter-spacing:.7px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,.3);">
-                ${badgeText}
-            </div>
-        </div>
-
-        <p style="margin:0 0 16px; text-align:center; color:#94a3b8; font-size:.7rem; font-weight:700; letter-spacing:1.5px;">
-            WEEK ${week} • MATCHUP #${matchId} • ${gameStatus}
-        </p>
-
-        <div style="display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:12px; margin-bottom:20px;">
-            <div style="text-align:center; min-width:0;">
-                <div style="width:54px; height:54px; margin:0 auto 8px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#334155; border:2px solid ${statisticalFavorite === nameA ? borderColor : '#475569'}; font-size:1rem; font-weight:800;">
-                    ${getInitials(nameA)}
-                </div>
-                <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameA ? '#facc15' : 'white'}; overflow-wrap:anywhere;">@${nameA}</div>
-                <div style="margin-top:4px; color:#94a3b8; font-size:.7rem;">Historical Avg ${avgA.toFixed(1)}</div>
-                ${(gamesStarted || isPastWeek) ? `<div style="margin-top:7px; color:white; font-size:1.15rem; font-weight:900;">${pointsA.toFixed(1)}</div>` : ''}
-            </div>
-
-            <div style="color:#64748b; font-size:.8rem; font-weight:900;">VS</div>
-
-            <div style="text-align:center; min-width:0;">
-                <div style="width:54px; height:54px; margin:0 auto 8px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#334155; border:2px solid ${statisticalFavorite === nameB ? borderColor : '#475569'}; font-size:1rem; font-weight:800;">
-                    ${getInitials(nameB)}
-                </div>
-                <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameB ? '#facc15' : 'white'}; overflow-wrap:anywhere;">@${nameB}</div>
-                <div style="margin-top:4px; color:#94a3b8; font-size:.7rem;">Historical Avg ${avgB.toFixed(1)}</div>
-                ${(gamesStarted || isPastWeek) ? `<div style="margin-top:7px; color:white; font-size:1.15rem; font-weight:900;">${pointsB.toFixed(1)}</div>` : ''}
-            </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:18px;">
-            <div style="min-width:0; padding:11px; background:rgba(250,204,21,.08); border:1px solid rgba(250,204,21,.2); border-radius:8px;">
-                <div style="color:#94a3b8; font-size:.65rem; text-transform:uppercase; letter-spacing:.8px;">Statistical Favorite</div>
-                <div style="margin-top:4px; color:#facc15; font-size:.82rem; font-weight:800; overflow-wrap:anywhere;">${statisticalText}</div>
-            </div>
-
-            <div style="min-width:0; padding:11px; background:rgba(56,189,248,.08); border:1px solid rgba(56,189,248,.2); border-radius:8px;">
-                <div style="color:#94a3b8; font-size:.65rem; text-transform:uppercase; letter-spacing:.8px;">${sleeperPanelLabel}</div>
-                <div style="margin-top:4px; color:#38bdf8; font-size:.82rem; font-weight:800; overflow-wrap:anywhere;">${sleeperPanelText}</div>
-                ${sleeperPanelSubtext ? `<div style="margin-top:3px; color:#94a3b8; font-size:.66rem;">${sleeperPanelSubtext}</div>` : ''}
-            </div>
-        </div>
-
-        <div class="tcwr-scoreboard-explanation" style="padding:14px; background:rgba(15,23,42,.65); border-radius:10px; border:1px solid rgba(148,163,184,.15);">
-            <p style="margin:0 0 10px; color:white; font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.8px;">${explanationTitle}</p>
-            <div style="display:flex; flex-direction:column; gap:8px; color:#cbd5e1; font-size:.78rem;">
-                <div>📈 Average scoring advantage: <strong style="color:white;">+${averageAdvantage.toFixed(1)} PPG</strong></div>
-                <div>🤝 Head-to-head: <strong style="color:white;">${favoriteH2H}</strong> ${h2hData.total > 0 ? `(${Math.round(h2hData.winPercentage * 100)}% win rate)` : '(No recorded history)'}</div>
-                <div>💥 Career point differential: <strong style="color:white;">${formatSignedNumber(pointDifferential)}</strong></div>
-            </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; gap:12px; margin-top:14px; color:#64748b; font-size:.65rem;">
-            <span>${(gamesStarted || isPastWeek) ? `${gameStatus}: ${pointsA.toFixed(1)}–${pointsB.toFixed(1)}` : `Week ${week} matchup • Games have not started`}</span>
-            <span>Auto-refreshes every 60 seconds</span>
-        </div>
-    `;
-
-    container.appendChild(card);
-
-    /*
-     * Use the same deterministic rivalry selector as Weekly Awards.
-     * This guarantees that the scoreboard's "Rivalry of the Week" and
-     * the bulletin's "Rivalry Winner" always refer to the same matchup.
-     */
-    const rivalry = selectDesignatedRivalry(analyzedMatchups);
-
-    if (rivalry) {
-        const {
-            nameA: rivalryNameA,
-            nameB: rivalryNameB,
-            pointsA: rivalryPointsA,
-            pointsB: rivalryPointsB,
-            rivalryRecordOwner,
-            rivalryH2H
-        } = rivalry;
-
-        const completedMeetings = rivalryH2H.total;
-        const upcomingMeetingNumber = completedMeetings + 1;
-
-        const getOrdinal = number => {
-            const lastTwo = number % 100;
-            if (lastTwo >= 11 && lastTwo <= 13) return `${number}th`;
-            if (number % 10 === 1) return `${number}st`;
-            if (number % 10 === 2) return `${number}nd`;
-            if (number % 10 === 3) return `${number}rd`;
-            return `${number}th`;
-        };
-
-        let seriesText;
-
-        if (rivalryH2H.wins === rivalryH2H.losses) {
-            seriesText = `Series tied ${rivalryH2H.wins}-${rivalryH2H.losses}`;
-        } else {
-            const recordOwnerLeads = rivalryH2H.wins > rivalryH2H.losses;
-            const seriesLeader = recordOwnerLeads
-                ? rivalryRecordOwner
-                : (rivalryRecordOwner === rivalryNameA ? rivalryNameB : rivalryNameA);
-
-            const leaderWins = Math.max(rivalryH2H.wins, rivalryH2H.losses);
-            const leaderLosses = Math.min(rivalryH2H.wins, rivalryH2H.losses);
-
-            seriesText = `@${seriesLeader} leads ${leaderWins}-${leaderLosses}`;
-        }
-
-        if (!document.getElementById("tcwr-rivalry-card-styles")) {
-            const rivalryStyles = document.createElement("style");
-            rivalryStyles.id = "tcwr-rivalry-card-styles";
-            rivalryStyles.textContent = `
-                .tcwr-rivalry-card {
-                    container-type:inline-size;
-                    container-name:rivalry-card;
-                }
-
-                .tcwr-rivalry-layout {
-                    display:grid;
-                    grid-template-columns:max-content minmax(0,1fr) max-content;
-                    grid-template-areas:"title matchup details";
-                    align-items:center;
-                    gap:14px;
-                    width:100%;
-                    min-width:0;
-                }
-
-                .tcwr-rivalry-heading {
-                    grid-area:title;
-                    min-width:0;
-                }
-
-                .tcwr-rivalry-title {
-                    color:#facc15;
-                    font-size:clamp(.64rem, 1.35cqi, .72rem);
-                    font-weight:900;
-                    letter-spacing:.9px;
-                    text-transform:uppercase;
-                    white-space:nowrap;
-                }
-
-                .tcwr-rivalry-matchup {
-                    grid-area:matchup;
-                    display:grid;
-                    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-                    align-items:center;
-                    gap:10px;
-                    min-width:0;
-                }
-
-                .tcwr-rivalry-manager {
-                    display:flex;
-                    align-items:center;
-                    gap:8px;
-                    min-width:0;
-                }
-
-                .tcwr-rivalry-manager.right {
-                    justify-content:flex-end;
-                }
-
-                .tcwr-rivalry-name {
-                    min-width:0;
-                    color:white;
-                    font-size:clamp(.68rem, 1.55cqi, .82rem);
-                    font-weight:900;
-                    line-height:1.12;
-                    white-space:normal;
-                    overflow-wrap:anywhere;
-                    word-break:normal;
-                }
-
-                .tcwr-rivalry-score {
-                    color:#facc15;
-                    font-size:1rem;
-                    font-weight:900;
-                    line-height:1;
-                    font-variant-numeric:tabular-nums;
-                }
-
-                .tcwr-rivalry-avatar {
-                    width:36px;
-                    height:36px;
-                    flex:0 0 36px;
-                    border-radius:50%;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    background:#334155;
-                    border:2px solid #475569;
-                    font-size:.72rem;
-                    font-weight:900;
-                }
-
-                .tcwr-rivalry-swords {
-                    flex:0 0 auto;
-                }
-
-                .tcwr-rivalry-details {
-                    grid-area:details;
-                    text-align:right;
-                    min-width:0;
-                    white-space:nowrap;
-                }
-
-                .tcwr-rivalry-meeting {
-                    color:#94a3b8;
-                    font-size:clamp(.61rem, 1.25cqi, .68rem);
-                    font-weight:800;
-                    letter-spacing:.65px;
-                    text-transform:uppercase;
-                }
-
-                .tcwr-rivalry-series {
-                    margin-top:4px;
-                    color:white;
-                    font-size:clamp(.68rem, 1.45cqi, .78rem);
-                    font-weight:900;
-                }
-
-                @container rivalry-card (max-width:700px) {
-                    .tcwr-rivalry-layout {
-                        grid-template-columns:1fr;
-                        grid-template-areas:
-                            "title"
-                            "matchup"
-                            "details";
-                        gap:11px;
-                        text-align:center;
-                    }
-
-                    .tcwr-rivalry-title,
-                    .tcwr-rivalry-details {
-                        text-align:center;
-                        white-space:normal;
-                    }
-
-                    .tcwr-rivalry-matchup {
-                        width:100%;
-                        max-width:520px;
-                        margin:0 auto;
-                    }
-
-                    .tcwr-rivalry-name {
-                        font-size:.78rem;
-                    }
-                }
-
-                @container rivalry-card (max-width:430px) {
-                    .tcwr-rivalry-card {
-                        padding:14px 12px !important;
-                    }
-
-                    .tcwr-rivalry-layout {
-                        gap:12px;
-                    }
-
-                    .tcwr-rivalry-matchup {
-                        grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-                        gap:7px;
-                    }
-
-                    .tcwr-rivalry-manager {
-                        flex-direction:column;
-                        justify-content:center;
-                        gap:5px;
-                        text-align:center;
-                    }
-
-                    .tcwr-rivalry-manager.right {
-                        flex-direction:column-reverse;
-                        justify-content:center;
-                    }
-
-                    .tcwr-rivalry-name,
-                    .tcwr-rivalry-manager.right .tcwr-rivalry-name {
-                        width:100%;
-                        text-align:center !important;
-                        font-size:.69rem;
-                        line-height:1.08;
-                    }
-
-                    .tcwr-rivalry-avatar {
-                        width:34px;
-                        height:34px;
-                        flex-basis:34px;
-                    }
-
-                    .tcwr-rivalry-details {
-                        white-space:normal;
-                    }
-                }
-            `;
-            document.head.appendChild(rivalryStyles);
-        }
-
-        const rivalryCard = document.createElement("div");
-        rivalryCard.className = "bulletin-item rivalry-card tcwr-rivalry-card";
-        rivalryCard.style.cssText = `
+        card.style.cssText = `
             width:100%;
             box-sizing:border-box;
-            margin:-2px 0 15px;
-            padding:15px 20px;
-            color:white;
-            background:linear-gradient(145deg, rgba(30,41,59,.98), rgba(15,23,42,.98));
-            border:1px solid rgba(148,163,184,.22);
-            border-left:4px solid #f59e0b;
+            margin-bottom:16px;
+            padding:20px;
+            border:1px solid rgba(148,163,184,.18);
+            border-radius:16px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(30,41,59,.96),
+                    rgba(15,23,42,.96)
+                );
+            box-shadow:
+                0 12px 30px rgba(0,0,0,.28);
+        `;
+
+        const matchupHeader =
+            document.createElement("div");
+
+        matchupHeader.style.cssText = `
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            margin-bottom:14px;
+        `;
+
+        const matchupLabel =
+            document.createElement("div");
+
+        matchupLabel.style.cssText = `
+            color:#facc15;
+            font-size:.65rem;
+            font-weight:900;
+            letter-spacing:1px;
+            text-transform:uppercase;
+        `;
+
+        matchupLabel.textContent =
+            `Matchup ${matchup.matchId}`;
+
+        const weekLabel =
+            document.createElement("div");
+
+        weekLabel.style.cssText = `
+            color:#64748b;
+            font-size:.62rem;
+            font-weight:800;
+            letter-spacing:.8px;
+            text-transform:uppercase;
+        `;
+
+        weekLabel.textContent =
+            `Week ${week}`;
+
+        matchupHeader.append(
+            matchupLabel,
+            weekLabel
+        );
+
+        card.appendChild(matchupHeader);
+
+        const teamsRow =
+            document.createElement("div");
+
+        teamsRow.style.cssText = `
+            display:grid;
+            grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+            align-items:center;
+            gap:12px;
+        `;
+
+        const createTeamBlock =
+            (
+                name,
+                score,
+                record,
+                projection,
+                isFavorite
+            ) => {
+
+                const block =
+                    document.createElement("div");
+
+                block.style.cssText = `
+                    min-width:0;
+                    padding:12px;
+                    border:1px solid ${
+                        isFavorite
+                            ? "rgba(250,204,21,.28)"
+                            : "rgba(148,163,184,.14)"
+                    };
+                    border-radius:12px;
+                    background:${
+                        isFavorite
+                            ? "rgba(250,204,21,.06)"
+                            : "rgba(2,9,20,.28)"
+                    };
+                    text-align:${
+                        name === matchup.nameA
+                            ? "left"
+                            : "right"
+                    };
+                `;
+
+                const initials =
+                    document.createElement("div");
+
+                initials.style.cssText = `
+                    display:inline-flex;
+                    width:34px;
+                    height:34px;
+                    align-items:center;
+                    justify-content:center;
+                    margin-bottom:8px;
+                    border-radius:50%;
+                    color:#e2e8f0;
+                    background:${
+                        isFavorite
+                            ? "rgba(250,204,21,.18)"
+                            : "rgba(59,130,246,.16)"
+                    };
+                    border:1px solid ${
+                        isFavorite
+                            ? "rgba(250,204,21,.3)"
+                            : "rgba(59,130,246,.22)"
+                    };
+                    font-size:.65rem;
+                    font-weight:900;
+                `;
+
+                initials.textContent =
+                    getInitials(name);
+
+                const teamName =
+                    document.createElement("div");
+
+                teamName.style.cssText = `
+                    color:#fff;
+                    font-size:.82rem;
+                    font-weight:900;
+                    line-height:1.2;
+                    overflow-wrap:anywhere;
+                `;
+
+                teamName.textContent =
+                    name;
+
+                const recordEl =
+                    document.createElement("div");
+
+                recordEl.style.cssText = `
+                    margin-top:4px;
+                    color:#94a3b8;
+                    font-size:.62rem;
+                    font-weight:700;
+                `;
+
+                recordEl.textContent =
+                    record;
+
+                const scoreEl =
+                    document.createElement("div");
+
+                scoreEl.style.cssText = `
+                    margin-top:8px;
+                    color:${
+                        isFavorite
+                            ? "#facc15"
+                            : "#e2e8f0"
+                    };
+                    font-size:1.5rem;
+                    line-height:1;
+                    font-weight:900;
+                    font-variant-numeric:tabular-nums;
+                `;
+
+                scoreEl.textContent =
+                    score;
+
+                const projectionEl =
+                    document.createElement("div");
+
+                projectionEl.style.cssText = `
+                    margin-top:7px;
+                    color:#64748b;
+                    font-size:.58rem;
+                    font-weight:800;
+                    letter-spacing:.3px;
+                `;
+
+                projectionEl.textContent =
+                    `Proj. ${projection.toFixed(1)}`;
+
+                block.append(
+                    initials,
+                    teamName,
+                    recordEl,
+                    scoreEl,
+                    projectionEl
+                );
+
+                return block;
+            };
+
+        const versus =
+            document.createElement("div");
+
+        versus.style.cssText = `
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            min-width:44px;
+        `;
+
+        const versusText =
+            document.createElement("div");
+
+        versusText.style.cssText = `
+            color:#64748b;
+            font-size:.65rem;
+            font-weight:900;
+            letter-spacing:.08em;
+        `;
+
+        versusText.textContent = "VS";
+
+        versus.appendChild(versusText);
+
+        teamsRow.append(
+            createTeamBlock(
+                matchup.nameA,
+                matchup.currentScoreA,
+                matchup.recordTextA,
+                matchup.projectedA,
+                matchup.projectedA >= matchup.projectedB
+            ),
+            versus,
+            createTeamBlock(
+                matchup.nameB,
+                matchup.currentScoreB,
+                matchup.recordTextB,
+                matchup.projectedB,
+                matchup.projectedB >= matchup.projectedA
+            )
+        );
+
+        card.appendChild(teamsRow);
+
+        const explanation =
+            document.createElement("div");
+
+        explanation.className =
+            "tcwr-scoreboard-explanation";
+
+        explanation.style.cssText = `
+            margin-top:14px;
+            padding:12px 13px;
+            border:1px solid rgba(148,163,184,.12);
             border-radius:10px;
-            box-shadow:0 8px 20px rgba(0,0,0,.25);
+            background:rgba(2,9,20,.28);
         `;
 
-        rivalryCard.innerHTML = `
-            <div class="tcwr-rivalry-layout">
-                <div class="tcwr-rivalry-heading">
-                    <div class="tcwr-rivalry-title">🛡️ Rivalry of the Week</div>
-                </div>
+        const explanationRow =
+            document.createElement("div");
 
-                <div class="tcwr-rivalry-matchup">
-                    <div class="tcwr-rivalry-manager">
-                        <div class="tcwr-rivalry-avatar">${getInitials(rivalryNameA)}</div>
-                        <div class="tcwr-rivalry-name">@${rivalryNameA}</div>
-                        <div class="tcwr-rivalry-score">${rivalryPointsA.toFixed(1)}</div>
-                    </div>
-
-                    <div class="tcwr-rivalry-swords" style="color:#f59e0b; font-size:1rem; font-weight:900;">⚔️</div>
-
-                    <div class="tcwr-rivalry-manager right">
-                        <div class="tcwr-rivalry-name" style="text-align:right;">@${rivalryNameB}</div>
-                        <div class="tcwr-rivalry-score">${rivalryPointsB.toFixed(1)}</div>
-                        <div class="tcwr-rivalry-avatar">${getInitials(rivalryNameB)}</div>
-                    </div>
-                </div>
-
-                <div class="tcwr-rivalry-details">
-                    <div class="tcwr-rivalry-meeting">${getOrdinal(upcomingMeetingNumber)} All-Time Meeting</div>
-                    <div class="tcwr-rivalry-series">${seriesText}</div>
-                </div>
-            </div>
+        explanationRow.style.cssText = `
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            color:#94a3b8;
+            font-size:.68rem;
+            font-weight:700;
+            line-height:1.4;
         `;
 
-        container.appendChild(rivalryCard);
-    }
-}
+        const predictionText =
+            document.createElement("div");
 
-/* =========================================================
-   AUTOMATED SIDE BULLETIN
+        predictionText.style.cssText = `
+            min-width:0;
+        `;
 
-   PACIFIC TIME SCHEDULE:
+        predictionText.innerHTML = `
+            <strong style="color:#facc15;">
+                Prediction:
+            </strong>
+            ${escapeStandingsHtml(matchup.favorite)}
+            by
+            ${matchup.margin.toFixed(1)}
+            points
+        `;
 
-   Thursday 5:00 PM - Tuesday 12:00 AM:
-   Live blowout watch.
+        const confidenceText =
+            document.createElement("div");
 
-   Tuesday 12:00 AM - Thursday 5:00 PM:
-   Awards from the latest completed week.
+        confidenceText.style.cssText = `
+            flex:0 0 auto;
+            color:#cbd5e1;
+            white-space:nowrap;
+        `;
 
-   Before the season:
-   Displays a preseason waiting message.
-   ========================================================= */
+        confidenceText.textContent =
+            `${Math.round(matchup.confidence)}% confidence`;
 
-const BULLETIN_LIVE_START_HOUR_PT = 17; // Thursday 5:00 PM Pacific
+        explanationRow.append(
+            predictionText,
+            confidenceText
+        );
 
-let selectedAwardsWeek = 1;
-let latestCompletedAwardsWeek = 0;
-let bulletinMode = "preseason";
-let cachedPlayersById = null;
-let cachedLeagueSettings = null;
-let latestLiveBulletinPayload = null;
-let bulletinRequestToken = 0;
+        explanation.appendChild(
+            explanationRow
+        );
 
+        card.appendChild(explanation);
 
-/* =========================================================
-   PACIFIC TIME HELPERS
-   ========================================================= */
+        const probabilityGrid =
+            document.createElement("div");
 
-function getPacificClockParts(date = new Date()) {
-    const formatter = new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/Los_Angeles",
-        weekday: "short",
-        hour: "2-digit",
-        hour12: false
+        probabilityGrid.style.cssText = `
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:8px;
+            margin-top:10px;
+        `;
+
+        const createProbabilityBox =
+            (
+                label,
+                value,
+                accent
+            ) => {
+
+                const box =
+                    document.createElement("div");
+
+                box.style.cssText = `
+                    min-width:0;
+                    padding:10px;
+                    border:1px solid ${accent.border};
+                    border-radius:9px;
+                    background:${accent.background};
+                    text-align:center;
+                `;
+
+                const labelEl =
+                    document.createElement("div");
+
+                labelEl.style.cssText = `
+                    color:${accent.label};
+                    font-size:.58rem;
+                    font-weight:900;
+                    letter-spacing:.7px;
+                    text-transform:uppercase;
+                `;
+
+                labelEl.textContent =
+                    label;
+
+                const valueEl =
+                    document.createElement("div");
+
+                valueEl.style.cssText = `
+                    margin-top:4px;
+                    color:#fff;
+                    font-size:.9rem;
+                    font-weight:900;
+                `;
+
+                valueEl.textContent =
+                    `${Math.round(value * 100)}%`;
+
+                box.append(
+                    labelEl,
+                    valueEl
+                );
+
+                return box;
+            };
+
+        probabilityGrid.append(
+            createProbabilityBox(
+                matchup.favorite,
+                matchup.favoriteWinChance,
+                {
+                    border:"rgba(250,204,21,.22)",
+                    background:"rgba(250,204,21,.05)",
+                    label:"#facc15"
+                }
+            ),
+            createProbabilityBox(
+                matchup.underdog,
+                matchup.underdogWinChance,
+                {
+                    border:"rgba(59,130,246,.18)",
+                    background:"rgba(59,130,246,.04)",
+                    label:"#60a5fa"
+                }
+            )
+        );
+
+        card.appendChild(
+            probabilityGrid
+        );
+
+        const infoRow =
+            document.createElement("div");
+
+        infoRow.style.cssText = `
+            display:flex;
+            justify-content:space-between;
+            gap:8px;
+            flex-wrap:wrap;
+            margin-top:12px;
+            color:#64748b;
+            font-size:.58rem;
+            font-weight:700;
+            line-height:1.35;
+        `;
+
+        const totalText =
+            document.createElement("span");
+
+        totalText.textContent =
+            `Projected total: ${matchup.totalProjected.toFixed(1)}`;
+
+        const marginText =
+            document.createElement("span");
+
+        marginText.textContent =
+            `Projected margin: ${formatSignedNumber(matchup.projectedMargin)}`;
+
+        infoRow.append(
+            totalText,
+            marginText
+        );
+
+        card.appendChild(infoRow);
+
+        container.appendChild(card);
     });
 
-    const parts = Object.fromEntries(
-        formatter
-            .formatToParts(date)
-            .map(part => [part.type, part.value])
-    );
-
-    return {
-        weekday: parts.weekday,
-        hour: Number(parts.hour) || 0
-    };
-}
-
-
-/* =========================================================
-   BULLETIN MODE HELPERS
-   ========================================================= */
-
-function shouldShowLiveLeagueWatch(date = new Date()) {
-    const { weekday, hour } = getPacificClockParts(date);
-
-    /*
-        Live League Watch runs from Thursday at 5:00 PM Pacific
-        through Monday night.
-    */
-    if (["Fri", "Sat", "Sun", "Mon"].includes(weekday)) {
-        return true;
-    }
-
-    return (
-        weekday === "Thu" &&
-        hour >= BULLETIN_LIVE_START_HOUR_PT
-    );
-}
-
-function getAnnualNflSeasonStartDate(year) {
-    /* September 3 at 12:00 AM Pacific. The site uses the date as the
-       annual transition point; the live NFL schedule continues to come
-       from Sleeper once the regular-season screen is active. */
-    return new Date(`${year}-09-03T00:00:00-07:00`);
-}
-
-function hasNflSeasonStarted(date = new Date()) {
-    const year = date.getFullYear();
-    return date.getTime() >= getAnnualNflSeasonStartDate(year).getTime();
-}
-
-async function getLatestCompletedWeek(displayWeek) {
-    const week = Math.max(
-        SCOREBOARD_MIN_WEEK,
-        Math.min(
-            Number(displayWeek) || SCOREBOARD_MIN_WEEK,
-            SCOREBOARD_MAX_WEEK
-        )
-    );
-
-    /*
-        The key distinction is timing:
-
-        • Thursday 5 PM through Monday = the current fantasy week is live,
-          so the latest completed week is normally the previous week.
-
-        • Tuesday/Wednesday = the most recent fantasy week has finished,
-          so it may already be the latest completed week.
-
-        Sleeper can advance display_week before the first game of the new
-        week has scored, so we verify the candidate week with its actual
-        matchup data. If it has no scoring yet, we walk backward until we
-        find the latest week with official points.
-    */
-    let candidateWeek = shouldShowLiveLeagueWatch(new Date())
-        ? week - 1
-        : week;
-
-    candidateWeek = Math.min(
-        candidateWeek,
-        SCOREBOARD_MAX_WEEK
-    );
-
-    if (candidateWeek < SCOREBOARD_MIN_WEEK) {
-        return 0;
-    }
-
-    for (
-        let checkWeek = candidateWeek;
-        checkWeek >= SCOREBOARD_MIN_WEEK;
-        checkWeek--
+    if (
+        Number.isFinite(sleeperDisplayWeek) &&
+        sleeperDisplayWeek > 0 &&
+        week < sleeperDisplayWeek
     ) {
-        try {
-            const matchups = await fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/matchups/${checkWeek}?_=${Date.now()}`
-            );
+        const historicalNote =
+            document.createElement("div");
 
-            if (matchupWeekHasScoring(matchups)) {
-                return checkWeek;
-            }
-        } catch (error) {
-            console.warn(
-                `Unable to verify completed scoring for Week ${checkWeek}:`,
-                error
-            );
-        }
+        historicalNote.style.cssText = `
+            margin-top:4px;
+            padding:10px 12px;
+            color:#64748b;
+            font-size:.58rem;
+            font-weight:700;
+            line-height:1.4;
+            text-align:center;
+        `;
+
+        historicalNote.textContent =
+            `Viewing completed Week ${week}. Current Sleeper week: ${sleeperDisplayWeek}.`;
+
+        container.appendChild(
+            historicalNote
+        );
     }
 
-    return 0;
-}
-
-function matchupWeekHasScoring(matchups) {
-    if (!Array.isArray(matchups) || matchups.length === 0) {
-        return false;
-    }
-
-    return matchups.some(matchup => {
-        const points = Number(matchup?.points);
-
-        return Number.isFinite(points) && points !== 0;
-    });
+    startScoreboardRefreshTimer();
 }
 
 
 /* =========================================================
-   PRESEASON / WAITING DISPLAY
+   SEASONAL CENTER SCREEN
    ========================================================= */
 
-function renderAwardsWaitingMessage({
-    title = "🏆 WEEKLY AWARDS",
-    main = "Weekly awards will begin after Week 1 is completed.",
-    sub = "Awards will appear automatically once official scores are available."
-} = {}) {
-    ensureLeagueBulletinShell();
-
-    bulletinMode = "preseason";
-
-    const target = document.getElementById(
-        "automated-bulletin-content"
-    );
-
-    if (!target) return;
-
-    target.className = "";
-
-    target.innerHTML = `
-        <div class="tcwr-news-header">
-            ${escapeBulletinHtml(title)}
-        </div>
-
-        ${bulletinStoryHtml({
-            className: "gold",
-            title: "⏳ Awards Pending",
-            main,
-            sub
-        })}
-    `;
+function getSeasonalDateReference() {
+    return new Date();
 }
 
-
-/* =========================================================
-   BULLETIN STORY TEMPLATE
-   ========================================================= */
-
-function bulletinStoryHtml({
-    className,
-    title,
-    main,
-    sub = ""
-}) {
-    return `
-        <article class="tcwr-story ${className}">
-            <div class="tcwr-story-title">
-                ${escapeBulletinHtml(title)}
-            </div>
-
-            <div class="tcwr-story-main">
-                ${escapeBulletinHtml(main)}
-            </div>
-
-            ${
-                sub
-                    ? `
-                        <div class="tcwr-story-sub">
-                            ${escapeBulletinHtml(sub)}
-                        </div>
-                    `
-                    : ""
-            }
-        </article>
-    `;
-}
-
-
-/* =========================================================
-   SCOREBOARD-TO-BULLETIN UPDATE
-   ========================================================= */
-
-async function updateAutomatedBulletinFromScoreboard(
-    analyzedMatchups,
-    week,
-    sleeperDisplayWeek
+function getRecurringDate(
+    year,
+    month,
+    day
 ) {
-    latestLiveBulletinPayload = {
-        analyzedMatchups,
-        week,
-        sleeperDisplayWeek
-    };
+    return new Date(
+        year,
+        month - 1,
+        day,
+        0,
+        0,
+        0,
+        0
+    );
+}
 
-    if (!hasNflSeasonStarted()) {
+function getSeasonalCenterMode() {
+    const now =
+        getSeasonalDateReference();
+
+    const year =
+        now.getFullYear();
+
+    const recapLiveDate =
+        getRecurringDate(
+            year,
+            CHAMPION_RECAP_LIVE_MONTH,
+            CHAMPION_RECAP_LIVE_DAY
+        );
+
+    const offseasonDate =
+        getRecurringDate(
+            year,
+            OFFSEASON_COUNTDOWN_MONTH,
+            OFFSEASON_COUNTDOWN_DAY
+        );
+
+    const nflStartDate =
+        getRecurringDate(
+            year,
+            NFL_SEASON_START_MONTH,
+            NFL_SEASON_START_DAY
+        );
+
+    /*
+        January 1 through March 11:
+        champion recap has already finished,
+        but the new offseason countdown has not begun.
+    */
+
+    if (
+        now >= offseasonDate &&
+        now < nflStartDate
+    ) {
+        return "offseason-countdown";
+    }
+
+    /*
+        September 3 through December 27:
+        normal weekly scoreboard.
+    */
+
+    if (
+        now >= nflStartDate &&
+        now < recapLiveDate
+    ) {
+        return "scoreboard";
+    }
+
+    /*
+        December 28 through December 31:
+        champion recap TV experience.
+    */
+
+    if (
+        now >= recapLiveDate &&
+        now < getRecurringDate(
+            year + 1,
+            1,
+            1
+        )
+    ) {
+        return "champion-recap";
+    }
+
+    /*
+        January 1 through March 11:
+        show the champion coming-soon state.
+    */
+
+    return "champion-coming-soon";
+}
+
+function renderChampionRecapComingSoon() {
+    clearScoreboardRefreshTimer();
+
+    const container =
+        document.getElementById(
+            "scoreboard-container"
+        );
+
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="tcwr-recap-coming-card">
+
+            <div class="tcwr-recap-coming-kicker">
+                TCWR DY-NASTY
+            </div>
+
+            <h2 class="tcwr-recap-coming-title">
+                CHAMPION RECAP
+            </h2>
+
+            <div class="tcwr-recap-coming-date">
+                COMING DECEMBER 28
+            </div>
+
+            <p class="tcwr-recap-coming-copy">
+                The season is complete.
+                The championship story is coming soon.
+                Check back December 28 for the annual TCWR
+                Champion Recap.
+            </p>
+
+        </div>
+    `;
+}
+
+function renderChampionRecapTv() {
+    clearScoreboardRefreshTimer();
+
+    const container =
+        document.getElementById(
+            "scoreboard-container"
+        );
+
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="tcwr-recap-tv-shell">
+
+            <img
+                class="tcwr-recap-tv-image"
+                src="TCWRTV.png"
+                alt="TCWR TV"
+            >
+
+            <div class="tcwr-recap-tv-screen">
+
+                <iframe
+                    src="${CHAMPION_RECAP_PLAYLIST_URL}&autoplay=1&mute=1&loop=1"
+                    title="TCWR Champion Recap"
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                    allowfullscreen
+                ></iframe>
+
+            </div>
+
+            <a
+                class="tcwr-recap-tv-fallback-link"
+                href="${CHAMPION_RECAP_PLAYLIST_URL}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Open Champion Recap
+            </a>
+
+        </div>
+    `;
+}
+
+function createOffseasonCountdown() {
+    clearScoreboardRefreshTimer();
+
+    const container =
+        document.getElementById(
+            "scoreboard-container"
+        );
+
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="tcwr-offseason-card">
+
+            <div class="tcwr-offseason-kicker">
+                THE OFFSEASON IS HERE
+            </div>
+
+            <h2 class="tcwr-offseason-title">
+                COUNTDOWN TO KICKOFF
+            </h2>
+
+            <div class="tcwr-offseason-target">
+                SEPTEMBER 3
+            </div>
+
+            <div class="tcwr-offseason-grid">
+
+                <div class="tcwr-offseason-unit">
+                    <div
+                        class="tcwr-offseason-number"
+                        id="tcwr-countdown-days"
+                    >
+                        0
+                    </div>
+                    <div class="tcwr-offseason-label">
+                        Days
+                    </div>
+                </div>
+
+                <div class="tcwr-offseason-unit">
+                    <div
+                        class="tcwr-offseason-number"
+                        id="tcwr-countdown-hours"
+                    >
+                        0
+                    </div>
+                    <div class="tcwr-offseason-label">
+                        Hours
+                    </div>
+                </div>
+
+                <div class="tcwr-offseason-unit">
+                    <div
+                        class="tcwr-offseason-number"
+                        id="tcwr-countdown-minutes"
+                    >
+                        0
+                    </div>
+                    <div class="tcwr-offseason-label">
+                        Minutes
+                    </div>
+                </div>
+
+                <div class="tcwr-offseason-unit">
+                    <div
+                        class="tcwr-offseason-number"
+                        id="tcwr-countdown-seconds"
+                    >
+                        0
+                    </div>
+                    <div class="tcwr-offseason-label">
+                        Seconds
+                    </div>
+                </div>
+
+            </div>
+
+            <p class="tcwr-offseason-note">
+                TCWR DY-NASTY — THE COUNTDOWN NEVER STOPS
+            </p>
+
+        </div>
+    `;
+}
+
+function getNextNflStartDate() {
+    const now =
+        getSeasonalDateReference();
+
+    let year =
+        now.getFullYear();
+
+    let target =
+        getRecurringDate(
+            year,
+            NFL_SEASON_START_MONTH,
+            NFL_SEASON_START_DAY
+        );
+
+    if (now >= target) {
+        target =
+            getRecurringDate(
+                year + 1,
+                NFL_SEASON_START_MONTH,
+                NFL_SEASON_START_DAY
+            );
+    }
+
+    return target;
+}
+
+function updateKickoffCountdown() {
+    const target =
+        getNextNflStartDate();
+
+    const now =
+        getSeasonalDateReference();
+
+    let difference =
+        target.getTime() -
+        now.getTime();
+
+    if (difference < 0) {
+        difference = 0;
+    }
+
+    const totalSeconds =
+        Math.floor(
+            difference / 1000
+        );
+
+    const days =
+        Math.floor(
+            totalSeconds / 86400
+        );
+
+    const hours =
+        Math.floor(
+            (totalSeconds % 86400) / 3600
+        );
+
+    const minutes =
+        Math.floor(
+            (totalSeconds % 3600) / 60
+        );
+
+    const seconds =
+        totalSeconds % 60;
+
+    const daysEl =
+        document.getElementById(
+            "tcwr-countdown-days"
+        );
+
+    const hoursEl =
+        document.getElementById(
+            "tcwr-countdown-hours"
+        );
+
+    const minutesEl =
+        document.getElementById(
+            "tcwr-countdown-minutes"
+        );
+
+    const secondsEl =
+        document.getElementById(
+            "tcwr-countdown-seconds"
+        );
+
+    if (daysEl)
+        daysEl.textContent =
+            String(days);
+
+    if (hoursEl)
+        hoursEl.textContent =
+            String(hours).padStart(2, "0");
+
+    if (minutesEl)
+        minutesEl.textContent =
+            String(minutes).padStart(2, "0");
+
+    if (secondsEl)
+        secondsEl.textContent =
+            String(seconds).padStart(2, "0");
+}
+
+async function showScoreboardAfterKickoff() {
+    const currentWeek =
+        await getSleeperCurrentWeek();
+
+    latestVisibleScoreboardWeek =
+        currentWeek;
+
+    selectedScoreboardWeek =
+        clampScoreboardWeek(
+            selectedScoreboardWeek,
+            currentWeek
+        );
+
+    await fetchScoreboard(
+        selectedScoreboardWeek
+    );
+}
+
+async function initializeCountdownOrScoreboard() {
+    const mode =
+        getSeasonalCenterMode();
+
+    if (
+        mode === "champion-coming-soon"
+    ) {
+        renderChampionRecapComingSoon();
         return;
     }
 
-    const showLive = shouldShowLiveLeagueWatch();
+    if (
+        mode === "champion-recap"
+    ) {
+        renderChampionRecapTv();
+        return;
+    }
 
-    /*
-        Keep the bulletin synchronized with the Pacific-time schedule
-        while the page remains open. The scoreboard refreshes every
-        minute, so this also catches the Tuesday 12:00 AM and Thursday
-        5:00 PM transitions without requiring a page reload.
-    */
-    if (showLive) {
-        if (bulletinMode !== "live") {
-            loadLiveBulletinWeek(sleeperDisplayWeek || week);
+    if (
+        mode === "offseason-countdown"
+    ) {
+        createOffseasonCountdown();
+        updateKickoffCountdown();
+
+        nflKickoffCountdownTimer =
+            setInterval(
+                updateKickoffCountdown,
+                1000
+            );
+
+        return;
+    }
+
+    await showScoreboardAfterKickoff();
+}
+
+                matchups,
+            users,
+            rosters,
+            stats
+        ] = await Promise.all([
+            fetchJson(
+                `https://api.sleeper.app/v1/league/` +
+                `${leagueId}/matchups/${week}?_=${Date.now()}`
+            ),
+            fetchJson(
+                `https://api.sleeper.app/v1/league/` +
+                `${leagueId}/users?_=${Date.now()}`
+            ),
+            fetchJson(
+                `https://api.sleeper.app/v1/league/` +
+                `${leagueId}/rosters?_=${Date.now()}`
+            ),
+            loadSpreadsheetStats()
+        ]);
+
+        if (requestToken !== bulletinRequestToken) {
+            return;
+        }
+
+        const userMap = Object.fromEntries(
+            users.map(user => [
+                user.user_id,
+                user.display_name || "Unknown"
+            ])
+        );
+
+        const rosterToNameMap = Object.fromEntries(
+            rosters.map(roster => [
+                roster.roster_id,
+                userMap[roster.owner_id] || "Unknown"
+            ])
+        );
+
+        const groups = {};
+
+        matchups.forEach(matchup => {
+            if (
+                matchup.matchup_id === null ||
+                matchup.matchup_id === undefined
+            ) {
+                return;
+            }
+
+            if (!groups[matchup.matchup_id]) {
+                groups[matchup.matchup_id] = [];
+            }
+
+            groups[matchup.matchup_id].push(matchup);
+        });
+
+        const activeMatchups = [];
+
+        Object.keys(groups).forEach(matchId => {
+            const pair = groups[matchId];
+
+            if (pair.length < 2) return;
+
+            let nameA =
+                rosterToNameMap[pair[0].roster_id] ||
+                `Team ${pair[0].roster_id}`;
+
+            let nameB =
+                rosterToNameMap[pair[1].roster_id] ||
+                `Team ${pair[1].roster_id}`;
+
+            nameA =
+                nameA.replace("@", "").trim();
+
+            nameB =
+                nameB.replace("@", "").trim();
+
+            const pointsA =
+                Number.parseFloat(pair[0].points) || 0;
+
+            const pointsB =
+                Number.parseFloat(pair[1].points) || 0;
+
+            activeMatchups.push({
+                matchId,
+                nameA,
+                nameB,
+                pointsA,
+                pointsB,
+                gamesStarted:
+                    pointsA !== 0 ||
+                    pointsB !== 0
+            });
+        });
+
+        if (
+            activeMatchups.length === 0
+        ) {
+            renderLiveLeagueWatch(
+                [],
+                week
+            );
+
             return;
         }
 
         renderLiveLeagueWatch(
-            analyzedMatchups,
+            activeMatchups,
             week
         );
-        return;
-    }
 
-    if (bulletinMode === "awards") {
-        return;
-    }
+    } catch (error) {
 
-    const latestWeek = await getLatestCompletedWeek(
-        sleeperDisplayWeek || week
-    );
-
-    if (latestWeek < SCOREBOARD_MIN_WEEK) {
-        renderAwardsWaitingMessage();
-        return;
-    }
-
-    selectedAwardsWeek = latestWeek;
-
-    loadWeeklyAwards(
-        selectedAwardsWeek,
-        sleeperDisplayWeek || week
-    );
-}
-
-
-/* =========================================================
-   LIVE LEAGUE WATCH
-   ========================================================= */
-
-function renderLiveLeagueWatch(
-    analyzedMatchups,
-    week
-) {
-    ensureLeagueBulletinShell();
-
-    bulletinMode = "live";
-
-    const target = document.getElementById(
-        "automated-bulletin-content"
-    );
-
-    if (!target) return;
-
-    const activeMatchups = analyzedMatchups.filter(
-        matchup => matchup.gamesStarted
-    );
-
-    const matchupMargins = activeMatchups
-        .map(matchup => ({
-            ...matchup,
-            liveMargin: Math.abs(
-                matchup.pointsA -
-                matchup.pointsB
-            )
-        }));
-
-    const blowout = [...matchupMargins]
-        .sort(
-            (matchupA, matchupB) =>
-                matchupB.liveMargin -
-                matchupA.liveMargin
-        )[0];
-
-    const nailBiter = [...matchupMargins]
-        .sort(
-            (matchupA, matchupB) =>
-                matchupA.liveMargin -
-                matchupB.liveMargin
-        )[0];
-
-    let stories = "";
-
-    if (blowout) {
-        const leader =
-            blowout.pointsA >= blowout.pointsB
-                ? blowout.nameA
-                : blowout.nameB;
-
-        const trailing =
-            leader === blowout.nameA
-                ? blowout.nameB
-                : blowout.nameA;
-
-        stories += bulletinStoryHtml({
-            className: "orange",
-            title: "💥 Blowout Watch",
-
-            main:
-                `@${leader} leads ` +
-                `@${trailing} by ` +
-                `${blowout.liveMargin.toFixed(1)}`,
-
-            sub:
-                `${blowout.pointsA.toFixed(1)}–` +
-                `${blowout.pointsB.toFixed(1)}`
-        });
-
-        if (nailBiter) {
-            const nailLeader =
-                nailBiter.pointsA >= nailBiter.pointsB
-                    ? nailBiter.nameA
-                    : nailBiter.nameB;
-
-            const nailTrailer =
-                nailLeader === nailBiter.nameA
-                    ? nailBiter.nameB
-                    : nailBiter.nameA;
-
-            stories += bulletinStoryHtml({
-                className: "blue",
-                title: "⚔️ Nail Biter",
-
-                main:
-                    `@${nailLeader} leads ` +
-                    `@${nailTrailer} by ` +
-                    `${nailBiter.liveMargin.toFixed(1)}`,
-
-                sub:
-                    `${nailBiter.pointsA.toFixed(1)}–` +
-                    `${nailBiter.pointsB.toFixed(1)}`
-            });
+        if (requestToken !== bulletinRequestToken) {
+            return;
         }
-    } else {
-        stories += bulletinStoryHtml({
-            className: "orange",
-            title: "💥 Blowout Watch",
-            main: "Waiting for live scoring.",
-            sub: "The largest active scoring margin will appear here."
-        });
 
-        stories += bulletinStoryHtml({
-            className: "blue",
-            title: "⚔️ Nail Biter",
-            main: "Waiting for live scoring.",
-            sub: "The closest active matchup will appear here."
-        });
+        console.error(
+            "Live bulletin error:",
+            error
+        );
+
+        const target =
+            document.getElementById(
+                "automated-bulletin-content"
+            );
+
+        if (target) {
+            target.className =
+                "tcwr-empty";
+
+            target.textContent =
+                "Unable to load live league coverage.";
+        }
     }
-
-    target.className = "";
-
-    target.innerHTML = `
-        <div class="tcwr-news-header">
-            LIVE LEAGUE WATCH • WEEK ${week}
-        </div>
-
-        ${stories}
-    `;
 }
 
 
 /* =========================================================
-   INITIALIZE AUTOMATED BULLETIN
+   WEEKLY AWARDS
    ========================================================= */
 
-async function initializeLeagueBulletin() {
-    ensureLeagueBulletinShell();
-    loadBulletin();
-
-    if (await hasFantasySeasonEnded()) {
-        await renderEndOfSeasonState();
-        return;
-    }
-
-    /*
-        Do not load live watches or weekly awards
-        before the official NFL kickoff date.
-    */
-    if (!hasNflSeasonStarted()) {
-        renderAwardsWaitingMessage({
-            main: "The season has not started yet.",
-            sub: "Weekly awards will begin after Week 1 is completed."
-        });
-
-        return;
-    }
-
-    const displayWeek =
-        await getSleeperCurrentWeek();
-
-    latestCompletedAwardsWeek =
-        await getLatestCompletedWeek(displayWeek);
-
-    /*
-        During the live portion of the week, show
-        the live league watch—even during Week 1.
-    */
-    if (shouldShowLiveLeagueWatch()) {
-        await loadLiveBulletinWeek(displayWeek);
-        return;
-    }
-
-    /*
-        If Sleeper is still displaying Week 1,
-        there is no completed week available.
-    */
-    if (latestCompletedAwardsWeek < SCOREBOARD_MIN_WEEK) {
-        renderAwardsWaitingMessage();
-        return;
-    }
-
-    selectedAwardsWeek =
-        latestCompletedAwardsWeek;
-
-    await loadWeeklyAwards(
-        selectedAwardsWeek,
-        displayWeek
-    );
-}
-
-
-/* =========================================================
-   LOAD LIVE BULLETIN
-   ========================================================= */
-
-async function loadLiveBulletinWeek(week) {
-    if (!hasNflSeasonStarted()) {
-        renderAwardsWaitingMessage({
-            main: "The season has not started yet.",
-            sub: "Live league coverage begins when Week 1 starts."
-        });
-
-        return;
-    }
-
+async function loadWeeklyAwards(
+    week,
+    sleeperDisplayWeek
+) {
     const requestToken =
         ++bulletinRequestToken;
 
-    const target = document.getElementById(
-        "automated-bulletin-content"
-    );
+    bulletinMode =
+        "awards";
+
+    selectedAwardsWeek =
+        week;
+
+    const target =
+        document.getElementById(
+            "automated-bulletin-content"
+        );
 
     if (target) {
-        target.className = "tcwr-empty";
+        target.className =
+            "tcwr-empty";
+
         target.textContent =
-            `Loading Week ${week} live watch...`;
+            `Loading Week ${week} awards...`;
     }
 
     try {
+
         const [
             matchups,
             users,
@@ -3500,20 +3204,17 @@ async function loadLiveBulletinWeek(week) {
         ] = await Promise.all([
             fetchJson(
                 `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/matchups/${week}`
+                `${leagueId}/matchups/${week}?_=${Date.now()}`
             ),
-
             fetchJson(
                 `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/users`
+                `${leagueId}/users?_=${Date.now()}`
             ),
-
             fetchJson(
                 `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/rosters`
+                `${leagueId}/rosters?_=${Date.now()}`
             ),
-
-            fetchCsvRows(csvUrl)
+            loadSpreadsheetStats()
         ]);
 
         if (
@@ -3523,170 +3224,165 @@ async function loadLiveBulletinWeek(week) {
             return;
         }
 
-        const analyzed =
-            analyzeBulletinMatchups(
-                matchups,
-                users,
-                rosters,
-                stats
+        const userMap =
+            Object.fromEntries(
+                users.map(user => [
+                    user.user_id,
+                    user.display_name ||
+                    "Unknown"
+                ])
             );
 
-        renderLiveLeagueWatch(
-            analyzed,
-            week
-        );
-    } catch (error) {
-        console.error(
-            "Live bulletin error:",
-            error
-        );
+        const rosterToNameMap =
+            Object.fromEntries(
+                rosters.map(roster => [
+                    roster.roster_id,
+                    userMap[
+                        roster.owner_id
+                    ] || "Unknown"
+                ])
+            );
 
-        if (target) {
-            target.innerHTML = `
-                <div class="tcwr-empty">
-                    Unable to load live league watch.
-                </div>
-            `;
-        }
-    }
-}
+        const groups = {};
 
+        matchups.forEach(
+            matchup => {
 
-/* =========================================================
-   LOAD WEEKLY AWARDS
-   ========================================================= */
+                if (
+                    matchup.matchup_id ===
+                        null ||
+                    matchup.matchup_id ===
+                        undefined
+                ) {
+                    return;
+                }
 
-async function loadWeeklyAwards(
-    week,
-    displayWeek = null
-) {
-    ensureLeagueBulletinShell();
+                if (
+                    !groups[
+                        matchup.matchup_id
+                    ]
+                ) {
+                    groups[
+                        matchup.matchup_id
+                    ] = [];
+                }
 
-    /*
-        Extra safety check:
-        awards cannot load before kickoff.
-    */
-    if (!hasNflSeasonStarted()) {
-        renderAwardsWaitingMessage({
-            main: "The season has not started yet.",
-            sub: "Weekly awards will begin after Week 1 is completed."
-        });
-
-        return;
-    }
-
-    const currentDisplayWeek =
-        displayWeek ||
-        await getSleeperCurrentWeek();
-
-    latestCompletedAwardsWeek =
-        await getLatestCompletedWeek(
-            currentDisplayWeek
+                groups[
+                    matchup.matchup_id
+                ].push(matchup);
+            }
         );
 
-    /*
-        Sleeper Week 1 means there is no previous
-        completed week available for awards.
-    */
-    if (
-        latestCompletedAwardsWeek <
-        SCOREBOARD_MIN_WEEK
-    ) {
-        renderAwardsWaitingMessage();
-        return;
-    }
+        const weeklyMatchups = [];
 
-    const requestedWeek =
-        Number(week) ||
-        latestCompletedAwardsWeek;
+        Object.keys(groups).forEach(
+            matchId => {
 
-    /*
-        Do not allow someone to navigate beyond
-        the latest completed week.
-    */
-    selectedAwardsWeek = Math.max(
-        SCOREBOARD_MIN_WEEK,
-        Math.min(
-            requestedWeek,
-            latestCompletedAwardsWeek
-        )
-    );
+                const pair =
+                    groups[matchId];
 
-    bulletinMode = "awards";
+                if (
+                    pair.length < 2
+                ) {
+                    return;
+                }
 
-    const target = document.getElementById(
-        "automated-bulletin-content"
-    );
+                let nameA =
+                    rosterToNameMap[
+                        pair[0].roster_id
+                    ] ||
+                    `Team ${pair[0].roster_id}`;
 
-    if (!target) return;
+                let nameB =
+                    rosterToNameMap[
+                        pair[1].roster_id
+                    ] ||
+                    `Team ${pair[1].roster_id}`;
 
-    const requestToken =
-        ++bulletinRequestToken;
+                nameA =
+                    nameA
+                        .replace("@", "")
+                        .trim();
 
-    target.className = "tcwr-empty";
-    target.textContent =
-        `Loading Week ${selectedAwardsWeek} awards...`;
+                nameB =
+                    nameB
+                        .replace("@", "")
+                        .trim();
 
-    try {
-        const [
-            matchups,
-            users,
-            rosters,
-            stats,
-            league
-        ] = await Promise.all([
-            fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/matchups/` +
-                `${selectedAwardsWeek}`
-            ),
+                const pointsA =
+                    Number.parseFloat(
+                        pair[0].points
+                    ) || 0;
 
-            fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/users`
-            ),
+                const pointsB =
+                    Number.parseFloat(
+                        pair[1].points
+                    ) || 0;
 
-            fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/rosters`
-            ),
+                const statA =
+                    stats.find(
+                        stat =>
+                            stat.Manager
+                                ?.trim()
+                                .toLowerCase() ===
+                            (
+                                nameTranslator[
+                                    nameA
+                                ] ||
+                                nameA
+                            )
+                                .trim()
+                                .toLowerCase()
+                    );
 
-            fetchCsvRows(csvUrl),
+                const statB =
+                    stats.find(
+                        stat =>
+                            stat.Manager
+                                ?.trim()
+                                .toLowerCase() ===
+                            (
+                                nameTranslator[
+                                    nameB
+                                ] ||
+                                nameB
+                            )
+                                .trim()
+                                .toLowerCase()
+                    );
 
-            getLeagueSettings()
-        ]);
+                weeklyMatchups.push({
+                    matchId,
+                    nameA,
+                    nameB,
+                    pointsA,
+                    pointsB,
+                    statA,
+                    statB
+                });
+            }
+        );
 
         if (
-            requestToken !==
-            bulletinRequestToken
+            weeklyMatchups.length === 0
         ) {
-            return;
-        }
-
-        /*
-            Do not calculate fake zero-point awards.
-        */
-        if (!matchupWeekHasScoring(matchups)) {
             renderAwardsWaitingMessage({
                 main:
-                    `Week ${selectedAwardsWeek} ` +
-                    `does not have completed scoring yet.`,
-
+                    `No completed matchup data is available for Week ${week}.`,
                 sub:
-                    "Awards will appear automatically once official scores are available."
+                    "Awards will appear once official scoring is available."
             });
 
             return;
         }
 
-        const awards =
-            await calculateWeeklyAwards(
-                matchups,
-                users,
-                rosters,
-                stats,
-                league
-            );
+        renderWeeklyAwards(
+            weeklyMatchups,
+            week,
+            sleeperDisplayWeek
+        );
+
+    } catch (error) {
 
         if (
             requestToken !==
@@ -3695,810 +3391,1386 @@ async function loadWeeklyAwards(
             return;
         }
 
-        renderWeeklyAwards(
-            awards,
-            selectedAwardsWeek
-        );
-    } catch (error) {
         console.error(
             "Weekly awards error:",
             error
         );
 
-        target.innerHTML = `
-            <div class="tcwr-empty">
-                Unable to load weekly awards.
-            </div>
-        `;
-    }
-}
-function renderWeeklyAwards(awards, week) {
-    const target = document.getElementById("automated-bulletin-content");
-    if (!target) return;
+        const target =
+            document.getElementById(
+                "automated-bulletin-content"
+            );
 
-    const previousDisabled = week <= SCOREBOARD_MIN_WEEK;
-    const nextDisabled = week >= latestCompletedAwardsWeek;
-    const row = award => bulletinStoryHtml(award);
+        if (target) {
+            target.className =
+                "tcwr-empty";
 
-    target.className = "";
-    target.innerHTML = `
-        <div class="tcwr-news-header">🏆 WEEKLY AWARDS</div>
-        <div class="tcwr-award-nav">
-            <button id="awards-prev-week" type="button" ${previousDisabled ? "disabled" : ""} aria-label="Previous awards week">←</button>
-            <div class="tcwr-award-week">Week ${week}</div>
-            <button id="awards-next-week" type="button" ${nextDisabled ? "disabled" : ""} aria-label="Next awards week">→</button>
-        </div>
-        ${row({ className:"gold", title:"👑 Manager of the Week", main:`@${awards.managerOfWeek.name}`, sub:`${awards.managerOfWeek.points.toFixed(1)} pts` })}
-        ${row({ className:"gold", title:"🥈 1st Loser", main:`@${awards.firstLoser.name}`, sub:`${awards.firstLoser.points.toFixed(1)} pts` })}
-        ${row({ className:"gold", title:"🥉 2nd Loser", main:`@${awards.secondLoser.name}`, sub:`${awards.secondLoser.points.toFixed(1)} pts` })}
-        ${row({ className:"green", title:"🍀 Luckiest Win", main:`@${awards.luckiestWin.name} ${awards.luckiestWin.points.toFixed(1)} pts`, sub:awards.luckiestWin.note })}
-        ${row({ className:"purple", title:"🎯 Overachiever", main:awards.overachiever.main, sub:awards.overachiever.sub })}
-        ${row({ className:"blue", title:"🎯 Sharpshooter", main:awards.sharpshooter.main, sub:awards.sharpshooter.sub })}
-        ${row({ className:"orange", title:"⚔️ Rivalry Winner", main:awards.rivalryWinner.main, sub:awards.rivalryWinner.sub })}
-    `;
-
-    document.getElementById("awards-prev-week")?.addEventListener("click", () => {
-        if (selectedAwardsWeek > SCOREBOARD_MIN_WEEK) loadWeeklyAwards(selectedAwardsWeek - 1);
-    });
-    document.getElementById("awards-next-week")?.addEventListener("click", () => {
-        if (selectedAwardsWeek < latestCompletedAwardsWeek) loadWeeklyAwards(selectedAwardsWeek + 1);
-    });
-}
-
-async function calculateWeeklyAwards(matchupsRaw, users, rosters, stats, league) {
-    const userLookup = Object.fromEntries(users.map(user => [user.user_id, user.display_name || "Unknown"]));
-    const rosterNames = Object.fromEntries(rosters.map(roster => [roster.roster_id, (userLookup[roster.owner_id] || `Team ${roster.roster_id}`).replace("@", "").trim()]));
-    const entries = matchupsRaw.map(matchup => ({
-        raw: matchup,
-        rosterId: matchup.roster_id,
-        matchupId: matchup.matchup_id,
-        name: rosterNames[matchup.roster_id] || `Team ${matchup.roster_id}`,
-        points: Number(matchup.points) || 0,
-        projection: extractSleeperProjection(matchup)
-    }));
-
-    const sortedScores = [...entries].sort((a, b) => b.points - a.points);
-    const fallback = sortedScores[0] || { name:"Unavailable", points:0 };
-    const managerOfWeek = sortedScores[0] || fallback;
-    const firstLoser = sortedScores[1] || fallback;
-    const secondLoser = sortedScores[2] || fallback;
-
-    const grouped = {};
-    entries.forEach(entry => {
-        if (entry.matchupId == null) return;
-        (grouped[entry.matchupId] ||= []).push(entry);
-    });
-
-    const winners = Object.values(grouped)
-        .filter(pair => pair.length >= 2)
-        .map(pair => [...pair].sort((a, b) => b.points - a.points)[0])
-        .sort((a, b) => a.points - b.points);
-    const luckiestWin = winners[0] || fallback;
-    luckiestWin.note = "Lowest score among winning teams";
-
-    const historicalAverageFor = name => {
-        const translated = nameTranslator[name] || name;
-        const rows = stats.filter(row => String(row.Manager || "").trim().toLowerCase() === translated.toLowerCase());
-        const values = rows.map(row => Number(row.AvgPts)).filter(Number.isFinite);
-        return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
-    };
-
-    const overachieverCandidates = entries.map(entry => {
-        const baseline = entry.projection ?? historicalAverageFor(entry.name);
-        return { ...entry, baseline, over: baseline == null ? null : entry.points - baseline };
-    }).filter(entry => entry.over != null).sort((a, b) => b.over - a.over);
-    const over = overachieverCandidates[0];
-    const overachiever = over ? {
-        main: `@${over.name} • Projected ${over.baseline.toFixed(1)} • Scored ${over.points.toFixed(1)}`,
-        sub: `${over.over >= 0 ? "+" : ""}${over.over.toFixed(1)} points above projection`
-    } : { main:"Projection data unavailable", sub:"This award will populate when projection or historical-average data is available." };
-
-    const sharpshooter = await calculateSharpshooter(entries, league);
-    const rivalryWinner = calculateRivalryWinner(entries, grouped, stats);
-
-    return { managerOfWeek, firstLoser, secondLoser, luckiestWin, overachiever, sharpshooter, rivalryWinner };
-}
-
-function selectDesignatedRivalry(candidates) {
-    const eligible = (candidates || [])
-        .filter(matchup => {
-            const h2h = matchup?.rivalryH2H;
-            return h2h && Number(h2h.total) > 0;
-        })
-        .sort((a, b) =>
-            Number(b.rivalryH2H.total) - Number(a.rivalryH2H.total) ||
-            Number(a.rivalryCloseness) - Number(b.rivalryCloseness) ||
-            Number(b.combinedAverage) - Number(a.combinedAverage) ||
-            String(a.matchId).localeCompare(String(b.matchId))
-        );
-
-    return eligible[0] || null;
-}
-
-function calculateRivalryWinner(entries, grouped, stats) {
-    const candidates = [];
-
-    const historicalAverageFor = name => {
-        const translated = nameTranslator[name] || name;
-        const rows = stats.filter(row =>
-            String(row.Manager || "").trim().toLowerCase() === translated.trim().toLowerCase()
-        );
-        const values = rows
-            .map(row => Number(row.AvgPts))
-            .filter(Number.isFinite);
-        return values.length
-            ? values.reduce((sum, value) => sum + value, 0) / values.length
-            : 0;
-    };
-
-    Object.values(grouped).forEach(pair => {
-        if (pair.length < 2) return;
-
-        const [a, b] = pair;
-        const rowA = findBulletinStat(stats, a.name, b.name);
-        const rowB = findBulletinStat(stats, b.name, a.name);
-        const record = rowA?.H2H_Record || rowB?.H2H_Record;
-        const parsed = parseBulletinH2H(record);
-
-        if (parsed.total <= 0) return;
-
-        const avgA = Number(rowA?.AvgPts);
-        const avgB = Number(rowB?.AvgPts);
-        const safeAvgA = Number.isFinite(avgA) ? avgA : historicalAverageFor(a.name);
-        const safeAvgB = Number.isFinite(avgB) ? avgB : historicalAverageFor(b.name);
-
-        candidates.push({
-            matchId: a.matchupId,
-            nameA: a.name,
-            nameB: b.name,
-            pointsA: a.points,
-            pointsB: b.points,
-            avgA: safeAvgA,
-            avgB: safeAvgB,
-            rivalryH2H: parsed,
-            rivalryCloseness: Math.abs(parsed.wins - parsed.losses),
-            combinedAverage: safeAvgA + safeAvgB,
-            a,
-            b
-        });
-    });
-
-    const rivalry = selectDesignatedRivalry(candidates);
-
-    if (!rivalry) {
-        return {
-            main: "No designated rivalry was found",
-            sub: ""
-        };
-    }
-
-    if (rivalry.pointsA === rivalry.pointsB) {
-        return {
-            main: `@${rivalry.nameA} tied @${rivalry.nameB}`,
-            sub: `${rivalry.pointsA.toFixed(1)}–${rivalry.pointsB.toFixed(1)}`
-        };
-    }
-
-    const winner = rivalry.pointsA > rivalry.pointsB
-        ? rivalry.nameA
-        : rivalry.nameB;
-    const loser = rivalry.pointsA > rivalry.pointsB
-        ? rivalry.nameB
-        : rivalry.nameA;
-    const winnerPoints = Math.max(rivalry.pointsA, rivalry.pointsB);
-    const loserPoints = Math.min(rivalry.pointsA, rivalry.pointsB);
-
-    return {
-        main: `@${winner} defeated @${loser}`,
-        sub: `${winnerPoints.toFixed(1)}–${loserPoints.toFixed(1)}`
-    };
-}
-
-async function calculateSharpshooter(entries, league) {
-    try {
-        const players = await getSleeperPlayers();
-        const lineupSlots = (league?.roster_positions || []).filter(slot => !["BN", "IR", "TAXI"].includes(slot));
-        if (!lineupSlots.length) throw new Error("No lineup slots available");
-
-        const candidates = entries.map(entry => {
-            const pointsMap = entry.raw.players_points || {};
-            const actual = entry.points;
-            const playerPool = Object.keys(pointsMap).map(playerId => ({
-                id: playerId,
-                points: Number(pointsMap[playerId]) || 0,
-                position: players[playerId]?.position || ""
-            }));
-            const optimal = calculateOptimalLineupPoints(playerPool, lineupSlots);
-            return { ...entry, left: Math.max(0, optimal - actual) };
-        }).sort((a, b) => a.left - b.left || b.points - a.points);
-
-        const best = candidates[0];
-        if (!best) throw new Error("No lineup data");
-        return { main:`@${best.name} left only ${best.left.toFixed(1)} pts on the bench.`, sub:"Best lineup efficiency of the week" };
-    } catch (error) {
-        console.warn("Sharpshooter calculation unavailable:", error);
-        return { main:"Lineup efficiency data unavailable", sub:"This will populate when Sleeper posts complete player scoring data." };
-    }
-}
-
-function calculateOptimalLineupPoints(players, slots) {
-    const eligible = slots.map(slot => players
-        .filter(player => isEligibleForSlot(player.position, slot))
-        .sort((a, b) => b.points - a.points)
-        .slice(0, 12));
-    let best = 0;
-
-    function search(slotIndex, used, total) {
-        if (slotIndex >= slots.length) {
-            best = Math.max(best, total);
-            return;
-        }
-        const options = eligible[slotIndex];
-        search(slotIndex + 1, used, total);
-        for (const player of options) {
-            if (used.has(player.id)) continue;
-            used.add(player.id);
-            search(slotIndex + 1, used, total + player.points);
-            used.delete(player.id);
+            target.textContent =
+                "Unable to load weekly awards.";
         }
     }
-    search(0, new Set(), 0);
-    return best;
-}
-
-function isEligibleForSlot(position, slot) {
-    const maps = {
-        QB:["QB"], RB:["RB"], WR:["WR"], TE:["TE"], K:["K"], DEF:["DEF"], DL:["DL"], LB:["LB"], DB:["DB"],
-        FLEX:["RB","WR","TE"], WRT:["RB","WR","TE"], REC_FLEX:["WR","TE"], WRRB_FLEX:["WR","RB"],
-        SUPER_FLEX:["QB","RB","WR","TE"], IDP_FLEX:["DL","LB","DB"]
-    };
-    return (maps[slot] || [slot]).includes(position);
-}
-
-async function getSleeperPlayers() {
-    if (cachedPlayersById) return cachedPlayersById;
-    cachedPlayersById = await fetchJson("https://api.sleeper.app/v1/players/nfl");
-    return cachedPlayersById;
-}
-
-async function getLeagueSettings() {
-    if (cachedLeagueSettings) return cachedLeagueSettings;
-    cachedLeagueSettings = await fetchJson(`https://api.sleeper.app/v1/league/${leagueId}`);
-    return cachedLeagueSettings;
-}
-
-function analyzeBulletinMatchups(matchupsRaw, users, rosters, stats) {
-    const userLookup = Object.fromEntries(users.map(user => [user.user_id, user.display_name || "Unknown"]));
-    const nameMap = Object.fromEntries(rosters.map(roster => [roster.roster_id, userLookup[roster.owner_id] || "Unknown"]));
-    const groups = {};
-    matchupsRaw.forEach(matchup => {
-        if (matchup.matchup_id == null) return;
-        (groups[matchup.matchup_id] ||= []).push(matchup);
-    });
-
-    return Object.entries(groups).filter(([, pair]) => pair.length >= 2).map(([matchId, pair]) => {
-        const nameA = (nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`).replace("@", "").trim();
-        const nameB = (nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`).replace("@", "").trim();
-        const statA = findBulletinStat(stats, nameA, nameB);
-        const statB = findBulletinStat(stats, nameB, nameA);
-        const avgA = Number(statA?.AvgPts) || 0;
-        const avgB = Number(statB?.AvgPts) || 0;
-        const pointsA = Number(pair[0].points) || 0;
-        const pointsB = Number(pair[1].points) || 0;
-        return {
-            matchId, nameA, nameB, pointsA, pointsB, avgA, avgB,
-            statisticalFavorite: avgA === avgB ? null : (avgA > avgB ? nameA : nameB),
-            liveLeader: pointsA === pointsB ? null : (pointsA > pointsB ? nameA : nameB),
-            gamesStarted: pointsA !== 0 || pointsB !== 0
-        };
-    });
-}
-
-function findBulletinStat(stats, managerName, opponentName) {
-    const translatedManager = nameTranslator[managerName] || managerName;
-    return stats.find(row =>
-        String(row.Manager || "").trim().toLowerCase() === translatedManager.trim().toLowerCase() &&
-        String(row.Opponent || "").trim().toLowerCase() === `@${opponentName}`.toLowerCase()
-    );
-}
-
-function parseBulletinH2H(record) {
-    const parts = String(record || "0-0").replace(/[–—−]/g, "-").split("-").map(value => Number.parseInt(value, 10) || 0);
-    const wins = parts[0] || 0;
-    const losses = parts[1] || 0;
-    const ties = parts[2] || 0;
-    return { wins, losses, ties, total:wins + losses + ties };
-}
-
-async function fetchJson(url) {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`${url} returned ${response.status}`);
-    return response.json();
-}
-
-function fetchCsvRows(url) {
-    return new Promise((resolve, reject) => {
-        Papa.parse(url, {
-            download:true,
-            header:true,
-            skipEmptyLines:true,
-            complete:results => resolve(results.data || []),
-            error:reject
-        });
-    });
 }
 
 
 /* =========================================================
-   END-OF-SEASON CHAMPIONSHIP + AWARDS
+   RENDER WEEKLY AWARDS
    ========================================================= */
 
-function getCurrentSeasonYear(league = {}) {
-    return String(league?.season || new Date().getFullYear());
-}
+function renderWeeklyAwards(
+    weeklyMatchups,
+    week,
+    sleeperDisplayWeek
+) {
+    ensureLeagueBulletinShell();
 
-function getManagerDisplayName(user) {
-    return String(user?.display_name || user?.metadata?.team_name || "Unknown")
-        .replace("@", "").trim();
-}
+    bulletinMode =
+        "awards";
 
-function getFriendlyManagerName(user) {
-    const rawName = getManagerDisplayName(user);
-    return String(nameTranslator[rawName] || rawName).replace("@", "").trim();
-}
+    const target =
+        document.getElementById(
+            "automated-bulletin-content"
+        );
 
-function getFriendlyManagerNameFromMap(name) {
-    const rawName = String(name || "").replace("@", "").trim();
-    return String(nameTranslator[rawName] || rawName).replace("@", "").trim();
-}
-
-function getTeamDisplayName(user) {
-    return String(user?.metadata?.team_name || user?.display_name || "Unnamed Team")
-        .replace("@", "").trim();
-}
-
-async function getRawSleeperWeek() {
-    try {
-        const state = await fetchJson("https://api.sleeper.app/v1/state/nfl");
-        return Number(state?.week ?? state?.display_week ?? state?.leg ?? 1) || 1;
-    } catch (error) {
-        console.warn("Unable to determine raw Sleeper week:", error);
-        return 1;
-    }
-}
-
-async function hasFantasySeasonEnded() {
-    return (await getRawSleeperWeek()) > FANTASY_SEASON_FINAL_WEEK;
-}
-
-function renderChampionCard(champion, season) {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return;
-
-    const safeName = escapeBulletinHtml(champion?.name || "Champion");
-    const safeTeam = escapeBulletinHtml(champion?.teamName || "");
-
-    container.innerHTML = `
-        <section class="tcwr-champion-card">
-            <div class="tcwr-champion-header">TCWR DY-NASTY</div>
-            <div class="tcwr-champion-content">
-                <img
-                    class="tcwr-champion-trophy"
-                    src="trophy3.jpeg"
-                    alt="TCWR Dy-NASTY Championship Trophy"
-                    onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
-                >
-                <div class="tcwr-champion-trophy-fallback" style="display:none;">🏆</div>
-                <div class="tcwr-champion-congrats">CONGRATULATIONS</div>
-                <div class="tcwr-champion-name">${safeName}</div>
-                ${safeTeam ? `<div class="tcwr-champion-team">${safeTeam}</div>` : ""}
-                <div class="tcwr-champion-label">${escapeBulletinHtml(season)} LEAGUE CHAMPION</div>
-            </div>
-        </section>
-    `;
-}
-
-function renderYearEndAwards(awards, season) {
-    const target = document.getElementById("automated-bulletin-content");
     if (!target) return;
 
-    const row = (className, title, winner, detail) => `
-        <article class="tcwr-year-end-award ${className}">
-            <p class="tcwr-year-end-award-title">${title}</p>
-            <div class="tcwr-year-end-award-winner">${winner}</div>
-            <div class="tcwr-year-end-award-detail">${detail}</div>
-        </article>
-    `;
-
     target.className = "";
+
+    const completedWeek =
+        Number(week) || 0;
+
+    const isHistoricalWeek =
+        Number(sleeperDisplayWeek) >
+        completedWeek;
+
+    const sortedByScore =
+        [...weeklyMatchups].sort(
+            (a, b) =>
+                Math.max(
+                    b.pointsA,
+                    b.pointsB
+                ) -
+                Math.max(
+                    a.pointsA,
+                    a.pointsB
+                )
+        );
+
+    const highestScoringMatchup =
+        sortedByScore[0];
+
+    const sortedByMargin =
+        [...weeklyMatchups].sort(
+            (a, b) =>
+                Math.abs(
+                    a.pointsA -
+                    a.pointsB
+                ) -
+                Math.abs(
+                    b.pointsA -
+                    b.pointsB
+                )
+        );
+
+    const closestMatchup =
+        sortedByMargin[0];
+
+    const blowoutMatchup =
+        [...weeklyMatchups].sort(
+            (a, b) =>
+                Math.abs(
+                    b.pointsA -
+                    b.pointsB
+                ) -
+                Math.abs(
+                    a.pointsA -
+                    a.pointsB
+                )
+        )[0];
+
+    const highScore =
+        highestScoringMatchup
+            ? Math.max(
+                highestScoringMatchup.pointsA,
+                highestScoringMatchup.pointsB
+            )
+            : 0;
+
+    const highScoreWinner =
+        highestScoringMatchup
+            ? (
+                highestScoringMatchup.pointsA >=
+                highestScoringMatchup.pointsB
+                    ? highestScoringMatchup.nameA
+                    : highestScoringMatchup.nameB
+            )
+            : "";
+
+    const closeMargin =
+        closestMatchup
+            ? Math.abs(
+                closestMatchup.pointsA -
+                closestMatchup.pointsB
+            )
+            : 0;
+
+    const blowoutMargin =
+        blowoutMatchup
+            ? Math.abs(
+                blowoutMatchup.pointsA -
+                blowoutMatchup.pointsB
+            )
+            : 0;
+
+    const blowoutWinner =
+        blowoutMatchup
+            ? (
+                blowoutMatchup.pointsA >=
+                blowoutMatchup.pointsB
+                    ? blowoutMatchup.nameA
+                    : blowoutMatchup.nameB
+            )
+            : "";
+
+    const closeWinner =
+        closestMatchup
+            ? (
+                closestMatchup.pointsA >=
+                closestMatchup.pointsB
+                    ? closestMatchup.nameA
+                    : closestMatchup.nameB
+            )
+            : "";
+
+    const rivalry =
+        selectDesignatedRivalry(
+            weeklyMatchups.map(
+                matchup => ({
+                    ...matchup,
+                    rivalryH2H:
+                        parseH2H(
+                            matchup.statA
+                                ?.H2H_Record ||
+                            matchup.statB
+                                ?.H2H_Record ||
+                            "0-0"
+                        )
+                })
+            )
+        );
+
+    let stories = "";
+
+    stories +=
+        bulletinStoryHtml({
+            className: "gold",
+            title: "🏆 Highest Score",
+
+            main:
+                highScoreWinner
+                    ? `@${highScoreWinner} scored ${highScore.toFixed(1)}`
+                    : "No scoring data available.",
+
+            sub:
+                highestScoringMatchup
+                    ? `Week ${week} high score`
+                    : ""
+        });
+
+    stories +=
+        bulletinStoryHtml({
+            className: "blue",
+            title: "⚔️ Closest Matchup",
+
+            main:
+                closestMatchup
+                    ? `@${closeWinner} won by ${closeMargin.toFixed(1)}`
+                    : "No matchup data available.",
+
+            sub:
+                closestMatchup
+                    ? `${closestMatchup.pointsA.toFixed(1)}–${closestMatchup.pointsB.toFixed(1)}`
+                    : ""
+        });
+
+    stories +=
+        bulletinStoryHtml({
+            className: "orange",
+            title: "💥 Biggest Blowout",
+
+            main:
+                blowoutMatchup
+                    ? `@${blowoutWinner} won by ${blowoutMargin.toFixed(1)}`
+                    : "No matchup data available.",
+
+            sub:
+                blowoutMatchup
+                    ? `${blowoutMatchup.pointsA.toFixed(1)}–${blowoutMatchup.pointsB.toFixed(1)}`
+                    : ""
+        });
+
+    if (rivalry) {
+
+        const rivalryRecord =
+            rivalry.rivalryH2H ||
+            parseH2H(
+                rivalry.statA
+                    ?.H2H_Record ||
+                rivalry.statB
+                    ?.H2H_Record ||
+                "0-0"
+            );
+
+        const rivalryLeader =
+            rivalryRecord.wins >
+            rivalryRecord.losses
+                ? rivalry.rivalryRecordOwner
+                : rivalryRecord.losses >
+                  rivalryRecord.wins
+                    ? (
+                        rivalry.rivalryRecordOwner ===
+                        rivalry.nameA
+                            ? rivalry.nameB
+                            : rivalry.nameA
+                    )
+                    : null;
+
+        const rivalrySeries =
+            rivalryLeader
+                ? `@${rivalryLeader} leads ${Math.max(
+                    rivalryRecord.wins,
+                    rivalryRecord.losses
+                )}-${Math.min(
+                    rivalryRecord.wins,
+                    rivalryRecord.losses
+                )}`
+                : `Series tied ${rivalryRecord.wins}-${rivalryRecord.losses}`;
+
+        stories +=
+            bulletinStoryHtml({
+                className: "purple",
+                title: "🛡️ Rivalry Winner",
+
+                main:
+                    `@${rivalry.nameA} vs @${rivalry.nameB}`,
+
+                sub:
+                    rivalrySeries
+            });
+    }
+
     target.innerHTML = `
-        <section class="tcwr-year-end-card">
-            <div class="tcwr-year-end-header">🏆 TCWR DY-NASTY AWARDS</div>
-            <div class="tcwr-year-end-subheader">
-                ${escapeBulletinHtml(season)} SEASON
-            </div>
-            ${row("manager","👑 Manager of the Year",awards.managerOfYear.winner,awards.managerOfYear.detail)}
-            ${row("improved","📈 Most Improved Manager",awards.mostImproved.winner,awards.mostImproved.detail)}
-            ${row("game","🔥 Game of the Year",awards.gameOfYear.winner,awards.gameOfYear.detail)}
-            ${row("player","🏅 Player of the Year",awards.playerOfYear.winner,awards.playerOfYear.detail)}
-        </section>
+        <div class="tcwr-news-header">
+            🏆 WEEK ${completedWeek} AWARDS
+            ${
+                isHistoricalWeek
+                    ? " • COMPLETED"
+                    : ""
+            }
+        </div>
+
+        ${stories}
+
+        <div
+            style="
+                margin-top:10px;
+                color:#64748b;
+                font-size:.6rem;
+                font-weight:700;
+                text-align:center;
+            "
+        >
+            Awards are based on official Sleeper scoring.
+        </div>
     `;
 }
 
-function extractWeightedRankingScore(row) {
-    const keys = ["Weighted Score","WeightedScore","Weighted","Ranking Score","RankingScore","Score","score"];
-    for (const key of keys) {
-        const raw = String(row?.[key] ?? "").replace(/[^0-9.+-]/g, "");
-        const value = Number.parseFloat(raw);
-        if (Number.isFinite(value)) return value;
+
+/* =========================================================
+   DESIGNATED RIVALRY SELECTOR
+   ========================================================= */
+
+function selectDesignatedRivalry(
+    matchups
+) {
+    if (
+        !Array.isArray(matchups) ||
+        matchups.length === 0
+    ) {
+        return null;
     }
-    return null;
+
+    const candidates =
+        matchups
+            .filter(
+                matchup =>
+                    matchup &&
+                    matchup.nameA &&
+                    matchup.nameB
+            )
+            .map(
+                matchup => ({
+                    ...matchup,
+
+                    rivalryH2H:
+                        matchup.rivalryH2H ||
+                        parseH2H(
+                            matchup.statA
+                                ?.H2H_Record ||
+                            matchup.statB
+                                ?.H2H_Record ||
+                            "0-0"
+                        ),
+
+                    rivalryCloseness:
+                        Math.abs(
+                            (
+                                matchup.rivalryH2H ||
+                                parseH2H(
+                                    matchup.statA
+                                        ?.H2H_Record ||
+                                    matchup.statB
+                                        ?.H2H_Record ||
+                                    "0-0"
+                                )
+                            ).wins -
+                            (
+                                matchup.rivalryH2H ||
+                                parseH2H(
+                                    matchup.statA
+                                        ?.H2H_Record ||
+                                    matchup.statB
+                                        ?.H2H_Record ||
+                                    "0-0"
+                                )
+                            ).losses
+                        ),
+
+                    averageGap:
+                        Math.abs(
+                            Number(
+                                matchup.avgA ||
+                                matchup.statA?.AvgPts ||
+                                0
+                            ) -
+                            Number(
+                                matchup.avgB ||
+                                matchup.statB?.AvgPts ||
+                                0
+                            )
+                        )
+                })
+            );
+
+    if (
+        candidates.length === 0
+    ) {
+        return null;
+    }
+
+    candidates.sort(
+        (a, b) =>
+            a.rivalryCloseness -
+                b.rivalryCloseness ||
+            a.averageGap -
+                b.averageGap ||
+            String(
+                a.matchId
+            ).localeCompare(
+                String(b.matchId)
+            )
+    );
+
+    return candidates[0];
 }
 
-function normalizeRankingRows(rows) {
-    return (rows || []).map(row => ({
-        manager: String(row?.Manager ?? row?.manager ?? row?.Name ?? row?.name ?? row?.Team ?? row?.team ?? "").trim(),
-        score: extractWeightedRankingScore(row)
-    })).filter(row => row.manager && Number.isFinite(row.score));
+
+/* =========================================================
+   FETCH JSON HELPER
+   ========================================================= */
+
+async function fetchJson(
+    url
+) {
+    const response =
+        await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(
+            `Request failed: ${response.status}`
+        );
+    }
+
+    return response.json();
 }
 
-function findRankingRow(rows, managerName) {
-    const targets = [
-        String(managerName || "").trim().toLowerCase(),
-        String(nameTranslator[managerName] || managerName).trim().toLowerCase()
-    ];
-    return rows.find(row => targets.includes(row.manager.toLowerCase()));
+
+/* =========================================================
+   SPREADSHEET STATISTICS
+   ========================================================= */
+
+async function loadSpreadsheetStats() {
+    if (cachedPlayersById) {
+        return cachedPlayersById;
+    }
+
+    return new Promise(
+        (resolve, reject) => {
+
+            Papa.parse(
+                `${csvUrl}&_=${Date.now()}`,
+                {
+                    download:true,
+                    header:true,
+                    skipEmptyLines:true,
+
+                    complete: results => {
+                        if (
+                            results.errors &&
+                            results.errors.length
+                        ) {
+                            console.warn(
+                                "Spreadsheet parsing warnings:",
+                                results.errors
+                            );
+                        }
+
+                        cachedPlayersById =
+                            results.data || [];
+
+                        resolve(
+                            cachedPlayersById
+                        );
+                    },
+
+                    error: error => {
+                        console.error(
+                            "Spreadsheet loading error:",
+                            error
+                        );
+
+                        reject(error);
+                    }
+                }
+            );
+        }
+    );
 }
 
-async function calculateMostImprovedManager(users, currentRankingRows) {
-    if (!PREVIOUS_RANKINGS_CSV_URL) {
-        return {
-            winner: "Previous ranking data unavailable",
-            detail: "Add the prior season's weighted-score CSV URL to PREVIOUS_RANKINGS_CSV_URL."
-        };
+                ${createCountdownUnit("seconds", "Seconds")}
+        </div>
+
+        <p class="tcwr-offseason-note">
+            The countdown is on.
+        </p>
+    `;
+
+    container.appendChild(countdownCard);
+
+    return countdownCard;
+}
+
+function createCountdownUnit(
+    id,
+    label
+) {
+    return `
+        <div class="tcwr-offseason-unit">
+            <div
+                class="tcwr-offseason-number"
+                id="tcwr-countdown-${id}"
+            >
+                0
+            </div>
+
+            <div class="tcwr-offseason-label">
+                ${label}
+            </div>
+        </div>
+    `;
+}
+
+let nflKickoffCountdownTimer = null;
+
+function stopKickoffCountdown() {
+    if (nflKickoffCountdownTimer) {
+        clearInterval(
+            nflKickoffCountdownTimer
+        );
+
+        nflKickoffCountdownTimer = null;
+    }
+}
+
+function updateKickoffCountdown() {
+    const target =
+        getNextNflSeasonStartDate();
+
+    const now =
+        new Date();
+
+    let difference =
+        target.getTime() -
+        now.getTime();
+
+    if (difference < 0) {
+        difference = 0;
+    }
+
+    const totalSeconds =
+        Math.floor(
+            difference / 1000
+        );
+
+    const days =
+        Math.floor(
+            totalSeconds / 86400
+        );
+
+    const hours =
+        Math.floor(
+            (totalSeconds % 86400) /
+            3600
+        );
+
+    const minutes =
+        Math.floor(
+            (totalSeconds % 3600) /
+            60
+        );
+
+    const seconds =
+        totalSeconds % 60;
+
+    const update = (
+        id,
+        value,
+        pad = false
+    ) => {
+        const element =
+            document.getElementById(id);
+
+        if (!element) return;
+
+        element.textContent =
+            pad
+                ? String(value).padStart(
+                    2,
+                    "0"
+                )
+                : String(value);
+    };
+
+    update(
+        "tcwr-countdown-days",
+        days
+    );
+
+    update(
+        "tcwr-countdown-hours",
+        hours,
+        true
+    );
+
+    update(
+        "tcwr-countdown-minutes",
+        minutes,
+        true
+    );
+
+    update(
+        "tcwr-countdown-seconds",
+        seconds,
+        true
+    );
+}
+
+async function renderEndOfSeasonState() {
+    try {
+        const awards =
+            await calculateEndOfSeasonAwards();
+
+        renderChampionCard(
+            awards.champion,
+            awards.season
+        );
+
+        renderYearEndAwards(
+            awards,
+            awards.season
+        );
+
+    } catch (error) {
+
+        console.error(
+            "End-of-season rendering error:",
+            error
+        );
+
+        renderChampionRecapComingSoon();
+    }
+}
+
+
+/* =========================================================
+   SEASONAL CENTER INITIALIZATION
+   ========================================================= */
+
+async function initializeSeasonalCenter() {
+    const now =
+        new Date();
+
+    const pacific =
+        getPacificDateParts(now);
+
+    /*
+        Champion recap TV:
+        December 28 through December 31.
+    */
+
+    if (
+        pacific.month ===
+            CHAMPION_RECAP_LIVE_MONTH &&
+        pacific.day >=
+            CHAMPION_RECAP_LIVE_DAY
+    ) {
+        renderChampionRecapTv();
+        return;
+    }
+
+    /*
+        Offseason countdown:
+        March 12 through September 2.
+    */
+
+    const beforeSeason =
+        pacific.month <
+            NFL_SEASON_START_MONTH ||
+        (
+            pacific.month ===
+                NFL_SEASON_START_MONTH &&
+            pacific.day <
+                NFL_SEASON_START_DAY
+        );
+
+    const afterOffseasonStart =
+        pacific.month >
+            OFFSEASON_COUNTDOWN_MONTH ||
+        (
+            pacific.month ===
+                OFFSEASON_COUNTDOWN_MONTH &&
+            pacific.day >=
+                OFFSEASON_COUNTDOWN_DAY
+        );
+
+    if (
+        beforeSeason &&
+        afterOffseasonStart
+    ) {
+        createOffseasonCountdown();
+
+        updateKickoffCountdown();
+
+        stopKickoffCountdown();
+
+        nflKickoffCountdownTimer =
+            setInterval(
+                updateKickoffCountdown,
+                1000
+            );
+
+        return;
+    }
+
+    /*
+        January 1 through March 11:
+        champion recap waiting state.
+    */
+
+    if (
+        pacific.month <=
+            OFFSEASON_COUNTDOWN_MONTH &&
+        (
+            pacific.month <
+                OFFSEASON_COUNTDOWN_MONTH ||
+            pacific.day <
+                OFFSEASON_COUNTDOWN_DAY
+        )
+    ) {
+        renderChampionRecapComingSoon();
+        return;
+    }
+
+    /*
+        Regular-season scoreboard.
+    */
+
+    setCenterColumnTitle(
+        "Matchup of the Week"
+    );
+
+    await showScoreboardAfterKickoff();
+}
+
+
+/* =========================================================
+   END OF SEASON / CHAMPION RECAP STYLES
+   ========================================================= */
+
+function initializeSeasonalStyles() {
+
+    if (
+        document.getElementById(
+            "tcwr-seasonal-styles"
+        )
+    ) {
+        return;
+    }
+
+    const style =
+        document.createElement("style");
+
+    style.id =
+        "tcwr-seasonal-styles";
+
+    style.textContent = `
+
+        .tcwr-recap-coming-card {
+            width:100%;
+            box-sizing:border-box;
+            padding:38px 24px;
+            border-radius:18px;
+            border:1px solid rgba(250,204,21,.25);
+            background:
+                radial-gradient(
+                    circle at top,
+                    rgba(250,204,21,.12),
+                    transparent 55%
+                ),
+                linear-gradient(
+                    145deg,
+                    #172033,
+                    #07101c
+                );
+            text-align:center;
+            box-shadow:
+                0 18px 45px rgba(0,0,0,.35);
+        }
+
+        .tcwr-recap-coming-kicker {
+            color:#facc15;
+            font-size:.65rem;
+            font-weight:900;
+            letter-spacing:2px;
+            text-transform:uppercase;
+        }
+
+        .tcwr-recap-coming-title {
+            margin:10px 0 8px;
+            color:#fff;
+            font-size:clamp(1.5rem,4vw,2.3rem);
+            font-weight:900;
+            letter-spacing:1px;
+            text-transform:uppercase;
+        }
+
+        .tcwr-recap-coming-date {
+            color:#f59e0b;
+            font-size:.8rem;
+            font-weight:900;
+            letter-spacing:1.3px;
+            text-transform:uppercase;
+        }
+
+        .tcwr-recap-coming-copy {
+            max-width:520px;
+            margin:18px auto 0;
+            color:#94a3b8;
+            font-size:.78rem;
+            line-height:1.65;
+        }
+
+        .tcwr-recap-tv-shell {
+            position:relative;
+            width:100%;
+            max-width:720px;
+            margin:0 auto;
+            box-sizing:border-box;
+        }
+
+        .tcwr-recap-tv-image {
+            display:block;
+            width:100%;
+            height:auto;
+            position:relative;
+            z-index:1;
+            pointer-events:none;
+        }
+
+        .tcwr-recap-tv-screen {
+            position:absolute;
+            left:18.2%;
+            top:18%;
+            width:63.7%;
+            height:56%;
+            overflow:hidden;
+            border-radius:3px;
+            background:#000;
+            z-index:2;
+            box-shadow:
+                inset 0 0 20px rgba(0,0,0,.7);
+        }
+
+        .tcwr-recap-tv-screen iframe {
+            display:block;
+            width:100%;
+            height:100%;
+            border:0;
+        }
+
+        .tcwr-recap-tv-fallback-link {
+            display:block;
+            width:max-content;
+            max-width:100%;
+            margin:12px auto 0;
+            color:#facc15;
+            font-size:.7rem;
+            font-weight:800;
+            text-decoration:none;
+        }
+
+        .tcwr-offseason-card {
+            width:100%;
+            box-sizing:border-box;
+            padding:32px 22px;
+            border-radius:18px;
+            border:1px solid rgba(250,204,21,.25);
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(30,41,59,.98),
+                    rgba(7,16,28,.98)
+                );
+            text-align:center;
+            box-shadow:
+                0 18px 45px rgba(0,0,0,.35);
+        }
+
+        .tcwr-offseason-kicker {
+            color:#facc15;
+            font-size:.65rem;
+            font-weight:900;
+            letter-spacing:1.8px;
+            text-transform:uppercase;
+        }
+
+        .tcwr-offseason-title {
+            margin:9px 0 7px;
+            color:#fff;
+            font-size:clamp(1.35rem,4vw,2rem);
+            font-weight:900;
+            text-transform:uppercase;
+        }
+
+        .tcwr-offseason-target {
+            color:#94a3b8;
+            font-size:.7rem;
+            font-weight:800;
+            letter-spacing:1px;
+            text-transform:uppercase;
+        }
+
+        .tcwr-offseason-grid {
+            display:grid;
+            grid-template-columns:
+                repeat(
+                    4,
+                    minmax(0,1fr)
+                );
+            gap:8px;
+            margin-top:22px;
+        }
+
+        .tcwr-offseason-unit {
+            min-width:0;
+            padding:13px 7px;
+            border-radius:10px;
+            border:1px solid
+                rgba(148,163,184,.15);
+            background:
+                rgba(2,9,20,.35);
+        }
+
+        .tcwr-offseason-number {
+            color:#facc15;
+            font-size:clamp(1.15rem,4vw,1.8rem);
+            font-weight:900;
+            line-height:1;
+            font-variant-numeric:tabular-nums;
+        }
+
+        .tcwr-offseason-label {
+            margin-top:6px;
+            color:#64748b;
+            font-size:.56rem;
+            font-weight:900;
+            letter-spacing:.7px;
+            text-transform:uppercase;
+        }
+
+        .tcwr-offseason-note {
+            margin:20px 0 0;
+            color:#64748b;
+            font-size:.58rem;
+            font-weight:700;
+            letter-spacing:.6px;
+            text-transform:uppercase;
+        }
+
+        .tcwr-champion-card {
+            width:100%;
+            box-sizing:border-box;
+            border-radius:18px;
+            overflow:hidden;
+            border:1px solid
+                rgba(250,204,21,.3);
+            background:
+                radial-gradient(
+                    circle at center top,
+                    rgba(250,204,21,.16),
+                    transparent 55%
+                ),
+                linear-gradient(
+                    145deg,
+                    #172033,
+                    #07101c
+                );
+            box-shadow:
+                0 20px 55px rgba(0,0,0,.4);
+        }
+
+        .tcwr-champion-header {
+            padding:12px;
+            text-align:center;
+            color:#facc15;
+            font-size:.65rem;
+            font-weight:900;
+            letter-spacing:2px;
+            border-bottom:1px solid
+                rgba(250,204,21,.15);
+        }
+
+        .tcwr-champion-content {
+            padding:28px 20px 32px;
+            text-align:center;
+        }
+
+        .tcwr-champion-trophy {
+            display:block;
+            width:min(190px,55%);
+            height:auto;
+            margin:0 auto 15px;
+            object-fit:contain;
+        }
+
+        .tcwr-champion-trophy-fallback {
+            margin-bottom:15px;
+            font-size:5rem;
+            line-height:1;
+        }
+
+        .tcwr-champion-congrats {
+            color:#facc15;
+            font-size:.65rem;
+            font-weight:900;
+            letter-spacing:2px;
+        }
+
+        .tcwr-champion-name {
+            margin-top:7px;
+            color:#fff;
+            font-size:clamp(1.5rem,5vw,2.5rem);
+            font-weight:900;
+            overflow-wrap:anywhere;
+        }
+
+        .tcwr-champion-team {
+            margin-top:5px;
+            color:#cbd5e1;
+            font-size:.78rem;
+            font-weight:700;
+        }
+
+        .tcwr-champion-label {
+            margin-top:12px;
+            color:#94a3b8;
+            font-size:.62rem;
+            font-weight:900;
+            letter-spacing:1.1px;
+        }
+
+        .tcwr-year-end-card {
+            margin-top:15px;
+        }
+
+        .tcwr-year-end-header {
+            color:#facc15;
+            font-size:.72rem;
+            font-weight:900;
+            letter-spacing:1px;
+        }
+
+        .tcwr-year-end-subheader {
+            margin-top:3px;
+            margin-bottom:10px;
+            color:#64748b;
+            font-size:.58rem;
+            font-weight:800;
+        }
+
+        .tcwr-year-end-award {
+            padding:12px;
+            margin-bottom:8px;
+            border-radius:9px;
+            border-left:3px solid #facc15;
+            background:
+                rgba(15,23,42,.75);
+        }
+
+        .tcwr-year-end-award-title {
+            margin:0;
+            color:#94a3b8;
+            font-size:.6rem;
+            font-weight:900;
+            letter-spacing:.7px;
+            text-transform:uppercase;
+        }
+
+        .tcwr-year-end-award-winner {
+            margin-top:4px;
+            color:#fff;
+            font-size:.78rem;
+            font-weight:900;
+            overflow-wrap:anywhere;
+        }
+
+        .tcwr-year-end-award-detail {
+            margin-top:3px;
+            color:#64748b;
+            font-size:.6rem;
+            line-height:1.4;
+        }
+
+        @media (max-width:600px) {
+
+            .tcwr-offseason-grid {
+                gap:5px;
+            }
+
+            .tcwr-offseason-unit {
+                padding:11px 4px;
+            }
+
+            .tcwr-recap-tv-screen {
+                left:18.2%;
+                top:18%;
+                width:63.7%;
+                height:55%;
+            }
+
+        }
+
+    `;
+
+    document.head.appendChild(style);
+}
+
+
+/* =========================================================
+   FIREBASE / PUSH NOTIFICATION INITIALIZATION
+   ========================================================= */
+
+const firebaseConfig = {
+    apiKey:
+        "AIzaSyBXXXXXXXXXXXXXXX",
+    authDomain:
+        "tcwr-dynasty.firebaseapp.com",
+    projectId:
+        "tcwr-dynasty",
+    storageBucket:
+        "tcwr-dynasty.appspot.com",
+    messagingSenderId:
+        "XXXXXXXXXXXX",
+    appId:
+        "1:XXXXXXXXXXXX:web:XXXXXXXXXXXX"
+};
+
+const app =
+    initializeApp(
+        firebaseConfig
+    );
+
+const db =
+    getFirestore(app);
+
+const auth =
+    getAuth(app);
+
+
+/* =========================================================
+   TCWR WEB PUSH NOTIFICATIONS
+   ========================================================= */
+
+const TCWR_PUSH_WORKER =
+    "https://tcwr-commissioner-push.svargas1183.workers.dev";
+
+const TCWR_VAPID_PUBLIC_KEY =
+    "BAxitNAnuPolRhu-9OgtRDe6bGQIByGgHNXCusicO9cydFHt9oEfA4d9MfAJ7HB23izytI-ywwDwmeof9e4HzZg";
+
+let tcwrPushRegistration =
+    null;
+
+function urlBase64ToUint8Array(
+    base64String
+) {
+    const padding =
+        "=".repeat(
+            (
+                4 -
+                (
+                    base64String.length %
+                    4
+                )
+            ) % 4
+        );
+
+    const base64 =
+        (
+            base64String +
+            padding
+        )
+            .replace(
+                /-/g,
+                "+"
+            )
+            .replace(
+                /_/g,
+                "/"
+            );
+
+    const rawData =
+        atob(base64);
+
+    return Uint8Array.from(
+        [...rawData].map(
+            char =>
+                char.charCodeAt(0)
+        )
+    );
+}
+
+async function initializePushNotifications() {
+    if (
+        !(
+            "serviceWorker" in
+            navigator
+        )
+    ) {
+        console.warn(
+            "Service workers are not supported."
+        );
+
+        return null;
+    }
+
+    if (
+        !(
+            "PushManager" in
+            window
+        )
+    ) {
+        console.warn(
+            "Web Push is not supported."
+        );
+
+        return null;
     }
 
     try {
-        const previousRows = normalizeRankingRows(await fetchCsvRows(PREVIOUS_RANKINGS_CSV_URL));
-        const currentRows = normalizeRankingRows(currentRankingRows);
 
-        const candidates = users.map(user => {
-            const manager = getFriendlyManagerName(user);
-            const current = findRankingRow(currentRows, manager);
-            const previous = findRankingRow(previousRows, manager);
-            if (!current || !previous) return null;
+        tcwrPushRegistration =
+            await navigator
+                .serviceWorker
+                .register(
+                    "./service-worker.js"
+                );
 
-            return {
-                manager,
-                previous: previous.score,
-                current: current.score,
-                improvement: current.score - previous.score
-            };
-        }).filter(Boolean);
+        console.log(
+            "TCWR service worker registered."
+        );
 
-        candidates.sort((a,b) => b.improvement - a.improvement || b.current - a.current);
-        const best = candidates[0];
+        return tcwrPushRegistration;
 
-        return best ? {
-            winner: best.manager,
-            detail: `${best.previous.toFixed(2)} → ${best.current.toFixed(2)} (${best.improvement >= 0 ? "+" : ""}${best.improvement.toFixed(2)})`
-        } : {
-            winner: "Ranking comparison unavailable",
-            detail: "Matching manager scores were not found in both seasons."
-        };
     } catch (error) {
-        console.warn("Most Improved Manager calculation failed:", error);
-        return {
-            winner: "Ranking comparison unavailable",
-            detail: "The previous-season ranking source could not be loaded."
-        };
+
+        console.error(
+            "TCWR service worker registration failed:",
+            error
+        );
+
+        return null;
     }
 }
 
-function calculateManagerOfYearFromMatchups(weeklyMatchups, rosterToUser) {
-    const wins = {};
-    const points = {};
+async function enableTCWRNotifications() {
 
-    weeklyMatchups.forEach(matchups => {
-        if (!matchupWeekHasScoring(matchups)) return;
+    try {
 
-        const entries = matchups.map(matchup => ({
-            name: rosterToUser[matchup.roster_id] || `Team ${matchup.roster_id}`,
-            points: Number(matchup.points) || 0
-        })).sort((a,b) => b.points - a.points);
+        if (
+            !tcwrPushRegistration
+        ) {
+            tcwrPushRegistration =
+                await initializePushNotifications();
+        }
 
-        const winner = entries[0];
-        if (!winner) return;
+        if (
+            !tcwrPushRegistration
+        ) {
+            alert(
+                "Notifications are not available on this device."
+            );
 
-        wins[winner.name] = (wins[winner.name] || 0) + 1;
-        points[winner.name] = (points[winner.name] || 0) + winner.points;
-    });
+            return;
+        }
 
-    const best = Object.keys(wins).map(name => ({
-        name, wins:wins[name], points:points[name] || 0
-    })).sort((a,b) => b.wins - a.wins || b.points - a.points)[0];
+        const permission =
+            await Notification
+                .requestPermission();
 
-    return best ? {
-        winner: best.name,
-        detail: `${best.wins} Manager of the Week award${best.wins === 1 ? "" : "s"}`
-    } : {
-        winner:"Unavailable",
-        detail:"No completed weekly scoring data is available."
-    };
-}
+        if (
+            permission !==
+            "granted"
+        ) {
+            alert(
+                "Notifications were not enabled."
+            );
 
-function calculateGameOfYearFromMatchups(weeklyMatchups, rosterToUser) {
-    const games = [];
+            return;
+        }
 
-    weeklyMatchups.forEach((matchups, weekIndex) => {
-        const groups = {};
-        matchups.forEach(matchup => {
-            if (matchup.matchup_id == null) return;
-            (groups[matchup.matchup_id] ||= []).push(matchup);
-        });
+        console.log(
+            "Notification permission granted."
+        );
 
-        Object.values(groups).forEach(pair => {
-            if (pair.length < 2) return;
-            const a = pair[0], b = pair[1];
-            const pointsA = Number(a.points) || 0;
-            const pointsB = Number(b.points) || 0;
-            if (pointsA === 0 && pointsB === 0) return;
+        let subscription =
+            await tcwrPushRegistration
+                .pushManager
+                .getSubscription();
 
-            games.push({
-                week:weekIndex + 1,
-                nameA:getFriendlyManagerNameFromMap(rosterToUser[a.roster_id] || `Team ${a.roster_id}`),
-                nameB:getFriendlyManagerNameFromMap(rosterToUser[b.roster_id] || `Team ${b.roster_id}`),
-                pointsA, pointsB,
-                margin:Math.abs(pointsA - pointsB),
-                total:pointsA + pointsB
-            });
-        });
-    });
+        if (!subscription) {
 
-    const best = games.sort((a,b) => a.margin - b.margin || b.total - a.total)[0];
+            subscription =
+                await tcwrPushRegistration
+                    .pushManager
+                    .subscribe({
+                        userVisibleOnly:
+                            true,
 
-    return best ? {
-        winner:`Week ${best.week}: @${best.nameA} vs. @${best.nameB}`,
-        detail:`${best.pointsA.toFixed(1)}–${best.pointsB.toFixed(1)} • ${best.margin.toFixed(2)}-point margin`
-    } : {
-        winner:"Unavailable",
-        detail:"No completed matchup scoring is available."
-    };
-}
+                        applicationServerKey:
+                            urlBase64ToUint8Array(
+                                TCWR_VAPID_PUBLIC_KEY
+                            )
+                    });
 
-function calculatePlayerOfYearFromMatchups(weeklyMatchups, rosterToUser, players) {
-    const totals = {};
+            console.log(
+                "New push subscription created."
+            );
 
-    weeklyMatchups.forEach(matchups => {
-        matchups.forEach(matchup => {
-            Object.entries(matchup?.players_points || {}).forEach(([playerId,value]) => {
-                const points = Number(value) || 0;
-                if (!totals[playerId]) totals[playerId] = {points:0, rosterId:matchup.roster_id};
-                totals[playerId].points += points;
-                totals[playerId].rosterId = matchup.roster_id;
-            });
-        });
-    });
+        } else {
 
-    const best = Object.entries(totals).map(([playerId,data]) => {
-        const player = players?.[playerId] || {};
-        return {
-            name:player.full_name || [player.first_name,player.last_name].filter(Boolean).join(" ") || playerId,
-            points:data.points,
-            manager:getFriendlyManagerNameFromMap(rosterToUser[data.rosterId] || `Team ${data.rosterId}`)
-        };
-    }).filter(player => player.points > 0).sort((a,b) => b.points - a.points)[0];
+            console.log(
+                "Existing push subscription found."
+            );
+        }
 
-    return best ? {
-        winner:best.name,
-        detail:`${best.points.toFixed(1)} fantasy points • Owned by @${best.manager}`
-    } : {
-        winner:"Unavailable",
-        detail:"No player scoring data is available yet."
-    };
-}
+        const subscriptionJSON =
+            subscription.toJSON();
 
-async function calculateEndOfSeasonAwards() {
-    if (endOfSeasonAwardsCache) return endOfSeasonAwardsCache;
+        const response =
+            await fetch(
+                `${TCWR_PUSH_WORKER}/subscribe`,
+                {
+                    method:"POST",
 
-    const [league,users,rosters] = await Promise.all([
-        getLeagueSettings(),
-        fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/users`),
-        fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
-    ]);
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
 
-    const weeklyMatchups = await Promise.all(
-        Array.from({length:FANTASY_SEASON_FINAL_WEEK},(_,index) => index + 1)
-            .map(week => fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`))
-    );
+                    body:
+                        JSON.stringify({
+                            endpoint:
+                                subscriptionJSON.endpoint,
 
-    const rawUserLookup = Object.fromEntries(users.map(user => [user.user_id,user]));
-    const rosterToUser = Object.fromEntries(rosters.map(roster => [
-        roster.roster_id,
-        rawUserLookup[roster.owner_id]
-            ? getFriendlyManagerName(rawUserLookup[roster.owner_id])
-            : `Team ${roster.roster_id}`
-    ]));
+                            keys:{
+                                p256dh:
+                                    subscriptionJSON
+                                        .keys
+                                        .p256dh,
 
-    const rankingRows = await fetchCsvRows(csvUrl);
-    const players = await getSleeperPlayers();
+                                auth:
+                                    subscriptionJSON
+                                        .keys
+                                        .auth
+                            }
+                        })
+                }
+            );
 
-    const managerOfYear = calculateManagerOfYearFromMatchups(weeklyMatchups,rosterToUser);
-    const gameOfYear = calculateGameOfYearFromMatchups(weeklyMatchups,rosterToUser);
-    const playerOfYear = calculatePlayerOfYearFromMatchups(weeklyMatchups,rosterToUser,players);
-    const mostImproved = await calculateMostImprovedManager(users,rankingRows);
+        const result =
+            await response.json();
 
-    const winnerRosterId =
-        league?.metadata?.latest_league_winner_roster_id ??
-        league?.settings?.latest_league_winner_roster_id;
+        if (
+            !response.ok ||
+            !result.ok
+        ) {
+            console.error(
+                "Cloudflare subscription error:",
+                result
+            );
 
-    let winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerRosterId));
+            throw new Error(
+                result.error ||
+                "Unable to save push subscription."
+            );
+        }
 
-    if (!winnerRoster) {
-        winnerRoster = [...rosters]
-            .filter(roster => Number.isFinite(Number(roster?.settings?.rank)))
-            .sort((a,b) => Number(a.settings.rank) - Number(b.settings.rank))[0];
+        console.log(
+            "Push subscription saved to Cloudflare."
+        );
+
+        alert(
+            "TCWR notifications are enabled!"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Notification setup failed:",
+            error
+        );
+
+        alert(
+            "Unable to enable notifications. Check the browser console."
+        );
     }
-
-    if (!winnerRoster) {
-        const finalWeek = weeklyMatchups[FANTASY_SEASON_FINAL_WEEK - 1] || [];
-        const winnerEntry = [...finalWeek]
-            .sort((a,b) => (Number(b.points)||0) - (Number(a.points)||0))[0];
-        winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerEntry?.roster_id));
-    }
-
-    const winnerUser = users.find(user => user.user_id === winnerRoster?.owner_id);
-    const champion = {
-        name:getFriendlyManagerName(winnerUser),
-        teamName:getTeamDisplayName(winnerUser)
-    };
-
-    const result = {
-        season:getCurrentSeasonYear(league),
-        champion,
-        managerOfYear,
-        mostImproved,
-        gameOfYear,
-        playerOfYear
-    };
-
-    endOfSeasonAwardsCache = result;
-    return result;
 }
 
-function setCenterColumnTitle(title) {
-    const titleElement = document.querySelector(".center-column .column-title");
-    if (titleElement) titleElement.textContent = title;
-}
+window.enableTCWRNotifications =
+    enableTCWRNotifications;
 
-function getPacificDateParts(date = new Date()) {
-    const formatter = new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/Los_Angeles",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-    });
+initializePushNotifications();
 
-    const parts = Object.fromEntries(
-        formatter.formatToParts(date).map(part => [part.type, part.value])
-    );
-
-    return {
-        year: Number(parts.year),
-        month: Number(parts.month),
-        day: Number(parts.day)
-    };
-}
-
-function isPacificDateOnOrAfter(date, month, day) {
-    const parts = getPacificDateParts(date);
-    return parts.month > month || (parts.month === month && parts.day >= day);
-}
-
-function isPacificDateBefore(date, month, day) {
-    const parts = getPacificDateParts(date);
-    return parts.month < month || (parts.month === month && parts.day < day);
-}
-
-function renderChampionRecapComingSoon() {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return;
-
-    stopKickoffCountdown();
-    clearScoreboardRefreshTimer();
-    setCenterColumnTitle("Champion Recap");
-
-    const seasonYear = getPacificDateParts().year;
-
-    container.innerHTML = `
-        <section class="tcwr-recap-coming-card">
-            <div class="tcwr-recap-coming-kicker">🏆 TCWR DY-NASTY</div>
-            <h2 class="tcwr-recap-coming-title">Champion Recap</h2>
-            <div class="tcwr-recap-coming-date">Check Back December 28</div>
-            <p class="tcwr-recap-coming-copy">
-                The ${seasonYear} fantasy season is complete. The Champion Recap will take over the screen on December 28.
-            </p>
-        </section>
-    `;
-}
-
-function renderChampionRecapTv() {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return;
-
-    stopKickoffCountdown();
-    clearScoreboardRefreshTimer();
-    setCenterColumnTitle("Champion Recap");
-
-    const playlistEmbedUrl =
-        `https://www.youtube.com/embed?listType=playlist` +
-        `&list=${encodeURIComponent(CHAMPION_RECAP_PLAYLIST_ID)}` +
-        `&autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1`;
-
-    container.innerHTML = `
-        <section class="tcwr-recap-tv-shell" aria-label="TCWR Champion Recap">
-            <img
-                class="tcwr-recap-tv-image"
-                src="retrotv.jpeg?v=1"
-                alt="Retro television frame for the TCWR Champion Recap"
-            >
-            <div class="tcwr-recap-tv-screen">
-                <iframe
-                    src="${playlistEmbedUrl}"
-                    title="TCWR Champion Recap"
-                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                    allowfullscreen
-                    referrerpolicy="strict-origin-when-cross-origin"
-                ></iframe>
-            </div>
-            <a
-                class="tcwr-recap-tv-fallback-link"
-                href="${CHAMPION_RECAP_PLAYLIST_URL}"
-                target="_blank"
-                rel="noopener noreferrer"
-            >Open playlist on YouTube</a>
-        </section>
-    `;
-}
-
-function getNextNflSeasonStartDate() {
-    const now = new Date();
-    const pacific = getPacificDateParts(now);
-    const targetYear =
-        pacific.month < NFL_SEASON_START_MONTH ||
-        (pacific.month === NFL_SEASON_START_MONTH && pacific.day < NFL_SEASON_START_DAY)
-            ? pacific.year
-            : pacific.year + 1;
-
-    return getAnnualNflSeasonStartDate(targetYear);
-}
-
-function createOffseasonCountdown() {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return null;
-
-    stopKickoffCountdown();
-    clearScoreboardRefreshTimer();
-    setCenterColumnTitle("Countdown to Football");
-    container.innerHTML = "";
-
-    const targetDate = getNextNflSeasonStartDate();
-    const targetYear = targetDate.getFullYear();
-
-    const countdownCard = document.createElement("section");
-    countdownCard.id = "nfl-kickoff-countdown";
-    countdownCard.className = "tcwr-offseason-card";
-
-    countdownCard.innerHTML = `
-        <div class="tcwr-offseason-kicker">🏈 TCWR DY-NASTY</div>
-        <h2 class="tcwr-offseason-title">Countdown to Football</h2>
-        <div class="tcwr-offseason-target">September 3, ${targetYear}</div>
-
-        <div id="kickoff-countdown-grid" class="tcwr-offseason-grid">
-            ${createCountdownUnit("days", "Days")}
-            ${createCountdownUnit("hours", "Hours")}
-            ${createCountdownUnit("minutes", "Minutes")}
-            ${createCountdownUnit("seconds", "Seconds")}
+                ${createCountdownUnit("seconds", "Seconds")}
         </div>
 
         <p class="tcwr-offseason-note">
@@ -4914,3 +5186,4 @@ window.openLeagueChat = function () {
 
 </body>
 </html>
+

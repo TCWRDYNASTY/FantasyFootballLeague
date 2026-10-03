@@ -124,17 +124,9 @@ button{
 
 .field{
   position:relative;
-
   width:100%;
-
-  /*
-     racefield.png is the football field image.
-  */
-
   aspect-ratio:2 / 1;
-
   overflow:hidden;
-
   border-radius:14px;
   border:5px solid #fff;
 
@@ -152,10 +144,8 @@ button{
 .status{
   text-align:center;
   min-height:24px;
-
   font-weight:800;
   color:#d8b45a;
-
   margin:8px;
 }
 
@@ -166,68 +156,26 @@ button{
 
 .runner{
   position:absolute;
-
   left:8%;
-
   transform:translateY(-50%);
-
   z-index:10;
-
   transition:left .15s linear;
 }
 
 
 /* =========================================================
-   PLAYER IMAGE
+   FIELD IMAGE
    ========================================================= */
 
 .player-image{
   display:block;
-
   width:58px;
   height:58px;
-
   object-fit:cover;
-
   border-radius:50%;
-
   border:3px solid #d8b45a;
-
   background:#071522;
-
-  box-shadow:
-    2px 3px 5px rgba(0,0,0,.55);
-}
-
-
-/* =========================================================
-   NAME / ODDS TAG
-   ========================================================= */
-
-.tag{
-  position:absolute;
-
-  left:66px;
-  top:50%;
-
-  transform:translateY(-50%);
-
-  white-space:nowrap;
-
-  background:rgba(4,14,23,.92);
-
-  padding:8px 10px;
-
-  border-radius:6px;
-
-  font:800 14px "Barlow Condensed",sans-serif;
-
-  border-left:4px solid #d8b45a;
-
-  box-shadow:
-    2px 3px 5px rgba(0,0,0,.4);
-
-  z-index:20;
+  box-shadow:2px 3px 5px rgba(0,0,0,.55);
 }
 
 
@@ -250,9 +198,7 @@ button{
 .result-list li{
   display:flex;
   justify-content:space-between;
-
   padding:9px 10px;
-
   border-bottom:1px solid #294354;
 }
 
@@ -278,8 +224,8 @@ button{
       70px
       minmax(150px,1.5fr);
   }
-}
 
+}
 
 @media(max-width:560px){
 
@@ -304,16 +250,11 @@ button{
     height:44px;
   }
 
-  .tag{
-    left:50px;
-    font-size:11px;
-    padding:6px 7px;
-  }
 }
 
 
 /* =========================================================
-   COMMISSIONER / PERMANENT TEAM LABELS
+   COMMISSIONER
    ========================================================= */
 
 .hidden{
@@ -394,6 +335,11 @@ button{
   cursor:not-allowed;
 }
 
+
+/* =========================================================
+   PERMANENT TEAM KEY
+   ========================================================= */
+
 .permanent-labels{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -452,17 +398,17 @@ button{
   visibility:visible !important;
 }
 
-.runner .tag{
-  pointer-events:none;
-}
 
 @media(max-width:900px){
+
   .permanent-labels{
     grid-template-columns:repeat(2,1fr);
   }
+
 }
 
 @media(max-width:560px){
+
   .permanent-labels{
     grid-template-columns:1fr 1fr;
   }
@@ -471,6 +417,7 @@ button{
     min-width:170px;
     width:100%;
   }
+
 }
 
 </style>
@@ -588,11 +535,7 @@ button{
 
 
 <!-- =======================================================
-     TEAM EDITOR
-     =======================================================
-
-     This entire section is hidden unless Commissioner
-     tools are unlocked.
+     TEAM SETTINGS
      ======================================================= -->
 
 <div
@@ -623,7 +566,7 @@ button{
 
 
 <!-- =======================================================
-     PERMANENT TEAM LABELS
+     PERMANENT TEAM KEY
      ======================================================= -->
 
 <div
@@ -660,7 +603,6 @@ button{
 
 /* =========================================================
    TCWR 100-YARD DRAFT DASH
-   BACKEND + COMMISSIONER + REVERSE ODDS
    ========================================================= */
 
 import {
@@ -684,7 +626,7 @@ const SUPABASE_URL =
   'https://jheqfwykhvyngfqawknr.supabase.co';
 
 const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmxlIiwicmVmIjoiamhlcWZ3eWt2eW5nZnFhd2tuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
 
 const SUPABASE_TABLE_NAME =
   'draft_configs';
@@ -913,38 +855,14 @@ function showStatus(message){
 
 
 /* =========================================================
-   COMMISSIONER INPUT VISIBILITY
-   ========================================================= */
-
-function setCommissionerInputsEnabled(
-  enabled
-){
-
-  inputs
-    .querySelectorAll(
-      "input"
-    )
-    .forEach(
-      input => {
-
-        input.disabled =
-          !enabled;
-
-      }
-    );
-
-}
-
-
-/* =========================================================
    TEAM EDITOR
    ========================================================= */
 
 function renderInputs(){
 
   /*
-     The entire team settings panel is hidden
-     unless Commissioner tools are unlocked.
+     Team settings are only visible while
+     Commissioner tools are unlocked.
   */
 
   if(teamSettingsPanel){
@@ -1010,19 +928,8 @@ function renderInputs(){
     }
   );
 
-
-  setCommissionerInputsEnabled(
-    commissionerUnlocked
-  );
-
-  renderPermanentLabels();
-
 }
 
-
-/* =========================================================
-   LIVE TEAM EDITING
-   ========================================================= */
 
 inputs.addEventListener(
   "input",
@@ -1084,14 +991,14 @@ inputs.addEventListener(
 
     renderPermanentLabels();
 
-    refreshRunnerLabels();
+    refreshRunnerImages();
 
   }
 );
 
 
 /* =========================================================
-   PERMANENT TEAM LABELS
+   PERMANENT TEAM KEY
    ========================================================= */
 
 function renderPermanentLabels(){
@@ -1116,48 +1023,59 @@ function renderPermanentLabels(){
         "permanent-team";
 
 
-      const image =
-        team.image
+      let imageHTML;
 
-          ? `
 
-            <img
-              src="${escapeHTML(team.image)}"
-              alt="${escapeHTML(team.name)}"
-              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-            >
+      if(team.image){
 
-            <div
-              class="label-image-placeholder"
-              style="display:none;"
-            >
-              ${escapeHTML(
-                team.name
-                  .charAt(0)
-                  .toUpperCase()
-              )}
-            </div>
+        imageHTML = `
 
-          `
+          <img
+            src="${escapeHTML(team.image)}"
+            alt="${escapeHTML(team.name)}"
+            onerror="
+              this.style.display='none';
+              this.nextElementSibling.style.display='flex';
+            "
+          >
 
-          : `
+          <div
+            class="label-image-placeholder"
+            style="display:none;"
+          >
+            ${escapeHTML(
+              team.name
+                .charAt(0)
+                .toUpperCase()
+            )}
+          </div>
 
-            <div
-              class="label-image-placeholder"
-            >
-              ${escapeHTML(
-                team.name
-                  .charAt(0)
-                  .toUpperCase()
-              )}
-            </div>
+        `;
 
-          `;
+      }
+
+      else{
+
+        imageHTML = `
+
+          <div
+            class="label-image-placeholder"
+          >
+            ${escapeHTML(
+              team.name
+                .charAt(0)
+                .toUpperCase()
+            )}
+          </div>
+
+        `;
+
+      }
 
 
       box.innerHTML = `
 
-        ${image}
+        ${imageHTML}
 
         <div
           class="permanent-team-text"
@@ -1191,19 +1109,19 @@ function renderPermanentLabels(){
 
 
 /* =========================================================
-   REFRESH RUNNER LABELS
+   UPDATE FIELD IMAGES
    ========================================================= */
 
-function refreshRunnerLabels(){
+function refreshRunnerImages(){
 
   runners.forEach(
-    r => {
+    runner => {
 
       const team =
         teams.find(
           t =>
             String(t.id) ===
-            String(r.team.id)
+            String(runner.team.id)
         );
 
 
@@ -1211,26 +1129,12 @@ function refreshRunnerLabels(){
         return;
 
 
-      r.team =
+      runner.team =
         team;
 
 
-      const tag =
-        r.el.querySelector(
-          ".tag"
-        );
-
-
-      if(tag){
-
-        tag.innerHTML =
-          `${escapeHTML(team.name)} • ${team.weight}%`;
-
-      }
-
-
       const image =
-        r.el.querySelector(
+        runner.el.querySelector(
           ".player-image"
         );
 
@@ -1324,18 +1228,6 @@ function weightedPick(pool){
 
 /* =========================================================
    REVERSE-WEIGHTED DRAFT
-   =========================================================
-
-   Pick #8:
-   weighted draw from all 8.
-
-   Pick #7:
-   weighted draw from remaining 7.
-
-   Continue through Pick #2.
-
-   Pick #1:
-   last remaining team by elimination.
    ========================================================= */
 
 function createReverseDraftOrder(){
@@ -1351,6 +1243,12 @@ function createReverseDraftOrder(){
   const order =
     [];
 
+
+  /*
+     Pick #8
+     through
+     Pick #2
+  */
 
   for(
     let pick =
@@ -1382,13 +1280,6 @@ function createReverseDraftOrder(){
     });
 
 
-    /*
-       Remove the selected team.
-
-       IDs are compared as strings so this works
-       whether Supabase returns numeric or text IDs.
-    */
-
     pool =
       pool.filter(
         team =>
@@ -1400,7 +1291,7 @@ function createReverseDraftOrder(){
 
 
   /*
-     Last remaining team becomes Pick #1.
+     Final remaining team gets Pick #1.
   */
 
   if(
@@ -1426,7 +1317,7 @@ function createReverseDraftOrder(){
 
 
 /* =========================================================
-   SUPABASE — LOAD TEAM CONFIGURATION
+   SUPABASE — LOAD TEAMS
    ========================================================= */
 
 async function loadTeamsFromSupabase(){
@@ -1491,10 +1382,6 @@ async function loadTeamsFromSupabase(){
 
           return {
 
-            /*
-               Preserve the actual Supabase ID.
-            */
-
             id:
               String(row.id),
 
@@ -1543,7 +1430,7 @@ async function loadTeamsFromSupabase(){
 
 
 /* =========================================================
-   SUPABASE — SAVE TEAM CONFIGURATION
+   SUPABASE — SAVE TEAM CONFIG
    ========================================================= */
 
 async function saveTeamsToSupabase(){
@@ -1686,7 +1573,7 @@ async function saveDraftOrderToSupabase(
 
 
 /* =========================================================
-   SUPABASE — LOAD DRAFT ORDER
+   SUPABASE — LOAD SAVED DRAFT
    ========================================================= */
 
 async function loadDraftOrderFromSupabase(){
@@ -1799,7 +1686,7 @@ async function loadDraftOrderFromSupabase(){
 
 
 /* =========================================================
-   SUPABASE — RESET SAVED DRAFT
+   SUPABASE — CLEAR SAVED DRAFT
    ========================================================= */
 
 async function clearDraftOrderFromSupabase(){
@@ -1850,7 +1737,7 @@ async function clearDraftOrderFromSupabase(){
 
 
 /* =========================================================
-   COMMISSIONER LOCK
+   COMMISSIONER
    ========================================================= */
 
 function openCommissioner(){
@@ -1897,11 +1784,6 @@ function lockCommissioner(){
 
   closeCommissioner();
 
-
-  /*
-     renderInputs() also hides the
-     team settings panel.
-  */
 
   renderInputs();
 
@@ -1954,11 +1836,6 @@ function unlockCommissioner(){
   commissionerPassword.value =
     "";
 
-
-  /*
-     renderInputs() reveals the
-     team settings panel.
-  */
 
   renderInputs();
 
@@ -2022,6 +1899,14 @@ async function saveConfiguration(){
 
 /* =========================================================
    CREATE RUNNER
+   =========================================================
+
+   IMPORTANT:
+
+   The runner shows ONLY the image.
+
+   The team name and odds are now handled by
+   the permanent key underneath the field.
    ========================================================= */
 
 function addRunner(
@@ -2058,62 +1943,79 @@ function addRunner(
     "8%";
 
 
-  const imageHTML =
-    team.image
+  let imageHTML;
 
-      ? `
 
-        <img
-          class="player-image"
-          src="${escapeHTML(team.image)}"
-          alt="${escapeHTML(team.name)}"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        >
+  if(team.image){
 
-        <div
-          class="player-image"
-          style="display:none;align-items:center;justify-content:center;font-weight:900;color:#fff;"
-        >
-          ${escapeHTML(
-            team.name
-              .charAt(0)
-              .toUpperCase()
-          )}
-        </div>
+    imageHTML = `
 
-      `
+      <img
+        class="player-image"
+        src="${escapeHTML(team.image)}"
+        alt="${escapeHTML(team.name)}"
+        onerror="
+          this.style.display='none';
+          this.nextElementSibling.style.display='flex';
+        "
+      >
 
-      : `
+      <div
+        class="player-image"
+        style="
+          display:none;
+          align-items:center;
+          justify-content:center;
+          font-weight:900;
+          color:#fff;
+        "
+      >
+        ${escapeHTML(
+          team.name
+            .charAt(0)
+            .toUpperCase()
+        )}
+      </div>
 
-        <div
-          class="player-image"
-          style="display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;"
-        >
-          ${escapeHTML(
-            team.name
-              .charAt(0)
-              .toUpperCase()
-          )}
-        </div>
+    `;
 
-      `;
+  }
 
+  else{
+
+    imageHTML = `
+
+      <div
+        class="player-image"
+        style="
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-weight:900;
+          color:#fff;
+        "
+      >
+        ${escapeHTML(
+          team.name
+            .charAt(0)
+            .toUpperCase()
+        )}
+      </div>
+
+    `;
+
+  }
+
+
+  /*
+     NO NAME TAG HERE.
+
+     The field only displays the team image.
+  */
 
   el.innerHTML = `
 
     ${imageHTML}
-
-    <div class="tag">
-
-      ${escapeHTML(
-        team.name
-      )}
-
-      •
-
-      ${team.weight}%
-
-    </div>
 
   `;
 
@@ -2171,7 +2073,7 @@ function resetVisuals(){
 
 
 /* =========================================================
-   DISPLAY RESULTS
+   DISPLAY FINAL RESULTS
    ========================================================= */
 
 function renderResults(
@@ -2239,7 +2141,7 @@ function renderResults(
 
 
 /* =========================================================
-   REVEAL ONE DRAFT RESULT
+   REVEAL ONE RESULT
    ========================================================= */
 
 function revealDraftResult(
@@ -2284,7 +2186,7 @@ function revealDraftResult(
 
 
 /* =========================================================
-   RUN THE DASH
+   START THE RACE
    ========================================================= */
 
 async function start(){
@@ -2299,13 +2201,13 @@ async function start(){
   /*
      IMPORTANT:
 
-     Supabase is the single source of truth.
+     If a draft already exists in Supabase,
+     we use that exact order.
 
-     If a draft already exists, NEVER generate
-     another random order.
+     We DO NOT generate another random draft.
 
-     Everyone gets the same saved result until
-     the Commissioner resets the saved draft.
+     This is what makes the result identical
+     for everyone.
   */
 
   if(
@@ -2374,8 +2276,7 @@ async function start(){
 
 
   /*
-     Make a clean copy of the official
-     saved result for the race.
+     Copy the official saved order.
   */
 
   const order =
@@ -2402,12 +2303,9 @@ async function start(){
   );
 
 
-  /*
-     Create all runners.
-
-     They stay visible after crossing the
-     finish line.
-  */
+  /* =======================================================
+     CREATE RUNNERS
+     ======================================================= */
 
   runners =
     teams.map(
@@ -2439,26 +2337,29 @@ async function start(){
     );
 
 
-  /*
-     The saved order is already in reveal order:
+  /* =======================================================
+     90-SECOND RACE
+     =======================================================
 
-     #8
-     #7
-     #6
-     #5
-     #4
-     #3
-     #2
-     #1
+     #8 = 76 seconds
+     #7 = 78 seconds
+     #6 = 80 seconds
+     #5 = 82 seconds
+     #4 = 84 seconds
+     #3 = 86 seconds
+     #2 = 88 seconds
+     #1 = 90 seconds
 
-     Give them deliberately tight finish times.
-  */
+     The 2-second separation is intentionally small.
+     The pack therefore remains together.
+     ======================================================= */
 
   const baseFinish =
-    14500;
+    76000;
+
 
   const finishGap =
-    450;
+    2000;
 
 
   order.forEach(
@@ -2488,10 +2389,10 @@ async function start(){
 
 
       /*
-         No random jitter here.
+         Deterministic timing.
 
-         The visual race is deterministic,
-         so everyone sees the same race behavior.
+         No random jitter means the visual race
+         is the same for everyone.
       */
 
       runner.finish =
@@ -2515,6 +2416,10 @@ async function start(){
     finishGap;
 
 
+  /* =======================================================
+     REVEAL RUNNER
+     ======================================================= */
+
   function revealRunner(
     r
   ){
@@ -2536,20 +2441,6 @@ async function start(){
       "84%";
 
 
-    const tag =
-      r.el.querySelector(
-        ".tag"
-      );
-
-
-    if(tag){
-
-      tag.innerHTML =
-        `${escapeHTML(r.team.name)} • ${r.team.weight}%`;
-
-    }
-
-
     const result =
       order.find(
         item =>
@@ -2561,8 +2452,8 @@ async function start(){
     if(result){
 
       /*
-         Reveal the draft result immediately
-         when this runner crosses.
+         Reveal the draft order immediately
+         when the runner crosses.
       */
 
       revealDraftResult(
@@ -2573,6 +2464,10 @@ async function start(){
 
   }
 
+
+  /* =======================================================
+     ANIMATION
+     ======================================================= */
 
   function frame(
     now
@@ -2598,6 +2493,10 @@ async function start(){
           r.finish;
 
 
+        /*
+           Individual progress.
+        */
+
         const individualProgress =
           Math.min(
             1,
@@ -2606,15 +2505,20 @@ async function start(){
           );
 
 
+        /*
+           Shared progress keeps the runners
+           physically close together.
+        */
+
         const sharedProgress =
           overallProgress;
 
 
         /*
-           Everyone shares almost the exact
-           same race progress.
+           88% shared movement
+           12% individual movement.
 
-           This keeps the pack together.
+           This is what creates the pack effect.
         */
 
         const progress =
@@ -2636,11 +2540,9 @@ async function start(){
 
 
         /*
-           Small deterministic surges and fades.
+           Small surges and fades.
 
-           These make the race look alive
-           without allowing anyone to pull
-           far away.
+           These are intentionally subtle.
         */
 
         const phase =
@@ -2720,6 +2622,11 @@ async function start(){
           "%";
 
 
+        /*
+           When the actual finish time is reached,
+           reveal that draft position.
+        */
+
         if(
           elapsed >=
           finishTime
@@ -2735,6 +2642,11 @@ async function start(){
     );
 
 
+    /*
+       Race is finished once every runner
+       has crossed the line.
+    */
+
     if(
       runners.every(
         r =>
@@ -2747,8 +2659,7 @@ async function start(){
 
 
       /*
-         Once the race is completely over,
-         display the final draft order from
+         Final display is sorted properly:
          Pick #1 through Pick #8.
       */
 
@@ -2785,7 +2696,7 @@ async function start(){
 
 
 /* =========================================================
-   LOAD SAVED RESULT WITHOUT RUNNING THE RACE
+   SHOW SAVED DRAFT
    ========================================================= */
 
 function showSavedDraft(){
@@ -2804,11 +2715,10 @@ function showSavedDraft(){
 
 
   /*
-     A completed saved draft is shown when
-     the page loads.
+     If the page loads after a completed draft,
+     show the saved result immediately.
 
-     Clicking START will replay the exact
-     same saved order rather than drawing again.
+     Pressing START will replay the same order.
   */
 
   runners =
@@ -2883,14 +2793,17 @@ async function initialize(){
 
 
   /*
-     The team settings panel remains hidden
-     because Commissioner is locked.
+     Commissioner remains locked by default.
   */
 
   renderInputs();
 
   renderPermanentLabels();
 
+
+  /*
+     Load the official saved draft.
+  */
 
   savedDraftOrder =
     await loadDraftOrderFromSupabase();
@@ -2929,6 +2842,15 @@ document
   );
 
 
+/*
+   Normal RESET:
+
+   Clears the visual race only.
+
+   It does NOT delete the official saved
+   draft order in Supabase.
+*/
+
 document
   .getElementById(
     "reset"
@@ -2936,16 +2858,6 @@ document
   .addEventListener(
     "click",
     () => {
-
-      /*
-         IMPORTANT:
-
-         Normal RESET only resets the visual race.
-         It does NOT delete the official Supabase draft.
-
-         Therefore pressing START again will replay
-         the exact same draft order.
-      */
 
       resetVisuals();
 
@@ -2960,6 +2872,10 @@ document
     }
   );
 
+
+/* =========================================================
+   COMMISSIONER BUTTONS
+   ========================================================= */
 
 commissionerBtn
   .addEventListener(
@@ -3052,7 +2968,7 @@ resetDraftBtn
 
 
 /* =========================================================
-   START
+   START APPLICATION
    ========================================================= */
 
 initialize();

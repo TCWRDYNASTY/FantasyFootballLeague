@@ -168,10 +168,6 @@ button{
 .runner{
   position:absolute;
 
-  /*
-     The runner itself stays inside the field.
-  */
-
   left:8%;
 
   transform:translateY(-50%);
@@ -203,12 +199,6 @@ button{
   box-shadow:
     2px 3px 5px rgba(0,0,0,.55);
 }
-
-
-/*
-   If you want square images instead of circular
-   portraits, change border-radius to 8px.
-*/
 
 
 /* =========================================================
@@ -274,6 +264,151 @@ button{
 
 
 /* =========================================================
+   COMMISSIONER / PERMANENT TEAM LABELS
+   ========================================================= */
+
+.hidden{
+  display:none !important;
+}
+
+#commissionerBtn{
+  background:#d8b45a;
+  color:#071522;
+}
+
+#commissionerArea{
+  margin-bottom:16px;
+}
+
+#commissionerLoginBox,
+#commissionerPanel{
+  background:#0c1d2b;
+  border:1px solid #294354;
+  border-radius:12px;
+  padding:14px;
+  margin-top:10px;
+}
+
+#commissionerLoginBox{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+#commissionerPassword{
+  padding:10px 12px;
+  border-radius:7px;
+  border:1px solid #405765;
+  background:#081722;
+  color:#fff;
+  min-width:220px;
+}
+
+#commissionerPanel h3{
+  margin:0 0 8px;
+  color:#d8b45a;
+}
+
+.commissioner-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+#saveConfigBtn{
+  background:#2d8a57;
+  color:#fff;
+}
+
+#lockCommissionerBtn{
+  background:#243746;
+  color:#fff;
+}
+
+#resetDraftBtn{
+  background:#8e3d3d;
+  color:#fff;
+}
+
+.lock-note{
+  text-align:center;
+  color:#9fb0ba;
+  font-size:12px;
+  margin:6px 0 0;
+}
+
+.team-edit input:disabled{
+  opacity:.72;
+  cursor:not-allowed;
+}
+
+.permanent-labels{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:16px;
+}
+
+.permanent-team{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+  background:#0c1d2b;
+  border:1px solid #294354;
+  border-radius:10px;
+  padding:8px 10px;
+}
+
+.permanent-team img,
+.permanent-team .label-image-placeholder{
+  width:40px;
+  height:40px;
+  flex:0 0 40px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #d8b45a;
+  background:#071522;
+}
+
+.label-image-placeholder{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+}
+
+.permanent-team-text{
+  min-width:0;
+}
+
+.permanent-team-name{
+  font:800 14px "Barlow Condensed",sans-serif;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.permanent-team-odds{
+  color:#d8b45a;
+  font-size:11px;
+  font-weight:800;
+}
+
+.runner.finished{
+  opacity:1 !important;
+  visibility:visible !important;
+}
+
+.runner .tag{
+  pointer-events:none;
+}
+
+
+/* =========================================================
    RESPONSIVE
    ========================================================= */
 
@@ -288,6 +423,10 @@ button{
       minmax(110px,1fr)
       70px
       minmax(150px,1.5fr);
+  }
+
+  .permanent-labels{
+    grid-template-columns:repeat(2,1fr);
   }
 }
 
@@ -320,6 +459,15 @@ button{
     font-size:11px;
     padding:6px 7px;
   }
+
+  .permanent-labels{
+    grid-template-columns:1fr 1fr;
+  }
+
+  #commissionerPassword{
+    min-width:170px;
+    width:100%;
+  }
 }
 
 </style>
@@ -351,6 +499,83 @@ button{
     RESET
   </button>
 
+  <button id="commissionerBtn" type="button">
+    COMMISSIONER
+  </button>
+
+</div>
+
+
+<!-- =======================================================
+     COMMISSIONER
+     ======================================================= -->
+
+<div id="commissionerArea">
+
+  <div id="commissionerLoginBox" class="hidden">
+
+    <input
+      id="commissionerPassword"
+      type="password"
+      placeholder="Commissioner password"
+      autocomplete="off"
+    >
+
+    <button
+      id="unlockCommissionerBtn"
+      type="button"
+    >
+      UNLOCK
+    </button>
+
+    <button
+      id="cancelCommissionerBtn"
+      type="button"
+    >
+      CANCEL
+    </button>
+
+  </div>
+
+
+  <div id="commissionerPanel" class="hidden">
+
+    <h3>
+      Commissioner Controls
+    </h3>
+
+    <div class="lock-note">
+      Edit team names, reverse-draft odds, and permanent image URLs.
+      Changes are saved to Supabase.
+    </div>
+
+    <div class="commissioner-actions">
+
+      <button
+        id="saveConfigBtn"
+        type="button"
+      >
+        SAVE CONFIGURATION
+      </button>
+
+      <button
+        id="resetDraftBtn"
+        type="button"
+      >
+        RESET SAVED DRAFT
+      </button>
+
+      <button
+        id="lockCommissionerBtn"
+        type="button"
+      >
+        LOCK
+      </button>
+
+    </div>
+
+  </div>
+
 </div>
 
 
@@ -365,7 +590,15 @@ button{
 
 <div class="panel">
 
-  <div class="teams" id="teamInputs"></div>
+  <div
+    class="teams"
+    id="teamInputs"
+  ></div>
+
+  <div class="lock-note">
+    Team settings are locked.
+    Use Commissioner to edit them.
+  </div>
 
 </div>
 
@@ -374,7 +607,20 @@ button{
      FOOTBALL FIELD
      ======================================================= -->
 
-<div class="field" id="field"></div>
+<div
+  class="field"
+  id="field"
+></div>
+
+
+<!-- =======================================================
+     PERMANENT TEAM LABELS
+     ======================================================= -->
+
+<div
+  class="permanent-labels"
+  id="permanentLabels"
+></div>
 
 
 <!-- =======================================================
@@ -389,7 +635,10 @@ button{
       Draft Order
     </h2>
 
-    <ol id="draftOrder" class="result-list"></ol>
+    <ol
+      id="draftOrder"
+      class="result-list"
+    ></ol>
 
   </div>
 
@@ -398,23 +647,47 @@ button{
 </div>
 
 
-<script>
+<script type="module">
+
+/* =========================================================
+   TCWR 100-YARD DRAFT DASH
+   BACKEND + COMMISSIONER + REVERSE ODDS
+   ========================================================= */
+
+import {
+  createClient
+} from 'https://esm.sh/@supabase/supabase-js@2';
+
+
+/* =========================================================
+   SUPABASE
+   ========================================================= */
+
+const COMMISSIONER_PASSWORD =
+  'Asher';
+
+const SUPABASE_URL =
+  'https://jheqfwykhvyngfqawknr.supabase.co';
+
+const SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+
+const SUPABASE_TABLE_NAME =
+  'draft_configs';
+
+const SUPABASE_ORDERS_TABLE_NAME =
+  'draft_orders';
+
+const supabase =
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
 
 
 /* =========================================================
    DEFAULT TEAMS
-   =========================================================
-
-   IMAGE URL:
-   Paste your GitHub RAW image URL here.
-
-   Example:
-
-   https://raw.githubusercontent.com/USERNAME/REPO/main/images/matt.png
-
-   You can also enter the URLs directly on the website
-   using the Image URL boxes.
-*/
+   ========================================================= */
 
 const defaultTeams = [
 
@@ -478,104 +751,257 @@ const defaultTeams = [
 
 
 let teams =
-  defaultTeams.map(x => ({...x}));
-
+  defaultTeams.map(
+    t => ({...t})
+  );
 
 let runners = [];
 
-let raceRunning = false;
+let raceRunning =
+  false;
 
-let raf = 0;
+let raf =
+  0;
+
+let commissionerUnlocked =
+  false;
+
+let savedDraftOrder =
+  [];
 
 
 /* =========================================================
-   TEAM INPUTS
+   DOM
    ========================================================= */
 
 const inputs =
-  document.getElementById("teamInputs");
+  document.getElementById(
+    "teamInputs"
+  );
 
+const field =
+  document.getElementById(
+    "field"
+  );
 
-function renderInputs(){
+const status =
+  document.getElementById(
+    "status"
+  );
 
-  inputs.innerHTML = "";
+const draftOrderList =
+  document.getElementById(
+    "draftOrder"
+  );
 
-  teams.forEach((t)=>{
+const permanentLabels =
+  document.getElementById(
+    "permanentLabels"
+  );
 
-    const box =
-      document.createElement("div");
+const commissionerBtn =
+  document.getElementById(
+    "commissionerBtn"
+  );
 
-    box.className =
-      "team-edit";
+const commissionerLoginBox =
+  document.getElementById(
+    "commissionerLoginBox"
+  );
 
-    box.innerHTML = `
+const commissionerPanel =
+  document.getElementById(
+    "commissionerPanel"
+  );
 
-      <input
-        data-id="${t.id}"
-        data-type="name"
-        value="${escapeHTML(t.name)}"
-        placeholder="Team name"
-      >
+const commissionerPassword =
+  document.getElementById(
+    "commissionerPassword"
+  );
 
-      <input
-        data-id="${t.id}"
-        data-type="weight"
-        type="number"
-        min="1"
-        value="${t.weight}"
-      >
+const unlockCommissionerBtn =
+  document.getElementById(
+    "unlockCommissionerBtn"
+  );
 
-      <input
-        data-id="${t.id}"
-        data-type="image"
-        value="${escapeHTML(t.image)}"
-        placeholder="GitHub image URL"
-      >
+const cancelCommissionerBtn =
+  document.getElementById(
+    "cancelCommissionerBtn"
+  );
 
-    `;
+const lockCommissionerBtn =
+  document.getElementById(
+    "lockCommissionerBtn"
+  );
 
-    inputs.appendChild(box);
+const saveConfigBtn =
+  document.getElementById(
+    "saveConfigBtn"
+  );
 
-  });
-
-}
+const resetDraftBtn =
+  document.getElementById(
+    "resetDraftBtn"
+  );
 
 
 /* =========================================================
-   ESCAPE HTML
+   HELPERS
    ========================================================= */
 
 function escapeHTML(value){
 
   return String(value)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+function showStatus(message){
+
+  if(status){
+
+    status.textContent =
+      message;
+
+  }
+
+}
+
+
+function setCommissionerInputsEnabled(
+  enabled
+){
+
+  inputs
+    .querySelectorAll(
+      "input"
+    )
+    .forEach(
+      input => {
+
+        input.disabled =
+          !enabled;
+
+      }
+    );
 
 }
 
 
 /* =========================================================
-   UPDATE TEAM DATA
+   TEAM EDITOR
+   ========================================================= */
+
+function renderInputs(){
+
+  inputs.innerHTML =
+    "";
+
+  teams.forEach(
+    t => {
+
+      const box =
+        document.createElement(
+          "div"
+        );
+
+      box.className =
+        "team-edit";
+
+      box.innerHTML = `
+
+        <input
+          data-id="${t.id}"
+          data-type="name"
+          value="${escapeHTML(t.name)}"
+          placeholder="Team name"
+          ${commissionerUnlocked ? "" : "disabled"}
+        >
+
+        <input
+          data-id="${t.id}"
+          data-type="weight"
+          type="number"
+          min="1"
+          value="${t.weight}"
+          ${commissionerUnlocked ? "" : "disabled"}
+        >
+
+        <input
+          data-id="${t.id}"
+          data-type="image"
+          value="${escapeHTML(t.image || "")}"
+          placeholder="Permanent image URL"
+          ${commissionerUnlocked ? "" : "disabled"}
+        >
+
+      `;
+
+      inputs.appendChild(
+        box
+      );
+
+    }
+  );
+
+  setCommissionerInputsEnabled(
+    commissionerUnlocked
+  );
+
+  renderPermanentLabels();
+
+}
+
+
+/* =========================================================
+   LIVE TEAM EDITING
    ========================================================= */
 
 inputs.addEventListener(
   "input",
   e => {
 
-    const id =
-      +e.target.dataset.id;
-
-    const t =
-      teams.find(
-        x => x.id === id
-      );
-
-    if(!t)
+    if(!commissionerUnlocked)
       return;
 
+    const id =
+      Number(
+        e.target.dataset.id
+      );
+
+    const team =
+      teams.find(
+        t =>
+          t.id === id
+      );
+
+    if(!team)
+      return;
 
     const type =
       e.target.dataset.type;
@@ -583,94 +1009,337 @@ inputs.addEventListener(
 
     if(type === "name"){
 
-      t.name =
+      team.name =
         e.target.value;
 
     }
 
 
-    else if(type === "weight"){
+    if(type === "weight"){
 
-      t.weight =
+      team.weight =
         Math.max(
           1,
-          +e.target.value || 1
+          Number(
+            e.target.value
+          ) || 1
         );
 
     }
 
 
-    else if(type === "image"){
+    if(type === "image"){
 
-      t.image =
-        e.target.value;
+      team.image =
+        e.target.value.trim();
 
     }
+
+    renderPermanentLabels();
+
+    refreshRunnerLabels();
 
   }
 );
 
 
 /* =========================================================
-   WEIGHTED RANDOM SELECTION
+   PERMANENT TEAM LABELS
    ========================================================= */
 
-function weightedPick(pool){
+function renderPermanentLabels(){
 
-  const total =
-    pool.reduce(
-      (s,t) =>
-        s + t.weight,
-      0
-    );
+  if(!permanentLabels)
+    return;
 
+  permanentLabels.innerHTML =
+    "";
 
-  let r =
-    Math.random() * total;
+  teams.forEach(
+    team => {
 
+      const box =
+        document.createElement(
+          "div"
+        );
 
-  for(const t of pool){
-
-    r -= t.weight;
-
-    if(r <= 0)
-      return t;
-
-  }
+      box.className =
+        "permanent-team";
 
 
-  return pool[pool.length - 1];
+      const image =
+        team.image
+
+          ? `
+
+            <img
+              src="${escapeHTML(team.image)}"
+              alt="${escapeHTML(team.name)}"
+              onerror="
+                this.style.display='none';
+                this.nextElementSibling.style.display='flex';
+              "
+            >
+
+            <div
+              class="label-image-placeholder"
+              style="display:none;"
+            >
+              ${escapeHTML(
+                team.name
+                  .charAt(0)
+                  .toUpperCase()
+              )}
+            </div>
+
+          `
+
+          : `
+
+            <div
+              class="label-image-placeholder"
+            >
+              ${escapeHTML(
+                team.name
+                  .charAt(0)
+                  .toUpperCase()
+              )}
+            </div>
+
+          `;
+
+
+      box.innerHTML = `
+
+        ${image}
+
+        <div
+          class="permanent-team-text"
+        >
+
+          <div
+            class="permanent-team-name"
+          >
+            ${escapeHTML(team.name)}
+          </div>
+
+          <div
+            class="permanent-team-odds"
+          >
+            ${team.weight}% odds
+          </div>
+
+        </div>
+
+      `;
+
+      permanentLabels.appendChild(
+        box
+      );
+
+    }
+  );
 
 }
 
 
 /* =========================================================
-   CREATE DRAFT ORDER
+   REFRESH RUNNER LABELS
    ========================================================= */
 
-function createOrder(){
+function refreshRunnerLabels(){
+
+  runners.forEach(
+    r => {
+
+      const team =
+        teams.find(
+          t =>
+            t.id ===
+            r.team.id
+        );
+
+      if(!team)
+        return;
+
+      r.team =
+        team;
+
+      const tag =
+        r.el.querySelector(
+          ".tag"
+        );
+
+      if(tag){
+
+        tag.innerHTML =
+          `${escapeHTML(team.name)} • ${team.weight}%`;
+
+      }
+
+      const image =
+        r.el.querySelector(
+          ".player-image"
+        );
+
+      if(
+        image &&
+        image.tagName === "IMG"
+      ){
+
+        image.src =
+          team.image || "";
+
+        image.alt =
+          team.name;
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   WEIGHTED DRAW
+   ========================================================= */
+
+function weightedPick(
+  pool
+){
+
+  if(!pool.length)
+    return null;
+
+  const totalWeight =
+    pool.reduce(
+      (
+        sum,
+        team
+      ) =>
+        sum +
+        Number(
+          team.weight
+        ),
+      0
+    );
+
+  let random =
+    Math.random() *
+    totalWeight;
+
+
+  for(
+    const team of pool
+  ){
+
+    random -=
+      Number(
+        team.weight
+      );
+
+    if(random <= 0)
+      return team;
+
+  }
+
+
+  return pool[
+    pool.length - 1
+  ];
+
+}
+
+
+/* =========================================================
+   REVERSE-WEIGHTED DRAFT
+   =========================================================
+
+   Pick #8:
+   weighted draw from all 8.
+
+   Pick #7:
+   weighted draw from remaining 7.
+
+   Continue through Pick #2.
+
+   Pick #1:
+   last remaining team by elimination.
+   ========================================================= */
+
+function createReverseDraftOrder(){
 
   let pool =
     teams.map(
-      t => ({...t})
+      team => ({
+        ...team
+      })
     );
 
   const order = [];
 
 
-  while(pool.length){
+  /*
+     Picks 8 through 2
+  */
+
+  for(
+    let pick =
+      teams.length;
+
+    pick >= 2;
+
+    pick--
+  ){
 
     const winner =
-      weightedPick(pool);
+      weightedPick(
+        pool
+      );
 
-    order.push(winner);
+    if(!winner)
+      break;
+
+
+    order.push({
+
+      pick,
+
+      team:{
+        ...winner
+      }
+
+    });
 
 
     pool =
       pool.filter(
-        t =>
-          t.id !== winner.id
+        team =>
+          team.id !==
+          winner.id
       );
+
+  }
+
+
+  /*
+     Last team becomes Pick #1.
+  */
+
+  if(
+    pool.length === 1
+  ){
+
+    order.push({
+
+      pick:1,
+
+      team:{
+        ...pool[0]
+      }
+
+    });
 
   }
 
@@ -681,33 +1350,556 @@ function createOrder(){
 
 
 /* =========================================================
-   RESET
+   SUPABASE — LOAD TEAM CONFIGURATION
    ========================================================= */
 
-function reset(){
+async function loadTeamsFromSupabase(){
 
-  cancelAnimationFrame(raf);
+  const {
+    data,
+    error
+  } =
+    await supabase
 
-  raceRunning =
+      .from(
+        SUPABASE_TABLE_NAME
+      )
+
+      .select(
+        "id,members_data"
+      );
+
+
+  if(error){
+
+    console.error(
+      "Supabase team load error:",
+      error
+    );
+
+    showStatus(
+      "Using local teams — Supabase could not be loaded."
+    );
+
+    return defaultTeams.map(
+      t => ({...t})
+    );
+
+  }
+
+
+  if(
+    !data ||
+    !data.length
+  ){
+
+    return defaultTeams.map(
+      t => ({...t})
+    );
+
+  }
+
+
+  const loaded =
+    data
+
+      .map(
+        row => {
+
+          const d =
+            row.members_data ||
+            {};
+
+          return {
+
+            id:
+              Number(
+                row.id
+              ),
+
+            name:
+              d.name ||
+              `Team ${row.id}`,
+
+            weight:
+              Number(
+                d.weight
+              ) || 1,
+
+            image:
+              d.image ||
+              "",
+
+            originalWeightDisplay:
+              d.originalWeightDisplay ||
+              `${Number(d.weight) || 1}%`
+
+          };
+
+        }
+      )
+
+      .sort(
+        (a,b) =>
+          a.id - b.id
+      );
+
+
+  return loaded.length
+
+    ? loaded
+
+    : defaultTeams.map(
+        t => ({...t})
+      );
+
+}
+
+
+/* =========================================================
+   SUPABASE — SAVE TEAM CONFIGURATION
+   ========================================================= */
+
+async function saveTeamsToSupabase(){
+
+  const rows =
+    teams.map(
+      team => ({
+
+        id:
+          team.id,
+
+        members_data:{
+
+          name:
+            team.name,
+
+          weight:
+            Number(
+              team.weight
+            ),
+
+          image:
+            team.image || "",
+
+          originalWeightDisplay:
+            `${team.weight}%`
+
+        }
+
+      })
+    );
+
+
+  const {
+    error
+  } =
+    await supabase
+
+      .from(
+        SUPABASE_TABLE_NAME
+      )
+
+      .upsert(
+        rows,
+        {
+          onConflict:"id"
+        }
+      );
+
+
+  if(error){
+
+    console.error(
+      "Supabase save error:",
+      error
+    );
+
+    showStatus(
+      "Error saving configuration to Supabase."
+    );
+
+    return false;
+
+  }
+
+
+  return true;
+
+}
+
+
+/* =========================================================
+   SUPABASE — SAVE DRAFT ORDER
+   ========================================================= */
+
+async function saveDraftOrderToSupabase(
+  order
+){
+
+  const rows =
+    order.map(
+      item => ({
+
+        id:
+          `pick_${item.pick}`,
+
+        order_data:{
+
+          pick:
+            item.pick,
+
+          member:
+            item.team.name,
+
+          memberId:
+            item.team.id,
+
+          originalWeightDisplay:
+            `${item.team.weight}%`
+
+        }
+
+      })
+    );
+
+
+  const {
+    error
+  } =
+    await supabase
+
+      .from(
+        SUPABASE_ORDERS_TABLE_NAME
+      )
+
+      .upsert(
+        rows,
+        {
+          onConflict:"id"
+        }
+      );
+
+
+  if(error){
+
+    console.error(
+      "Supabase draft save error:",
+      error
+    );
+
+    return false;
+
+  }
+
+
+  return true;
+
+}
+
+
+/* =========================================================
+   SUPABASE — LOAD DRAFT ORDER
+   ========================================================= */
+
+async function loadDraftOrderFromSupabase(){
+
+  const {
+    data,
+    error
+  } =
+    await supabase
+
+      .from(
+        SUPABASE_ORDERS_TABLE_NAME
+      )
+
+      .select(
+        "order_data"
+      );
+
+
+  if(error){
+
+    console.error(
+      "Supabase order load error:",
+      error
+    );
+
+    return [];
+
+  }
+
+
+  if(
+    !data ||
+    !data.length
+  ){
+
+    return [];
+
+  }
+
+
+  return data
+
+    .map(
+      row => {
+
+        const d =
+          row.order_data ||
+          {};
+
+        const team =
+          teams.find(
+            t =>
+              Number(t.id) ===
+              Number(d.memberId)
+          );
+
+
+        return {
+
+          pick:
+            Number(
+              d.pick
+            ),
+
+          team:
+            team
+
+              ? {
+                  ...team
+                }
+
+              : {
+
+                  id:
+                    Number(
+                      d.memberId
+                    ),
+
+                  name:
+                    d.member ||
+                    "Unknown",
+
+                  weight:
+                    0,
+
+                  image:
+                    ""
+
+                }
+
+        };
+
+      }
+    )
+
+    .filter(
+      x =>
+        x.pick
+    )
+
+    .sort(
+      (a,b) =>
+        b.pick - a.pick
+    );
+
+}
+
+
+/* =========================================================
+   SUPABASE — RESET SAVED DRAFT
+   ========================================================= */
+
+async function clearDraftOrderFromSupabase(){
+
+  const {
+    error
+  } =
+    await supabase
+
+      .from(
+        SUPABASE_ORDERS_TABLE_NAME
+      )
+
+      .delete()
+
+      .not(
+        "id",
+        "is",
+        null
+      );
+
+
+  if(error){
+
+    console.error(
+      "Supabase reset error:",
+      error
+    );
+
+    showStatus(
+      "Error resetting saved draft."
+    );
+
+    return false;
+
+  }
+
+
+  savedDraftOrder =
+    [];
+
+  return true;
+
+}
+
+
+/* =========================================================
+   COMMISSIONER LOCK
+   ========================================================= */
+
+function openCommissioner(){
+
+  commissionerLoginBox
+    .classList
+    .remove(
+      "hidden"
+    );
+
+  commissionerPassword
+    .focus();
+
+}
+
+
+function closeCommissioner(){
+
+  commissionerLoginBox
+    .classList
+    .add(
+      "hidden"
+    );
+
+  commissionerPassword.value =
+    "";
+
+}
+
+
+function lockCommissioner(){
+
+  commissionerUnlocked =
     false;
 
-
-  document.getElementById(
-    "status"
-  ).textContent =
-    "Ready at the starting line.";
-
-
-  document.getElementById(
-    "draftOrder"
-  ).innerHTML = "";
-
-
-  document
-    .querySelectorAll(".runner")
-    .forEach(
-      x => x.remove()
+  commissionerPanel
+    .classList
+    .add(
+      "hidden"
     );
+
+  closeCommissioner();
+
+  renderInputs();
+
+  showStatus(
+    "Commissioner tools locked."
+  );
+
+}
+
+
+function unlockCommissioner(){
+
+  if(
+    commissionerPassword.value !==
+    COMMISSIONER_PASSWORD
+  ){
+
+    showStatus(
+      "Incorrect commissioner password."
+    );
+
+    commissionerPassword.select();
+
+    return;
+
+  }
+
+
+  commissionerUnlocked =
+    true;
+
+  commissionerLoginBox
+    .classList
+    .add(
+      "hidden"
+    );
+
+  commissionerPanel
+    .classList
+    .remove(
+      "hidden"
+    );
+
+  commissionerPassword.value =
+    "";
+
+  renderInputs();
+
+  showStatus(
+    "Commissioner tools unlocked."
+  );
+
+}
+
+
+/* =========================================================
+   SAVE CONFIGURATION
+   ========================================================= */
+
+async function saveConfiguration(){
+
+  if(!commissionerUnlocked)
+    return;
+
+
+  const valid =
+    teams.every(
+      team =>
+        team.name.trim() &&
+        Number(team.weight) > 0
+    );
+
+
+  if(!valid){
+
+    showStatus(
+      "Every team needs a name and positive odds."
+    );
+
+    return;
+
+  }
+
+
+  const success =
+    await saveTeamsToSupabase();
+
+
+  if(success){
+
+    showStatus(
+      "Configuration saved to Supabase."
+    );
+
+    renderInputs();
+
+    renderPermanentLabels();
+
+  }
 
 }
 
@@ -716,54 +1908,76 @@ function reset(){
    CREATE RUNNER
    ========================================================= */
 
-function addRunner(t,i){
+function addRunner(
+  team,
+  index
+){
 
   const el =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   el.className =
     "runner";
 
 
-  /*
-     Keep every player safely inside
-     the vertical boundaries.
-
-     12% → 88%
-  */
-
   el.style.top =
     (
       12 +
-      i * (76 / 7)
-    ) + "%";
+      index *
+      (
+        76 /
+        Math.max(
+          1,
+          teams.length - 1
+        )
+      )
+    ) +
+    "%";
 
-
-  /*
-     Start inside the LEFT END ZONE.
-  */
 
   el.style.left =
     "8%";
 
 
-  /*
-     Player image.
-     If no image is entered, use a simple
-     colored placeholder.
-  */
-
   const imageHTML =
-    t.image
+
+    team.image
+
       ? `
+
         <img
           class="player-image"
-          src="${escapeHTML(t.image)}"
-          alt="${escapeHTML(t.name)}"
-          onerror="this.style.display='none';"
+          src="${escapeHTML(team.image)}"
+          alt="${escapeHTML(team.name)}"
+          onerror="
+            this.style.display='none';
+            this.nextElementSibling.style.display='flex';
+          "
         >
+
+        <div
+          class="player-image"
+          style="
+            display:none;
+            align-items:center;
+            justify-content:center;
+            font-weight:900;
+            color:#fff;
+          "
+        >
+          ${escapeHTML(
+            team.name
+              .charAt(0)
+              .toUpperCase()
+          )}
+        </div>
+
       `
+
       : `
+
         <div
           class="player-image"
           style="
@@ -775,11 +1989,12 @@ function addRunner(t,i){
           "
         >
           ${escapeHTML(
-            t.name
+            team.name
               .charAt(0)
               .toUpperCase()
           )}
         </div>
+
       `;
 
 
@@ -788,17 +2003,17 @@ function addRunner(t,i){
     ${imageHTML}
 
     <div class="tag">
-      ${escapeHTML(t.name)}
+      ${escapeHTML(team.name)}
       •
-      ${t.weight}%
+      ${team.weight}%
     </div>
 
   `;
 
 
-  document
-    .getElementById("field")
-    .appendChild(el);
+  field.appendChild(
+    el
+  );
 
 
   return el;
@@ -807,45 +2022,227 @@ function addRunner(t,i){
 
 
 /* =========================================================
-   START RACE
+   RESET VISUALS
    ========================================================= */
 
-function start(){
+function resetVisuals(){
+
+  cancelAnimationFrame(
+    raf
+  );
+
+  raceRunning =
+    false;
+
+  runners =
+    [];
+
+
+  field
+
+    .querySelectorAll(
+      ".runner"
+    )
+
+    .forEach(
+      el =>
+        el.remove()
+    );
+
+
+  draftOrderList.innerHTML =
+    "";
+
+
+  showStatus(
+    "Ready at the starting line."
+  );
+
+}
+
+
+/* =========================================================
+   DISPLAY RESULTS
+   ========================================================= */
+
+function renderResults(
+  order
+){
+
+  draftOrderList.innerHTML =
+    "";
+
+
+  /*
+     Display actual draft order:
+     Pick #1 through Pick #8.
+  */
+
+  const sorted =
+    [...order]
+
+      .sort(
+        (a,b) =>
+          a.pick - b.pick
+      );
+
+
+  sorted.forEach(
+    item => {
+
+      const li =
+        document.createElement(
+          "li"
+        );
+
+
+      li.innerHTML = `
+
+        <span>
+
+          <strong>
+            #${item.pick}
+          </strong>
+
+          ${escapeHTML(
+            item.team.name
+          )}
+
+        </span>
+
+
+        <span>
+          ${item.team.weight}% odds
+        </span>
+
+      `;
+
+
+      draftOrderList.appendChild(
+        li
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   START THE RACE
+   ========================================================= */
+
+async function start(){
 
   if(raceRunning)
     return;
 
 
-  reset();
+  resetVisuals();
 
 
   raceRunning =
     true;
 
 
+  showStatus(
+    "Drawing reverse odds — Pick #8 goes first..."
+  );
+
+
   /*
-     Create weighted draft order.
+     Generate:
+     #8, #7, #6, #5, #4, #3, #2, #1
   */
 
   const order =
-    createOrder();
+    createReverseDraftOrder();
+
+
+  if(
+    order.length !==
+    teams.length
+  ){
+
+    raceRunning =
+      false;
+
+    showStatus(
+      "Could not create a complete draft order."
+    );
+
+    return;
+
+  }
+
+
+  savedDraftOrder =
+    order.map(
+      x => ({
+
+        pick:
+          x.pick,
+
+        team:{
+          ...x.team
+        }
+
+      })
+    );
 
 
   /*
-     Create all runners.
+     Save immediately so the result
+     survives a refresh.
+  */
+
+  const saved =
+    await saveDraftOrderToSupabase(
+      savedDraftOrder
+    );
+
+
+  if(!saved){
+
+    raceRunning =
+      false;
+
+    showStatus(
+      "Draft generated, but Supabase could not save it."
+    );
+
+    return;
+
+  }
+
+
+  /*
+     Create every runner.
+
+     IMPORTANT:
+     They are NOT removed when they finish.
+     Their images and labels remain visible.
   */
 
   runners =
     teams.map(
-      (t,i) => ({
+      (team,index) => ({
 
-        team:t,
+        team:{
+          ...team
+        },
 
-        el:addRunner(t,i),
+        el:
+          addRunner(
+            team,
+            index
+          ),
 
-        finish:0,
+        finish:
+          0,
 
-        revealed:false
+        revealed:
+          false
 
       })
     );
@@ -854,7 +2251,8 @@ function start(){
   const min =
     Math.min(
       ...teams.map(
-        t => t.weight
+        t =>
+          t.weight
       )
     );
 
@@ -862,27 +2260,36 @@ function start(){
   const max =
     Math.max(
       ...teams.map(
-        t => t.weight
+        t =>
+          t.weight
       )
     );
 
 
   /*
-     Assign finish times.
+     The first item is Pick #8.
+     It gets the earliest finish.
 
-     Higher weighted teams have
-     a somewhat better chance of
-     finishing earlier.
+     The last item is Pick #1.
+     It gets the latest finish.
   */
 
   order.forEach(
-    (t,rank)=>{
+    (
+      item,
+      rank
+    ) => {
 
       const runner =
         runners.find(
-          x =>
-            x.team.id === t.id
+          r =>
+            r.team.id ===
+            item.team.id
         );
+
+
+      if(!runner)
+        return;
 
 
       const norm =
@@ -891,56 +2298,60 @@ function start(){
           ? .5
 
           : (
-              (t.weight - min) /
-              (max - min)
+
+              (
+                item.team.weight -
+                min
+              ) /
+
+              (
+                max -
+                min
+              )
+
             );
 
 
       const jitter =
         (
-          Math.random() - .5
-        ) * 6000;
+          Math.random() -
+          .5
+        ) *
+        5000;
+
+
+      runner.pick =
+        item.pick;
 
 
       runner.finish =
         Math.max(
-          3000,
 
-          42000
-          - rank * 1500
-          - norm * 4500
-          + jitter
+          4500,
+
+          15000 +
+
+          rank *
+          3500 -
+
+          norm *
+          1800 +
+
+          jitter
+
         );
 
     }
   );
 
 
-  const list =
-    document.getElementById(
-      "draftOrder"
-    );
-
-
-  list.innerHTML =
-    "";
-
-
-  document.getElementById(
-    "status"
-  ).textContent =
-    "GO! They're off!";
-
-
   const startTime =
     performance.now();
 
 
-  /* =======================================================
-     REVEAL FINISHER
-     ======================================================= */
-
-  function revealRunner(r){
+  function revealRunner(
+    r
+  ){
 
     if(r.revealed)
       return;
@@ -950,46 +2361,38 @@ function start(){
       true;
 
 
-    const position =
-      list.children.length + 1;
+    /*
+       Keep the player permanently visible.
+    */
+
+    r.el.classList.add(
+      "finished"
+    );
 
 
-    const li =
-      document.createElement("li");
+    const tag =
+      r.el.querySelector(
+        ".tag"
+      );
 
 
-    li.innerHTML = `
+    if(tag){
 
-      <span>
-        <strong>
-          #${position}
-        </strong>
+      tag.innerHTML =
+        `${escapeHTML(r.team.name)} • ${r.team.weight}%`;
 
-        ${escapeHTML(
-          r.team.name
-        )}
-      </span>
-
-      <span>
-        ${r.team.weight}% odds
-      </span>
-
-    `;
-
-
-    list.appendChild(li);
+    }
 
   }
 
 
-  /* =======================================================
-     ANIMATION LOOP
-     ======================================================= */
-
-  function frame(now){
+  function frame(
+    now
+  ){
 
     const elapsed =
-      now - startTime;
+      now -
+      startTime;
 
 
     runners.forEach(
@@ -997,7 +2400,7 @@ function start(){
 
         const finishTime =
           Math.max(
-            3000,
+            4500,
             r.finish
           );
 
@@ -1005,13 +2408,10 @@ function start(){
         const target =
           Math.min(
             1,
-            elapsed / finishTime
+            elapsed /
+            finishTime
           );
 
-
-        /*
-           Acceleration curve
-        */
 
         const eased =
 
@@ -1022,69 +2422,62 @@ function start(){
             : target < .65
 
               ? .117 +
-                (target - .18) * .93
+                (
+                  target -
+                  .18
+                ) *
+                .93
 
               : .554 +
-                (target - .65) * 1.28;
+                (
+                  target -
+                  .65
+                ) *
+                1.28;
 
-
-        /*
-           FIELD POSITION
-
-           Start:
-           8%
-
-           Finish:
-           84%
-
-           This keeps the actual player
-           completely inside the image.
-        */
 
         const startPosition =
           8;
+
 
         const finishPosition =
           84;
 
 
         const currentPosition =
+
           startPosition +
 
           Math.min(
+
             finishPosition -
-              startPosition,
+            startPosition,
 
             eased *
-              (
-                finishPosition -
-                startPosition
-              )
+            (
+              finishPosition -
+              startPosition
+            )
+
           );
 
 
         r.el.style.left =
-          currentPosition + "%";
+          currentPosition +
+          "%";
 
-
-        /*
-           FINISHED
-        */
 
         if(
-          elapsed >= finishTime
+          elapsed >=
+          finishTime
         ){
-
-          /*
-             Keep the actual player
-             inside the right end zone.
-          */
 
           r.el.style.left =
             "84%";
 
-
-          revealRunner(r);
+          revealRunner(
+            r
+          );
 
         }
 
@@ -1092,13 +2485,10 @@ function start(){
     );
 
 
-    /*
-       Stop when everyone has finished.
-    */
-
     if(
       runners.every(
-        r => r.revealed
+        r =>
+          r.revealed
       )
     ){
 
@@ -1106,10 +2496,14 @@ function start(){
         false;
 
 
-      document.getElementById(
-        "status"
-      ).textContent =
-        "DRAFT ORDER COMPLETE";
+      renderResults(
+        savedDraftOrder
+      );
+
+
+      showStatus(
+        "DRAFT ORDER COMPLETE — Pick #1 is the final team remaining."
+      );
 
 
       return;
@@ -1134,32 +2528,249 @@ function start(){
 
 
 /* =========================================================
-   BUTTONS
+   LOAD SAVED RESULT
    ========================================================= */
 
-document.getElementById(
-  "start"
-).onclick =
-  start;
+function showSavedDraft(){
+
+  if(
+    !savedDraftOrder ||
+    !savedDraftOrder.length
+  )
+    return;
 
 
-document.getElementById(
-  "reset"
-).onclick =
-  () => {
+  resetVisuals();
 
-    reset();
 
-    renderInputs();
+  /*
+     Keep every image and label on the field.
 
-  };
+     Saved drafts display the runners at
+     the finish line rather than removing them.
+  */
+
+  runners =
+    teams.map(
+      (
+        team,
+        index
+      ) => {
+
+        const el =
+          addRunner(
+            team,
+            index
+          );
+
+
+        el.style.left =
+          "84%";
+
+
+        el.classList.add(
+          "finished"
+        );
+
+
+        return {
+
+          team:{
+            ...team
+          },
+
+          el,
+
+          finish:
+            0,
+
+          revealed:
+            true
+
+        };
+
+      }
+    );
+
+
+  renderResults(
+    savedDraftOrder
+  );
+
+
+  showStatus(
+    "Saved draft loaded from Supabase."
+  );
+
+}
 
 
 /* =========================================================
    INITIALIZE
    ========================================================= */
 
-renderInputs();
+async function initialize(){
+
+  showStatus(
+    "Loading draft configuration..."
+  );
+
+
+  teams =
+    await loadTeamsFromSupabase();
+
+
+  renderInputs();
+
+  renderPermanentLabels();
+
+
+  savedDraftOrder =
+    await loadDraftOrderFromSupabase();
+
+
+  if(
+    savedDraftOrder.length
+  ){
+
+    showSavedDraft();
+
+  }else{
+
+    showStatus(
+      "Ready at the starting line."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+document
+  .getElementById(
+    "start"
+  )
+  .addEventListener(
+    "click",
+    start
+  );
+
+
+document
+  .getElementById(
+    "reset"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      resetVisuals();
+
+      showStatus(
+        "Ready at the starting line."
+      );
+
+      renderPermanentLabels();
+
+    }
+  );
+
+
+commissionerBtn
+  .addEventListener(
+    "click",
+    openCommissioner
+  );
+
+
+unlockCommissionerBtn
+  .addEventListener(
+    "click",
+    unlockCommissioner
+  );
+
+
+commissionerPassword
+  .addEventListener(
+    "keydown",
+    e => {
+
+      if(
+        e.key === "Enter"
+      ){
+
+        unlockCommissioner();
+
+      }
+
+    }
+  );
+
+
+cancelCommissionerBtn
+  .addEventListener(
+    "click",
+    closeCommissioner
+  );
+
+
+lockCommissionerBtn
+  .addEventListener(
+    "click",
+    lockCommissioner
+  );
+
+
+saveConfigBtn
+  .addEventListener(
+    "click",
+    saveConfiguration
+  );
+
+
+resetDraftBtn
+  .addEventListener(
+    "click",
+    async () => {
+
+      const confirmed =
+        window.confirm(
+          "Reset the saved draft order in Supabase?"
+        );
+
+
+      if(!confirmed)
+        return;
+
+
+      const success =
+        await clearDraftOrderFromSupabase();
+
+
+      if(success){
+
+        resetVisuals();
+
+
+        showStatus(
+          "Saved draft cleared. Ready for a new reverse-odds draw."
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+initialize();
 
 </script>
 

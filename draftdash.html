@@ -9,27 +9,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800;900&family=Montserrat:wght@600;700;800&display=swap');
 
 *{
-  box-sizing:border-box
+  box-sizing:border-box;
 }
 
 body{
   margin:0;
   background:#071522;
   color:#fff;
-  font-family:Montserrat,Arial,sans-serif
+  font-family:Montserrat,Arial,sans-serif;
 }
 
 .wrap{
   max-width:1400px;
   margin:auto;
-  padding:24px
+  padding:24px;
 }
 
 h1{
   font:900 clamp(32px,5vw,64px)/.95 "Barlow Condensed",sans-serif;
   letter-spacing:1px;
   text-align:center;
-  margin:0 0 8px
+  margin:0 0 8px;
 }
 
 .sub{
@@ -37,7 +37,7 @@ h1{
   color:#d8b45a;
   font-weight:800;
   letter-spacing:2px;
-  margin-bottom:20px
+  margin-bottom:20px;
 }
 
 .controls{
@@ -45,7 +45,7 @@ h1{
   gap:10px;
   justify-content:center;
   flex-wrap:wrap;
-  margin-bottom:18px
+  margin-bottom:18px;
 }
 
 button{
@@ -53,17 +53,17 @@ button{
   border-radius:8px;
   padding:12px 20px;
   font-weight:800;
-  cursor:pointer
+  cursor:pointer;
 }
 
 #start{
   background:#d8b45a;
-  color:#071522
+  color:#071522;
 }
 
 #reset{
   background:#243746;
-  color:#fff
+  color:#fff;
 }
 
 .panel{
@@ -71,20 +71,20 @@ button{
   border:1px solid #294354;
   border-radius:12px;
   padding:14px;
-  margin-bottom:16px
+  margin-bottom:16px;
 }
 
 .teams{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:10px
+  gap:10px;
 }
 
 .team-edit{
   display:grid;
   grid-template-columns:1fr 70px;
   gap:8px;
-  align-items:center
+  align-items:center;
 }
 
 .team-edit input{
@@ -93,38 +93,44 @@ button{
   border-radius:6px;
   border:1px solid #405765;
   background:#081722;
-  color:#fff
+  color:#fff;
 }
 
 
 /* =========================================================
-   RACE FIELD IMAGE
+   RACE FIELD
    ========================================================= */
 
 .field{
   position:relative;
+  width:100%;
+
+  /*
+     The image is 16:9.
+     Keeping the container 16:9 prevents the field
+     from becoming a tall/skinny rectangle on phones.
+  */
+
+  aspect-ratio:16 / 9;
+
+  height:auto;
+  min-height:0;
+
   overflow:hidden;
+
   border-radius:14px;
   border:5px solid #fff;
 
-  aspect-ratio:16 / 9;
-  min-height:0;
-
-  background:
-    url("racefield.png") center center / 100% 100% no-repeat;
+  background-image:url("racefield.png");
+  background-position:center center;
+  background-repeat:no-repeat;
+  background-size:100% 100%;
 }
 
 
 /*
-   The racefield.png image already contains:
-   - yard lines
-   - numbers
-   - midfield logo
-   - sidelines
-   - end zones
-   - field markings
-
-   So the old CSS-generated field markings are hidden.
+   racefield.png already contains all field markings,
+   numbers, end zones and midfield artwork.
 */
 
 .field:before{
@@ -140,37 +146,53 @@ button{
 
 
 /* =========================================================
-   RUNNERS
+   RUNNER
    ========================================================= */
 
 .runner{
   position:absolute;
-  left:10px;
+
+  /*
+     Start inside the LEFT END ZONE.
+  */
+
+  left:2%;
+
   transform:translateY(-50%);
+
   z-index:5;
-  transition:left .15s linear
+
+  /*
+     Only move horizontally.
+  */
+
+  transition:left .15s linear;
 }
+
+
+/* =========================================================
+   NAME / ODDS TAG
+   ========================================================= */
 
 .tag{
   position:absolute;
-  left:72px;
-  top:2px;
+
+  left:58px;
+  top:5px;
 
   white-space:nowrap;
 
-  background:rgba(4,14,23,.82);
+  background:rgba(4,14,23,.88);
 
-  padding:4px 7px;
+  padding:5px 8px;
+
   border-radius:4px;
 
-  font:800 11px "Barlow Condensed";
+  font:800 12px "Barlow Condensed";
 
-  border-left:3px solid #d8b45a
-}
+  border-left:3px solid #d8b45a;
 
-.runner .tag{
-  left:58px;
-  top:5px;
+  z-index:10;
 }
 
 
@@ -181,13 +203,13 @@ button{
 .results{
   display:grid;
   grid-template-columns:1fr;
-  gap:16px
+  gap:16px;
 }
 
 .result-list{
   list-style:none;
   padding:0;
-  margin:0
+  margin:0;
 }
 
 .result-list li{
@@ -196,12 +218,12 @@ button{
 
   padding:9px 10px;
 
-  border-bottom:1px solid #294354
+  border-bottom:1px solid #294354;
 }
 
 .result-list li:first-child{
   color:#d8b45a;
-  font-size:1.08em
+  font-size:1.08em;
 }
 
 .status{
@@ -211,35 +233,7 @@ button{
   font-weight:800;
   color:#d8b45a;
 
-  margin:8px
-}
-
-
-/* =========================================================
-   CENTER FIELD LOGO
-   =========================================================
-
-   Disabled because the logo is now part of racefield.png.
-*/
-
-.center-logo{
-  display:none;
-  position:absolute;
-  left:50%;
-  top:50%;
-
-  width:min(250px,24vw);
-  min-width:150px;
-
-  transform:translate(-50%,-50%);
-
-  z-index:2;
-
-  opacity:.88;
-
-  pointer-events:none;
-
-  filter:drop-shadow(3px 4px 0 rgba(0,0,0,.35));
+  margin:8px;
 }
 
 
@@ -389,12 +383,12 @@ button{
 
 .pixel-player .leg.left{
   left:7px;
-  transform:skew(-8deg)
+  transform:skew(-8deg);
 }
 
 .pixel-player .leg.right{
   left:16px;
-  transform:skew(8deg)
+  transform:skew(8deg);
 }
 
 
@@ -414,11 +408,11 @@ button{
 }
 
 .pixel-player .cleat.left{
-  left:3px
+  left:3px;
 }
 
 .pixel-player .cleat.right{
-  left:17px
+  left:17px;
 }
 
 
@@ -429,30 +423,37 @@ button{
 @media(max-width:850px){
 
   .teams{
-    grid-template-columns:1fr 1fr
+    grid-template-columns:1fr 1fr;
   }
 
   .field{
+    width:100%;
+    aspect-ratio:16 / 9;
+    height:auto;
     min-height:0;
   }
 }
 
+
 @media(max-width:560px){
 
   .teams{
-    grid-template-columns:1fr
+    grid-template-columns:1fr;
   }
 
   .wrap{
-    padding:12px
+    padding:12px;
   }
 
   .field{
+    width:100%;
+    aspect-ratio:16 / 9;
+    height:auto;
     min-height:0;
   }
 
   .tag{
-    left:58px
+    left:58px;
   }
 }
 
@@ -533,14 +534,6 @@ button{
 
 
 <script>
-
-/* =========================================================
-   CENTER IMAGE
-   ========================================================= */
-
-const TCWR_CENTER_IMAGE_URL =
-  "https://raw.githubusercontent.com/YOUR-USERNAME/YOUR-REPO/main/tcwr-center-logo.svg";
-
 
 /* =========================================================
    DEFAULT TEAMS
@@ -798,8 +791,22 @@ function addRunner(t,i){
     "runner";
 
 
+  /*
+     Eight lanes across the height
+     of the field.
+  */
+
   el.style.top =
-    ((i+.5)*12.5) + "%";
+    ((i + .5) * 12.5) + "%";
+
+
+  /*
+     ALL PLAYERS START INSIDE
+     THE LEFT END ZONE.
+  */
+
+  el.style.left =
+    "2%";
 
 
   const jerseyColors = [
@@ -1056,12 +1063,24 @@ function start(){
               (target-.65)*1.28;
 
 
+      /*
+        Start at 2%.
+        Finish at approximately 90%.
+
+        This keeps the player inside
+        the right-side end zone instead
+        of running off the field.
+      */
+
+      const startPosition = 2;
+      const finishPosition = 90;
+
       r.el.style.left =
         (
-          10 +
+          startPosition +
           Math.min(
-            84,
-            eased * 84
+            finishPosition - startPosition,
+            eased * (finishPosition - startPosition)
           )
         ) + "%";
 
@@ -1076,12 +1095,12 @@ function start(){
       ){
 
         /*
-          Keep the player visible
-          just inside the finish area.
+          Keep player inside the
+          right end zone.
         */
 
         r.el.style.left =
-          "calc(100% - 92px)";
+          "calc(90% - 10px)";
 
 
         revealRunner(r);

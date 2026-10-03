@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TCWR 100-YARD DRAFT DASH</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800;900&family=Montserrat:wght@600;700;800&display=swap');
+
+*{
+  box-sizing:border-box
+}
+
+body{
+  margin:0;
+  background:#071522;
+  color:#fff;
+  font-family:Montserrat,Arial,sans-serif
+}
+
+.wrap{
+  max-width:1400px;
+  margin:auto;
+  padding:24px
+}
+
+h1{
+  font:900 clamp(32px,5vw,64px)/.95 "Barlow Condensed",sans-serif;
+  letter-spacing:1px;
+  text-align:center;
+  margin:0 0 8px
+}
+
+.sub{
+  text-align:center;
+  color:#d8b45a;
+  font-weight:800;
+  letter-spacing:2px;
+  margin-bottom:20px
+}
+
+.controls{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-bottom:18px
+}
+
+button{
+  border:0;
+  border-radius:8px;
+  padding:12px 20px;
+  font-weight:800;
+  cursor:pointer
+}
+
+#start{
+  background:#d8b45a;
+  color:#071522
+}
+
+#reset{
+  background:#243746;
+  color:#fff
+}
+
+.panel{
+  background:#0c1d2b;
+  border:1px solid #294354;
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:16px
+}
+
+.teams{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px
+}
+
+.team-edit{
+  display:grid;
+  grid-template-columns:1fr 70px;
+  gap:8px;
+  align-items:center
+}
+
+.team-edit input{
+  width:100%;
+  padding:9px;
+  border-radius:6px;
+  border:1px solid #405765;
+  background:#081722;
+  color:#fff
+}
+
+
+/* =========================================================
+   RACE FIELD IMAGE
+   ========================================================= */
+
+.field{
+  position:relative;
+  overflow:hidden;
+  border-radius:14px;
+  border:5px solid #fff;
+
+  aspect-ratio:16 / 9;
+  min-height:0;
+
+  background:
+    url("racefield.png") center center / 100% 100% no-repeat;
+}
+
+
+/*
+   The racefield.png image already contains:
+   - yard lines
+   - numbers
+   - midfield logo
+   - sidelines
+   - end zones
+   - field markings
+
+   So the old CSS-generated field markings are hidden.
+*/
+
+.field:before{
+  display:none;
+}
+
+.mid,
+.fifty,
+.yard,
+.lane{
+  display:none;
+}
+
+
+/* =========================================================
+   RUNNERS
+   ========================================================= */
+
+.runner{
+  position:absolute;
+  left:10px;
+  transform:translateY(-50%);
+  z-index:5;
+  transition:left .15s linear
+}
+
+.tag{
+  position:absolute;
+  left:72px;
+  top:2px;
+
+  white-space:nowrap;
+
+  background:rgba(4,14,23,.82);
+
+  padding:4px 7px;
+  border-radius:4px;
+
+  font:800 11px "Barlow Condensed";
+
+  border-left:3px solid #d8b45a
+}
+
+.runner .tag{
+  left:58px;
+  top:5px;
+}
+
+
+/* =========================================================
+   RESULTS
+   ========================================================= */
+
+.results{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:16px
+}
+
+.result-list{
+  list-style:none;
+  padding:0;
+  margin:0
+}
+
+.result-list li{
+  display:flex;
+  justify-content:space-between;
+
+  padding:9px 10px;
+
+  border-bottom:1px solid #294354
+}
+
+.result-list li:first-child{
+  color:#d8b45a;
+  font-size:1.08em
+}
+
+.status{
+  text-align:center;
+  min-height:24px;
+
+  font-weight:800;
+  color:#d8b45a;
+
+  margin:8px
+}
+
+
+/* =========================================================
+   CENTER FIELD LOGO
+   =========================================================
+
+   Disabled because the logo is now part of racefield.png.
+*/
+
+.center-logo{
+  display:none;
+  position:absolute;
+  left:50%;
+  top:50%;
+
+  width:min(250px,24vw);
+  min-width:150px;
+
+  transform:translate(-50%,-50%);
+
+  z-index:2;
+
+  opacity:.88;
+
+  pointer-events:none;
+
+  filter:drop-shadow(3px 4px 0 rgba(0,0,0,.35));
+}
+
+
+/* =========================================================
+   PIXEL FOOTBALL PLAYER
+   ========================================================= */
+
+.dash-runner{
+  position:relative;
+
+  width:46px;
+  height:58px;
+
+  image-rendering:pixelated;
+
+  filter:
+    drop-shadow(2px 3px 0 rgba(0,0,0,.55));
+}
+
+.pixel-player{
+  position:absolute;
+
+  left:8px;
+  top:2px;
+
+  width:30px;
+  height:54px;
+}
+
+
+/* =========================================================
+   HELMET
+   ========================================================= */
+
+.pixel-player .helmet{
+  position:absolute;
+
+  left:7px;
+  top:0;
+
+  width:18px;
+  height:11px;
+
+  background:#d8b45a;
+
+  box-shadow:
+    -4px 4px 0 #071522,
+    0 7px 0 #d8b45a,
+    5px 9px 0 #fff,
+    10px 9px 0 #071522;
+}
+
+
+/* =========================================================
+   HEAD
+   ========================================================= */
+
+.pixel-player .head{
+  position:absolute;
+
+  left:10px;
+  top:8px;
+
+  width:12px;
+  height:9px;
+
+  background:#d79b6a;
+}
+
+
+/* =========================================================
+   JERSEY
+   ========================================================= */
+
+.pixel-player .jersey{
+  position:absolute;
+
+  left:6px;
+  top:16px;
+
+  width:22px;
+  height:18px;
+
+  background:var(--jersey,#7b1e2b);
+
+  box-shadow:
+    -5px 3px 0 var(--jersey,#7b1e2b),
+    22px 3px 0 var(--jersey,#7b1e2b),
+    3px 18px 0 #fff,
+    15px 18px 0 #fff;
+}
+
+.pixel-player .jersey:after{
+  content:"";
+
+  position:absolute;
+
+  left:7px;
+  top:4px;
+
+  width:8px;
+  height:8px;
+
+  background:#fff;
+
+  box-shadow:
+    2px 2px 0 rgba(0,0,0,.15);
+}
+
+
+/* =========================================================
+   FOOTBALL
+   ========================================================= */
+
+.pixel-player .ball{
+  position:absolute;
+
+  right:-5px;
+  top:19px;
+
+  width:7px;
+  height:10px;
+
+  background:#8b4a21;
+
+  transform:rotate(-20deg);
+
+  box-shadow:
+    1px 2px 0 #071522;
+}
+
+
+/* =========================================================
+   LEGS
+   ========================================================= */
+
+.pixel-player .leg{
+  position:absolute;
+
+  top:34px;
+
+  width:8px;
+  height:17px;
+
+  background:#fff;
+}
+
+.pixel-player .leg.left{
+  left:7px;
+  transform:skew(-8deg)
+}
+
+.pixel-player .leg.right{
+  left:16px;
+  transform:skew(8deg)
+}
+
+
+/* =========================================================
+   CLEATS
+   ========================================================= */
+
+.pixel-player .cleat{
+  position:absolute;
+
+  top:49px;
+
+  width:11px;
+  height:5px;
+
+  background:#071522;
+}
+
+.pixel-player .cleat.left{
+  left:3px
+}
+
+.pixel-player .cleat.right{
+  left:17px
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media(max-width:850px){
+
+  .teams{
+    grid-template-columns:1fr 1fr
+  }
+
+  .field{
+    min-height:0;
+  }
+}
+
+@media(max-width:560px){
+
+  .teams{
+    grid-template-columns:1fr
+  }
+
+  .wrap{
+    padding:12px
+  }
+
+  .field{
+    min-height:0;
+  }
+
+  .tag{
+    left:58px
+  }
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="wrap">
+
+<h1>TCWR 100-YARD DRAFT DASH</h1>
+
+<div class="sub">
+  WEIGHTED ODDS • 8 RUNNERS • DRAFT ORDER
+</div>
+
+
+<!-- =======================================================
+     CONTROLS
+     ======================================================= -->
+
+<div class="controls">
+
+  <button id="start">
+    START THE RACE
+  </button>
+
+  <button id="reset">
+    RESET
+  </button>
+
+</div>
+
+
+<div id="status" class="status">
+  Ready at the starting line.
+</div>
+
+
+<!-- =======================================================
+     TEAM INPUTS
+     ======================================================= -->
+
+<div class="panel">
+
+  <div class="teams" id="teamInputs"></div>
+
+</div>
+
+
+<!-- =======================================================
+     FOOTBALL FIELD
+     ======================================================= -->
+
+<div class="field" id="field"></div>
+
+
+<!-- =======================================================
+     LIVE DRAFT ORDER
+     ======================================================= -->
+
+<div class="results">
+
+  <div class="panel">
+
+    <h2>
+      Draft Order
+    </h2>
+
+    <ol id="draftOrder" class="result-list"></ol>
+
+  </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   CENTER IMAGE
+   ========================================================= */
+
+const TCWR_CENTER_IMAGE_URL =
+  "https://raw.githubusercontent.com/YOUR-USERNAME/YOUR-REPO/main/tcwr-center-logo.svg";
+
+
+/* =========================================================
+   DEFAULT TEAMS
+   ========================================================= */
+
+const defaultTeams = [
+
+  {
+    id:1,
+    name:"Matt",
+    weight:18
+  },
+
+  {
+    id:2,
+    name:"Steven",
+    weight:15
+  },
+
+  {
+    id:3,
+    name:"Jess",
+    weight:13
+  },
+
+  {
+    id:4,
+    name:"Kevin",
+    weight:11
+  },
+
+  {
+    id:5,
+    name:"Sarah",
+    weight:10
+  },
+
+  {
+    id:6,
+    name:"Mike",
+    weight:9
+  },
+
+  {
+    id:7,
+    name:"Chris",
+    weight:8
+  },
+
+  {
+    id:8,
+    name:"Amanda",
+    weight:7
+  }
+
+];
+
+
+let teams =
+  defaultTeams.map(x => ({...x}));
+
+
+let runners = [];
+
+let raceRunning = false;
+
+let raf = 0;
+
+
+/* =========================================================
+   TEAM INPUTS
+   ========================================================= */
+
+const inputs =
+  document.getElementById("teamInputs");
+
+
+function renderInputs(){
+
+  inputs.innerHTML = "";
+
+  teams.forEach((t,i)=>{
+
+    const box =
+      document.createElement("div");
+
+    box.className =
+      "team-edit";
+
+    box.innerHTML = `
+
+      <input
+        data-id="${t.id}"
+        data-type="name"
+        value="${t.name}"
+      >
+
+      <input
+        data-id="${t.id}"
+        data-type="weight"
+        type="number"
+        min="1"
+        value="${t.weight}"
+      >
+
+    `;
+
+    inputs.appendChild(box);
+
+  });
+
+}
+
+
+inputs.addEventListener(
+  "input",
+  e => {
+
+    const id =
+      +e.target.dataset.id;
+
+    const t =
+      teams.find(x => x.id === id);
+
+    if(!t) return;
+
+
+    if(
+      e.target.dataset.type === "name"
+    ){
+
+      t.name =
+        e.target.value;
+
+    }
+
+    else{
+
+      t.weight =
+        Math.max(
+          1,
+          +e.target.value || 1
+        );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   WEIGHTED RANDOM SELECTION
+   ========================================================= */
+
+function weightedPick(pool){
+
+  const total =
+    pool.reduce(
+      (s,t) => s + t.weight,
+      0
+    );
+
+  let r =
+    Math.random() * total;
+
+
+  for(const t of pool){
+
+    r -= t.weight;
+
+    if(r <= 0)
+      return t;
+
+  }
+
+
+  return pool[pool.length-1];
+
+}
+
+
+/* =========================================================
+   CREATE DRAFT ORDER
+   ========================================================= */
+
+function createOrder(){
+
+  let pool =
+    teams.map(t => ({...t}));
+
+  const order = [];
+
+
+  while(pool.length){
+
+    const w =
+      weightedPick(pool);
+
+    order.push(w);
+
+    pool =
+      pool.filter(
+        t => t.id !== w.id
+      );
+
+  }
+
+
+  return order;
+
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+function reset(){
+
+  cancelAnimationFrame(raf);
+
+  raceRunning =
+    false;
+
+  document.getElementById(
+    "status"
+  ).textContent =
+    "Ready at the starting line.";
+
+
+  document.getElementById(
+    "draftOrder"
+  ).innerHTML = "";
+
+
+  document
+    .querySelectorAll(".runner")
+    .forEach(
+      x => x.remove()
+    );
+
+}
+
+
+/* =========================================================
+   CREATE PIXEL PLAYER
+   ========================================================= */
+
+function addRunner(t,i){
+
+  const el =
+    document.createElement("div");
+
+  el.className =
+    "runner";
+
+
+  el.style.top =
+    ((i+.5)*12.5) + "%";
+
+
+  const jerseyColors = [
+
+    "#8b1e2d",
+    "#1464a0",
+    "#6b3fa0",
+    "#1f7a3d",
+    "#b36b00",
+    "#b52b2b",
+    "#155e75",
+    "#7a4b20"
+
+  ];
+
+
+  el.innerHTML = `
+
+    <div
+      class="dash-runner"
+      style="--jersey:${jerseyColors[i % jerseyColors.length]}"
+    >
+
+      <div class="pixel-player">
+
+        <div class="helmet"></div>
+
+        <div class="head"></div>
+
+        <div class="jersey"></div>
+
+        <div class="ball"></div>
+
+        <div class="leg left"></div>
+
+        <div class="leg right"></div>
+
+        <div class="cleat left"></div>
+
+        <div class="cleat right"></div>
+
+      </div>
+
+    </div>
+
+    <div class="tag">
+      ${t.name} • ${t.weight}%
+    </div>
+
+  `;
+
+
+  document
+    .getElementById("field")
+    .appendChild(el);
+
+
+  return el;
+
+}
+
+
+/* =========================================================
+   START RACE
+   ========================================================= */
+
+function start(){
+
+  if(raceRunning)
+    return;
+
+
+  reset();
+
+  raceRunning =
+    true;
+
+
+  /*
+    Weighted order determines
+    approximate finish times.
+  */
+
+  const order =
+    createOrder();
+
+
+  runners =
+    teams.map((t,i)=>({
+
+      team:t,
+
+      el:addRunner(t,i),
+
+      finish:0,
+
+      revealed:false
+
+    }));
+
+
+  const min =
+    Math.min(
+      ...teams.map(t=>t.weight)
+    );
+
+  const max =
+    Math.max(
+      ...teams.map(t=>t.weight)
+    );
+
+
+  /*
+    Assign each team a finish time
+    based on the weighted draft order.
+  */
+
+  order.forEach(
+    (t,rank)=>{
+
+      const r =
+        runners.find(
+          x => x.team.id === t.id
+        );
+
+
+      const norm =
+        max === min
+          ? .5
+          : (t.weight-min)/(max-min);
+
+
+      const jitter =
+        (Math.random()-.5)*6000;
+
+
+      r.finish =
+        Math.max(
+          3000,
+          42000
+          - rank*1500
+          - norm*4500
+          + jitter
+        );
+
+    }
+  );
+
+
+  const list =
+    document.getElementById(
+      "draftOrder"
+    );
+
+
+  list.innerHTML = "";
+
+
+  document.getElementById(
+    "status"
+  ).textContent =
+    "GO! They're off!";
+
+
+  const startTime =
+    performance.now();
+
+
+  /* =======================================================
+     REVEAL FINISHER
+     ======================================================= */
+
+  function revealRunner(r){
+
+    if(r.revealed)
+      return;
+
+
+    r.revealed =
+      true;
+
+
+    const position =
+      list.children.length + 1;
+
+
+    const li =
+      document.createElement("li");
+
+
+    li.innerHTML = `
+
+      <span>
+        <strong>#${position}</strong>
+        ${r.team.name}
+      </span>
+
+      <span>
+        ${r.team.weight}% odds
+      </span>
+
+    `;
+
+
+    list.appendChild(li);
+
+  }
+
+
+  /* =======================================================
+     ANIMATION LOOP
+     ======================================================= */
+
+  function frame(now){
+
+    const elapsed =
+      now - startTime;
+
+
+    runners.forEach(r=>{
+
+      const finishTime =
+        Math.max(
+          3000,
+          r.finish
+        );
+
+
+      const target =
+        Math.min(
+          1,
+          elapsed / finishTime
+        );
+
+
+      /*
+        Acceleration curve:
+        - slow start
+        - strong middle
+        - faster finish
+      */
+
+      const eased =
+        target < .18
+
+          ? target * .65
+
+          : target < .65
+
+            ? .117 +
+              (target-.18)*.93
+
+            : .554 +
+              (target-.65)*1.28;
+
+
+      r.el.style.left =
+        (
+          10 +
+          Math.min(
+            84,
+            eased * 84
+          )
+        ) + "%";
+
+
+      /*
+        Once they cross the finish line,
+        reveal their draft position.
+      */
+
+      if(
+        elapsed >= finishTime
+      ){
+
+        /*
+          Keep the player visible
+          just inside the finish area.
+        */
+
+        r.el.style.left =
+          "calc(100% - 92px)";
+
+
+        revealRunner(r);
+
+      }
+
+    });
+
+
+    /*
+      Stop once every runner
+      has crossed the finish line.
+    */
+
+    if(
+      runners.every(
+        r => r.revealed
+      )
+    ){
+
+      raceRunning =
+        false;
+
+
+      document.getElementById(
+        "status"
+      ).textContent =
+        "DRAFT ORDER COMPLETE";
+
+
+      return;
+
+    }
+
+
+    raf =
+      requestAnimationFrame(
+        frame
+      );
+
+  }
+
+
+  raf =
+    requestAnimationFrame(
+      frame
+    );
+
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+document.getElementById(
+  "start"
+).onclick =
+  start;
+
+
+document.getElementById(
+  "reset"
+).onclick =
+  ()=>{
+    reset();
+    renderInputs();
+  };
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+renderInputs();
+
+</script>
+
+</body>
+</html>

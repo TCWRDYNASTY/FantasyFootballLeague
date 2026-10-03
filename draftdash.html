@@ -127,6 +127,10 @@ button{
 
   width:100%;
 
+  /*
+     racefield.png is the football field image.
+  */
+
   aspect-ratio:2 / 1;
 
   overflow:hidden;
@@ -585,8 +589,8 @@ button{
 
 <!-- =======================================================
      TEAM EDITOR
-     
-     IMPORTANT:
+     =======================================================
+
      This entire section is hidden unless Commissioner
      tools are unlocked.
      ======================================================= -->
@@ -668,7 +672,8 @@ import {
    COMMISSIONER
    ========================================================= */
 
-const COMMISSIONER_PASSWORD = 'Asher';
+const COMMISSIONER_PASSWORD =
+  'Asher';
 
 
 /* =========================================================
@@ -911,10 +916,14 @@ function showStatus(message){
    COMMISSIONER INPUT VISIBILITY
    ========================================================= */
 
-function setCommissionerInputsEnabled(enabled){
+function setCommissionerInputsEnabled(
+  enabled
+){
 
   inputs
-    .querySelectorAll("input")
+    .querySelectorAll(
+      "input"
+    )
     .forEach(
       input => {
 
@@ -934,8 +943,6 @@ function setCommissionerInputsEnabled(enabled){
 function renderInputs(){
 
   /*
-     THIS IS THE IMPORTANT CHANGE.
-
      The entire team settings panel is hidden
      unless Commissioner tools are unlocked.
   */
@@ -1024,14 +1031,6 @@ inputs.addEventListener(
     if(!commissionerUnlocked)
       return;
 
-
-    /*
-       Keep IDs as strings.
-
-       This also makes the code work whether
-       Supabase is returning numeric IDs or
-       text/UUID IDs.
-    */
 
     const id =
       String(
@@ -1384,12 +1383,10 @@ function createReverseDraftOrder(){
 
 
     /*
-       IMPORTANT:
+       Remove the selected team.
 
-       Remove the selected team using
-       string comparison so the code works
-       regardless of whether Supabase IDs
-       are numbers or strings.
+       IDs are compared as strings so this works
+       whether Supabase returns numeric or text IDs.
     */
 
     pool =
@@ -1403,7 +1400,7 @@ function createReverseDraftOrder(){
 
 
   /*
-     Last team becomes Pick #1.
+     Last remaining team becomes Pick #1.
   */
 
   if(
@@ -1495,8 +1492,7 @@ async function loadTeamsFromSupabase(){
           return {
 
             /*
-               Preserve the Supabase ID
-               instead of forcing Number().
+               Preserve the actual Supabase ID.
             */
 
             id:
@@ -1960,7 +1956,7 @@ function unlockCommissioner(){
 
 
   /*
-     renderInputs() now reveals the
+     renderInputs() reveals the
      team settings panel.
   */
 
@@ -2179,29 +2175,27 @@ function resetVisuals(){
    ========================================================= */
 
 function renderResults(
-  order
+  order,
+  sortByPick = true
 ){
 
   draftOrderList.innerHTML =
     "";
 
 
-  /*
-     Display in actual draft order:
-     Pick #1 through Pick #8.
-  */
+  const items =
+    sortByPick
 
-  const sorted =
-    [...order]
+      ? [...order].sort(
+          (a,b) =>
+            a.pick -
+            b.pick
+        )
 
-      .sort(
-        (a,b) =>
-          a.pick -
-          b.pick
-      );
+      : [...order];
 
 
-  sorted.forEach(
+  items.forEach(
     item => {
 
       const li =
@@ -2245,6 +2239,51 @@ function renderResults(
 
 
 /* =========================================================
+   REVEAL ONE DRAFT RESULT
+   ========================================================= */
+
+function revealDraftResult(
+  item
+){
+
+  const li =
+    document.createElement(
+      "li"
+    );
+
+
+  li.innerHTML = `
+
+    <span>
+
+      <strong>
+        #${item.pick}
+      </strong>
+
+      ${escapeHTML(
+        item.team.name
+      )}
+
+    </span>
+
+
+    <span>
+
+      ${item.team.weight}% odds
+
+    </span>
+
+  `;
+
+
+  draftOrderList.appendChild(
+    li
+  );
+
+}
+
+
+/* =========================================================
    RUN THE DASH
    ========================================================= */
 
@@ -2257,45 +2296,90 @@ async function start(){
   resetVisuals();
 
 
-  raceRunning =
-    true;
-
-
-  showStatus(
-    "Drawing reverse odds — Pick #8 goes first..."
-  );
-
-
   /*
-     Generate:
-     #8, #7, #6, #5, #4, #3, #2, #1
+     IMPORTANT:
+
+     Supabase is the single source of truth.
+
+     If a draft already exists, NEVER generate
+     another random order.
+
+     Everyone gets the same saved result until
+     the Commissioner resets the saved draft.
   */
 
-  const order =
-    createReverseDraftOrder();
-
-
   if(
-    order.length !==
+    !savedDraftOrder ||
+    savedDraftOrder.length !==
     teams.length
   ){
 
-    raceRunning =
-      false;
-
-
     showStatus(
-      "Could not create a complete draft order."
+      "Creating the draft order..."
     );
 
 
-    return;
+    const newOrder =
+      createReverseDraftOrder();
+
+
+    if(
+      newOrder.length !==
+      teams.length
+    ){
+
+      showStatus(
+        "Could not create a complete draft order."
+      );
+
+
+      return;
+
+    }
+
+
+    const saved =
+      await saveDraftOrderToSupabase(
+        newOrder
+      );
+
+
+    if(!saved){
+
+      showStatus(
+        "Draft generated, but Supabase could not save it."
+      );
+
+
+      return;
+
+    }
+
+
+    savedDraftOrder =
+      newOrder.map(
+        x => ({
+
+          pick:
+            x.pick,
+
+          team:{
+            ...x.team
+          }
+
+        })
+      );
 
   }
 
 
-  savedDraftOrder =
-    order.map(
+  /*
+     Make a clean copy of the official
+     saved result for the race.
+  */
+
+  const order =
+    savedDraftOrder.map(
       x => ({
 
         pick:
@@ -2309,44 +2393,28 @@ async function start(){
     );
 
 
-  /*
-     Save the actual reverse-odds result
-     immediately.
-  */
-
-  const saved =
-    await saveDraftOrderToSupabase(
-      savedDraftOrder
-    );
+  raceRunning =
+    true;
 
 
-  if(!saved){
-
-    raceRunning =
-      false;
-
-
-    showStatus(
-      "Draft generated, but Supabase could not save it."
-    );
-
-
-    return;
-
-  }
+  showStatus(
+    "The draft is locked in — the race is on!"
+  );
 
 
   /*
      Create all runners.
 
-     IMPORTANT:
-     They are NOT removed when they finish.
-     Their images and labels remain permanently visible.
+     They stay visible after crossing the
+     finish line.
   */
 
   runners =
     teams.map(
-      (team,index) => ({
+      (
+        team,
+        index
+      ) => ({
 
         team:{
           ...team
@@ -2362,37 +2430,36 @@ async function start(){
           0,
 
         revealed:
-          false
+          false,
+
+        rank:
+          -1
 
       })
     );
 
 
-  const min =
-    Math.min(
-      ...teams.map(
-        t =>
-          t.weight
-      )
-    );
-
-
-  const max =
-    Math.max(
-      ...teams.map(
-        t =>
-          t.weight
-      )
-    );
-
-
   /*
-     The first item in order is Pick #8.
-     It gets the earliest finish.
+     The saved order is already in reveal order:
 
-     The last item is Pick #1.
-     It gets the latest finish.
+     #8
+     #7
+     #6
+     #5
+     #4
+     #3
+     #2
+     #1
+
+     Give them deliberately tight finish times.
   */
+
+  const baseFinish =
+    14500;
+
+  const finishGap =
+    450;
+
 
   order.forEach(
     (
@@ -2412,51 +2479,25 @@ async function start(){
         return;
 
 
-      const norm =
-        max === min
-
-          ? .5
-
-          : (
-              (
-                item.team.weight -
-                min
-              ) /
-              (
-                max -
-                min
-              )
-            );
-
-
-      const jitter =
-        (
-          Math.random() -
-          .5
-        ) *
-        5000;
-
-
       runner.pick =
         item.pick;
 
 
+      runner.rank =
+        rank;
+
+
+      /*
+         No random jitter here.
+
+         The visual race is deterministic,
+         so everyone sees the same race behavior.
+      */
+
       runner.finish =
-        Math.max(
-
-          4500,
-
-          15000 +
-
-          rank *
-          3500 -
-
-          norm *
-          1800 +
-
-          jitter
-
-        );
+        baseFinish +
+        rank *
+        finishGap;
 
     }
   );
@@ -2464,6 +2505,14 @@ async function start(){
 
   const startTime =
     performance.now();
+
+
+  const raceDuration =
+    baseFinish +
+    (
+      order.length - 1
+    ) *
+    finishGap;
 
 
   function revealRunner(
@@ -2478,13 +2527,13 @@ async function start(){
       true;
 
 
-    /*
-       Keep the player permanently visible.
-    */
-
     r.el.classList.add(
       "finished"
     );
+
+
+    r.el.style.left =
+      "84%";
 
 
     const tag =
@@ -2500,6 +2549,28 @@ async function start(){
 
     }
 
+
+    const result =
+      order.find(
+        item =>
+          String(item.team.id) ===
+          String(r.team.id)
+      );
+
+
+    if(result){
+
+      /*
+         Reveal the draft result immediately
+         when this runner crosses.
+      */
+
+      revealDraftResult(
+        result
+      );
+
+    }
+
   }
 
 
@@ -2512,17 +2583,22 @@ async function start(){
       startTime;
 
 
+    const overallProgress =
+      Math.min(
+        1,
+        elapsed /
+        raceDuration
+      );
+
+
     runners.forEach(
       r => {
 
         const finishTime =
-          Math.max(
-            4500,
-            r.finish
-          );
+          r.finish;
 
 
-        const target =
+        const individualProgress =
           Math.min(
             1,
             elapsed /
@@ -2530,28 +2606,73 @@ async function start(){
           );
 
 
-        const eased =
+        const sharedProgress =
+          overallProgress;
 
-          target < .18
 
-            ? target *
-              .65
+        /*
+           Everyone shares almost the exact
+           same race progress.
 
-            : target < .65
+           This keeps the pack together.
+        */
 
-              ? .117 +
-                (
-                  target -
-                  .18
-                ) *
-                .93
+        const progress =
+          Math.min(
 
-              : .554 +
-                (
-                  target -
-                  .65
-                ) *
-                1.28;
+            1,
+
+            (
+              sharedProgress *
+              0.88
+            ) +
+
+            (
+              individualProgress *
+              0.12
+            )
+
+          );
+
+
+        /*
+           Small deterministic surges and fades.
+
+           These make the race look alive
+           without allowing anyone to pull
+           far away.
+        */
+
+        const phase =
+          r.rank *
+          0.72;
+
+
+        const surge =
+          Math.sin(
+
+            progress *
+            Math.PI *
+            5 +
+
+            phase
+
+          ) *
+          0.010;
+
+
+        const fade =
+          Math.sin(
+
+            progress *
+            Math.PI *
+            2.2 +
+
+            phase *
+            1.7
+
+          ) *
+          0.006;
 
 
         const startPosition =
@@ -2562,18 +2683,33 @@ async function start(){
           84;
 
 
-        const currentPosition =
+        const basePosition =
           startPosition +
 
+          progress *
+          (
+            finishPosition -
+            startPosition
+          );
+
+
+        const currentPosition =
           Math.min(
 
-            finishPosition -
-            startPosition,
+            finishPosition,
 
-            eased *
-            (
-              finishPosition -
-              startPosition
+            Math.max(
+
+              startPosition,
+
+              basePosition +
+
+              (
+                surge +
+                fade
+              ) *
+              100
+
             )
 
           );
@@ -2588,10 +2724,6 @@ async function start(){
           elapsed >=
           finishTime
         ){
-
-          r.el.style.left =
-            "84%";
-
 
           revealRunner(
             r
@@ -2614,8 +2746,15 @@ async function start(){
         false;
 
 
+      /*
+         Once the race is completely over,
+         display the final draft order from
+         Pick #1 through Pick #8.
+      */
+
       renderResults(
-        savedDraftOrder
+        savedDraftOrder,
+        true
       );
 
 
@@ -2665,7 +2804,11 @@ function showSavedDraft(){
 
 
   /*
-     Keep every image and label on the field.
+     A completed saved draft is shown when
+     the page loads.
+
+     Clicking START will replay the exact
+     same saved order rather than drawing again.
   */
 
   runners =
@@ -2712,7 +2855,8 @@ function showSavedDraft(){
 
 
   renderResults(
-    savedDraftOrder
+    savedDraftOrder,
+    true
   );
 
 
@@ -2739,11 +2883,8 @@ async function initialize(){
 
 
   /*
-     This renders the team editor while
-     commissionerUnlocked is false.
-
-     renderInputs() immediately hides the
-     entire teamSettingsPanel.
+     The team settings panel remains hidden
+     because Commissioner is locked.
   */
 
   renderInputs();
@@ -2795,6 +2936,16 @@ document
   .addEventListener(
     "click",
     () => {
+
+      /*
+         IMPORTANT:
+
+         Normal RESET only resets the visual race.
+         It does NOT delete the official Supabase draft.
+
+         Therefore pressing START again will replay
+         the exact same draft order.
+      */
 
       resetVisuals();
 
@@ -2861,6 +3012,10 @@ saveConfigBtn
     saveConfiguration
   );
 
+
+/* =========================================================
+   COMMISSIONER — RESET SAVED DRAFT
+   ========================================================= */
 
 resetDraftBtn
   .addEventListener(

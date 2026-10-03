@@ -6,6 +6,7 @@
 <title>TCWR 100-YARD DRAFT DASH</title>
 
 <style>
+
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800;900&family=Montserrat:wght@600;700;800&display=swap');
 
 *{
@@ -40,6 +41,11 @@ h1{
   margin-bottom:20px;
 }
 
+
+/* =========================================================
+   CONTROLS
+   ========================================================= */
+
 .controls{
   display:flex;
   gap:10px;
@@ -66,6 +72,11 @@ button{
   color:#fff;
 }
 
+
+/* =========================================================
+   PANELS
+   ========================================================= */
+
 .panel{
   background:#0c1d2b;
   border:1px solid #294354;
@@ -74,15 +85,20 @@ button{
   margin-bottom:16px;
 }
 
+
+/* =========================================================
+   TEAM EDITOR
+   ========================================================= */
+
 .teams{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:1fr 1fr;
   gap:10px;
 }
 
 .team-edit{
   display:grid;
-  grid-template-columns:1fr 70px;
+  grid-template-columns:minmax(120px,1fr) 75px minmax(160px,1.4fr);
   gap:8px;
   align-items:center;
 }
@@ -94,27 +110,29 @@ button{
   border:1px solid #405765;
   background:#081722;
   color:#fff;
+  font-family:Montserrat,Arial,sans-serif;
+}
+
+.team-edit input::placeholder{
+  color:#7e919d;
 }
 
 
 /* =========================================================
-   RACE FIELD
+   FIELD
    ========================================================= */
 
 .field{
   position:relative;
+
   width:100%;
 
   /*
-     The image is 16:9.
-     Keeping the container 16:9 prevents the field
-     from becoming a tall/skinny rectangle on phones.
+     racefield.png is a wide football field.
+     Keep the container at the same proportions.
   */
 
-  aspect-ratio:16 / 9;
-
-  height:auto;
-  min-height:0;
+  aspect-ratio:2 / 1;
 
   overflow:hidden;
 
@@ -128,20 +146,18 @@ button{
 }
 
 
-/*
-   racefield.png already contains all field markings,
-   numbers, end zones and midfield artwork.
-*/
+/* =========================================================
+   STATUS
+   ========================================================= */
 
-.field:before{
-  display:none;
-}
+.status{
+  text-align:center;
+  min-height:24px;
 
-.mid,
-.fifty,
-.yard,
-.lane{
-  display:none;
+  font-weight:800;
+  color:#d8b45a;
+
+  margin:8px;
 }
 
 
@@ -153,21 +169,46 @@ button{
   position:absolute;
 
   /*
-     Start inside the LEFT END ZONE.
+     The runner itself stays inside the field.
   */
 
-  left:2%;
+  left:8%;
 
   transform:translateY(-50%);
 
-  z-index:5;
-
-  /*
-     Only move horizontally.
-  */
+  z-index:10;
 
   transition:left .15s linear;
 }
+
+
+/* =========================================================
+   PLAYER IMAGE
+   ========================================================= */
+
+.player-image{
+  display:block;
+
+  width:58px;
+  height:58px;
+
+  object-fit:cover;
+
+  border-radius:50%;
+
+  border:3px solid #d8b45a;
+
+  background:#071522;
+
+  box-shadow:
+    2px 3px 5px rgba(0,0,0,.55);
+}
+
+
+/*
+   If you want square images instead of circular
+   portraits, change border-radius to 8px.
+*/
 
 
 /* =========================================================
@@ -177,22 +218,27 @@ button{
 .tag{
   position:absolute;
 
-  left:58px;
-  top:5px;
+  left:66px;
+  top:50%;
+
+  transform:translateY(-50%);
 
   white-space:nowrap;
 
-  background:rgba(4,14,23,.88);
+  background:rgba(4,14,23,.92);
 
-  padding:5px 8px;
+  padding:8px 10px;
 
-  border-radius:4px;
+  border-radius:6px;
 
-  font:800 12px "Barlow Condensed";
+  font:800 14px "Barlow Condensed",sans-serif;
 
-  border-left:3px solid #d8b45a;
+  border-left:4px solid #d8b45a;
 
-  z-index:10;
+  box-shadow:
+    2px 3px 5px rgba(0,0,0,.4);
+
+  z-index:20;
 }
 
 
@@ -226,234 +272,53 @@ button{
   font-size:1.08em;
 }
 
-.status{
-  text-align:center;
-  min-height:24px;
-
-  font-weight:800;
-  color:#d8b45a;
-
-  margin:8px;
-}
-
-
-/* =========================================================
-   PIXEL FOOTBALL PLAYER
-   ========================================================= */
-
-.dash-runner{
-  position:relative;
-
-  width:46px;
-  height:58px;
-
-  image-rendering:pixelated;
-
-  filter:
-    drop-shadow(2px 3px 0 rgba(0,0,0,.55));
-}
-
-.pixel-player{
-  position:absolute;
-
-  left:8px;
-  top:2px;
-
-  width:30px;
-  height:54px;
-}
-
-
-/* =========================================================
-   HELMET
-   ========================================================= */
-
-.pixel-player .helmet{
-  position:absolute;
-
-  left:7px;
-  top:0;
-
-  width:18px;
-  height:11px;
-
-  background:#d8b45a;
-
-  box-shadow:
-    -4px 4px 0 #071522,
-    0 7px 0 #d8b45a,
-    5px 9px 0 #fff,
-    10px 9px 0 #071522;
-}
-
-
-/* =========================================================
-   HEAD
-   ========================================================= */
-
-.pixel-player .head{
-  position:absolute;
-
-  left:10px;
-  top:8px;
-
-  width:12px;
-  height:9px;
-
-  background:#d79b6a;
-}
-
-
-/* =========================================================
-   JERSEY
-   ========================================================= */
-
-.pixel-player .jersey{
-  position:absolute;
-
-  left:6px;
-  top:16px;
-
-  width:22px;
-  height:18px;
-
-  background:var(--jersey,#7b1e2b);
-
-  box-shadow:
-    -5px 3px 0 var(--jersey,#7b1e2b),
-    22px 3px 0 var(--jersey,#7b1e2b),
-    3px 18px 0 #fff,
-    15px 18px 0 #fff;
-}
-
-.pixel-player .jersey:after{
-  content:"";
-
-  position:absolute;
-
-  left:7px;
-  top:4px;
-
-  width:8px;
-  height:8px;
-
-  background:#fff;
-
-  box-shadow:
-    2px 2px 0 rgba(0,0,0,.15);
-}
-
-
-/* =========================================================
-   FOOTBALL
-   ========================================================= */
-
-.pixel-player .ball{
-  position:absolute;
-
-  right:-5px;
-  top:19px;
-
-  width:7px;
-  height:10px;
-
-  background:#8b4a21;
-
-  transform:rotate(-20deg);
-
-  box-shadow:
-    1px 2px 0 #071522;
-}
-
-
-/* =========================================================
-   LEGS
-   ========================================================= */
-
-.pixel-player .leg{
-  position:absolute;
-
-  top:34px;
-
-  width:8px;
-  height:17px;
-
-  background:#fff;
-}
-
-.pixel-player .leg.left{
-  left:7px;
-  transform:skew(-8deg);
-}
-
-.pixel-player .leg.right{
-  left:16px;
-  transform:skew(8deg);
-}
-
-
-/* =========================================================
-   CLEATS
-   ========================================================= */
-
-.pixel-player .cleat{
-  position:absolute;
-
-  top:49px;
-
-  width:11px;
-  height:5px;
-
-  background:#071522;
-}
-
-.pixel-player .cleat.left{
-  left:3px;
-}
-
-.pixel-player .cleat.right{
-  left:17px;
-}
-
 
 /* =========================================================
    RESPONSIVE
    ========================================================= */
 
-@media(max-width:850px){
+@media(max-width:900px){
 
   .teams{
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:1fr;
   }
 
-  .field{
-    width:100%;
-    aspect-ratio:16 / 9;
-    height:auto;
-    min-height:0;
+  .team-edit{
+    grid-template-columns:
+      minmax(110px,1fr)
+      70px
+      minmax(150px,1.5fr);
   }
 }
 
 
 @media(max-width:560px){
 
-  .teams{
-    grid-template-columns:1fr;
-  }
-
   .wrap{
     padding:12px;
   }
 
+  .team-edit{
+    grid-template-columns:1fr 65px;
+  }
+
+  .team-edit input[data-type="image"]{
+    grid-column:1 / -1;
+  }
+
   .field{
-    width:100%;
-    aspect-ratio:16 / 9;
-    height:auto;
-    min-height:0;
+    aspect-ratio:2 / 1;
+  }
+
+  .player-image{
+    width:44px;
+    height:44px;
   }
 
   .tag{
-    left:58px;
+    left:50px;
+    font-size:11px;
+    padding:6px 7px;
   }
 }
 
@@ -495,7 +360,7 @@ button{
 
 
 <!-- =======================================================
-     TEAM INPUTS
+     TEAM EDITOR
      ======================================================= -->
 
 <div class="panel">
@@ -513,7 +378,7 @@ button{
 
 
 <!-- =======================================================
-     LIVE DRAFT ORDER
+     DRAFT ORDER
      ======================================================= -->
 
 <div class="results">
@@ -535,58 +400,78 @@ button{
 
 <script>
 
+
 /* =========================================================
    DEFAULT TEAMS
-   ========================================================= */
+   =========================================================
+
+   IMAGE URL:
+   Paste your GitHub RAW image URL here.
+
+   Example:
+
+   https://raw.githubusercontent.com/USERNAME/REPO/main/images/matt.png
+
+   You can also enter the URLs directly on the website
+   using the Image URL boxes.
+*/
 
 const defaultTeams = [
 
   {
     id:1,
     name:"Matt",
-    weight:18
+    weight:18,
+    image:""
   },
 
   {
     id:2,
     name:"Steven",
-    weight:15
+    weight:15,
+    image:""
   },
 
   {
     id:3,
     name:"Jess",
-    weight:13
+    weight:13,
+    image:""
   },
 
   {
     id:4,
     name:"Kevin",
-    weight:11
+    weight:11,
+    image:""
   },
 
   {
     id:5,
     name:"Sarah",
-    weight:10
+    weight:10,
+    image:""
   },
 
   {
     id:6,
     name:"Mike",
-    weight:9
+    weight:9,
+    image:""
   },
 
   {
     id:7,
     name:"Chris",
-    weight:8
+    weight:8,
+    image:""
   },
 
   {
     id:8,
     name:"Amanda",
-    weight:7
+    weight:7,
+    image:""
   }
 
 ];
@@ -615,7 +500,7 @@ function renderInputs(){
 
   inputs.innerHTML = "";
 
-  teams.forEach((t,i)=>{
+  teams.forEach((t)=>{
 
     const box =
       document.createElement("div");
@@ -628,7 +513,8 @@ function renderInputs(){
       <input
         data-id="${t.id}"
         data-type="name"
-        value="${t.name}"
+        value="${escapeHTML(t.name)}"
+        placeholder="Team name"
       >
 
       <input
@@ -637,6 +523,13 @@ function renderInputs(){
         type="number"
         min="1"
         value="${t.weight}"
+      >
+
+      <input
+        data-id="${t.id}"
+        data-type="image"
+        value="${escapeHTML(t.image)}"
+        placeholder="GitHub image URL"
       >
 
     `;
@@ -648,6 +541,26 @@ function renderInputs(){
 }
 
 
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHTML(value){
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================================
+   UPDATE TEAM DATA
+   ========================================================= */
+
 inputs.addEventListener(
   "input",
   e => {
@@ -656,27 +569,41 @@ inputs.addEventListener(
       +e.target.dataset.id;
 
     const t =
-      teams.find(x => x.id === id);
+      teams.find(
+        x => x.id === id
+      );
 
-    if(!t) return;
+    if(!t)
+      return;
 
 
-    if(
-      e.target.dataset.type === "name"
-    ){
+    const type =
+      e.target.dataset.type;
+
+
+    if(type === "name"){
 
       t.name =
         e.target.value;
 
     }
 
-    else{
+
+    else if(type === "weight"){
 
       t.weight =
         Math.max(
           1,
           +e.target.value || 1
         );
+
+    }
+
+
+    else if(type === "image"){
+
+      t.image =
+        e.target.value;
 
     }
 
@@ -692,9 +619,11 @@ function weightedPick(pool){
 
   const total =
     pool.reduce(
-      (s,t) => s + t.weight,
+      (s,t) =>
+        s + t.weight,
       0
     );
+
 
   let r =
     Math.random() * total;
@@ -710,7 +639,7 @@ function weightedPick(pool){
   }
 
 
-  return pool[pool.length-1];
+  return pool[pool.length - 1];
 
 }
 
@@ -722,21 +651,25 @@ function weightedPick(pool){
 function createOrder(){
 
   let pool =
-    teams.map(t => ({...t}));
+    teams.map(
+      t => ({...t})
+    );
 
   const order = [];
 
 
   while(pool.length){
 
-    const w =
+    const winner =
       weightedPick(pool);
 
-    order.push(w);
+    order.push(winner);
+
 
     pool =
       pool.filter(
-        t => t.id !== w.id
+        t =>
+          t.id !== winner.id
       );
 
   }
@@ -757,6 +690,7 @@ function reset(){
 
   raceRunning =
     false;
+
 
   document.getElementById(
     "status"
@@ -779,7 +713,7 @@ function reset(){
 
 
 /* =========================================================
-   CREATE PIXEL PLAYER
+   CREATE RUNNER
    ========================================================= */
 
 function addRunner(t,i){
@@ -792,68 +726,71 @@ function addRunner(t,i){
 
 
   /*
-     Eight lanes across the height
-     of the field.
+     Keep every player safely inside
+     the vertical boundaries.
+
+     12% → 88%
   */
 
   el.style.top =
-    ((i + .5) * 12.5) + "%";
+    (
+      12 +
+      i * (76 / 7)
+    ) + "%";
 
 
   /*
-     ALL PLAYERS START INSIDE
-     THE LEFT END ZONE.
+     Start inside the LEFT END ZONE.
   */
 
   el.style.left =
-    "2%";
+    "8%";
 
 
-  const jerseyColors = [
+  /*
+     Player image.
+     If no image is entered, use a simple
+     colored placeholder.
+  */
 
-    "#8b1e2d",
-    "#1464a0",
-    "#6b3fa0",
-    "#1f7a3d",
-    "#b36b00",
-    "#b52b2b",
-    "#155e75",
-    "#7a4b20"
-
-  ];
+  const imageHTML =
+    t.image
+      ? `
+        <img
+          class="player-image"
+          src="${escapeHTML(t.image)}"
+          alt="${escapeHTML(t.name)}"
+          onerror="this.style.display='none';"
+        >
+      `
+      : `
+        <div
+          class="player-image"
+          style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:900;
+            color:#fff;
+          "
+        >
+          ${escapeHTML(
+            t.name
+              .charAt(0)
+              .toUpperCase()
+          )}
+        </div>
+      `;
 
 
   el.innerHTML = `
 
-    <div
-      class="dash-runner"
-      style="--jersey:${jerseyColors[i % jerseyColors.length]}"
-    >
-
-      <div class="pixel-player">
-
-        <div class="helmet"></div>
-
-        <div class="head"></div>
-
-        <div class="jersey"></div>
-
-        <div class="ball"></div>
-
-        <div class="leg left"></div>
-
-        <div class="leg right"></div>
-
-        <div class="cleat left"></div>
-
-        <div class="cleat right"></div>
-
-      </div>
-
-    </div>
+    ${imageHTML}
 
     <div class="tag">
-      ${t.name} • ${t.weight}%
+      ${escapeHTML(t.name)}
+      •
+      ${t.weight}%
     </div>
 
   `;
@@ -881,74 +818,97 @@ function start(){
 
   reset();
 
+
   raceRunning =
     true;
 
 
   /*
-    Weighted order determines
-    approximate finish times.
+     Create weighted draft order.
   */
 
   const order =
     createOrder();
 
 
+  /*
+     Create all runners.
+  */
+
   runners =
-    teams.map((t,i)=>({
+    teams.map(
+      (t,i) => ({
 
-      team:t,
+        team:t,
 
-      el:addRunner(t,i),
+        el:addRunner(t,i),
 
-      finish:0,
+        finish:0,
 
-      revealed:false
+        revealed:false
 
-    }));
+      })
+    );
 
 
   const min =
     Math.min(
-      ...teams.map(t=>t.weight)
+      ...teams.map(
+        t => t.weight
+      )
     );
+
 
   const max =
     Math.max(
-      ...teams.map(t=>t.weight)
+      ...teams.map(
+        t => t.weight
+      )
     );
 
 
   /*
-    Assign each team a finish time
-    based on the weighted draft order.
+     Assign finish times.
+
+     Higher weighted teams have
+     a somewhat better chance of
+     finishing earlier.
   */
 
   order.forEach(
     (t,rank)=>{
 
-      const r =
+      const runner =
         runners.find(
-          x => x.team.id === t.id
+          x =>
+            x.team.id === t.id
         );
 
 
       const norm =
         max === min
+
           ? .5
-          : (t.weight-min)/(max-min);
+
+          : (
+              (t.weight - min) /
+              (max - min)
+            );
 
 
       const jitter =
-        (Math.random()-.5)*6000;
+        (
+          Math.random() - .5
+        ) * 6000;
 
 
-      r.finish =
+      runner.finish =
         Math.max(
           3000,
+
           42000
-          - rank*1500
-          - norm*4500
+          - rank * 1500
+          - norm * 4500
           + jitter
         );
 
@@ -962,7 +922,8 @@ function start(){
     );
 
 
-  list.innerHTML = "";
+  list.innerHTML =
+    "";
 
 
   document.getElementById(
@@ -1000,8 +961,13 @@ function start(){
     li.innerHTML = `
 
       <span>
-        <strong>#${position}</strong>
-        ${r.team.name}
+        <strong>
+          #${position}
+        </strong>
+
+        ${escapeHTML(
+          r.team.name
+        )}
       </span>
 
       <span>
@@ -1026,93 +992,108 @@ function start(){
       now - startTime;
 
 
-    runners.forEach(r=>{
+    runners.forEach(
+      r => {
 
-      const finishTime =
-        Math.max(
-          3000,
-          r.finish
-        );
-
-
-      const target =
-        Math.min(
-          1,
-          elapsed / finishTime
-        );
+        const finishTime =
+          Math.max(
+            3000,
+            r.finish
+          );
 
 
-      /*
-        Acceleration curve:
-        - slow start
-        - strong middle
-        - faster finish
-      */
-
-      const eased =
-        target < .18
-
-          ? target * .65
-
-          : target < .65
-
-            ? .117 +
-              (target-.18)*.93
-
-            : .554 +
-              (target-.65)*1.28;
-
-
-      /*
-        Start at 2%.
-        Finish at approximately 90%.
-
-        This keeps the player inside
-        the right-side end zone instead
-        of running off the field.
-      */
-
-      const startPosition = 2;
-      const finishPosition = 90;
-
-      r.el.style.left =
-        (
-          startPosition +
+        const target =
           Math.min(
-            finishPosition - startPosition,
-            eased * (finishPosition - startPosition)
-          )
-        ) + "%";
+            1,
+            elapsed / finishTime
+          );
 
-
-      /*
-        Once they cross the finish line,
-        reveal their draft position.
-      */
-
-      if(
-        elapsed >= finishTime
-      ){
 
         /*
-          Keep player inside the
-          right end zone.
+           Acceleration curve
         */
 
+        const eased =
+
+          target < .18
+
+            ? target * .65
+
+            : target < .65
+
+              ? .117 +
+                (target - .18) * .93
+
+              : .554 +
+                (target - .65) * 1.28;
+
+
+        /*
+           FIELD POSITION
+
+           Start:
+           8%
+
+           Finish:
+           84%
+
+           This keeps the actual player
+           completely inside the image.
+        */
+
+        const startPosition =
+          8;
+
+        const finishPosition =
+          84;
+
+
+        const currentPosition =
+          startPosition +
+
+          Math.min(
+            finishPosition -
+              startPosition,
+
+            eased *
+              (
+                finishPosition -
+                startPosition
+              )
+          );
+
+
         r.el.style.left =
-          "calc(90% - 10px)";
+          currentPosition + "%";
 
 
-        revealRunner(r);
+        /*
+           FINISHED
+        */
+
+        if(
+          elapsed >= finishTime
+        ){
+
+          /*
+             Keep the actual player
+             inside the right end zone.
+          */
+
+          r.el.style.left =
+            "84%";
+
+
+          revealRunner(r);
+
+        }
 
       }
-
-    });
+    );
 
 
     /*
-      Stop once every runner
-      has crossed the finish line.
+       Stop when everyone has finished.
     */
 
     if(
@@ -1165,9 +1146,12 @@ document.getElementById(
 document.getElementById(
   "reset"
 ).onclick =
-  ()=>{
+  () => {
+
     reset();
+
     renderInputs();
+
   };
 
 

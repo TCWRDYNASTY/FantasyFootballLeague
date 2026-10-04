@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -1432,11 +1433,12 @@ const COMMISSIONER_PASSWORD =
 
    Paste your CURRENT Supabase publishable key below.
 
-   It should look like:
+   It should start with:
 
-   sb_publishable_xxxxxxxxxxxxxxxxx
+   sb_publishable_
 
-   DO NOT put a service_role or sb_secret key here.
+   DO NOT put an sb_secret key here.
+   DO NOT put a service_role key here.
 
    ========================================================= */
 
@@ -1465,38 +1467,29 @@ const supabase =
 
 /* =========================================================
    =========================================================
-   IMAGE FILES — EDIT THESE 8 FILENAMES
+   IMAGE FILES — CHANGE FILENAMES HERE
    =========================================================
    =========================================================
 
-   THIS IS THE SECTION YOU WILL EDIT.
+   THIS IS THE IMAGE SECTION.
 
-   Put all 8 image files in the SAME folder as this HTML file.
+   Put the image files in the SAME folder as this HTML file.
 
-   Example:
+   If your files are:
 
-       draftdash.html
-       racefield.png
-       image1.jpeg
-       image2.jpeg
-       image3.jpeg
-       image4.jpeg
-       image5.jpeg
-       image6.jpeg
-       image7.jpeg
-       image8.jpeg
+   Matt.jpeg
+   Steven.jpeg
+   Jess.jpeg
+   Kevin.jpeg
+   Sarah.jpeg
+   Mike.jpeg
+   Chris.jpeg
+   Amanda.jpeg
 
+   change this section to those names.
 
-   If your actual files have different names, ONLY CHANGE
-   THE 8 FILENAMES BELOW.
-
-   Example:
-
-       "image1.jpeg"
-
-   could become:
-
-       "Matt.jpeg"
+   The Commissioner dropdown will automatically use
+   whatever filenames are listed here.
 
    ========================================================= */
 
@@ -1728,13 +1721,18 @@ const countdownNumber =
    STATUS
    ========================================================= */
 
-function showStatus(message){
+function showStatus(
+  message
+){
 
-  if(!statusElement)
-    return;
+  if(
+    statusElement
+  ){
 
-  statusElement.textContent =
-    message;
+    statusElement.textContent =
+      message;
+
+  }
 
 }
 
@@ -1743,7 +1741,9 @@ function showStatus(message){
    HTML ESCAPE
    ========================================================= */
 
-function escapeHTML(value){
+function escapeHTML(
+  value
+){
 
   return String(
     value ?? ""
@@ -1776,10 +1776,13 @@ function escapeHTML(value){
    IMAGE HELPERS
    ========================================================= */
 
-function imageForTeamId(id){
+function imageForTeamId(
+  id
+){
 
   const index =
     Number(id) - 1;
+
 
   return (
     IMAGE_FILES[index] ||
@@ -1835,11 +1838,17 @@ function normalizeImage(
 
 function renderInputs(){
 
-  if(!teamInputs)
+  if(
+    !teamInputs
+  ){
+
     return;
 
+  }
 
-  teamInputs.innerHTML = "";
+
+  teamInputs.innerHTML =
+    "";
 
 
   const header =
@@ -1900,13 +1909,16 @@ function renderInputs(){
                   ? "selected"
                   : "";
 
+
               return `
+
                 <option
                   value="${escapeHTML(file)}"
                   ${selected}
                 >
                   Image ${index + 1} — ${escapeHTML(file)}
                 </option>
+
               `;
 
             }
@@ -1954,6 +1966,7 @@ function renderInputs(){
             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
           >
 
+
           <div
             class="team-image-preview placeholder"
             style="display:none;"
@@ -1990,7 +2003,7 @@ function renderInputs(){
 
 
 /* =========================================================
-   COMMISSIONER EDITOR LISTENERS
+   EDITOR LISTENERS
    ========================================================= */
 
 function attachEditorListeners(){
@@ -2022,7 +2035,7 @@ function attachEditorListeners(){
 
 
 /* =========================================================
-   UPDATE TEAM
+   UPDATE TEAM FROM EDITOR
    ========================================================= */
 
 function updateTeamFromEditor(
@@ -2051,8 +2064,13 @@ function updateTeamFromEditor(
     );
 
 
-  if(!team)
+  if(
+    !team
+  ){
+
     return;
+
+  }
 
 
   if(
@@ -2093,7 +2111,9 @@ function updateTeamFromEditor(
       );
 
 
-    if(duplicate){
+    if(
+      duplicate
+    ){
 
       alert(
         "Each image can only be assigned to one team."
@@ -2102,6 +2122,7 @@ function updateTeamFromEditor(
 
       element.value =
         team.image;
+
 
       return;
 
@@ -2121,13 +2142,17 @@ function updateTeamFromEditor(
       );
 
 
-    if(preview){
+    if(
+      preview
+    ){
 
       preview.src =
         team.image;
 
+
       preview.style.display =
         "block";
+
 
       if(
         preview.nextElementSibling
@@ -2149,13 +2174,18 @@ function updateTeamFromEditor(
 
 
 /* =========================================================
-   PERMANENT TEAM KEY
+   PERMANENT KEY
    ========================================================= */
 
 function renderPermanentLabels(){
 
-  if(!permanentLabels)
+  if(
+    !permanentLabels
+  ){
+
     return;
+
+  }
 
 
   permanentLabels.innerHTML =
@@ -2241,7 +2271,7 @@ function renderPermanentLabels(){
 
 
 /* =========================================================
-   WEIGHTED RANDOM PICK
+   WEIGHTED PICK
    ========================================================= */
 
 function weightedPick(
@@ -2273,7 +2303,9 @@ function weightedPick(
     );
 
 
-  if(total <= 0){
+  if(
+    total <= 0
+  ){
 
     return (
       pool[
@@ -2323,19 +2355,6 @@ function weightedPick(
 
 /* =========================================================
    CREATE OFFICIAL DRAFT ORDER
-   =========================================================
-
-   Pick #1:
-   weighted draw from all teams.
-
-   Remove winner.
-
-   Pick #2:
-   weighted draw from remaining teams.
-
-   Continue until one remains.
-
-   Last remaining team gets Pick #8.
    ========================================================= */
 
 function createDraftOrder(){
@@ -2363,8 +2382,13 @@ function createDraftOrder(){
       );
 
 
-    if(!winner)
+    if(
+      !winner
+    ){
+
       break;
+
+    }
 
 
     order.push({
@@ -2424,8 +2448,9 @@ async function saveTeamsToSupabase(){
   ){
 
     showStatus(
-      "Supabase key is missing. Paste your current sb_publishable_ key into the code."
+      "Supabase publishable key is missing."
     );
+
 
     return false;
 
@@ -2436,7 +2461,8 @@ async function saveTeamsToSupabase(){
     teams.map(
       team => ({
 
-        id:team.id,
+        id:
+          team.id,
 
         members_data:{
 
@@ -2473,7 +2499,9 @@ async function saveTeamsToSupabase(){
       );
 
 
-  if(error){
+  if(
+    error
+  ){
 
     console.error(
       "Supabase team save error:",
@@ -2531,7 +2559,9 @@ async function loadTeamsFromSupabase(){
       );
 
 
-  if(error){
+  if(
+    error
+  ){
 
     console.error(
       "Supabase team load error:",
@@ -2612,21 +2642,6 @@ async function loadTeamsFromSupabase(){
       );
 
 
-  if(
-    loaded.length !==
-    teams.length
-  ){
-
-    console.warn(
-      "Supabase returned",
-      loaded.length,
-      "teams. Expected",
-      teams.length
-    );
-
-  }
-
-
   return loaded.length
     ? loaded
     : defaultTeams.map(
@@ -2652,10 +2667,6 @@ async function saveDraftOrderToSupabase(
       "PASTE_"
     )
   ){
-
-    showStatus(
-      "Supabase key is missing."
-    );
 
     return false;
 
@@ -2704,16 +2715,13 @@ async function saveDraftOrderToSupabase(
       );
 
 
-  if(error){
+  if(
+    error
+  ){
 
     console.error(
       "Supabase draft save error:",
       error
-    );
-
-
-    showStatus(
-      "Supabase could not save the draft order."
     );
 
 
@@ -2758,7 +2766,9 @@ async function loadDraftOrderFromSupabase(){
       );
 
 
-  if(error){
+  if(
+    error
+  ){
 
     console.error(
       "Supabase order load error:",
@@ -2799,8 +2809,13 @@ async function loadDraftOrderFromSupabase(){
             );
 
 
-          if(!team)
+          if(
+            !team
+          ){
+
             return null;
+
+          }
 
 
           return {
@@ -2834,11 +2849,6 @@ async function loadDraftOrderFromSupabase(){
     teams.length
   ){
 
-    console.warn(
-      "Saved draft is incomplete."
-    );
-
-
     return [];
 
   }
@@ -2863,8 +2873,9 @@ async function clearDraftOrderFromSupabase(){
   ){
 
     showStatus(
-      "Supabase key is missing."
+      "Supabase publishable key is missing."
     );
+
 
     return false;
 
@@ -2886,7 +2897,9 @@ async function clearDraftOrderFromSupabase(){
       );
 
 
-  if(error){
+  if(
+    error
+  ){
 
     console.error(
       "Supabase draft clear error:",
@@ -2924,7 +2937,9 @@ function resetVisuals(){
   );
 
 
-  if(field){
+  if(
+    field
+  ){
 
     field.innerHTML =
       "";
@@ -2932,7 +2947,9 @@ function resetVisuals(){
   }
 
 
-  if(draftOrderList){
+  if(
+    draftOrderList
+  ){
 
     draftOrderList.innerHTML =
       "";
@@ -3072,18 +3089,25 @@ function revealDraftResult(
     );
 
 
-  if(!li)
+  if(
+    !li
+  ){
+
     return;
+
+  }
 
 
   li.innerHTML = `
 
     <span>
+
       <strong>
         PICK #${item.pick}
       </strong>
 
       ${escapeHTML(item.team.name)}
+
     </span>
 
     <span>
@@ -3096,7 +3120,7 @@ function revealDraftResult(
 
 
 /* =========================================================
-   RENDER FINAL RESULTS
+   RENDER RESULTS
    ========================================================= */
 
 function renderResults(
@@ -3128,11 +3152,13 @@ function renderResults(
         li.innerHTML = `
 
           <span>
+
             <strong>
               PICK #${item.pick}
             </strong>
 
             ${escapeHTML(item.team.name)}
+
           </span>
 
           <span>
@@ -3225,12 +3251,32 @@ function showSavedDraft(){
 
 /* =========================================================
    START RACE
+   =========================================================
+
+   THIS IS THE IMPORTANT CORRECTION.
+
+   The race no longer gets cancelled just because
+   Supabase fails to save the newly generated order.
+
+   If there is already a saved order, use it.
+
+   If there isn't one:
+     1. Generate the weighted order.
+     2. Immediately use that order for the race.
+     3. Try to save it to Supabase.
+     4. A Supabase failure does NOT stop the race.
+
    ========================================================= */
 
 async function start(){
 
-  if(raceRunning)
+  if(
+    raceRunning
+  ){
+
     return false;
+
+  }
 
 
   resetVisuals();
@@ -3240,17 +3286,33 @@ async function start(){
 
 
   /*
-     IMPORTANT:
+     STEP 1:
+     Use an existing official saved order.
+  */
 
-     If Supabase already contains the official draft,
-     DO NOT create another random result.
+  let officialOrder =
+    savedDraftOrder &&
+    savedDraftOrder.length ===
+    teams.length
+      ? savedDraftOrder.map(
+          item => ({
+            pick:item.pick,
+            team:{
+              ...item.team
+            }
+          })
+        )
+      : [];
 
-     Everyone uses the same saved order.
+
+  /*
+     STEP 2:
+     If there isn't an official saved order,
+     create one locally.
   */
 
   if(
-    !savedDraftOrder ||
-    savedDraftOrder.length !==
+    officialOrder.length !==
     teams.length
   ){
 
@@ -3259,12 +3321,12 @@ async function start(){
     );
 
 
-    const newOrder =
+    officialOrder =
       createDraftOrder();
 
 
     if(
-      newOrder.length !==
+      officialOrder.length !==
       teams.length
     ){
 
@@ -3278,26 +3340,17 @@ async function start(){
     }
 
 
-    const saved =
-      await saveDraftOrderToSupabase(
-        newOrder
-      );
+    /*
+       IMPORTANT:
 
+       Set this BEFORE attempting Supabase.
 
-    if(!saved){
-
-      showStatus(
-        "Draft was generated but could not be saved to Supabase."
-      );
-
-
-      return false;
-
-    }
-
+       This means the race can proceed even if
+       Supabase returns an error.
+    */
 
     savedDraftOrder =
-      newOrder.map(
+      officialOrder.map(
         item => ({
 
           pick:
@@ -3310,11 +3363,49 @@ async function start(){
         })
       );
 
+
+    /*
+       Try to save the official order.
+
+       If it fails, DO NOT return false.
+
+       The race still proceeds using the exact
+       same order we just generated.
+    */
+
+    const saved =
+      await saveDraftOrderToSupabase(
+        officialOrder
+      );
+
+
+    if(
+      !saved
+    ){
+
+      console.warn(
+        "Supabase could not save the draft. Continuing with the locally generated order for this race."
+      );
+
+
+      showStatus(
+        "Draft order created — race starting."
+      );
+
+    }
+
   }
 
 
+  /*
+     STEP 3:
+
+     Make a completely separate copy of the
+     official order for the race.
+  */
+
   const order =
-    savedDraftOrder.map(
+    officialOrder.map(
       item => ({
 
         pick:
@@ -3328,6 +3419,15 @@ async function start(){
     );
 
 
+  /*
+     STEP 4:
+
+     START THE RACE.
+
+     Nothing after this point depends on
+     Supabase being successful.
+  */
+
   raceRunning =
     true;
 
@@ -3338,7 +3438,7 @@ async function start(){
 
 
   /*
-     Create runners.
+     CREATE RUNNERS
   */
 
   runners =
@@ -3369,12 +3469,12 @@ async function start(){
 
 
   /*
-     Tight pack.
+     TIGHT PACK TIMING
 
-     The final runner crosses at the end of the
-     full race animation.
+     The last runner finishes at the end
+     of the race.
 
-     The separation remains intentionally small.
+     The runners remain close together.
   */
 
   const baseFinish =
@@ -3399,8 +3499,13 @@ async function start(){
         );
 
 
-      if(!runner)
+      if(
+        !runner
+      ){
+
         return;
+
+      }
 
 
       runner.pick =
@@ -3438,8 +3543,11 @@ async function start(){
 
     if(
       runner.revealed
-    )
+    ){
+
       return;
+
+    }
 
 
     runner.revealed =
@@ -3463,7 +3571,9 @@ async function start(){
       );
 
 
-    if(result){
+    if(
+      result
+    ){
 
       revealDraftResult(
         result
@@ -3511,11 +3621,11 @@ async function start(){
 
 
         /*
-           88% shared movement keeps everyone
-           together as a pack.
+           88% shared movement keeps the pack
+           tight.
 
-           12% individual movement lets runners
-           surge and fade slightly.
+           12% individual movement creates
+           small surges/fades.
         */
 
         const progress =
@@ -3667,7 +3777,7 @@ async function start(){
 
 
 /* =========================================================
-   COMMISSIONER
+   COMMISSIONER OPEN
    ========================================================= */
 
 function openCommissioner(){
@@ -3690,6 +3800,10 @@ function openCommissioner(){
 
 }
 
+
+/* =========================================================
+   COMMISSIONER CLOSE
+   ========================================================= */
 
 function closeCommissioner(){
 
@@ -3719,6 +3833,10 @@ function closeCommissioner(){
 }
 
 
+/* =========================================================
+   UNLOCK COMMISSIONER
+   ========================================================= */
+
 function unlockCommissioner(){
 
   if(
@@ -3732,6 +3850,7 @@ function unlockCommissioner(){
 
 
     commissionerPassword.select();
+
 
     return;
 
@@ -3767,6 +3886,10 @@ function unlockCommissioner(){
 }
 
 
+/* =========================================================
+   LOCK COMMISSIONER
+   ========================================================= */
+
 function lockCommissioner(){
 
   commissionerUnlocked =
@@ -3796,18 +3919,19 @@ function lockCommissioner(){
 
 
 /* =========================================================
-   SAVE COMMISSIONER CONFIGURATION
+   SAVE CONFIGURATION
    ========================================================= */
 
 async function saveConfiguration(){
 
-  if(!commissionerUnlocked)
+  if(
+    !commissionerUnlocked
+  ){
+
     return;
 
+  }
 
-  /*
-     Validate image uniqueness.
-  */
 
   const images =
     teams.map(
@@ -3819,7 +3943,7 @@ async function saveConfiguration(){
     );
 
 
-  const duplicates =
+  const duplicateImages =
     images.filter(
       (
         image,
@@ -3831,11 +3955,11 @@ async function saveConfiguration(){
 
 
   if(
-    duplicates.length
+    duplicateImages.length
   ){
 
     alert(
-      "Each of the 8 images must be assigned to only one team."
+      "Each image must be assigned to only one team."
     );
 
 
@@ -3843,10 +3967,6 @@ async function saveConfiguration(){
 
   }
 
-
-  /*
-     Validate weights.
-  */
 
   const invalidWeight =
     teams.some(
@@ -3858,7 +3978,9 @@ async function saveConfiguration(){
     );
 
 
-  if(invalidWeight){
+  if(
+    invalidWeight
+  ){
 
     alert(
       "All weights must be zero or greater."
@@ -3887,24 +4009,17 @@ async function saveConfiguration(){
     false;
 
 
-  if(!saved)
+  if(
+    !saved
+  ){
+
     return;
 
+  }
 
-  /*
-     Update current page.
-  */
 
   renderPermanentLabels();
 
-
-  /*
-     Team changes should not silently leave
-     an old saved draft attached to the new odds.
-
-     The commissioner should reset the draft
-     after changing the configuration.
-  */
 
   showStatus(
     "Team configuration saved to Supabase."
@@ -3914,7 +4029,7 @@ async function saveConfiguration(){
 
 
 /* =========================================================
-   PRE-RACE COUNTDOWN
+   WAIT
    ========================================================= */
 
 function wait(
@@ -3932,7 +4047,17 @@ function wait(
 }
 
 
+/* =========================================================
+   COUNTDOWN
+   ========================================================= */
+
 async function runCountdown(){
+
+  raceCurtain.classList.remove(
+    "open",
+    "hidden"
+  );
+
 
   raceCurtain.classList.add(
     "countdown"
@@ -3984,7 +4109,7 @@ async function runCountdown(){
 
     await wait(
       value === "GO!"
-        ? 650
+        ? 500
         : 750
     );
 
@@ -3995,6 +4120,15 @@ async function runCountdown(){
 
 /* =========================================================
    START FROM OVERLAY
+   =========================================================
+
+   IMPORTANT CORRECTION:
+
+   We open the curtains BEFORE waiting for Supabase.
+
+   The race itself no longer controls whether the
+   curtain opens.
+
    ========================================================= */
 
 async function startDashFromOverlay(){
@@ -4012,11 +4146,39 @@ async function startDashFromOverlay(){
     true;
 
 
+  /*
+     Run countdown.
+  */
+
   await runCountdown();
 
 
+  /*
+     GO!
+
+     Open curtains immediately.
+  */
+
   raceCurtain.classList.add(
     "open"
+  );
+
+
+  raceCurtain.classList.remove(
+    "countdown"
+  );
+
+
+  /*
+     Give the curtain a moment to start moving,
+     then start the race.
+
+     start() can now safely deal with Supabase
+     without cancelling the curtain.
+  */
+
+  await wait(
+    180
   );
 
 
@@ -4024,11 +4186,22 @@ async function startDashFromOverlay(){
     await start();
 
 
-  if(!success){
+  /*
+     If start somehow fails because the local
+     draft itself is invalid, restore the overlay.
+
+     A normal Supabase save failure does NOT
+     reach this point anymore.
+  */
+
+  if(
+    !success
+  ){
 
     raceCurtain.classList.remove(
       "open",
-      "countdown"
+      "countdown",
+      "hidden"
     );
 
 
@@ -4045,14 +4218,24 @@ async function startDashFromOverlay(){
   }
 
 
+  /*
+     Let the curtains finish opening.
+
+     Then completely remove the overlay.
+  */
+
   await wait(
-    950
+    900
   );
 
 
   raceCurtain.classList.add(
     "hidden"
   );
+
+
+  startDashBtn.disabled =
+    false;
 
 }
 
@@ -4078,8 +4261,13 @@ async function resetSavedDraft(){
     );
 
 
-  if(!confirmed)
+  if(
+    !confirmed
+  ){
+
     return;
+
+  }
 
 
   resetDraftBtn.disabled =
@@ -4099,8 +4287,13 @@ async function resetSavedDraft(){
     false;
 
 
-  if(!success)
+  if(
+    !success
+  ){
+
     return;
+
+  }
 
 
   resetVisuals();
@@ -4194,7 +4387,10 @@ async function initialize(){
 
 
   /*
-     Load team configuration.
+     Load teams.
+
+     If Supabase isn't available, the page uses
+     the default configuration instead.
   */
 
   teams =
@@ -4205,10 +4401,9 @@ async function initialize(){
 
 
   /*
-     Load official saved draft.
+     Load the official saved draft.
 
-     This is important because everyone must see
-     the exact same draft order.
+     If it exists, everyone gets the same order.
   */
 
   savedDraftOrder =

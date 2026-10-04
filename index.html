@@ -1,1100 +1,804 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#061426" />
-    <title>TCWR FANTASY FOOTBALL DY-NASTY</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCWR Dy-NASTY</title>
 
-<!-- App Icons with Cache-Busting Strings -->
-<link rel="icon" type="image/png" sizes="192x192" href="tcwr-icon-192.png?v=1" />
-<link rel="icon" type="image/png" sizes="512x512" href="tcwr-icon-512.png?v=1" />
-<link rel="apple-touch-icon" sizes="192x192" href="tcwr-icon-192.png?v=1" />
-<link rel="apple-touch-icon" sizes="512x512" href="tcwr-icon-512.png?v=1" />
+    <style>
 
-<!-- PWA Manifest Connection -->
-<link rel="manifest" href="manifest.json" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;600;700;900&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
-
-<style>
-:root {
-  --navy-950:#020914;
-  --navy-900:#061426;
-  --navy-850:#081b31;
-  --navy-800:#0b2440;
-  --navy-700:#12385e;
-  --blue-500:#2386d8;
-  --blue-400:#45a8ef;
-  --cyan-300:#79d8ff;
-  --red-500:#e94c52;
-  --red-400:#ff7478;
-  --orange-400:#f8a93d;
-  --gold-400:#ffd56b;
-  --green-400:#4ade80;
-  --purple-400:#c4b5fd;
-  --white:#f7fbff;
-  --muted:#a8bdd2;
-  --line:rgba(142,205,255,.18);
-  --shadow:0 24px 70px rgba(0,0,0,.48);
-  --radius-xl:28px;
-  --radius-lg:20px;
-  --radius-md:14px;
-}
-
-*,*::before,*::after{box-sizing:border-box}
-
-html{
-  min-height:100%;
-  background:var(--navy-950);
-  scroll-behavior:smooth;
-}
-
-html,body{
-  margin:0;
-  width:100%;
-  overflow-x:hidden;
-}
-
-body{
-  min-height:100vh;
-  color:var(--white);
-  font-family:"Montserrat","Inter",sans-serif;
-  background:
-    linear-gradient(rgba(2,9,20,.82),rgba(2,9,20,.96)),
-    center/cover fixed,
-    radial-gradient(circle at 50% 8%,rgba(35,134,216,.24),transparent 30%),
-    linear-gradient(160deg,var(--navy-950),var(--navy-900) 48%,#071d34);
-}
-
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:-3;
-  pointer-events:none;
-  background:
-    linear-gradient(90deg,transparent 49.85%,rgba(121,216,255,.08) 50%,transparent 50.15%),
-    repeating-linear-gradient(90deg,transparent 0,transparent 119px,rgba(255,255,255,.015) 120px);
-  mask-image:linear-gradient(to bottom,black,transparent 94%);
-}
-
-body::after{
-  content:"";
-  position:fixed;
-  top:-28vh;
-  left:50%;
-  width:58vw;
-  height:110vh;
-  transform:translateX(-50%);
-  z-index:-4;
-  pointer-events:none;
-  opacity:.3;
-  background:linear-gradient(180deg,rgba(92,190,255,.28),rgba(92,190,255,.06) 52%,transparent 82%);
-  clip-path:polygon(43% 0,57% 0,100% 100%,0 100%);
-  filter:blur(18px);
-  animation:beamPulse 6s ease-in-out infinite;
-}
-
-button,input,textarea,select{font:inherit}
-button{color:inherit}
-a{color:inherit}
-
-.header{
-  width:min(1480px,calc(100% - 36px));
-  min-height:148px;
-  margin:0 auto;
-  padding:26px clamp(20px,4vw,48px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:clamp(22px,4vw,48px);
-  position:relative;
-  z-index:10;
-  overflow:hidden;
-  border:1px solid rgba(142,205,255,.19);
-  border-top:0;
-  border-radius:0 0 var(--radius-xl) var(--radius-xl);
-  color:var(--white);
-  background:
-    radial-gradient(circle at 50% 0%,rgba(69,168,239,.18),transparent 44%),
-    linear-gradient(145deg,rgba(15,48,80,.84),rgba(4,18,33,.95));
-  box-shadow:var(--shadow);
-  backdrop-filter:blur(18px);
-}
-
-.header::before{
-  content:"";
-  position:absolute;
-  inset:0 0 auto;
-  height:4px;
-  background:linear-gradient(90deg,transparent,var(--gold-400),var(--red-400),transparent);
-}
-
-.header::after{
-  content:"Official League Headquarters";
-  position:absolute;
-  right:24px;
-  bottom:16px;
-  color:rgba(168,189,210,.58);
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:.68rem;
-  font-weight:800;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-}
-
-.logo-container{
-  flex:0 0 auto;
-}
-
-.logo-container img{
-  width:clamp(150px,16vw,220px);
-  height:auto;
-  display:block;
-  filter:drop-shadow(0 12px 22px rgba(0,0,0,.35));
-}
-
-.header-text{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  justify-content:center;
-  min-width:0;
-}
-
-.header .title{
-  margin:0;
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:clamp(2.7rem,6vw,5.6rem);
-  line-height:.86;
-  font-weight:900;
-  letter-spacing:-.025em;
-  text-transform:uppercase;
-  text-shadow:0 0 28px rgba(69,168,239,.15);
-}
-
-.header .subtitle{
-  margin:12px 0 0;
-  color:#c4d6e5;
-  font-size:clamp(.92rem,1.7vw,1.16rem);
-  font-weight:600;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-}
-
-.header .since{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  margin:12px 0 0;
-  padding:7px 11px;
-  border:1px solid rgba(248,169,61,.32);
-  border-radius:999px;
-  color:#ffd28f;
-  background:rgba(65,34,8,.3);
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:.78rem;
-  font-weight:800;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-
-.main-content-wrapper{
-  width:min(1480px,calc(100% - 36px));
-  margin:0 auto;
-  padding:clamp(34px,5vw,64px) 0 64px;
-  display:grid;
-  grid-template-columns:minmax(260px,.82fr) minmax(420px,1.6fr) minmax(260px,.82fr);
-  gap:clamp(20px,2.4vw,34px);
-  align-items:start;
-}
-
-.left-column-wrapper,.center-column,.right-column-wrapper{
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-
-.column-title{
-  position:relative;
-  margin:0;
-  padding:0 4px 14px;
-  border-bottom:1px solid rgba(142,205,255,.15);
-  color:var(--white);
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:clamp(1.55rem,2.3vw,2.35rem);
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.03em;
-  text-align:left;
-  text-transform:uppercase;
-}
-
-.column-title::before{
-  display:block;
-  margin-bottom:6px;
-  color:var(--orange-400);
-  font-size:.68rem;
-  font-weight:800;
-  letter-spacing:.16em;
-}
-
-.left-column-wrapper .column-title::before{content:""}
-.center-column .column-title::before{content:""}
-.right-column-wrapper .column-title::before{content:""}
-
-.column-container{
-  position:relative;
-  width:100%;
-  min-width:0;
-  overflow:hidden;
-  border:1px solid rgba(142,205,255,.2);
-  border-radius:var(--radius-xl);
-  background:linear-gradient(145deg,rgba(15,48,80,.76),rgba(4,18,33,.93));
-  box-shadow:var(--shadow);
-  backdrop-filter:blur(18px);
-}
-
-.column-container::before{
-  content:"";
-  position:absolute;
-  inset:0 0 auto;
-  z-index:2;
-  height:3px;
-  background:linear-gradient(90deg,transparent,var(--blue-400),transparent);
-}
-
-.center-column .column-container::before{
-  background:linear-gradient(90deg,transparent,var(--red-400),var(--orange-400),transparent);
-}
-
-.right-column-wrapper .column-container::before{
-  background:linear-gradient(90deg,transparent,var(--orange-400),transparent);
-}
-
-table{width:100%;border-collapse:collapse}
-
-th,td{
-  padding:12px 10px;
-  border-bottom:1px solid rgba(142,205,255,.1);
-  color:#d7e5f0;
-  font-size:.78rem;
-  text-align:left;
-}
-
-th{
-  position:sticky;
-  top:0;
-  z-index:3;
-  color:#9fb8cd;
-  background:#07182a;
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:.76rem;
-  font-weight:800;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-}
-
-tbody tr{transition:background 150ms ease}
-tbody tr:hover{background:rgba(69,168,239,.07)}
-tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
-
-.left-column-wrapper .column-container{overflow:hidden}
-.standings-table-wrapper{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-#standings-table{width:100%;border-collapse:collapse}
-#standings-table th,#standings-table td{padding:12px 9px}
-#standings-table .standings-rank{width:48px;text-align:center;font-weight:900}
-#standings-table .standings-team{font-weight:700;overflow-wrap:anywhere}
-#standings-table .standings-record{white-space:nowrap;font-variant-numeric:tabular-nums}
-
-#standings-table tr.bye-seed{
-  background:linear-gradient(90deg,rgba(250,204,21,.17),rgba(250,204,21,.025));
-  box-shadow:inset 4px 0 0 #facc15;
-}
-#standings-table tr.bye-seed .standings-rank{color:#facc15}
-#standings-table tr.playoff-seed{
-  background:linear-gradient(90deg,rgba(34,197,94,.14),rgba(34,197,94,.02));
-  box-shadow:inset 4px 0 0 #22c55e;
-}
-#standings-table tr.playoff-seed .standings-rank{color:#4ade80}
-#standings-table tr.playoff-cutoff td{border-bottom:3px solid #ef4444}
-#standings-table tr.lottery-leader{
-  background:linear-gradient(90deg,rgba(167,139,250,.17),rgba(167,139,250,.025));
-  box-shadow:inset 4px 0 0 #a78bfa;
-}
-#standings-table tr.lottery-leader .standings-rank{color:#c4b5fd}
-
-.standings-status{
-  display:flex;
-  width:fit-content;
-  align-items:center;
-  margin-top:5px;
-  padding:3px 7px;
-  border-radius:999px;
-  font-size:.5rem;
-  font-weight:900;
-  line-height:1.2;
-  letter-spacing:.05em;
-  text-transform:uppercase;
-  white-space:nowrap;
-}
-.standings-status.bye{color:#fef3c7;background:rgba(180,83,9,.5);border:1px solid rgba(250,204,21,.42)}
-.standings-status.playoff{color:#dcfce7;background:rgba(21,128,61,.46);border:1px solid rgba(74,222,128,.38)}
-.standings-status.lottery{color:#ede9fe;background:rgba(109,40,217,.46);border:1px solid rgba(196,181,253,.42)}
-
-.standings-legend{
-  display:grid;
-  gap:9px;
-  padding:15px 16px 17px;
-  background:rgba(2,9,20,.28);
-  border-top:1px solid rgba(142,205,255,.12);
-}
-.standings-legend-title{
-  margin:0 0 2px;
-  color:#7994ab;
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:.68rem;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-.standings-legend-item{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  color:#b9ccdc;
-  font-size:.67rem;
-  font-weight:700;
-  line-height:1.35;
-}
-.standings-legend-marker{flex:0 0 auto;width:10px;height:10px;border-radius:3px}
-.standings-legend-marker.bye{background:#facc15}
-.standings-legend-marker.playoff{background:#22c55e}
-.standings-legend-marker.lottery{background:#a78bfa}
-.standings-legend-cutoff{flex:0 0 auto;width:14px;height:3px;border-radius:999px;background:#ef4444}
-
-#scoreboard-container{
-  width:100%!important;
-  max-width:100%!important;
-  padding:clamp(18px,2.5vw,30px)!important;
-  overflow:hidden;
-}
-#scoreboard-container>div{
-  width:100%!important;
-  max-width:100%!important;
-  box-sizing:border-box!important;
-}
-#scoreboard-container p,#scoreboard-container span,#scoreboard-container div{
-  max-width:100%!important;
-}
-#scoreboard-container button{
-  transition:transform 170ms ease,filter 170ms ease,background 170ms ease!important;
-}
-#scoreboard-container button:hover:not(:disabled){
-  transform:translateY(-2px);
-  filter:brightness(1.1);
-}
-
-#bulletin-display{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-  padding:16px;
-}
-.bulletin-item{
-  margin:0;
-  padding:15px 16px;
-  border:1px solid rgba(142,205,255,.12);
-  border-left:4px solid var(--orange-400);
-  border-radius:var(--radius-md);
-  background:rgba(2,9,20,.3);
-}
-.bulletin-date{
-  margin:0;
-  color:var(--orange-400);
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:.68rem;
-  font-weight:900;
-  letter-spacing:.1em;
-  text-transform:uppercase;
-}
-.bulletin-text{
-  margin:7px 0 0;
-  color:#e9f2f9;
-  font-size:.84rem;
-  line-height:1.55;
-}
-
-.right-column-wrapper .column-container>div[style*="text-align: center"]{
-  margin:0!important;
-  padding:18px 16px 22px;
-  border-top:1px solid rgba(142,205,255,.12);
-  background:rgba(2,9,20,.22);
-}
-.right-column-wrapper .column-container>div[style*="text-align: center"] p{
-  color:#8fa8bd!important;
-  font-size:.76rem!important;
-}
-.right-column-wrapper .column-container>div[style*="text-align: center"] button{
-  min-height:42px;
-  padding:9px 18px!important;
-  border:1px solid rgba(69,168,239,.45)!important;
-  border-radius:999px!important;
-  color:#fff!important;
-  background:linear-gradient(135deg,#1677d2,#0058aa)!important;
-  box-shadow:0 12px 24px rgba(0,84,170,.26);
-  font-family:"Barlow Condensed",sans-serif!important;
-  font-size:.8rem!important;
-  font-weight:900!important;
-  letter-spacing:.09em;
-  text-transform:uppercase;
-  transition:transform 170ms ease,filter 170ms ease;
-}
-.right-column-wrapper .column-container>div[style*="text-align: center"] button:hover{
-  transform:translateY(-2px);
-  filter:brightness(1.12);
-}
-
-.menu-toggle{
-  position:fixed;
-  top:16px;
-  left:16px;
-  z-index:10001;
-  min-height:44px;
-  padding:9px 14px;
-  border:1px solid rgba(255,213,107,.38);
-  border-radius:999px;
-  color:var(--gold-400);
-  background:rgba(6,20,38,.9);
-  box-shadow:0 12px 28px rgba(0,0,0,.35);
-  backdrop-filter:blur(12px);
-  cursor:pointer;
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:.82rem;
-  font-weight:900;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  transition:transform 180ms ease,background 180ms ease;
-}
-.menu-toggle:hover{transform:translateY(-2px);background:rgba(15,48,80,.96)}
-
-.sidebar-left{
-  position:fixed;
-  top:0;
-  left:-100%;
-  z-index:9999;
-  width:min(86vw,320px);
-  height:100%;
-  overflow-y:auto;
-  padding:78px 15px 22px;
-  border-right:1px solid rgba(255,213,107,.28);
-  background:
-    radial-gradient(circle at 0 0,rgba(35,134,216,.18),transparent 36%),
-    linear-gradient(165deg,#0b2a48,#04111f);
-  box-shadow:18px 0 50px rgba(0,0,0,.55);
-  transition:left .28s ease;
-}
-.sidebar-left.active{left:0!important}
-.sidebar-overlay{
-  position:fixed;
-  inset:0;
-  z-index:9998;
-  display:none;
-  background:rgba(0,0,0,.68);
-  backdrop-filter:blur(5px);
-}
-.sidebar-overlay.active{display:block}
-.sidebar-nav{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-}
-.sidebar-nav::before{
-  content:"TCWR Navigation";
-  display:block;
-  padding:0 10px 13px;
-  color:var(--orange-400);
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:.74rem;
-  font-weight:900;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-}
-.sidebar-nav a{
-  position:relative;
-  display:block;
-  padding:15px 16px;
-  overflow:hidden;
-  border:1px solid rgba(142,205,255,.12);
-  border-radius:12px;
-  color:#dce9f3;
-  background:rgba(2,9,20,.26);
-  text-decoration:none;
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:1rem;
-  font-weight:800;
-  letter-spacing:.04em;
-  text-transform:uppercase;
-  transition:transform 170ms ease,border-color 170ms ease,background 170ms ease,color 170ms ease;
-  -webkit-tap-highlight-color:transparent;
-}
-.sidebar-nav a:hover{
-  transform:translateX(4px);
-  border-color:rgba(255,213,107,.42);
-  color:var(--gold-400);
-  background:rgba(255,213,107,.08);
-}
-.sidebar-nav a.sign-off{color:var(--red-400)}
-
-.hidden{display:none!important}
-
-/* Restyle JS-injected bulletin panels without changing their generated markup */
-.tcwr-news-panel{
-  overflow:hidden!important;
-  border:1px solid rgba(142,205,255,.16)!important;
-  border-radius:var(--radius-lg)!important;
-  color:#fff!important;
-  background:linear-gradient(145deg,rgba(20,57,92,.72),rgba(3,14,27,.78))!important;
-  box-shadow:0 14px 32px rgba(0,0,0,.24)!important;
-}
-.tcwr-news-header{
-  padding:14px 16px!important;
-  border-bottom:1px solid rgba(142,205,255,.12)!important;
-  color:var(--gold-400)!important;
-  background:rgba(2,9,20,.24);
-  font-family:"Barlow Condensed",sans-serif!important;
-  font-size:.78rem!important;
-  font-weight:900!important;
-  letter-spacing:.12em!important;
-  text-transform:uppercase;
-}
-.tcwr-award-nav button{
-  border-color:rgba(255,213,107,.35)!important;
-  color:var(--gold-400)!important;
-  background:rgba(2,9,20,.5)!important;
-}
-.tcwr-story,.tcwr-commissioner-post{
-  background:rgba(2,9,20,.08);
-}
-.tcwr-story-main{font-size:.9rem!important}
-.tcwr-story-sub,.tcwr-commissioner-date{color:#89a4ba!important}
-.tcwr-commissioner-heading{color:var(--gold-400)!important}
-
-@keyframes beamPulse{
-  0%,100%{opacity:.24;transform:translateX(-50%) scaleX(.94)}
-  50%{opacity:.42;transform:translateX(-50%) scaleX(1.04)}
-}
-
-@media(max-width:1180px){
-  .main-content-wrapper{
-    grid-template-columns:minmax(250px,.82fr) minmax(410px,1.5fr);
-  }
-  .right-column-wrapper{
-    grid-column:1/-1;
-  }
-}
-
-@media(max-width:860px){
-  .header{
-    flex-direction:column;
-    text-align:center;
-    padding-top:60px;
-  }
-  .header-text{align-items:center}
-  .header::after{
-    position:static;
-    margin-top:6px;
-  }
-  .main-content-wrapper{
-    display:flex;
-    flex-direction:column;
-  }
-  .right-column-wrapper{order:1;width:100%}
-  .center-column{order:2;width:100%}
-  .left-column-wrapper{order:3;width:100%}
-}
-
-@media(max-width:650px){
-  .header,.main-content-wrapper{
-    width:min(100% - 24px,1480px);
-  }
-  .header{
-    min-height:0;
-    padding:64px 18px 24px;
-    border-radius:0 0 22px 22px;
-  }
-  .logo-container img{width:min(180px,58vw)}
-  .header .title{font-size:clamp(2.8rem,15vw,4.6rem)}
-  .column-container{border-radius:21px}
-  .column-title{font-size:1.8rem}
-  #scoreboard-container{padding:16px!important}
-  .menu-toggle{top:12px;left:12px}
-}
-
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    animation-duration:.001ms!important;
-    animation-iteration-count:1!important;
-    scroll-behavior:auto!important;
-  }
-}
-    /* =========================================================
-       END-OF-SEASON CHAMPION / AWARDS
-       ========================================================= */
-
-    /* =========================================================
-       MOBILE SCOREBOARD POLISH
-       Desktop is intentionally unchanged.
-       ========================================================= */
-    @media (max-width:650px) {
-        #scoreboard-container {
-            overflow:visible !important;
+        * {
+            box-sizing: border-box;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card {
-            padding:18px 14px !important;
-            margin-bottom:14px !important;
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card .tcwr-scoreboard-explanation {
-            display:block !important;
-            width:100% !important;
-            min-width:0 !important;
-            box-sizing:border-box !important;
-            padding:13px 12px !important;
+        body {
+            background:
+                radial-gradient(
+                    circle at top,
+                    rgba(24, 59, 91, .55),
+                    transparent 45%
+                ),
+                linear-gradient(
+                    180deg,
+                    #020914 0%,
+                    #06192b 45%,
+                    #020914 100%
+                );
+            color: white;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card .tcwr-scoreboard-explanation > div {
-            gap:7px !important;
-            font-size:.75rem !important;
-            line-height:1.4 !important;
+        a {
+            color: inherit;
+            text-decoration: none;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(3) {
-            gap:7px !important;
+        button {
+            font-family: inherit;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(3) > div:first-child > div:nth-child(2),
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(3) > div:last-child > div:nth-child(2) {
-            font-size:.78rem !important;
-            line-height:1.15 !important;
-            overflow-wrap:anywhere !important;
-            word-break:break-word !important;
+        /* =========================================================
+           SIDEBAR
+           ========================================================= */
+
+        .sidebar-left {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 88px;
+            height: 100vh;
+            z-index: 1000;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(11, 31, 51, .98),
+                    rgba(3, 16, 29, .98)
+                );
+            border-right: 1px solid rgba(148, 163, 184, .15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(4) {
-            grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-            gap:8px !important;
+        .sidebar-nav {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(4) > div {
-            min-width:0 !important;
-            padding:10px 9px !important;
+        .sidebar-nav a {
+            width: 100%;
+            padding: 10px 4px;
+            color: #94a3b8;
+            font-size: .58rem;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.2;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            border-radius: 8px;
+            transition:
+                background .2s ease,
+                color .2s ease;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(4) > div > div:first-child {
-            font-size:.60rem !important;
-            line-height:1.25 !important;
+        .sidebar-nav a:hover {
+            color: white;
+            background: rgba(56, 189, 248, .10);
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(4) > div > div:nth-child(2) {
-            font-size:.78rem !important;
-            line-height:1.18 !important;
-            overflow-wrap:anywhere !important;
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1100;
+            padding: 8px 12px;
+            border: 1px solid rgba(148, 163, 184, .25);
+            border-radius: 8px;
+            background: rgba(15, 23, 42, .95);
+            color: white;
+            font-size: .72rem;
+            font-weight: 800;
+            cursor: pointer;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(6) {
-            flex-wrap:wrap !important;
-            font-size:.60rem !important;
-            line-height:1.35 !important;
-            margin-top:12px !important;
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0, 0, 0, .55);
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(6) span {
-            max-width:48% !important;
+        /* =========================================================
+           HEADER
+           ========================================================= */
+
+        .header {
+            margin-left: 88px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            padding: 20px;
+            border-bottom: 1px solid rgba(148, 163, 184, .12);
         }
+
+        .logo-container {
+            width: 82px;
+            height: 82px;
+            flex: 0 0 82px;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .header-text {
+            text-align: left;
+        }
+
+        .title {
+            margin: 0;
+            color: white;
+            font-size: clamp(1.4rem, 3vw, 2.2rem);
+            font-weight: 900;
+            letter-spacing: .5px;
+        }
+
+        .subtitle {
+            margin: 3px 0 0;
+            color: #94a3b8;
+            font-size: .85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .since {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: .65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* =========================================================
+           MAIN LAYOUT
+           ========================================================= */
+
+        .main-content-wrapper {
+            margin-left: 88px;
+            width: calc(100% - 88px);
+            max-width: 1700px;
+            margin-right: auto;
+            padding: 22px;
+            display: grid;
+            grid-template-columns:
+                minmax(230px, .8fr)
+                minmax(420px, 1.45fr)
+                minmax(280px, .95fr);
+            gap: 18px;
+        }
+
+        .left-column-wrapper,
+        .center-column,
+        .right-column-wrapper {
+            min-width: 0;
+        }
+
+        .column-title {
+            margin-bottom: 10px;
+            color: #94a3b8;
+            font-size: .68rem;
+            font-weight: 900;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .column-container {
+            min-width: 0;
+            padding: 14px;
+            border: 1px solid rgba(148, 163, 184, .16);
+            border-radius: 14px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(15, 31, 49, .92),
+                    rgba(5, 19, 34, .94)
+                );
+            box-shadow:
+                0 15px 35px rgba(0, 0, 0, .20);
+        }
+
+        /* =========================================================
+           STANDINGS
+           ========================================================= */
+
+        .standings-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        #standings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #standings-table th {
+            padding: 8px 5px;
+            color: #64748b;
+            font-size: .58rem;
+            font-weight: 900;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 1px solid rgba(148, 163, 184, .14);
+        }
+
+        #standings-table td {
+            padding: 9px 5px;
+            color: #cbd5e1;
+            font-size: .7rem;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(148, 163, 184, .08);
+        }
+
+        #standings-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .standings-legend {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(148, 163, 184, .12);
+        }
+
+        .standings-legend-title {
+            margin: 0 0 9px;
+            color: #94a3b8;
+            font-size: .62rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .standings-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 7px;
+            color: #64748b;
+            font-size: .58rem;
+            font-weight: 700;
+        }
+
+        .standings-legend-marker {
+            width: 7px;
+            height: 7px;
+            flex: 0 0 7px;
+            border-radius: 50%;
+            background: #334155;
+        }
+
+        .standings-legend-marker.bye {
+            background: #facc15;
+        }
+
+        .standings-legend-marker.playoff {
+            background: #38bdf8;
+        }
+
+        .standings-legend-marker.lottery {
+            background: #f97316;
+        }
+
+        .standings-legend-cutoff {
+            width: 7px;
+            height: 1px;
+            flex: 0 0 7px;
+            background: #ef4444;
+        }
+
+        /* =========================================================
+           MOBILE
+           ========================================================= */
+
+        @media (max-width: 1150px) {
+
+            .main-content-wrapper {
+                grid-template-columns:
+                    minmax(210px, .75fr)
+                    minmax(390px, 1.4fr);
+            }
+
+            .right-column-wrapper {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 800px) {
+
+            .sidebar-left {
+                width: 220px;
+                left: -220px;
+                transition: left .25s ease;
+            }
+
+            .sidebar-left.active {
+                left: 0;
+            }
+
+            .sidebar-nav {
+                align-items: stretch;
+            }
+
+            .sidebar-nav a {
+                padding: 12px;
+                text-align: left;
+                font-size: .7rem;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .header {
+                margin-left: 0;
+                padding-top: 60px;
+            }
+
+            .main-content-wrapper {
+                margin-left: 0;
+                width: 100%;
+                grid-template-columns: 1fr;
+                padding: 14px;
+            }
+
+            .right-column-wrapper {
+                grid-column: auto;
+            }
+        }
+
+        /* =========================================================
+           BULLETIN
+           ========================================================= */
+
+        #bulletin-display {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .bulletin-item {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .tcwr-empty {
+            padding: 25px 15px;
+            color: #64748b;
+            font-size: .75rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* =========================================================
+           RIVALRY CARD
+           ========================================================= */
 
         .tcwr-rivalry-card {
-            margin-top:0 !important;
-        }
-    }
-
-    @media (max-width:430px) {
-        #scoreboard-container > .tcwr-scoreboard-main-card {
-            padding:16px 11px !important;
+            container-type: inline-size;
+            container-name: rivalry-card;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(3) {
-            gap:5px !important;
+        .tcwr-rivalry-layout {
+            display: grid;
+            gap: 14px;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(3) > div:nth-child(2) {
-            font-size:.72rem !important;
+        .tcwr-rivalry-heading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(3) > div:first-child > div:nth-child(2),
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(3) > div:last-child > div:nth-child(2) {
-            font-size:.70rem !important;
+        .tcwr-rivalry-title {
+            color: #facc15;
+            font-size: .82rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: center;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card .tcwr-scoreboard-explanation > div {
-            font-size:.72rem !important;
+        .tcwr-rivalry-matchup {
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1fr)
+                auto
+                minmax(0, 1fr);
+            align-items: center;
+            gap: 12px;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(6) {
-            display:grid !important;
-            grid-template-columns:1fr 1fr !important;
-            gap:8px !important;
+        .tcwr-rivalry-manager {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
         }
 
-        #scoreboard-container > .tcwr-scoreboard-main-card > div:nth-child(6) span {
-            max-width:none !important;
+        .tcwr-rivalry-manager.right {
+            justify-content: flex-end;
         }
-    }
 
-    .tcwr-champion-card,.tcwr-year-end-card{width:100%;box-sizing:border-box;overflow:hidden;color:#fff;background:linear-gradient(145deg,rgba(30,41,59,.98),rgba(15,23,42,.98));border:1px solid rgba(148,163,184,.22);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.28)}
-    .tcwr-champion-header,.tcwr-year-end-header{padding:14px 16px;text-align:center;color:#facc15;font-size:.82rem;font-weight:900;letter-spacing:1.15px;border-bottom:1px solid rgba(148,163,184,.16)}
-    .tcwr-champion-content{padding:34px 20px 38px;text-align:center}
-    .tcwr-champion-trophy{display:block;width:min(190px,60%);max-height:170px;object-fit:contain;margin:0 auto 16px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}
-    .tcwr-champion-trophy-fallback{font-size:44px;margin-bottom:12px}
-    .tcwr-champion-congrats{color:#facc15;font-size:.75rem;font-weight:900;letter-spacing:2px;margin-bottom:12px}
-    .tcwr-champion-name{font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.4rem,6vw,3.5rem);line-height:1;font-weight:700;font-style:italic;letter-spacing:.5px;margin-bottom:10px;text-shadow:0 2px 8px rgba(0,0,0,.35)}
-    .tcwr-champion-team{color:#cbd5e1;font-size:.9rem;font-weight:700;font-style:italic;margin-bottom:22px;overflow-wrap:anywhere}
-    .tcwr-champion-label{color:#94a3b8;font-size:.62rem;font-weight:900;letter-spacing:1.6px;text-transform:uppercase}
-    .tcwr-year-end-subheader{padding:9px 14px;text-align:center;color:#94a3b8;font-size:.56rem;font-weight:800;letter-spacing:1.25px;text-transform:uppercase;border-bottom:1px solid rgba(148,163,184,.12)}
-    .tcwr-year-end-award{padding:12px 14px;border-bottom:1px solid rgba(148,163,184,.13);border-left:4px solid #facc15}
-    .tcwr-year-end-award:last-child{border-bottom:0}
-    .tcwr-year-end-award-title{margin:0 0 4px;font-size:.60rem;font-weight:900;letter-spacing:.72px;text-transform:uppercase}
-    .tcwr-year-end-award-winner{color:#fff;font-family:"Montserrat","Inter",sans-serif;font-size:.86rem;font-weight:700;line-height:1.28;overflow-wrap:anywhere}
-    .tcwr-year-end-award-detail{margin-top:3px;color:#94a3b8;font-size:.60rem;font-weight:600;line-height:1.35}
-    .tcwr-year-end-award.manager{border-left-color:#facc15}.tcwr-year-end-award.manager .tcwr-year-end-award-title{color:#facc15}
-    .tcwr-year-end-award.improved{border-left-color:#a78bfa}.tcwr-year-end-award.improved .tcwr-year-end-award-title{color:#c4b5fd}
-    .tcwr-year-end-award.game{border-left-color:#fb923c}.tcwr-year-end-award.game .tcwr-year-end-award-title{color:#fb923c}
-    .tcwr-year-end-award.player{border-left-color:#60a5fa}.tcwr-year-end-award.player .tcwr-year-end-award-title{color:#60a5fa}
-    @media(max-width:540px){.tcwr-champion-content{padding:28px 16px 32px}.tcwr-champion-trophy{width:min(160px,58%);max-height:145px}}
+        .tcwr-rivalry-avatar {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #334155;
+            border: 2px solid #475569;
+            color: white;
+            font-size: .85rem;
+            font-weight: 900;
+        }
 
-    /* =========================================================
-       SEASONAL CENTER-SCREEN EXPERIENCE
-       ========================================================= */
-    .tcwr-recap-coming-card{
-        width:100%;
-        min-height:520px;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        padding:48px 26px;
-        text-align:center;
-        border:1px solid rgba(255,213,107,.24);
-        border-radius:20px;
-        background:
-            radial-gradient(circle at 50% 18%,rgba(248,169,61,.16),transparent 34%),
-            linear-gradient(145deg,rgba(30,41,59,.98),rgba(7,20,35,.98));
-        box-shadow:0 18px 44px rgba(0,0,0,.34);
-    }
-    .tcwr-recap-coming-kicker{
-        margin-bottom:14px;
-        color:#f8a93d;
-        font-family:"Barlow Condensed",sans-serif;
-        font-size:.82rem;
-        font-weight:900;
-        letter-spacing:.18em;
-        text-transform:uppercase;
-    }
-    .tcwr-recap-coming-title{
-        margin:0;
-        color:#ffd56b;
-        font-family:"Barlow Condensed",sans-serif;
-        font-size:clamp(3rem,7vw,5.8rem);
-        line-height:.9;
-        font-weight:900;
-        letter-spacing:.02em;
-        text-transform:uppercase;
-        text-shadow:0 8px 30px rgba(0,0,0,.4);
-    }
-    .tcwr-recap-coming-date{
-        margin:22px 0 0;
-        color:#fff;
-        font-family:"Barlow Condensed",sans-serif;
-        font-size:clamp(1.3rem,3vw,2rem);
-        font-weight:900;
-        letter-spacing:.1em;
-        text-transform:uppercase;
-    }
-    .tcwr-recap-coming-copy{
-        max-width:560px;
-        margin:14px auto 0;
-        color:#a8bdd2;
-        font-size:.82rem;
-        font-weight:700;
-        line-height:1.6;
-        letter-spacing:.03em;
-    }
-    .tcwr-recap-tv-shell{
-        position:relative;
-        width:100%;
-        aspect-ratio:3 / 2;
-        overflow:hidden;
-        border-radius:18px;
-        background:#000;
-        box-shadow:0 20px 48px rgba(0,0,0,.48);
-    }
-    .tcwr-recap-tv-image{
-        position:absolute;
-        inset:0;
-        z-index:1;
-        width:100%;
-        height:100%;
-        display:block;
-        object-fit:cover;
-    }
-    .tcwr-recap-tv-screen{
-        position:absolute;
-        z-index:2;
-        left:8.25%;
-        top:11.2%;
-        width:75.15%;
-        height:75.5%;
-        overflow:hidden;
-        border-radius:8% 8% 9% 9% / 8% 8% 9% 9%;
-        background:#000;
-        box-shadow:inset 0 0 28px rgba(0,0,0,.65);
-    }
-    .tcwr-recap-tv-screen iframe{
-        width:100%;
-        height:100%;
-        display:block;
-        border:0;
-    }
-    .tcwr-recap-tv-fallback-link{
-        position:absolute;
-        left:8.25%;
-        bottom:5.2%;
-        z-index:3;
-        color:rgba(255,255,255,.7);
-        font-size:.55rem;
-        font-weight:800;
-        letter-spacing:.08em;
-        text-transform:uppercase;
-        text-decoration:none;
-    }
-    .tcwr-recap-tv-fallback-link:hover{color:#ffd56b}
-    .tcwr-offseason-card{
-        width:100%;
-        min-height:520px;
-        padding:30px 24px 34px;
-        text-align:center;
-        border:1px solid rgba(69,168,239,.22);
-        border-radius:20px;
-        background:
-            radial-gradient(circle at 50% 0%,rgba(35,134,216,.18),transparent 38%),
-            linear-gradient(145deg,rgba(20,57,92,.76),rgba(4,18,33,.96));
-        box-shadow:0 18px 44px rgba(0,0,0,.34);
-    }
-    .tcwr-offseason-kicker{
-        color:#79d8ff;
-        font-family:"Barlow Condensed",sans-serif;
-        font-size:.82rem;
-        font-weight:900;
-        letter-spacing:.18em;
-        text-transform:uppercase;
-    }
-    .tcwr-offseason-title{
-        margin:8px 0 0;
-        color:#fff;
-        font-family:"Barlow Condensed",sans-serif;
-        font-size:clamp(2.6rem,6vw,5rem);
-        line-height:.9;
-        font-weight:900;
-        letter-spacing:.02em;
-        text-transform:uppercase;
-    }
-    .tcwr-offseason-target{
-        margin:12px 0 26px;
-        color:#ffd56b;
-        font-family:"Barlow Condensed",sans-serif;
-        font-size:1.05rem;
-        font-weight:900;
-        letter-spacing:.12em;
-        text-transform:uppercase;
-    }
-    .tcwr-offseason-grid{
-        display:grid;
-        grid-template-columns:repeat(4,minmax(0,1fr));
-        gap:12px;
-        max-width:720px;
-        margin:0 auto;
-    }
-    .tcwr-offseason-unit{
-        min-width:0;
-        padding:18px 8px;
-        border:1px solid rgba(142,205,255,.18);
-        border-radius:12px;
-        background:rgba(2,9,20,.42);
-    }
-    .tcwr-offseason-number{
-        color:#ffd56b;
-        font-size:clamp(1.65rem,4vw,2.8rem);
-        line-height:1;
-        font-weight:900;
-        font-variant-numeric:tabular-nums;
-    }
-    .tcwr-offseason-label{
-        margin-top:8px;
-        color:#8fa8bd;
-        font-size:.62rem;
-        font-weight:900;
-        letter-spacing:.12em;
-        text-transform:uppercase;
-    }
-    .tcwr-offseason-note{
-        margin:24px 0 0;
-        color:#a8bdd2;
-        font-size:.74rem;
-        font-weight:700;
-        line-height:1.5;
-        letter-spacing:.04em;
-        text-transform:uppercase;
-    }
-    @media(max-width:650px){
-        .tcwr-recap-coming-card,.tcwr-offseason-card{min-height:420px;padding:32px 16px}
-        .tcwr-recap-tv-shell{border-radius:14px}
-    }
-    @media(max-width:540px){
-        .tcwr-offseason-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-    }
-</style>
+        .tcwr-rivalry-name {
+            min-width: 0;
+            color: white;
+            font-size: .78rem;
+            font-weight: 900;
+            overflow-wrap: anywhere;
+        }
 
+        .tcwr-rivalry-score {
+            color: #facc15;
+            font-size: 1rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
 
+        .tcwr-rivalry-swords {
+            color: #f59e0b;
+            font-size: 1rem;
+            font-weight: 900;
+        }
 
+        .tcwr-rivalry-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-align: center;
+        }
+
+        .tcwr-rivalry-meeting {
+            color: #94a3b8;
+            font-size: .68rem;
+            font-weight: 900;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+        }
+
+        .tcwr-rivalry-series {
+            color: white;
+            font-size: .74rem;
+            font-weight: 900;
+        }
+
+        .tcwr-rivalry-point-differential {
+            color: #f59e0b;
+            font-size: .68rem;
+            font-weight: 900;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        @container rivalry-card (max-width: 430px) {
+
+            .tcwr-rivalry-card {
+                padding: 14px 12px !important;
+            }
+
+            .tcwr-rivalry-layout {
+                gap: 12px;
+            }
+
+            .tcwr-rivalry-matchup {
+                grid-template-columns:
+                    minmax(0, 1fr)
+                    auto
+                    minmax(0, 1fr);
+                gap: 7px;
+            }
+
+            .tcwr-rivalry-manager {
+                flex-direction: column;
+                justify-content: center;
+                gap: 5px;
+                text-align: center;
+            }
+
+            .tcwr-rivalry-manager.right {
+                flex-direction: column-reverse;
+                justify-content: center;
+            }
+
+            .tcwr-rivalry-name,
+            .tcwr-rivalry-manager.right .tcwr-rivalry-name {
+                width: 100%;
+                text-align: center !important;
+                font-size: .69rem;
+                line-height: 1.08;
+            }
+
+            .tcwr-rivalry-avatar {
+                width: 34px;
+                height: 34px;
+                flex-basis: 34px;
+            }
+
+            .tcwr-rivalry-details {
+                white-space: normal;
+            }
+        }
+
+    </style>
 </head>
 
 <body class="body">
 
-<button class="menu-toggle" id="mobileMenuBtn">☰ League Menu</button><div class="sidebar-overlay" id="sidebarOverlay"></div><div class="sidebar-left" id="sidebarLeft"><nav class="sidebar-nav"><a href="legends.html">Hall of Champions</a><a href="https://tcwrdynasty.github.io/members/">League Members</a><a href="Records.html">Manager Rankings</a><a href="rookiedraftcountdown.html">Draft Lottery</a><a href="Bylaws.html">Constitution</a><a href="media.html">Podcast</a><a href="contactcommish.html?v=5">Contact Commish</a><a id="sleeperLeagueLink" href="https://sleeper.com/leagues/1328431789223477248/matchup">Sleeper</a></nav></div>
+<button class="menu-toggle" id="mobileMenuBtn">
+    ☰ League Menu
+</button>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- =========================================================
+     SIDEBAR
+
+     NOTE:
+     League Members has intentionally been REMOVED.
+     ========================================================= -->
+
+<div class="sidebar-left" id="sidebarLeft">
+    <nav class="sidebar-nav">
+
+        <a href="legends.html">
+            Hall of Champions
+        </a>
+
+        <a href="Records.html">
+            Manager Rankings
+        </a>
+
+        <a href="rookiedraftcountdown.html">
+            Draft Lottery
+        </a>
+
+        <a href="Bylaws.html">
+            Constitution
+        </a>
+
+        <a href="media.html">
+            Podcast
+        </a>
+
+        <a href="contactcommish.html?v=5">
+            Contact Commish
+        </a>
+
+        <a
+            id="sleeperLeagueLink"
+            href="https://sleeper.com/leagues/1328431789223477248/matchup">
+            Sleeper
+        </a>
+
+    </nav>
+</div>
+
 
 <div class="header">
+
     <div class="logo-container">
-        <img src="DYNASTYLOGO.png" alt="logo">
+        <img
+            src="DYNASTYLOGO.png"
+            alt="logo">
     </div>
+
     <div class="header-text">
-        <p class="title">TCWR Dy-NASTY</p>
-        <p class="subtitle">Fantasy Football League</p>
-        <p class="since">Since 2023</p>
+
+        <p class="title">
+            TCWR Dy-NASTY
+        </p>
+
+        <p class="subtitle">
+            Fantasy Football League
+        </p>
+
+        <p class="since">
+            Since 2023
+        </p>
+
     </div>
+
 </div>
+
 
 <div class="main-content-wrapper">
 
     <div class="left-column-wrapper">
-        <div class="column-title">League Standings</div>
+
+        <div class="column-title">
+            League Standings
+        </div>
 
         <div class="column-container">
+
             <div class="standings-table-wrapper">
+
                 <table id="standings-table">
+
                     <thead>
+
                         <tr>
                             <th>Rank</th>
                             <th>Team</th>
                             <th>Record</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
                     </tbody>
+
                 </table>
+
             </div>
 
-            <div class="standings-legend" aria-label="Standings legend">
-                <p class="standings-legend-title">Standings Key</p>
+            <div
+                class="standings-legend"
+                aria-label="Standings legend">
+
+                <p class="standings-legend-title">
+                    Standings Key
+                </p>
 
                 <div class="standings-legend-item">
                     <span class="standings-legend-marker bye"></span>
-                    <span>Seeds 1–2: First-round bye</span>
+                    <span>
+                        Seeds 1–2: First-round bye
+                    </span>
                 </div>
 
                 <div class="standings-legend-item">
                     <span class="standings-legend-marker playoff"></span>
-                    <span>Seeds 3–6: Playoff position</span>
+                    <span>
+                        Seeds 3–6: Playoff position
+                    </span>
                 </div>
 
                 <div class="standings-legend-item">
                     <span class="standings-legend-cutoff"></span>
-                    <span>Playoff cutoff</span>
+                    <span>
+                        Playoff cutoff
+                    </span>
                 </div>
 
                 <div class="standings-legend-item">
                     <span class="standings-legend-marker lottery"></span>
-                    <span>Highest odds for the 1.01 rookie pick</span>
+                    <span>
+                        Highest odds for the 1.01 rookie pick
+                    </span>
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
 
     <div class="center-column">
-        <div class="column-title">Weekly Scoreboard & Predictions</div>
-        <div class="column-container" id="scoreboard-container">
-            <p style="text-align:center; color:#94a3b8; padding:20px;">Calculating predictions...</p>
+
+        <div class="column-title">
+            Weekly Scoreboard & Predictions
         </div>
+
+        <div
+            class="column-container"
+            id="scoreboard-container">
+
+            <p
+                style="
+                    text-align:center;
+                    color:#94a3b8;
+                    padding:20px;
+                ">
+                Calculating predictions...
+            </p>
+
+        </div>
+
     </div>
 
+
     <div class="right-column-wrapper">
-        <div class="column-title">League Bulletin</div>
+
+        <div class="column-title">
+            League Bulletin
+        </div>
 
         <div class="column-container">
+
             <div id="bulletin-display">
-                <p style="text-align:center; color:#94a3b8; padding:20px; font-size:0.8rem;">
+
+                <p
+                    style="
+                        text-align:center;
+                        color:#94a3b8;
+                        padding:20px;
+                        font-size:0.8rem;
+                    ">
                     Fetching latest league news...
                 </p>
-            </div>
 
-            <!-- League Chat -->
-            <div style="text-align: center; margin: 1.5rem 0;">
-                <p style="color: #94a3b8; font-size: 0.8rem;">
-                    Want to talk trash?
-                </p>
-
-                <button
-                    type="button"
-                    onclick="openLeagueChat()"
-                    style="
-                        display: inline-block;
-                        background: #0084ff;
-                        color: white;
-                        padding: 8px 16px;
-                        border: none;
-                        border-radius: 20px;
-                        font-weight: bold;
-                        font-size: 0.8rem;
-                        cursor: pointer;
-                    ">
-                    Open League Chat
-                </button>
             </div>
 
         </div>
+
     </div>
 
 </div>
 
+
 <script type="module">
-    /* === 1. EXTERNAL LIBRARIES & CONFIG === */
 
-    import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
+    /* =========================================================
+       1. EXTERNAL LIBRARIES
+       ========================================================= */
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import Papa from
+        "https://cdn.jsdelivr.net/npm/papaparse@5.3.2/+esm";
+
+    import {
+        initializeApp
+    } from
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
     import {
         getAuth,
         signInWithEmailAndPassword,
         signOut,
         onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    } from
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     import {
         getFirestore,
@@ -1106,3661 +810,715 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
         setDoc,
         addDoc,
         serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    } from
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    /* === 2. UI SIDEBAR NAVIGATION === */
-
-const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-const sidebarLeft = document.getElementById('sidebarLeft');
-const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-function toggleMenu() {
-    sidebarLeft.classList.toggle('active');
-    if (sidebarLeft.classList.contains('active')) {
-        sidebarOverlay.style.display = 'block';
-    } else {
-        sidebarOverlay.style.display = 'none';
-    }
-}
-
-if (mobileMenuBtn && sidebarOverlay) {
-    mobileMenuBtn.addEventListener('click', toggleMenu);
-    sidebarOverlay.addEventListener('click', toggleMenu);
-}
-
-const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
-sidebarLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        // 🚀 MOBILE FIX: Gives mobile browsers 150ms to register and execute 
-        // the page navigation before the script tears down the sidebar overlay.
-        setTimeout(() => {
-            sidebarLeft.classList.remove('active');
-            sidebarOverlay.style.display = 'none';
-        }, 300);
-    });
-});
 
     /* =========================================================
-       🚨🚨🚨 END-OF-SEASON UPDATE — MANAGER NAMES 🚨🚨🚨
-       If managers change next season, update this translator.
-       Keep the Sleeper username on the LEFT and the display name
-       used by the Google Sheet on the RIGHT.
+       2. UI SIDEBAR NAVIGATION
        ========================================================= */
+
+    const mobileMenuBtn =
+        document.getElementById("mobileMenuBtn");
+
+    const sidebarLeft =
+        document.getElementById("sidebarLeft");
+
+    const sidebarOverlay =
+        document.getElementById("sidebarOverlay");
+
+
+    function toggleMenu() {
+
+        sidebarLeft.classList.toggle("active");
+
+        if (
+            sidebarLeft.classList.contains("active")
+        ) {
+
+            sidebarOverlay.style.display = "block";
+
+        } else {
+
+            sidebarOverlay.style.display = "none";
+
+        }
+
+    }
+
+
+    if (
+        mobileMenuBtn &&
+        sidebarOverlay
+    ) {
+
+        mobileMenuBtn.addEventListener(
+            "click",
+            toggleMenu
+        );
+
+        sidebarOverlay.addEventListener(
+            "click",
+            toggleMenu
+        );
+
+    }
+
+
+    const sidebarLinks =
+        document.querySelectorAll(
+            ".sidebar-nav a"
+        );
+
+
+    sidebarLinks.forEach(link => {
+
+        link.addEventListener(
+            "click",
+            () => {
+
+                setTimeout(
+                    () => {
+
+                        sidebarLeft.classList.remove(
+                            "active"
+                        );
+
+                        sidebarOverlay.style.display =
+                            "none";
+
+                    },
+                    300
+                );
+
+            }
+        );
+
+    });
+
+
+    /* =========================================================
+       3. MANAGER NAME TRANSLATOR
+
+       🚨🚨🚨 END-OF-SEASON UPDATE — MANAGER NAMES 🚨🚨🚨
+
+       If managers change next season, update this translator.
+
+       LEFT  = Sleeper username
+       RIGHT = name used by the Google Sheet / website
+
+       ========================================================= */
+
     const nameTranslator = {
+
         "mgreg00x": "Matt",
-        "SanDiegoSuperBurgers": "Sylvester", 
-        "BUNNIESUPBUDDY": "Evelyn",
-    "BUNNIESUPBUDDYEV": "Evelyn",
-        "lightmyBONfire": "Bonnie",
-        "dudenamedtrevor": "Trevor",
-        "bcanfield0913": "Brittany",
-        "dianne399": "Dianne",
-        "LycaonPictus": "Brad", 
-        "EmMack": "Emily",
-        "DawgPound247": "Brian",
-        "TB12isDaddy": "An",
-        "CrazyCougars": "Jess",
-        "Waddlepenguin": "Nate", 
-        "drvargas": "Steven"
+
+        "SanDiegoSuperBurgers":
+            "Sylvester",
+
+        "BUNNIESUPBUDDY":
+            "Evelyn",
+
+        "BUNNIESUPBUDDYEV":
+            "Evelyn",
+
+        "lightmyBONfire":
+            "Bonnie",
+
+        "dudenamedtrevor":
+            "Trevor",
+
+        "bcanfield0913":
+            "Brittany",
+
+        "dianne399":
+            "Dianne",
+
+        "LycaonPictus":
+            "Brad",
+
+        "EmMack":
+            "Emily",
+
+        "DawgPound247":
+            "Brian",
+
+        "TB12isDaddy":
+            "An",
+
+        "CrazyCougars":
+            "Jess",
+
+        "Waddlepenguin":
+            "Nate",
+
+        "drvargas":
+            "Steven"
+
     };
 
-  /* === 4. FIREBASE CONFIG & DATA SETUP === */
 
     /* =========================================================
+       4. FIREBASE CONFIG & DATA SETUP
+
        🚨🚨🚨 END-OF-SEASON UPDATE — NEW SLEEPER LEAGUE 🚨🚨🚨
-       NEXT YEAR: Replace ONLY the value below with the new
+
+       NEXT YEAR:
+
+       Replace ONLY the value below with the new
        Sleeper LEAGUE ID.
 
-       This is the league ID used for the live matchup,
-       standings, rosters, scores, projections, etc.
-       ========================================================= */
-const leagueId = "1328431789223477248";
+       This is NOT an API key.
 
-    // Keep the sidebar Sleeper link synchronized with the leagueId above.
-    const sleeperLeagueLink = document.getElementById("sleeperLeagueLink");
+       The league ID is used for:
+       - live matchups
+       - standings
+       - rosters
+       - scores
+       - projections
+       - users
+       - other Sleeper league data
+
+       ========================================================= */
+
+    const leagueId =
+        "1328431789223477248";
+
+
+    /*
+       Keep the Sleeper sidebar link synchronized
+       with the leagueId above.
+
+       This means next season you only have to change
+       the leagueId once.
+    */
+
+    const sleeperLeagueLink =
+        document.getElementById(
+            "sleeperLeagueLink"
+        );
+
     if (sleeperLeagueLink) {
-        sleeperLeagueLink.href = `https://sleeper.com/leagues/${leagueId}/matchup`;
+
+        sleeperLeagueLink.href =
+            `https://sleeper.com/leagues/${leagueId}/matchup`;
+
     }
+
 
     /* =========================================================
        🚨🚨🚨 END-OF-SEASON UPDATE — GOOGLE SHEET 🚨🚨🚨
-       NEXT YEAR: Replace the URL below with the NEW published
-       Google Sheet CSV URL containing the new season's manager
-       statistics / H2H data.
+
+       NEXT YEAR:
+
+       Replace the URL below with the NEW published
+       Google Sheet CSV URL containing the new season's
+       manager statistics / H2H data.
 
        Google Sheet columns currently used include:
-       Manager | Opponent | AvgPts | H2H_Record | Pt_Diff
+
+       Manager
+       Opponent
+       AvgPts
+       H2H_Record
+       Pt_Diff
+
        ========================================================= */
-const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
 
-    /* Keep Firebase settings unchanged unless you intentionally
-       create a new Firebase project for the new league year. */
-const firebaseConfig = {
-    apiKey: "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
-    authDomain: "tcwr-dynasty.firebaseapp.com",
-    projectId: "tcwr-dynasty",
-    storageBucket: "tcwr-dynasty.firebasestorage.app",
-    messagingSenderId: "544187199777",
-    appId: "1:544187199777:web:05753208f1daee32558e60"
-};
+    const csvUrl =
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-/* === 5. LEAGUE BULLETIN (AUTOMATED + FIREBASE) === */
-
-let commissionerBulletinUnsubscribe = null;
-
-function ensureLeagueBulletinShell() {
-
-    const display = document.getElementById("bulletin-display");
-
-    if (!display) return null;
-
-
-    /* === BULLETIN STYLES === */
-
-    if (!document.getElementById("tcwr-bulletin-styles")) {
-
-        const style = document.createElement("style");
-
-        style.id = "tcwr-bulletin-styles";
-
-        style.textContent = `
-
-            #bulletin-display {
-                display:flex;
-                flex-direction:column;
-                gap:14px;
-            }
-
-            .tcwr-news-panel {
-                overflow:hidden;
-                color:#fff;
-                background:linear-gradient(
-                    145deg,
-                    rgba(30,41,59,.98),
-                    rgba(15,23,42,.98)
-                );
-                border:1px solid rgba(148,163,184,.22);
-                border-radius:14px;
-                box-shadow:0 12px 30px rgba(0,0,0,.28);
-            }
-
-            .tcwr-news-header {
-                padding:14px 16px;
-                text-align:center;
-                color:#facc15;
-                font-size:.82rem;
-                font-weight:900;
-                letter-spacing:1.15px;
-                border-bottom:1px solid rgba(148,163,184,.16);
-            }
-
-            .tcwr-award-nav {
-                display:grid;
-                grid-template-columns:38px minmax(0,1fr) 38px;
-                align-items:center;
-                gap:8px;
-                padding:10px 12px;
-                border-bottom:1px solid rgba(148,163,184,.14);
-            }
-
-            .tcwr-award-nav button {
-                width:38px;
-                height:34px;
-                border-radius:9px;
-                border:1px solid rgba(250,204,21,.35);
-                background:rgba(15,23,42,.82);
-                color:#facc15;
-                font-weight:900;
-                cursor:pointer;
-            }
-
-            .tcwr-award-nav button:disabled {
-                opacity:.3;
-                cursor:not-allowed;
-            }
-
-            .tcwr-award-week {
-                text-align:center;
-                color:#cbd5e1;
-                font-size:.72rem;
-                font-weight:900;
-                letter-spacing:.9px;
-                text-transform:uppercase;
-            }
-
-            .tcwr-story {
-                padding:15px 16px;
-                border-bottom:1px solid rgba(148,163,184,.14);
-            }
-
-            .tcwr-story:last-child {
-                border-bottom:0;
-            }
-
-            .tcwr-story-title {
-                margin:0 0 7px;
-                font-size:.76rem;
-                font-weight:900;
-                letter-spacing:.75px;
-                text-transform:uppercase;
-            }
-
-            .tcwr-story-main {
-                color:#fff;
-                font-size:.94rem;
-                font-weight:900;
-                line-height:1.35;
-                overflow-wrap:anywhere;
-            }
-
-            .tcwr-story-sub {
-                margin-top:4px;
-                color:#94a3b8;
-                font-size:.74rem;
-                font-weight:700;
-                line-height:1.4;
-            }
-
-            .tcwr-story.red {
-                border-left:4px solid #ef4444;
-            }
-
-            .tcwr-story.red .tcwr-story-title {
-                color:#f87171;
-            }
-
-            .tcwr-story.orange {
-                border-left:4px solid #f97316;
-            }
-
-            .tcwr-story.orange .tcwr-story-title {
-                color:#fb923c;
-            }
-
-            .tcwr-story.gold {
-                border-left:4px solid #facc15;
-            }
-
-            .tcwr-story.gold .tcwr-story-title {
-                color:#facc15;
-            }
-
-            .tcwr-story.green {
-                border-left:4px solid #22c55e;
-            }
-
-            .tcwr-story.green .tcwr-story-title {
-                color:#4ade80;
-            }
-
-            .tcwr-story.blue {
-                border-left:4px solid #38bdf8;
-            }
-
-            .tcwr-story.blue .tcwr-story-title {
-                color:#38bdf8;
-            }
-
-            .tcwr-story.purple {
-                border-left:4px solid #a78bfa;
-            }
-
-            .tcwr-story.purple .tcwr-story-title {
-                color:#c4b5fd;
-            }
-
-            .tcwr-empty {
-                padding:22px 16px;
-                color:#94a3b8;
-                text-align:center;
-                font-size:.78rem;
-            }
-
-            .tcwr-commissioner-heading {
-                margin:0 0 8px;
-                color:#facc15;
-                font-size:.72rem;
-                font-weight:900;
-                letter-spacing:.9px;
-                text-transform:uppercase;
-            }
-
-            #commissioner-bulletin-content {
-                max-height:275px;
-                overflow-y:auto;
-                overflow-x:hidden;
-                -webkit-overflow-scrolling:touch;
-                scrollbar-width:thin;
-                scrollbar-color:#facc15 rgba(15,23,42,.5);
-            }
-
-            #commissioner-bulletin-content::-webkit-scrollbar {
-                width:8px;
-            }
-
-            #commissioner-bulletin-content::-webkit-scrollbar-track {
-                background:rgba(15,23,42,.5);
-            }
-
-            #commissioner-bulletin-content::-webkit-scrollbar-thumb {
-                background:#facc15;
-                border-radius:8px;
-            }
-
-            #commissioner-bulletin-content::-webkit-scrollbar-thumb:hover {
-                background:#eab308;
-            }
-
-            .tcwr-commissioner-post {
-                padding:13px 14px;
-                border-bottom:1px solid rgba(148,163,184,.14);
-            }
-
-            .tcwr-commissioner-post:last-child {
-                border-bottom:0;
-            }
-
-            .tcwr-commissioner-date {
-                margin:0 0 5px;
-                color:#94a3b8;
-                font-size:.64rem;
-                font-weight:900;
-                letter-spacing:.8px;
-                text-transform:uppercase;
-            }
-
-            .tcwr-commissioner-text {
-                margin:0;
-                color:#fff;
-                font-size:.8rem;
-                line-height:1.45;
-                text-align:left;
-            }
-
-            .tcwr-commissioner-title-button {
-                appearance:none;
-                border:0;
-                background:transparent;
-                color:inherit;
-                font:inherit;
-                font-weight:inherit;
-                letter-spacing:inherit;
-                text-transform:inherit;
-                cursor:pointer;
-                padding:0;
-                margin:0;
-            }
-
-            .tcwr-commissioner-title-button:hover {
-                color:#fff;
-                text-decoration:underline;
-                text-underline-offset:3px;
-            }
-
-            .tcwr-commissioner-admin {
-                margin:10px 12px 0;
-                padding:12px;
-                border:1px solid rgba(250,204,21,.18);
-                border-radius:10px;
-                background:rgba(2,9,20,.35);
-            }
-
-            .tcwr-commissioner-admin-title {
-                margin:0 0 9px;
-                color:#facc15;
-                font-size:.68rem;
-                font-weight:900;
-                letter-spacing:.8px;
-                text-transform:uppercase;
-            }
-
-            .tcwr-commissioner-admin-input,
-            .tcwr-commissioner-admin-textarea {
-                width:100%;
-                box-sizing:border-box;
-                border:1px solid rgba(148,163,184,.25);
-                border-radius:7px;
-                background:rgba(15,23,42,.8);
-                color:#fff;
-                padding:8px 9px;
-                font:inherit;
-                font-size:.76rem;
-                outline:none;
-            }
-
-            .tcwr-commissioner-admin-input:focus,
-            .tcwr-commissioner-admin-textarea:focus {
-                border-color:#facc15;
-            }
-
-            .tcwr-commissioner-admin-textarea {
-                min-height:82px;
-                resize:vertical;
-            }
-
-            .tcwr-commissioner-admin-row {
-                display:grid;
-                grid-template-columns:1fr 1fr;
-                gap:8px;
-                margin-bottom:8px;
-            }
-
-            .tcwr-commissioner-admin-actions {
-                display:flex;
-                gap:8px;
-                align-items:center;
-                margin-top:8px;
-            }
-
-            .tcwr-commissioner-admin-button {
-                appearance:none;
-                border:1px solid rgba(250,204,21,.45);
-                border-radius:7px;
-                padding:8px 11px;
-                background:#facc15;
-                color:#111827;
-                font:inherit;
-                font-size:.7rem;
-                font-weight:900;
-                cursor:pointer;
-            }
-
-            .tcwr-commissioner-admin-button.secondary {
-                background:transparent;
-                color:#cbd5e1;
-                border-color:rgba(148,163,184,.28);
-            }
-
-            .tcwr-commissioner-admin-status {
-                min-height:16px;
-                margin-top:7px;
-                color:#94a3b8;
-                font-size:.67rem;
-            }
-
-            .tcwr-commissioner-modal-backdrop {
-                position:fixed;
-                inset:0;
-                z-index:99999;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                padding:20px;
-                background:rgba(0,0,0,.68);
-                backdrop-filter:blur(4px);
-            }
-
-            .tcwr-commissioner-modal {
-                width:min(360px,100%);
-                box-sizing:border-box;
-                padding:18px;
-                border:1px solid rgba(250,204,21,.25);
-                border-radius:12px;
-                background:linear-gradient(145deg,#12263b,#06111f);
-                box-shadow:0 24px 70px rgba(0,0,0,.5);
-            }
-
-            .tcwr-commissioner-modal h3 {
-                margin:0 0 4px;
-                color:#facc15;
-                font-size:.82rem;
-                font-weight:900;
-                letter-spacing:.9px;
-                text-transform:uppercase;
-            }
-
-            .tcwr-commissioner-modal p {
-                margin:0 0 12px;
-                color:#94a3b8;
-                font-size:.7rem;
-            }
-
-            .tcwr-commissioner-modal label {
-                display:block;
-                margin:9px 0 4px;
-                color:#cbd5e1;
-                font-size:.66rem;
-                font-weight:800;
-            }
-
-            .tcwr-commissioner-modal input {
-                width:100%;
-                box-sizing:border-box;
-                border:1px solid rgba(148,163,184,.25);
-                border-radius:7px;
-                background:#020914;
-                color:#fff;
-                padding:9px;
-                font:inherit;
-                font-size:.76rem;
-                outline:none;
-            }
-
-            .tcwr-commissioner-modal-actions {
-                display:flex;
-                justify-content:flex-end;
-                gap:8px;
-                margin-top:13px;
-            }
-
-            .tcwr-commissioner-modal-status {
-                min-height:16px;
-                margin-top:8px;
-                color:#f87171;
-                font-size:.67rem;
-            }
-
-            @media (max-width:430px) {
-                .tcwr-commissioner-admin-row {
-                    grid-template-columns:1fr;
-                }
-            }
-
-        `;
-
-        document.head.appendChild(style);
-    }
-
-
-    /* === CREATE BULLETIN PANELS === */
-
-    if (!document.getElementById("automated-bulletin-panel")) {
-
-        display.innerHTML = `
-
-            <section id="automated-bulletin-panel" class="tcwr-news-panel">
-
-                <div id="automated-bulletin-content" class="tcwr-empty">
-                    Loading league bulletin...
-                </div>
-
-            </section>
-
-
-            <section id="commissioner-bulletin-panel" class="tcwr-news-panel">
-
-                <div class="tcwr-news-header">
-                    <button
-                        type="button"
-                        id="commissioner-login-trigger"
-                        class="tcwr-commissioner-title-button"
-                        title="Commissioner login"
-                    >
-                        📣 COMMISSIONER PANEL
-                    </button>
-                </div>
-
-                <div id="commissioner-admin-container"></div>
-
-                <div id="commissioner-bulletin-content" class="tcwr-empty">
-                    Loading commissioner posts...
-                </div>
-
-            </section>
-
-        `;
-    }
-
-    initializeCommissionerLogin();
-
-    return display;
-}
-
-
-/* === COMMISSIONER LOGIN / POSTING === */
-
-let commissionerAuthUser = null;
-
-function getTodayDateLabel() {
-    const now = new Date();
-    return now.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric"
-    }).toUpperCase();
-}
-
-function showCommissionerLoginModal() {
-    if (document.getElementById("tcwr-commissioner-login-modal")) return;
-
-    const backdrop = document.createElement("div");
-    backdrop.id = "tcwr-commissioner-login-modal";
-    backdrop.className = "tcwr-commissioner-modal-backdrop";
-
-    backdrop.innerHTML = `
-        <div class="tcwr-commissioner-modal" role="dialog" aria-modal="true" aria-label="Commissioner login">
-            <h3>🔐 Commissioner Login</h3>
-            <p>Private access to post league announcements.</p>
-
-            <label for="tcwr-commissioner-email">Email</label>
-            <input id="tcwr-commissioner-email" type="email" autocomplete="username">
-
-            <label for="tcwr-commissioner-password">Password</label>
-            <input id="tcwr-commissioner-password" type="password" autocomplete="current-password">
-
-            <div class="tcwr-commissioner-modal-status" id="tcwr-commissioner-login-status"></div>
-
-            <div class="tcwr-commissioner-modal-actions">
-                <button type="button" class="tcwr-commissioner-admin-button secondary" id="tcwr-commissioner-login-cancel">Cancel</button>
-                <button type="button" class="tcwr-commissioner-admin-button" id="tcwr-commissioner-login-submit">Sign In</button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(backdrop);
-
-    const emailInput = document.getElementById("tcwr-commissioner-email");
-    const passwordInput = document.getElementById("tcwr-commissioner-password");
-    const status = document.getElementById("tcwr-commissioner-login-status");
-    const submit = document.getElementById("tcwr-commissioner-login-submit");
-
-    document.getElementById("tcwr-commissioner-login-cancel")?.addEventListener("click", () => {
-        backdrop.remove();
-    });
-
-    backdrop.addEventListener("click", event => {
-        if (event.target === backdrop) backdrop.remove();
-    });
-
-    const submitLogin = async () => {
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-
-        if (!email || !password) {
-            status.textContent = "Enter your email and password.";
-            return;
-        }
-
-        submit.disabled = true;
-        submit.textContent = "Signing In...";
-        status.textContent = "";
-
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            backdrop.remove();
-        } catch (error) {
-            console.error("Commissioner login error:", error);
-            status.textContent = "Login failed. Check your email and password.";
-            submit.disabled = false;
-            submit.textContent = "Sign In";
-        }
-    };
-
-    submit.addEventListener("click", submitLogin);
-    passwordInput.addEventListener("keydown", event => {
-        if (event.key === "Enter") submitLogin();
-    });
-
-    emailInput.focus();
-}
-
-function renderCommissionerAdmin() {
-    const container = document.getElementById("commissioner-admin-container");
-    if (!container) return;
-
-    if (!commissionerAuthUser) {
-        container.innerHTML = "";
-        return;
-    }
-
-    container.innerHTML = `
-        <div class="tcwr-commissioner-admin">
-            <div class="tcwr-commissioner-admin-title">Commissioner Tools</div>
-
-            <div class="tcwr-commissioner-admin-row">
-                <input
-                    id="tcwr-commissioner-date"
-                    class="tcwr-commissioner-admin-input"
-                    type="text"
-                    value="${escapeBulletinHtml(getTodayDateLabel())}"
-                    placeholder="Date / label"
-                >
-                <input
-                    id="tcwr-commissioner-subject"
-                    class="tcwr-commissioner-admin-input"
-                    type="text"
-                    placeholder="Optional subject"
-                >
-            </div>
-
-            <textarea
-                id="tcwr-commissioner-message"
-                class="tcwr-commissioner-admin-textarea"
-                placeholder="Type your commissioner announcement..."
-            ></textarea>
-
-            <div class="tcwr-commissioner-admin-actions">
-                <button type="button" id="tcwr-commissioner-post" class="tcwr-commissioner-admin-button">📣 POST ANNOUNCEMENT</button>
-                <button type="button" id="tcwr-commissioner-logout" class="tcwr-commissioner-admin-button secondary">Sign Out</button>
-            </div>
-
-            <div id="tcwr-commissioner-admin-status" class="tcwr-commissioner-admin-status"></div>
-        </div>
-    `;
-
-    const postButton = document.getElementById("tcwr-commissioner-post");
-    const logoutButton = document.getElementById("tcwr-commissioner-logout");
-    const messageInput = document.getElementById("tcwr-commissioner-message");
-    const dateInput = document.getElementById("tcwr-commissioner-date");
-    const subjectInput = document.getElementById("tcwr-commissioner-subject");
-    const status = document.getElementById("tcwr-commissioner-admin-status");
-
-    postButton?.addEventListener("click", async () => {
-        const message = messageInput.value.trim();
-        const dateLabel = dateInput.value.trim() || getTodayDateLabel();
-        const subject = subjectInput.value.trim();
-
-        if (!message) {
-            status.textContent = "Type an announcement first.";
-            return;
-        }
-
-        postButton.disabled = true;
-        postButton.textContent = "Posting...";
-        status.textContent = "";
-
-        try {
-            const announcement = {
-                Date: dateLabel,
-                text: subject ? `${subject}: ${message}` : message,
-                timestamp: serverTimestamp(),
-                postedBy: commissionerAuthUser.email || "commissioner"
-            };
-
-            await addDoc(collection(db, "announcements"), announcement);
-
-            messageInput.value = "";
-            subjectInput.value = "";
-            status.textContent = "Posted. It is now live on the site.";
-        } catch (error) {
-            console.error("Commissioner post error:", error);
-            status.textContent = "Unable to post. Check your Firebase permissions.";
-        } finally {
-            postButton.disabled = false;
-            postButton.textContent = "📣 POST ANNOUNCEMENT";
-        }
-    });
-
-    logoutButton?.addEventListener("click", async () => {
-        try {
-            await signOut(auth);
-        } catch (error) {
-            console.error("Commissioner logout error:", error);
-        }
-    });
-}
-
-function initializeCommissionerLogin() {
-    const trigger = document.getElementById("commissioner-login-trigger");
-    if (!trigger || trigger.dataset.loginReady === "true") return;
-
-    trigger.dataset.loginReady = "true";
-
-    trigger.addEventListener("click", () => {
-        if (commissionerAuthUser) {
-            renderCommissionerAdmin();
-            return;
-        }
-
-        showCommissionerLoginModal();
-    });
-
-    onAuthStateChanged(auth, user => {
-        commissionerAuthUser = user || null;
-        renderCommissionerAdmin();
-    });
-}
-
-
-/* === LOAD COMMISSIONER ANNOUNCEMENTS === */
-
-function loadBulletin() {
-
-    ensureLeagueBulletinShell();
-
-    const display = document.getElementById(
-        "commissioner-bulletin-content"
-    );
-
-    if (!display) return;
-
-
-    if (commissionerBulletinUnsubscribe) {
-        commissionerBulletinUnsubscribe();
-    }
-
-
-    const q = query(
-        collection(db, "announcements"),
-        orderBy("timestamp", "desc")
-    );
-
-
-    commissionerBulletinUnsubscribe = onSnapshot(
-
-        q,
-
-        snapshot => {
-
-            display.innerHTML = "";
-
-
-            if (snapshot.empty) {
-
-                display.innerHTML =
-                    '<div class="tcwr-empty">No recent announcements.</div>';
-
-                return;
-            }
-
-
-            snapshot.forEach(documentSnapshot => {
-
-                const post = documentSnapshot.data();
-
-                const item = document.createElement("article");
-
-                item.className = "tcwr-commissioner-post";
-
-
-                const displayDate =
-                    post.Date ||
-                    post.date ||
-                    "UPDATE";
-
-                const displayText =
-                    post.text ||
-                    "";
-
-
-                item.innerHTML = `
-
-                    <p class="tcwr-commissioner-date">
-                        ${escapeBulletinHtml(
-                            String(displayDate).toUpperCase()
-                        )}
-                    </p>
-
-                    <p class="tcwr-commissioner-text">
-                        ${escapeBulletinHtml(displayText)}
-                    </p>
-
-                `;
-
-
-                display.appendChild(item);
-
-            });
-
-        },
-
-        error => {
-
-            console.error(
-                "Commissioner bulletin error:",
-                error
-            );
-
-            display.innerHTML =
-                '<div class="tcwr-empty">Unable to load commissioner posts.</div>';
-
-        }
-
-    );
-}
-
-
-/* === ESCAPE COMMISSIONER TEXT === */
-
-function escapeBulletinHtml(value) {
-
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-
-
-/* === 6. SLEEPER STANDINGS DATA === */
-
-
-async function fetchStandings() {
-    try {
-        const [rostersRes, usersRes] = await Promise.all([
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters?_=${Date.now()}`),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users?_=${Date.now()}`)
-        ]);
-
-        if (!rostersRes.ok || !usersRes.ok) {
-            throw new Error(
-                `Sleeper standings request failed. ` +
-                `Rosters: ${rostersRes.status}, ` +
-                `Users: ${usersRes.status}`
-            );
-        }
-
-        const rosters = await rostersRes.json();
-        const users = await usersRes.json();
-
-        const userMap = Object.fromEntries(
-            users.map(user => [user.user_id, user])
-        );
-
-        const teams = rosters.map(roster => {
-            const user = userMap[roster.owner_id] || {};
-            const settings = roster.settings || {};
-
-            const pointsFor =
-                Number(settings.fpts || 0) +
-                Number(settings.fpts_decimal || 0) / 100;
-
-            const wins = Number(settings.wins || 0);
-            const losses = Number(settings.losses || 0);
-            const ties = Number(settings.ties || 0);
-            const completedGames = wins + losses + ties;
-
-            return {
-                teamName:
-                    user.metadata?.team_name ||
-                    user.display_name ||
-                    "Unnamed Team",
-
-                record: `${wins}-${losses}-${ties}`,
-
-                winPct:
-                    completedGames > 0
-                        ? (wins + ties * 0.5) / completedGames
-                        : 0,
-
-                pointsFor
-            };
-        });
-
-        teams.sort(
-            (teamA, teamB) =>
-                teamB.winPct - teamA.winPct ||
-                teamB.pointsFor - teamA.pointsFor
-        );
-
-        const tbody = document.querySelector("#standings-table tbody");
-        if (!tbody) return;
-
-        tbody.innerHTML = teams
-            .map((team, index) => {
-                const seed = index + 1;
-                const rowClasses = [];
-                let statusBadge = "";
-
-                if (seed <= 2) {
-                    rowClasses.push("bye-seed");
-                    statusBadge =
-                        '<span class="standings-status bye">Bye</span>';
-                } else if (seed <= 6) {
-                    rowClasses.push("playoff-seed");
-                    statusBadge =
-                        '<span class="standings-status playoff">Playoff</span>';
-                }
-
-                if (seed === 6) {
-                    rowClasses.push("playoff-cutoff");
-                }
-
-                if (seed === teams.length) {
-                    rowClasses.push("lottery-leader");
-                    statusBadge =
-                        '<span class="standings-status lottery">1.01 Odds</span>';
-                }
-
-                return `
-                    <tr class="${rowClasses.join(" ")}">
-                        <td class="standings-rank">${seed}</td>
-
-                       <td class="standings-team">
-    <div class="standings-team-name">
-        ${escapeStandingsHtml(team.teamName)}
-    </div>
-
-    ${statusBadge}
-</td>
-
-                        <td class="standings-record">${team.record}</td>
-                    </tr>
-                `;
-            })
-            .join("");
-    } catch (error) {
-        console.error("Standings Error:", error);
-
-        const tbody = document.querySelector("#standings-table tbody");
-
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="3" style="
-                        padding:24px 12px;
-                        text-align:center;
-                        color:#f87171;
-                    ">
-                        Unable to load league standings.
-                    </td>
-                </tr>
-            `;
-        }
-    }
-}
-
-function escapeStandingsHtml(value) {
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-/* === 8. WEEKLY SCOREBOARD & PREDICTIONS === */
-
-/*
-    TEST MODE:
-    true  = start on SCOREBOARD_TEST_WEEK
-    false = start on Sleeper's current display week
-*/
-const SCOREBOARD_TEST_MODE = false;
-const SCOREBOARD_TEST_WEEK = 1;
-const SCOREBOARD_MIN_WEEK = 1;
-const SCOREBOARD_MAX_WEEK = 14;
-const SCOREBOARD_REFRESH_MS = 60 * 1000;
-
-/* === END-OF-SEASON AWARDS === */
-const FANTASY_SEASON_FINAL_WEEK = 14;
-
-/* === TCWR SEASONAL CENTER-SCREEN CONFIG === */
-const CHAMPION_RECAP_PLAYLIST_ID = "PLZEKYTPqxrBo";
-const CHAMPION_RECAP_PLAYLIST_URL =
-    `https://www.youtube.com/playlist?list=${CHAMPION_RECAP_PLAYLIST_ID}`;
-
-/* These dates are intentionally recurring every year.
-   - Champion Recap Coming Soon begins when Sleeper reports Week 14 is over.
-   - Champion Recap TV begins December 28.
-   - Offseason countdown begins March 12.
-   - The countdown reaches zero September 3, when the normal scoreboard returns. */
-const CHAMPION_RECAP_LIVE_MONTH = 12;
-const CHAMPION_RECAP_LIVE_DAY = 28;
-const OFFSEASON_COUNTDOWN_MONTH = 3;
-const OFFSEASON_COUNTDOWN_DAY = 12;
-const NFL_SEASON_START_MONTH = 9;
-const NFL_SEASON_START_DAY = 3;
-
-/* Optional previous-season Manager Rankings CSV.
-   Used only for Most Improved Manager. */
-const PREVIOUS_RANKINGS_CSV_URL = "";
-
-let endOfSeasonAwardsCache = null;
-
-let selectedScoreboardWeek = SCOREBOARD_TEST_WEEK;
-let latestVisibleScoreboardWeek = SCOREBOARD_TEST_MODE
-    ? SCOREBOARD_TEST_WEEK
-    : SCOREBOARD_MIN_WEEK;
-let scoreboardRefreshTimer = null;
-let scoreboardRequestInProgress = false;
-
-async function getSleeperCurrentWeek() {
-    try {
-        const response = await fetch("https://api.sleeper.app/v1/state/nfl");
-        if (!response.ok) throw new Error(`Sleeper NFL state request failed: ${response.status}`);
-        const state = await response.json();
-        const sleeperWeek = Number(state.display_week ?? state.leg ?? state.week ?? 1);
-        return Math.max(SCOREBOARD_MIN_WEEK, Math.min(sleeperWeek, SCOREBOARD_MAX_WEEK));
-    } catch (error) {
-        console.warn("Unable to load Sleeper current week:", error);
-        return SCOREBOARD_TEST_WEEK;
-    }
-}
-
-function clampScoreboardWeek(week, maximumWeek = latestVisibleScoreboardWeek) {
-    const maxWeek = Math.max(
-        SCOREBOARD_MIN_WEEK,
-        Math.min(
-            Number(maximumWeek) || SCOREBOARD_MIN_WEEK,
-            SCOREBOARD_MAX_WEEK
-        )
-    );
-
-    return Math.max(
-        SCOREBOARD_MIN_WEEK,
-        Math.min(
-            Number(week) || SCOREBOARD_MIN_WEEK,
-            maxWeek
-        )
-    );
-}
-
-function clearScoreboardRefreshTimer() {
-    if (scoreboardRefreshTimer) {
-        window.clearInterval(scoreboardRefreshTimer);
-        scoreboardRefreshTimer = null;
-    }
-}
-
-function startScoreboardRefreshTimer() {
-    clearScoreboardRefreshTimer();
-    scoreboardRefreshTimer = window.setInterval(() => {
-        fetchScoreboard(selectedScoreboardWeek, { showLoading: false });
-    }, SCOREBOARD_REFRESH_MS);
-}
-
-function createWeekNavigation(week) {
-    const maxVisibleWeek = Math.max(
-        SCOREBOARD_MIN_WEEK,
-        Math.min(
-            Number(latestVisibleScoreboardWeek) || SCOREBOARD_MIN_WEEK,
-            SCOREBOARD_MAX_WEEK
-        )
-    );
-
-    const wrapper = document.createElement("div");
-    wrapper.style.cssText = `
-        display:grid;
-        grid-template-columns:44px minmax(0, 1fr) 44px;
-        align-items:center;
-        gap:10px;
-        margin-bottom:16px;
-    `;
-
-    const previousButton = document.createElement("button");
-    previousButton.type = "button";
-    previousButton.setAttribute("aria-label", "Show previous week");
-    previousButton.textContent = "←";
-    previousButton.disabled = week <= SCOREBOARD_MIN_WEEK;
-
-    const nextButton = document.createElement("button");
-    nextButton.type = "button";
-    nextButton.setAttribute("aria-label", "Show next week");
-    nextButton.textContent = "→";
-    nextButton.disabled = week >= maxVisibleWeek;
-
-    [previousButton, nextButton].forEach(button => {
-        button.style.cssText = `
-            width:44px;
-            height:40px;
-            border-radius:10px;
-            border:1px solid rgba(250, 204, 21, 0.35);
-            background:rgba(15, 23, 42, 0.8);
-            color:#facc15;
-            font-size:1.1rem;
-            font-weight:900;
-            cursor:pointer;
-        `;
-        if (button.disabled) {
-            button.style.opacity = "0.35";
-            button.style.cursor = "not-allowed";
-        }
-    });
-
-    const label = document.createElement("div");
-    label.style.cssText = `
-        text-align:center;
-        color:#cbd5e1;
-        font-size:0.78rem;
-        font-weight:800;
-        letter-spacing:1px;
-        text-transform:uppercase;
-    `;
-    label.textContent = `Week ${week} of ${SCOREBOARD_MAX_WEEK}`;
-
-    previousButton.addEventListener("click", () => {
-        if (week <= SCOREBOARD_MIN_WEEK) return;
-        selectedScoreboardWeek = clampScoreboardWeek(week - 1);
-        fetchScoreboard(selectedScoreboardWeek);
-    });
-
-    nextButton.addEventListener("click", () => {
-        if (week >= maxVisibleWeek) return;
-        selectedScoreboardWeek = clampScoreboardWeek(week + 1);
-        fetchScoreboard(selectedScoreboardWeek);
-    });
-
-    wrapper.append(previousButton, label, nextButton);
-    return wrapper;
-}
-
-function extractSleeperProjection(matchup) {
-    const possibleValues = [
-        matchup.projected_points,
-        matchup.projected,
-        matchup.projection,
-        matchup.points_projected,
-        matchup.projected_total
-    ];
-
-    for (const value of possibleValues) {
-        const number = Number.parseFloat(value);
-        if (Number.isFinite(number)) return number;
-    }
-
-    return null;
-}
-
-async function fetchScoreboard(requestedWeek = selectedScoreboardWeek, options = {}) {
-    const { showLoading = true } = options;
-    const container = document.getElementById("scoreboard-container");
-    if (!container || scoreboardRequestInProgress) return;
 
     /*
-        Future scoreboard weeks stay hidden.
+       Firebase settings normally stay unchanged.
 
-        Sleeper's current display week is the furthest week the user
-        is allowed to view. Historical weeks remain available through
-        the left arrow, but the right arrow stops at the current week.
+       Only change these if you intentionally create
+       a completely new Firebase project.
     */
-    latestVisibleScoreboardWeek = SCOREBOARD_TEST_MODE
-        ? SCOREBOARD_TEST_WEEK
-        : await getSleeperCurrentWeek();
 
-    const week = clampScoreboardWeek(
-        requestedWeek,
-        latestVisibleScoreboardWeek
-    );
+    const firebaseConfig = {
 
-    selectedScoreboardWeek = week;
-    scoreboardRequestInProgress = true;
+        apiKey:
+            "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
 
-    if (showLoading) {
-        container.innerHTML = `
-            <p style="text-align:center; color:#94a3b8; padding:30px;">
-                Loading Week ${week} matchup of the week...
-            </p>
-        `;
-    }
+        authDomain:
+            "tcwr-dynasty.firebaseapp.com",
 
-    try {
-        const [matchRes, usersRes, rostersRes, stateRes] = await Promise.all([
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}?_=${Date.now()}`),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/users?_=${Date.now()}`),
-            fetch(`https://api.sleeper.app/v1/league/${leagueId}/rosters?_=${Date.now()}`),
-            fetch("https://api.sleeper.app/v1/state/nfl")
-        ]);
+        projectId:
+            "tcwr-dynasty",
 
-        if (!matchRes.ok || !usersRes.ok || !rostersRes.ok) {
-            throw new Error(
-                `Sleeper scoreboard request failed. ` +
-                `Matchups: ${matchRes.status}, Users: ${usersRes.status}, Rosters: ${rostersRes.status}`
-            );
-        }
+        storageBucket:
+            "tcwr-dynasty.firebasestorage.app",
 
-        const matchupsRaw = await matchRes.json();
-        const users = await usersRes.json();
-        const rosters = await rostersRes.json();
-        const nflState = stateRes.ok ? await stateRes.json() : {};
+        messagingSenderId:
+            "544187199777",
 
-        console.log("Scoreboard test mode:", SCOREBOARD_TEST_MODE);
-        console.log("Requested Sleeper week:", week);
-        console.log("Raw Sleeper matchup data:", matchupsRaw);
+        appId:
+            "1:544187199777:web:05753208f1daee32558e60"
 
-        const userLookup = Object.fromEntries(
-            users.map(user => [user.user_id, user.display_name || "Unknown"])
-        );
-
-        const rosterToNameMap = Object.fromEntries(
-            rosters.map(roster => [roster.roster_id, userLookup[roster.owner_id] || "Unknown"])
-        );
-
-        if (!Array.isArray(matchupsRaw) || matchupsRaw.length === 0) {
-            container.innerHTML = "";
-            container.appendChild(createWeekNavigation(week));
-            const message = document.createElement("p");
-            message.style.cssText = "text-align:center; color:white; padding:40px;";
-            message.textContent = `Sleeper returned no matchup data for Week ${week}.`;
-            container.appendChild(message);
-            return;
-        }
-
-        Papa.parse(`${csvUrl}&_=${Date.now()}`, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: results => {
-                if (results.errors.length > 0) {
-                    console.warn("Spreadsheet parsing warnings:", results.errors);
-                }
-                renderMatchupCards(matchupsRaw, rosterToNameMap, results.data, week, nflState);
-            },
-            error: error => {
-                console.error("Spreadsheet loading error:", error);
-                container.innerHTML = "";
-                container.appendChild(createWeekNavigation(week));
-                const message = document.createElement("p");
-                message.style.cssText = "text-align:center; color:#f87171; padding:40px;";
-                message.textContent = "Unable to load matchup statistics.";
-                container.appendChild(message);
-            }
-        });
-    } catch (error) {
-        console.error("Scoreboard Error:", error);
-        container.innerHTML = "";
-        container.appendChild(createWeekNavigation(week));
-        const message = document.createElement("p");
-        message.style.cssText = "text-align:center; color:#f87171; padding:40px;";
-        message.textContent = "Unable to load the scoreboard.";
-        container.appendChild(message);
-    } finally {
-        scoreboardRequestInProgress = false;
-    }
-}
-
-function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return;
-
-    container.innerHTML = "";
-    container.style.display = "block";
-    container.style.height = "auto";
-    container.appendChild(createWeekNavigation(week));
-
-    const groups = {};
-    matchups.forEach(matchup => {
-        if (matchup.matchup_id === null || matchup.matchup_id === undefined) return;
-        if (!groups[matchup.matchup_id]) groups[matchup.matchup_id] = [];
-        groups[matchup.matchup_id].push(matchup);
-    });
-
-    const safeNumber = value => {
-        const number = Number.parseFloat(value);
-        return Number.isFinite(number) ? number : 0;
     };
 
-    const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
 
-    const parseH2H = record => {
-        const normalizedRecord = String(record || "0-0")
-            .trim()
-            .replace(/[–—−]/g, "-");
+    const app =
+        initializeApp(firebaseConfig);
 
-        const parts = normalizedRecord
+    const db =
+        getFirestore(app);
+
+    const auth =
+        getAuth(app);
+
+
+    /* =========================================================
+       5. LEAGUE BULLETIN
+       ========================================================= */
+
+    let commissionerBulletinUnsubscribe =
+        null;
+
+
+    function ensureLeagueBulletinShell() {
+
+        const display =
+            document.getElementById(
+                "bulletin-display"
+            );
+
+        if (!display) {
+            return null;
+        }
+
+
+        if (
+            !document.getElementById(
+                "tcwr-bulletin-styles"
+            )
+        ) {
+
+            const style =
+                document.createElement(
+                    "style"
+                );
+
+            style.id =
+                "tcwr-bulletin-styles";
+
+
+            style.textContent = `
+
+                #bulletin-display {
+                    display:flex;
+                    flex-direction:column;
+                    gap:14px;
+                }
+
+                .tcwr-empty {
+                    padding:25px 15px;
+                    color:#64748b;
+                    font-size:.75rem;
+                    font-weight:700;
+                    text-align:center;
+                }
+
+            `;
+
+
+            document.head.appendChild(
+                style
+            );
+
+        }
+
+
+        return display;
+
+    }
+
+
+    /* =========================================================
+       UTILITY FUNCTIONS
+       ========================================================= */
+
+    async function fetchJson(url) {
+
+        const response =
+            await fetch(url);
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+        return response.json();
+
+    }
+
+
+    async function fetchCsvRows(url) {
+
+        return new Promise(
+            (resolve, reject) => {
+
+                Papa.parse(
+                    url,
+                    {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+
+                        complete: results => {
+
+                            resolve(
+                                results.data || []
+                            );
+
+                        },
+
+                        error: error => {
+
+                            reject(error);
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+    }
+
+
+    function translateManagerName(
+        name
+    ) {
+
+        const raw =
+            String(name || "").trim();
+
+        return (
+            nameTranslator[raw] ||
+            raw
+        );
+
+    }
+
+
+    function getInitials(name) {
+
+        const value =
+            String(name || "").trim();
+
+        if (!value) {
+            return "?";
+        }
+
+        const parts =
+            value.split(/\s+/);
+
+        if (parts.length === 1) {
+
+            return parts[0]
+                .slice(0, 2)
+                .toUpperCase();
+
+        }
+
+        return (
+            parts[0][0] +
+            parts[parts.length - 1][0]
+        ).toUpperCase();
+
+    }
+
+
+    function formatSignedNumber(
+        value
+    ) {
+
+        const number =
+            Number(value) || 0;
+
+        if (number > 0) {
+            return `+${number.toFixed(1)}`;
+        }
+
+        return number.toFixed(1);
+
+    }
+
+
+    /* =========================================================
+       H2H PARSER
+
+       H2H is historical information only.
+
+       IMPORTANT:
+       H2H DOES NOT determine which matchup is selected
+       as Rivalry of the Week.
+
+       ========================================================= */
+
+    function parseBulletinH2H(record) {
+
+        const parts =
+            String(
+                record || "0-0"
+            )
+            .replace(
+                /[–—−]/g,
+                "-"
+            )
             .split("-")
-            .map(value => Number.parseInt(value.trim(), 10) || 0);
+            .map(
+                value =>
+                    Number.parseInt(
+                        value,
+                        10
+                    ) || 0
+            );
 
-        const wins = parts[0] || 0;
-        const losses = parts[1] || 0;
-        const ties = parts[2] || 0;
-        const total = wins + losses + ties;
+        const wins =
+            parts[0] || 0;
+
+        const losses =
+            parts[1] || 0;
+
+        const ties =
+            parts[2] || 0;
 
         return {
+
             wins,
             losses,
             ties,
-            total,
-            winPercentage:
-                total > 0
-                    ? (wins + ties * 0.5) / total
-                    : 0.5
-        };
-    };
 
-    const formatSignedNumber = value => {
-        const number = safeNumber(value);
-        if (number > 0) return `+${number.toFixed(1)}`;
-        if (number < 0) return number.toFixed(1);
-        return "0.0";
-    };
+            total:
+                wins +
+                losses +
+                ties
 
-    const getInitials = name => String(name)
-        .split(/[\s_-]+/)
-        .filter(Boolean)
-        .map(part => part.charAt(0))
-        .join("")
-        .slice(0, 2)
-        .toUpperCase() || "TM";
-
-    const findStat = (managerName, opponentName) => {
-        const realManager = nameTranslator[managerName] || managerName;
-        return stats.find(stat => {
-            const spreadsheetManager = stat.Manager?.trim().toLowerCase();
-            const spreadsheetOpponent = stat.Opponent?.trim().toLowerCase();
-            const expectedManager = realManager.trim().toLowerCase();
-            const expectedOpponent = `@${opponentName}`.trim().toLowerCase();
-            return spreadsheetManager === expectedManager && spreadsheetOpponent === expectedOpponent;
-        });
-    };
-
-    const sleeperDisplayWeek = safeNumber(nflState.display_week ?? nflState.leg ?? nflState.week);
-    const analyzedMatchups = [];
-
-    Object.keys(groups).forEach(matchId => {
-        const pair = groups[matchId];
-        if (pair.length < 2) return;
-
-        let nameA = nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`;
-        let nameB = nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`;
-        nameA = nameA.replace("@", "").trim();
-        nameB = nameB.replace("@", "").trim();
-
-        const statA = findStat(nameA, nameB);
-        const statB = findStat(nameB, nameA);
-        const avgA = safeNumber(statA?.AvgPts);
-        const avgB = safeNumber(statB?.AvgPts);
-        const pointsA = safeNumber(pair[0].points);
-        const pointsB = safeNumber(pair[1].points);
-        const projectionA = extractSleeperProjection(pair[0]);
-        const projectionB = extractSleeperProjection(pair[1]);
-        const hasSleeperProjection = projectionA !== null && projectionB !== null;
-
-        const statisticalFavorite = avgA === avgB ? null : (avgA > avgB ? nameA : nameB);
-        const sleeperPredictedWinner = !hasSleeperProjection || projectionA === projectionB
-            ? null
-            : (projectionA > projectionB ? nameA : nameB);
-        const sleeperProjectionMargin = hasSleeperProjection ? Math.abs(projectionA - projectionB) : null;
-        const liveLeader = pointsA === pointsB ? null : (pointsA > pointsB ? nameA : nameB);
-        const gamesStarted = pointsA !== 0 || pointsB !== 0;
-        const predictionDisagreement = Boolean(
-            statisticalFavorite && sleeperPredictedWinner && statisticalFavorite !== sleeperPredictedWinner
-        );
-
-        const favoriteStat = statisticalFavorite === nameA ? statA : (statisticalFavorite === nameB ? statB : null);
-        const favoriteAverage = statisticalFavorite === nameA ? avgA : (statisticalFavorite === nameB ? avgB : Math.max(avgA, avgB));
-        const opponentAverage = statisticalFavorite === nameA ? avgB : (statisticalFavorite === nameB ? avgA : Math.min(avgA, avgB));
-        const averageAdvantage = Math.abs(favoriteAverage - opponentAverage);
-        const favoriteH2H = favoriteStat?.H2H_Record || "0-0";
-        const h2hData = parseH2H(favoriteH2H);
-
-        const rivalryRecordOwner = statA ? nameA : (statB ? nameB : nameA);
-        const rivalryRecord = statA?.H2H_Record || statB?.H2H_Record || "0-0";
-        const rivalryH2H = parseH2H(rivalryRecord);
-
-        const pointDifferential = safeNumber(favoriteStat?.Pt_Diff);
-        const averageScore = Math.min(averageAdvantage, 20) * 1.2;
-        const h2hScore = Math.max(0, h2hData.winPercentage - 0.5) * 30;
-        const differentialScore = Math.min(Math.abs(pointDifferential), 300) * 0.03;
-        const confidence = clamp(Math.round(50 + averageScore + h2hScore + differentialScore), 55, 95);
-
-        analyzedMatchups.push({
-            matchId, nameA, nameB, avgA, avgB, pointsA, pointsB,
-            projectionA, projectionB, hasSleeperProjection,
-            statisticalFavorite, sleeperPredictedWinner, sleeperProjectionMargin,
-            liveLeader, gamesStarted, predictionDisagreement, confidence,
-            averageAdvantage, favoriteH2H, h2hData, pointDifferential,
-            statA, statB, rivalryRecordOwner, rivalryRecord, rivalryH2H,
-            rivalryPointDifferential: Math.abs(pointsA - pointsB),
-            rivalryCloseness: Math.abs(rivalryH2H.wins - rivalryH2H.losses),
-            averageGap: Math.abs(avgA - avgB),
-            combinedAverage: avgA + avgB
-        });
-    });
-
-    if (analyzedMatchups.length === 0) {
-        const message = document.createElement("p");
-        message.style.cssText = "text-align:center; color:#94a3b8; padding:30px;";
-        message.textContent = "No matchup data is currently available.";
-        container.appendChild(message);
-        return;
-    }
-
-    updateAutomatedBulletinFromScoreboard(analyzedMatchups, week, sleeperDisplayWeek);
-
-    const disagreementMatchups = analyzedMatchups.filter(
-        matchup => matchup.predictionDisagreement
-    );
-
-    const anyGameStarted = analyzedMatchups.some(
-        matchup => matchup.gamesStarted
-    );
-
-    /*
-     * FEATURED MATCHUP SELECTION
-     *
-     * This must NOT use localStorage. localStorage is different on every
-     * device/browser and was the reason desktop and phone could show
-     * different Matchup of the Week cards.
-     *
-     * The ranking below is deterministic, so identical league data produces
-     * the same featured matchup on desktop, phone, tablet, etc.
-     */
-    let featuredMatchup;
-    let cardType;
-
-    if (disagreementMatchups.length > 0) {
-        disagreementMatchups.sort((a, b) =>
-            (b.sleeperProjectionMargin || 0) - (a.sleeperProjectionMargin || 0) ||
-            b.confidence - a.confidence ||
-            a.averageGap - b.averageGap ||
-            b.combinedAverage - a.combinedAverage ||
-            String(a.matchId).localeCompare(String(b.matchId))
-        );
-
-        featuredMatchup = disagreementMatchups[0];
-        cardType = "prediction-clash";
-    } else {
-        analyzedMatchups.sort((a, b) =>
-            a.averageGap - b.averageGap ||
-            b.combinedAverage - a.combinedAverage ||
-            String(a.matchId).localeCompare(String(b.matchId))
-        );
-
-        featuredMatchup = analyzedMatchups[0];
-        cardType = "matchup";
-    }
-
-    const {
-        matchId, nameA, nameB, avgA, avgB, pointsA, pointsB,
-        projectionA, projectionB, hasSleeperProjection,
-        statisticalFavorite, sleeperPredictedWinner, sleeperProjectionMargin,
-        liveLeader, gamesStarted, averageAdvantage, favoriteH2H,
-        h2hData, pointDifferential
-    } = featuredMatchup;
-
-    const isPredictionClash = cardType === "prediction-clash";
-    const isPastWeek = sleeperDisplayWeek > 0 && week < sleeperDisplayWeek;
-    const gameStatus = isPastWeek ? "FINAL" : (gamesStarted ? "LIVE" : "SCHEDULED");
-    const badgeText = isPredictionClash ? "⚡ PREDICTION CLASH" : "🏆 MATCHUP OF THE WEEK";
-    const badgeBackground = isPredictionClash
-        ? "linear-gradient(135deg, #7c2d12, #f97316)"
-        : "linear-gradient(135deg, #92400e, #f59e0b)";
-    const borderColor = isPredictionClash ? "#fb923c" : "#facc15";
-    const statisticalText = statisticalFavorite ? `@${statisticalFavorite}` : "Even matchup";
-
-    let sleeperPanelLabel;
-    let sleeperPanelText;
-    let sleeperPanelSubtext = "";
-
-    if (hasSleeperProjection) {
-        sleeperPanelLabel = "Sleeper Predicted Winner";
-        sleeperPanelText = sleeperPredictedWinner ? `@${sleeperPredictedWinner}` : "Projected tie";
-        sleeperPanelSubtext = `${projectionA.toFixed(1)}–${projectionB.toFixed(1)}` +
-            (sleeperProjectionMargin !== null ? ` • by ${sleeperProjectionMargin.toFixed(1)}` : "");
-    } else if (gamesStarted || isPastWeek) {
-        sleeperPanelLabel = isPastWeek ? "Final Winner" : "Live Leader";
-        sleeperPanelText = liveLeader ? `@${liveLeader}` : "Currently tied";
-        sleeperPanelSubtext = `${pointsA.toFixed(1)}–${pointsB.toFixed(1)}`;
-    } else {
-        sleeperPanelLabel = "Sleeper Prediction";
-        sleeperPanelText = "Waiting for kickoff";
-        sleeperPanelSubtext =
-            "Sleeper projections will appear before kickoff.";
-    }
-
-    const explanationTitle = statisticalFavorite
-        ? `Why the numbers favor @${statisticalFavorite}`
-        : "Why this matchup was selected";
-
-    const card = document.createElement("div");
-    card.className = "bulletin-item tcwr-scoreboard-main-card";
-    card.style.cssText = `
-        width:100%; box-sizing:border-box; margin-bottom:15px; padding:20px; color:white;
-        background:linear-gradient(145deg, rgba(30,41,59,.98), rgba(15,23,42,.98));
-        border:1px solid rgba(148,163,184,.22); border-top:4px solid ${borderColor};
-        border-radius:14px; box-shadow:0 12px 30px rgba(0,0,0,.35);
-    `;
-
-    card.innerHTML = `
-        <div style="display:flex; justify-content:center; margin-bottom:18px;">
-            <div style="display:inline-flex; align-items:center; justify-content:center; padding:9px 16px; border-radius:999px; background:${badgeBackground}; color:white; font-size:.82rem; font-weight:800; letter-spacing:.7px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,.3);">
-                ${badgeText}
-            </div>
-        </div>
-
-        <p style="margin:0 0 16px; text-align:center; color:#94a3b8; font-size:.7rem; font-weight:700; letter-spacing:1.5px;">
-            WEEK ${week} • MATCHUP #${matchId} • ${gameStatus}
-        </p>
-
-        <div style="display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:12px; margin-bottom:20px;">
-            <div style="text-align:center; min-width:0;">
-                <div style="width:54px; height:54px; margin:0 auto 8px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#334155; border:2px solid ${statisticalFavorite === nameA ? borderColor : '#475569'}; font-size:1rem; font-weight:800;">
-                    ${getInitials(nameA)}
-                </div>
-                <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameA ? '#facc15' : 'white'}; overflow-wrap:anywhere;">@${nameA}</div>
-                <div style="margin-top:4px; color:#94a3b8; font-size:.7rem;">Historical Avg ${avgA.toFixed(1)}</div>
-                ${(gamesStarted || isPastWeek) ? `<div style="margin-top:7px; color:white; font-size:1.15rem; font-weight:900;">${pointsA.toFixed(1)}</div>` : ''}
-            </div>
-
-            <div style="color:#64748b; font-size:.8rem; font-weight:900;">VS</div>
-
-            <div style="text-align:center; min-width:0;">
-                <div style="width:54px; height:54px; margin:0 auto 8px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#334155; border:2px solid ${statisticalFavorite === nameB ? borderColor : '#475569'}; font-size:1rem; font-weight:800;">
-                    ${getInitials(nameB)}
-                </div>
-                <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameB ? '#facc15' : 'white'}; overflow-wrap:anywhere;">@${nameB}</div>
-                <div style="margin-top:4px; color:#94a3b8; font-size:.7rem;">Historical Avg ${avgB.toFixed(1)}</div>
-                ${(gamesStarted || isPastWeek) ? `<div style="margin-top:7px; color:white; font-size:1.15rem; font-weight:900;">${pointsB.toFixed(1)}</div>` : ''}
-            </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:18px;">
-            <div style="min-width:0; padding:11px; background:rgba(250,204,21,.08); border:1px solid rgba(250,204,21,.2); border-radius:8px;">
-                <div style="color:#94a3b8; font-size:.65rem; text-transform:uppercase; letter-spacing:.8px;">Statistical Favorite</div>
-                <div style="margin-top:4px; color:#facc15; font-size:.82rem; font-weight:800; overflow-wrap:anywhere;">${statisticalText}</div>
-            </div>
-
-            <div style="min-width:0; padding:11px; background:rgba(56,189,248,.08); border:1px solid rgba(56,189,248,.2); border-radius:8px;">
-                <div style="color:#94a3b8; font-size:.65rem; text-transform:uppercase; letter-spacing:.8px;">${sleeperPanelLabel}</div>
-                <div style="margin-top:4px; color:#38bdf8; font-size:.82rem; font-weight:800; overflow-wrap:anywhere;">${sleeperPanelText}</div>
-                ${sleeperPanelSubtext ? `<div style="margin-top:3px; color:#94a3b8; font-size:.66rem;">${sleeperPanelSubtext}</div>` : ''}
-            </div>
-        </div>
-
-        <div class="tcwr-scoreboard-explanation" style="padding:14px; background:rgba(15,23,42,.65); border-radius:10px; border:1px solid rgba(148,163,184,.15);">
-            <p style="margin:0 0 10px; color:white; font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.8px;">${explanationTitle}</p>
-            <div style="display:flex; flex-direction:column; gap:8px; color:#cbd5e1; font-size:.78rem;">
-                <div>📈 Average scoring advantage: <strong style="color:white;">+${averageAdvantage.toFixed(1)} PPG</strong></div>
-                <div>🤝 Head-to-head: <strong style="color:white;">${favoriteH2H}</strong> ${h2hData.total > 0 ? `(${Math.round(h2hData.winPercentage * 100)}% win rate)` : '(No recorded history)'}</div>
-                <div>💥 Career point differential: <strong style="color:white;">${formatSignedNumber(pointDifferential)}</strong></div>
-            </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; gap:12px; margin-top:14px; color:#64748b; font-size:.65rem;">
-            <span>${(gamesStarted || isPastWeek) ? `${gameStatus}: ${pointsA.toFixed(1)}–${pointsB.toFixed(1)}` : `Week ${week} matchup • Games have not started`}</span>
-            <span>Auto-refreshes every 60 seconds</span>
-        </div>
-    `;
-
-    container.appendChild(card);
-
-    /*
-     * Use the same deterministic rivalry selector as Weekly Awards.
-     * Rivalry is based on the closest current-week Sleeper score,
-     * while H2H is displayed as historical context when available.
-     * This guarantees that the scoreboard's "Rivalry of the Week" and
-     * the bulletin's "Rivalry Winner" always refer to the same matchup.
-     */
-    const rivalry = selectDesignatedRivalry(analyzedMatchups);
-
-    if (rivalry) {
-        const {
-            nameA: rivalryNameA,
-            nameB: rivalryNameB,
-            pointsA: rivalryPointsA,
-            pointsB: rivalryPointsB,
-            rivalryRecordOwner,
-            rivalryH2H
-        } = rivalry;
-
-        const completedMeetings = rivalryH2H.total;
-        const upcomingMeetingNumber = completedMeetings + 1;
-
-        const getOrdinal = number => {
-            const lastTwo = number % 100;
-            if (lastTwo >= 11 && lastTwo <= 13) return `${number}th`;
-            if (number % 10 === 1) return `${number}st`;
-            if (number % 10 === 2) return `${number}nd`;
-            if (number % 10 === 3) return `${number}rd`;
-            return `${number}th`;
         };
 
-        let seriesText;
-
-        if (rivalryH2H.wins === rivalryH2H.losses) {
-            seriesText = `Series tied ${rivalryH2H.wins}-${rivalryH2H.losses}`;
-        } else {
-            const recordOwnerLeads = rivalryH2H.wins > rivalryH2H.losses;
-            const seriesLeader = recordOwnerLeads
-                ? rivalryRecordOwner
-                : (rivalryRecordOwner === rivalryNameA ? rivalryNameB : rivalryNameA);
-
-            const leaderWins = Math.max(rivalryH2H.wins, rivalryH2H.losses);
-            const leaderLosses = Math.min(rivalryH2H.wins, rivalryH2H.losses);
-
-            seriesText = `@${seriesLeader} leads ${leaderWins}-${leaderLosses}`;
-        }
-
-        if (!document.getElementById("tcwr-rivalry-card-styles")) {
-            const rivalryStyles = document.createElement("style");
-            rivalryStyles.id = "tcwr-rivalry-card-styles";
-            rivalryStyles.textContent = `
-                .tcwr-rivalry-card {
-                    container-type:inline-size;
-                    container-name:rivalry-card;
-                }
-
-                .tcwr-rivalry-layout {
-                    display:grid;
-                    grid-template-columns:max-content minmax(0,1fr) max-content;
-                    grid-template-areas:"title matchup details";
-                    align-items:center;
-                    gap:14px;
-                    width:100%;
-                    min-width:0;
-                }
-
-                .tcwr-rivalry-heading {
-                    grid-area:title;
-                    min-width:0;
-                }
-
-                .tcwr-rivalry-title {
-                    color:#facc15;
-                    font-size:clamp(.64rem, 1.35cqi, .72rem);
-                    font-weight:900;
-                    letter-spacing:.9px;
-                    text-transform:uppercase;
-                    white-space:nowrap;
-                }
-
-                .tcwr-rivalry-matchup {
-                    grid-area:matchup;
-                    display:grid;
-                    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-                    align-items:center;
-                    gap:10px;
-                    min-width:0;
-                }
-
-                .tcwr-rivalry-manager {
-                    display:flex;
-                    align-items:center;
-                    gap:8px;
-                    min-width:0;
-                }
-
-                .tcwr-rivalry-manager.right {
-                    justify-content:flex-end;
-                }
-
-                .tcwr-rivalry-name {
-                    min-width:0;
-                    color:white;
-                    font-size:clamp(.68rem, 1.55cqi, .82rem);
-                    font-weight:900;
-                    line-height:1.12;
-                    white-space:normal;
-                    overflow-wrap:anywhere;
-                    word-break:normal;
-                }
-
-                .tcwr-rivalry-score {
-                    color:#facc15;
-                    font-size:1rem;
-                    font-weight:900;
-                    line-height:1;
-                    font-variant-numeric:tabular-nums;
-                }
-
-                .tcwr-rivalry-avatar {
-                    width:36px;
-                    height:36px;
-                    flex:0 0 36px;
-                    border-radius:50%;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    background:#334155;
-                    border:2px solid #475569;
-                    font-size:.72rem;
-                    font-weight:900;
-                }
-
-                .tcwr-rivalry-swords {
-                    flex:0 0 auto;
-                }
-
-                .tcwr-rivalry-details {
-                    grid-area:details;
-                    text-align:right;
-                    min-width:0;
-                    white-space:nowrap;
-                }
-
-                .tcwr-rivalry-meeting {
-                    color:#94a3b8;
-                    font-size:clamp(.61rem, 1.25cqi, .68rem);
-                    font-weight:800;
-                    letter-spacing:.65px;
-                    text-transform:uppercase;
-                }
-
-                .tcwr-rivalry-series {
-                    margin-top:4px;
-                    color:white;
-                    font-size:clamp(.68rem, 1.45cqi, .78rem);
-                    font-weight:900;
-                }
-
-                @container rivalry-card (max-width:700px) {
-                    .tcwr-rivalry-layout {
-                        grid-template-columns:1fr;
-                        grid-template-areas:
-                            "title"
-                            "matchup"
-                            "details";
-                        gap:11px;
-                        text-align:center;
-                    }
-
-                    .tcwr-rivalry-title,
-                    .tcwr-rivalry-details {
-                        text-align:center;
-                        white-space:normal;
-                    }
-
-                    .tcwr-rivalry-matchup {
-                        width:100%;
-                        max-width:520px;
-                        margin:0 auto;
-                    }
-
-                    .tcwr-rivalry-name {
-                        font-size:.78rem;
-                    }
-                }
-
-                @container rivalry-card (max-width:430px) {
-                    .tcwr-rivalry-card {
-                        padding:14px 12px !important;
-                    }
-
-                    .tcwr-rivalry-layout {
-                        gap:12px;
-                    }
-
-                    .tcwr-rivalry-matchup {
-                        grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-                        gap:7px;
-                    }
-
-                    .tcwr-rivalry-manager {
-                        flex-direction:column;
-                        justify-content:center;
-                        gap:5px;
-                        text-align:center;
-                    }
-
-                    .tcwr-rivalry-manager.right {
-                        flex-direction:column-reverse;
-                        justify-content:center;
-                    }
-
-                    .tcwr-rivalry-name,
-                    .tcwr-rivalry-manager.right .tcwr-rivalry-name {
-                        width:100%;
-                        text-align:center !important;
-                        font-size:.69rem;
-                        line-height:1.08;
-                    }
-
-                    .tcwr-rivalry-avatar {
-                        width:34px;
-                        height:34px;
-                        flex-basis:34px;
-                    }
-
-                    .tcwr-rivalry-details {
-                        white-space:normal;
-                    }
-                }
-            `;
-            document.head.appendChild(rivalryStyles);
-        }
-
-        const rivalryCard = document.createElement("div");
-        rivalryCard.className = "bulletin-item rivalry-card tcwr-rivalry-card";
-        rivalryCard.style.cssText = `
-            width:100%;
-            box-sizing:border-box;
-            margin:-2px 0 15px;
-            padding:15px 20px;
-            color:white;
-            background:linear-gradient(145deg, rgba(30,41,59,.98), rgba(15,23,42,.98));
-            border:1px solid rgba(148,163,184,.22);
-            border-left:4px solid #f59e0b;
-            border-radius:10px;
-            box-shadow:0 8px 20px rgba(0,0,0,.25);
-        `;
-
-        rivalryCard.innerHTML = `
-            <div class="tcwr-rivalry-layout">
-                <div class="tcwr-rivalry-heading">
-                    <div class="tcwr-rivalry-title">🛡️ Rivalry of the Week</div>
-                </div>
-
-                <div class="tcwr-rivalry-matchup">
-                    <div class="tcwr-rivalry-manager">
-                        <div class="tcwr-rivalry-avatar">${getInitials(rivalryNameA)}</div>
-                        <div class="tcwr-rivalry-name">@${rivalryNameA}</div>
-                        <div class="tcwr-rivalry-score">${rivalryPointsA.toFixed(1)}</div>
-                    </div>
-
-                    <div class="tcwr-rivalry-swords" style="color:#f59e0b; font-size:1rem; font-weight:900;">⚔️</div>
-
-                    <div class="tcwr-rivalry-manager right">
-                        <div class="tcwr-rivalry-name" style="text-align:right;">@${rivalryNameB}</div>
-                        <div class="tcwr-rivalry-score">${rivalryPointsB.toFixed(1)}</div>
-                        <div class="tcwr-rivalry-avatar">${getInitials(rivalryNameB)}</div>
-                    </div>
-                </div>
-
-                <div class="tcwr-rivalry-details">
-                    <div class="tcwr-rivalry-meeting">${getOrdinal(upcomingMeetingNumber)} All-Time Meeting</div>
-                    <div class="tcwr-rivalry-series">${seriesText}</div>
-                </div>
-            </div>
-        `;
-
-        container.appendChild(rivalryCard);
-    }
-}
-
-/* =========================================================
-   AUTOMATED SIDE BULLETIN
-
-   PACIFIC TIME SCHEDULE:
-
-   Thursday 5:00 PM - Tuesday 12:00 AM:
-   Live blowout watch.
-
-   Tuesday 12:00 AM - Thursday 5:00 PM:
-   Awards from the latest completed week.
-
-   Before the season:
-   Displays a preseason waiting message.
-   ========================================================= */
-
-const BULLETIN_LIVE_START_HOUR_PT = 17; // Thursday 5:00 PM Pacific
-
-let selectedAwardsWeek = 1;
-let latestCompletedAwardsWeek = 0;
-let bulletinMode = "preseason";
-let cachedPlayersById = null;
-let cachedLeagueSettings = null;
-let latestLiveBulletinPayload = null;
-let bulletinRequestToken = 0;
-
-
-/* =========================================================
-   PACIFIC TIME HELPERS
-   ========================================================= */
-
-function getPacificClockParts(date = new Date()) {
-    const formatter = new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/Los_Angeles",
-        weekday: "short",
-        hour: "2-digit",
-        hour12: false
-    });
-
-    const parts = Object.fromEntries(
-        formatter
-            .formatToParts(date)
-            .map(part => [part.type, part.value])
-    );
-
-    return {
-        weekday: parts.weekday,
-        hour: Number(parts.hour) || 0
-    };
-}
-
-
-/* =========================================================
-   BULLETIN MODE HELPERS
-   ========================================================= */
-
-function shouldShowLiveLeagueWatch(date = new Date()) {
-    const { weekday, hour } = getPacificClockParts(date);
-
-    /*
-        Live League Watch runs from Thursday at 5:00 PM Pacific
-        through Monday night.
-    */
-    if (["Fri", "Sat", "Sun", "Mon"].includes(weekday)) {
-        return true;
     }
 
-    return (
-        weekday === "Thu" &&
-        hour >= BULLETIN_LIVE_START_HOUR_PT
-    );
-}
 
-function getAnnualNflSeasonStartDate(year) {
-    /* September 3 at 12:00 AM Pacific. The site uses the date as the
-       annual transition point; the live NFL schedule continues to come
-       from Sleeper once the regular-season screen is active. */
-    return new Date(`${year}-09-03T00:00:00-07:00`);
-}
+    /* =========================================================
+       FIND GOOGLE SHEET MATCHUP STAT
+       ========================================================= */
 
-function hasNflSeasonStarted(date = new Date()) {
-    const year = date.getFullYear();
-    return date.getTime() >= getAnnualNflSeasonStartDate(year).getTime();
-}
-
-async function getLatestCompletedWeek(displayWeek) {
-    const week = Math.max(
-        SCOREBOARD_MIN_WEEK,
-        Math.min(
-            Number(displayWeek) || SCOREBOARD_MIN_WEEK,
-            SCOREBOARD_MAX_WEEK
-        )
-    );
-
-    /*
-        The key distinction is timing:
-
-        • Thursday 5 PM through Monday = the current fantasy week is live,
-          so the latest completed week is normally the previous week.
-
-        • Tuesday/Wednesday = the most recent fantasy week has finished,
-          so it may already be the latest completed week.
-
-        Sleeper can advance display_week before the first game of the new
-        week has scored, so we verify the candidate week with its actual
-        matchup data. If it has no scoring yet, we walk backward until we
-        find the latest week with official points.
-    */
-    let candidateWeek = shouldShowLiveLeagueWatch(new Date())
-        ? week - 1
-        : week;
-
-    candidateWeek = Math.min(
-        candidateWeek,
-        SCOREBOARD_MAX_WEEK
-    );
-
-    if (candidateWeek < SCOREBOARD_MIN_WEEK) {
-        return 0;
-    }
-
-    for (
-        let checkWeek = candidateWeek;
-        checkWeek >= SCOREBOARD_MIN_WEEK;
-        checkWeek--
+    function findBulletinStat(
+        stats,
+        manager,
+        opponent
     ) {
-        try {
-            const matchups = await fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/matchups/${checkWeek}?_=${Date.now()}`
+
+        const managerName =
+            translateManagerName(
+                manager
             );
 
-            if (matchupWeekHasScoring(matchups)) {
-                return checkWeek;
-            }
-        } catch (error) {
-            console.warn(
-                `Unable to verify completed scoring for Week ${checkWeek}:`,
-                error
-            );
-        }
-    }
-
-    return 0;
-}
-
-function matchupWeekHasScoring(matchups) {
-    if (!Array.isArray(matchups) || matchups.length === 0) {
-        return false;
-    }
-
-    return matchups.some(matchup => {
-        const points = Number(matchup?.points);
-
-        return Number.isFinite(points) && points !== 0;
-    });
-}
-
-
-/* =========================================================
-   PRESEASON / WAITING DISPLAY
-   ========================================================= */
-
-function renderAwardsWaitingMessage({
-    title = "🏆 WEEKLY AWARDS",
-    main = "Weekly awards will begin after Week 1 is completed.",
-    sub = "Awards will appear automatically once official scores are available."
-} = {}) {
-    ensureLeagueBulletinShell();
-
-    bulletinMode = "preseason";
-
-    const target = document.getElementById(
-        "automated-bulletin-content"
-    );
-
-    if (!target) return;
-
-    target.className = "";
-
-    target.innerHTML = `
-        <div class="tcwr-news-header">
-            ${escapeBulletinHtml(title)}
-        </div>
-
-        ${bulletinStoryHtml({
-            className: "gold",
-            title: "⏳ Awards Pending",
-            main,
-            sub
-        })}
-    `;
-}
-
-
-/* =========================================================
-   BULLETIN STORY TEMPLATE
-   ========================================================= */
-
-function bulletinStoryHtml({
-    className,
-    title,
-    main,
-    sub = ""
-}) {
-    return `
-        <article class="tcwr-story ${className}">
-            <div class="tcwr-story-title">
-                ${escapeBulletinHtml(title)}
-            </div>
-
-            <div class="tcwr-story-main">
-                ${escapeBulletinHtml(main)}
-            </div>
-
-            ${
-                sub
-                    ? `
-                        <div class="tcwr-story-sub">
-                            ${escapeBulletinHtml(sub)}
-                        </div>
-                    `
-                    : ""
-            }
-        </article>
-    `;
-}
-
-
-/* =========================================================
-   SCOREBOARD-TO-BULLETIN UPDATE
-   ========================================================= */
-
-async function updateAutomatedBulletinFromScoreboard(
-    analyzedMatchups,
-    week,
-    sleeperDisplayWeek
-) {
-    latestLiveBulletinPayload = {
-        analyzedMatchups,
-        week,
-        sleeperDisplayWeek
-    };
-
-    if (!hasNflSeasonStarted()) {
-        return;
-    }
-
-    const showLive = shouldShowLiveLeagueWatch();
-
-    /*
-        Keep the bulletin synchronized with the Pacific-time schedule
-        while the page remains open. The scoreboard refreshes every
-        minute, so this also catches the Tuesday 12:00 AM and Thursday
-        5:00 PM transitions without requiring a page reload.
-    */
-    if (showLive) {
-        if (bulletinMode !== "live") {
-            loadLiveBulletinWeek(sleeperDisplayWeek || week);
-            return;
-        }
-
-        renderLiveLeagueWatch(
-            analyzedMatchups,
-            week
-        );
-        return;
-    }
-
-    if (bulletinMode === "awards") {
-        return;
-    }
-
-    const latestWeek = await getLatestCompletedWeek(
-        sleeperDisplayWeek || week
-    );
-
-    if (latestWeek < SCOREBOARD_MIN_WEEK) {
-        renderAwardsWaitingMessage();
-        return;
-    }
-
-    selectedAwardsWeek = latestWeek;
-
-    loadWeeklyAwards(
-        selectedAwardsWeek,
-        sleeperDisplayWeek || week
-    );
-}
-
-
-/* =========================================================
-   LIVE LEAGUE WATCH
-   ========================================================= */
-
-function renderLiveLeagueWatch(
-    analyzedMatchups,
-    week
-) {
-    ensureLeagueBulletinShell();
-
-    bulletinMode = "live";
-
-    const target = document.getElementById(
-        "automated-bulletin-content"
-    );
-
-    if (!target) return;
-
-    const activeMatchups = analyzedMatchups.filter(
-        matchup => matchup.gamesStarted
-    );
-
-    const matchupMargins = activeMatchups
-        .map(matchup => ({
-            ...matchup,
-            liveMargin: Math.abs(
-                matchup.pointsA -
-                matchup.pointsB
-            )
-        }));
-
-    const blowout = [...matchupMargins]
-        .sort(
-            (matchupA, matchupB) =>
-                matchupB.liveMargin -
-                matchupA.liveMargin
-        )[0];
-
-    const nailBiter = [...matchupMargins]
-        .sort(
-            (matchupA, matchupB) =>
-                matchupA.liveMargin -
-                matchupB.liveMargin
-        )[0];
-
-    let stories = "";
-
-    if (blowout) {
-        const leader =
-            blowout.pointsA >= blowout.pointsB
-                ? blowout.nameA
-                : blowout.nameB;
-
-        const trailing =
-            leader === blowout.nameA
-                ? blowout.nameB
-                : blowout.nameA;
-
-        stories += bulletinStoryHtml({
-            className: "orange",
-            title: "💥 Blowout Watch",
-
-            main:
-                `@${leader} leads ` +
-                `@${trailing} by ` +
-                `${blowout.liveMargin.toFixed(1)}`,
-
-            sub:
-                `${blowout.pointsA.toFixed(1)}–` +
-                `${blowout.pointsB.toFixed(1)}`
-        });
-
-        if (nailBiter) {
-            const nailLeader =
-                nailBiter.pointsA >= nailBiter.pointsB
-                    ? nailBiter.nameA
-                    : nailBiter.nameB;
-
-            const nailTrailer =
-                nailLeader === nailBiter.nameA
-                    ? nailBiter.nameB
-                    : nailBiter.nameA;
-
-            stories += bulletinStoryHtml({
-                className: "blue",
-                title: "⚔️ Nail Biter",
-
-                main:
-                    `@${nailLeader} leads ` +
-                    `@${nailTrailer} by ` +
-                    `${nailBiter.liveMargin.toFixed(1)}`,
-
-                sub:
-                    `${nailBiter.pointsA.toFixed(1)}–` +
-                    `${nailBiter.pointsB.toFixed(1)}`
-            });
-        }
-    } else {
-        stories += bulletinStoryHtml({
-            className: "orange",
-            title: "💥 Blowout Watch",
-            main: "Waiting for live scoring.",
-            sub: "The largest active scoring margin will appear here."
-        });
-
-        stories += bulletinStoryHtml({
-            className: "blue",
-            title: "⚔️ Nail Biter",
-            main: "Waiting for live scoring.",
-            sub: "The closest active matchup will appear here."
-        });
-    }
-
-    target.className = "";
-
-    target.innerHTML = `
-        <div class="tcwr-news-header">
-            LIVE LEAGUE WATCH • WEEK ${week}
-        </div>
-
-        ${stories}
-    `;
-}
-
-
-/* =========================================================
-   INITIALIZE AUTOMATED BULLETIN
-   ========================================================= */
-
-async function initializeLeagueBulletin() {
-    ensureLeagueBulletinShell();
-    loadBulletin();
-
-    if (await hasFantasySeasonEnded()) {
-        await renderEndOfSeasonState();
-        return;
-    }
-
-    /*
-        Do not load live watches or weekly awards
-        before the official NFL kickoff date.
-    */
-    if (!hasNflSeasonStarted()) {
-        renderAwardsWaitingMessage({
-            main: "The season has not started yet.",
-            sub: "Weekly awards will begin after Week 1 is completed."
-        });
-
-        return;
-    }
-
-    const displayWeek =
-        await getSleeperCurrentWeek();
-
-    latestCompletedAwardsWeek =
-        await getLatestCompletedWeek(displayWeek);
-
-    /*
-        During the live portion of the week, show
-        the live league watch—even during Week 1.
-    */
-    if (shouldShowLiveLeagueWatch()) {
-        await loadLiveBulletinWeek(displayWeek);
-        return;
-    }
-
-    /*
-        If Sleeper is still displaying Week 1,
-        there is no completed week available.
-    */
-    if (latestCompletedAwardsWeek < SCOREBOARD_MIN_WEEK) {
-        renderAwardsWaitingMessage();
-        return;
-    }
-
-    selectedAwardsWeek =
-        latestCompletedAwardsWeek;
-
-    await loadWeeklyAwards(
-        selectedAwardsWeek,
-        displayWeek
-    );
-}
-
-
-/* =========================================================
-   LOAD LIVE BULLETIN
-   ========================================================= */
-
-async function loadLiveBulletinWeek(week) {
-    if (!hasNflSeasonStarted()) {
-        renderAwardsWaitingMessage({
-            main: "The season has not started yet.",
-            sub: "Live league coverage begins when Week 1 starts."
-        });
-
-        return;
-    }
-
-    const requestToken =
-        ++bulletinRequestToken;
-
-    const target = document.getElementById(
-        "automated-bulletin-content"
-    );
-
-    if (target) {
-        target.className = "tcwr-empty";
-        target.textContent =
-            `Loading Week ${week} live watch...`;
-    }
-
-    try {
-        const [
-            matchups,
-            users,
-            rosters,
-            stats
-        ] = await Promise.all([
-            fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/matchups/${week}`
-            ),
-
-            fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/users`
-            ),
-
-            fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/rosters`
-            ),
-
-            fetchCsvRows(csvUrl)
-        ]);
-
-        if (
-            requestToken !==
-            bulletinRequestToken
-        ) {
-            return;
-        }
-
-        const analyzed =
-            analyzeBulletinMatchups(
-                matchups,
-                users,
-                rosters,
-                stats
+        const opponentName =
+            translateManagerName(
+                opponent
             );
 
-        renderLiveLeagueWatch(
-            analyzed,
-            week
-        );
-    } catch (error) {
-        console.error(
-            "Live bulletin error:",
-            error
-        );
+        const managerLower =
+            managerName
+                .trim()
+                .toLowerCase();
 
-        if (target) {
-            target.innerHTML = `
-                <div class="tcwr-empty">
-                    Unable to load live league watch.
-                </div>
-            `;
-        }
-    }
-}
+        const opponentLower =
+            opponentName
+                .trim()
+                .toLowerCase();
 
 
-/* =========================================================
-   LOAD WEEKLY AWARDS
-   ========================================================= */
+        return (
+            stats || []
+        ).find(row => {
 
-async function loadWeeklyAwards(
-    week,
-    displayWeek = null
-) {
-    ensureLeagueBulletinShell();
+            const rowManager =
+                String(
+                    row.Manager || ""
+                )
+                .trim()
+                .toLowerCase();
 
-    /*
-        Extra safety check:
-        awards cannot load before kickoff.
-    */
-    if (!hasNflSeasonStarted()) {
-        renderAwardsWaitingMessage({
-            main: "The season has not started yet.",
-            sub: "Weekly awards will begin after Week 1 is completed."
-        });
+            const rowOpponent =
+                String(
+                    row.Opponent || ""
+                )
+                .trim()
+                .toLowerCase();
 
-        return;
-    }
 
-    const currentDisplayWeek =
-        displayWeek ||
-        await getSleeperCurrentWeek();
-
-    latestCompletedAwardsWeek =
-        await getLatestCompletedWeek(
-            currentDisplayWeek
-        );
-
-    /*
-        Sleeper Week 1 means there is no previous
-        completed week available for awards.
-    */
-    if (
-        latestCompletedAwardsWeek <
-        SCOREBOARD_MIN_WEEK
-    ) {
-        renderAwardsWaitingMessage();
-        return;
-    }
-
-    const requestedWeek =
-        Number(week) ||
-        latestCompletedAwardsWeek;
-
-    /*
-        Do not allow someone to navigate beyond
-        the latest completed week.
-    */
-    selectedAwardsWeek = Math.max(
-        SCOREBOARD_MIN_WEEK,
-        Math.min(
-            requestedWeek,
-            latestCompletedAwardsWeek
-        )
-    );
-
-    bulletinMode = "awards";
-
-    const target = document.getElementById(
-        "automated-bulletin-content"
-    );
-
-    if (!target) return;
-
-    const requestToken =
-        ++bulletinRequestToken;
-
-    target.className = "tcwr-empty";
-    target.textContent =
-        `Loading Week ${selectedAwardsWeek} awards...`;
-
-    try {
-        const [
-            matchups,
-            users,
-            rosters,
-            stats,
-            league
-        ] = await Promise.all([
-            fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/matchups/` +
-                `${selectedAwardsWeek}`
-            ),
-
-            fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/users`
-            ),
-
-            fetchJson(
-                `https://api.sleeper.app/v1/league/` +
-                `${leagueId}/rosters`
-            ),
-
-            fetchCsvRows(csvUrl),
-
-            getLeagueSettings()
-        ]);
-
-        if (
-            requestToken !==
-            bulletinRequestToken
-        ) {
-            return;
-        }
-
-        /*
-            Do not calculate fake zero-point awards.
-        */
-        if (!matchupWeekHasScoring(matchups)) {
-            renderAwardsWaitingMessage({
-                main:
-                    `Week ${selectedAwardsWeek} ` +
-                    `does not have completed scoring yet.`,
-
-                sub:
-                    "Awards will appear automatically once official scores are available."
-            });
-
-            return;
-        }
-
-        const awards =
-            await calculateWeeklyAwards(
-                matchups,
-                users,
-                rosters,
-                stats,
-                league
+            return (
+                rowManager ===
+                    managerLower &&
+                rowOpponent ===
+                    opponentLower
             );
 
-        if (
-            requestToken !==
-            bulletinRequestToken
-        ) {
-            return;
-        }
+        }) || null;
 
-        renderWeeklyAwards(
-            awards,
-            selectedAwardsWeek
-        );
-    } catch (error) {
-        console.error(
-            "Weekly awards error:",
-            error
-        );
-
-        target.innerHTML = `
-            <div class="tcwr-empty">
-                Unable to load weekly awards.
-            </div>
-        `;
-    }
-}
-function renderWeeklyAwards(awards, week) {
-    const target = document.getElementById("automated-bulletin-content");
-    if (!target) return;
-
-    const previousDisabled = week <= SCOREBOARD_MIN_WEEK;
-    const nextDisabled = week >= latestCompletedAwardsWeek;
-    const row = award => bulletinStoryHtml(award);
-
-    target.className = "";
-    target.innerHTML = `
-        <div class="tcwr-news-header">🏆 WEEKLY AWARDS</div>
-        <div class="tcwr-award-nav">
-            <button id="awards-prev-week" type="button" ${previousDisabled ? "disabled" : ""} aria-label="Previous awards week">←</button>
-            <div class="tcwr-award-week">Week ${week}</div>
-            <button id="awards-next-week" type="button" ${nextDisabled ? "disabled" : ""} aria-label="Next awards week">→</button>
-        </div>
-        ${row({ className:"gold", title:"👑 Manager of the Week", main:`@${awards.managerOfWeek.name}`, sub:`${awards.managerOfWeek.points.toFixed(1)} pts` })}
-        ${row({ className:"gold", title:"🥈 1st Loser", main:`@${awards.firstLoser.name}`, sub:`${awards.firstLoser.points.toFixed(1)} pts` })}
-        ${row({ className:"gold", title:"🥉 2nd Loser", main:`@${awards.secondLoser.name}`, sub:`${awards.secondLoser.points.toFixed(1)} pts` })}
-        ${row({ className:"green", title:"🍀 Luckiest Win", main:`@${awards.luckiestWin.name} ${awards.luckiestWin.points.toFixed(1)} pts`, sub:awards.luckiestWin.note })}
-        ${row({ className:"purple", title:"🎯 Overachiever", main:awards.overachiever.main, sub:awards.overachiever.sub })}
-        ${row({ className:"blue", title:"🎯 Sharpshooter", main:awards.sharpshooter.main, sub:awards.sharpshooter.sub })}
-        ${row({ className:"orange", title:"⚔️ Rivalry Winner", main:awards.rivalryWinner.main, sub:awards.rivalryWinner.sub })}
-    `;
-
-    document.getElementById("awards-prev-week")?.addEventListener("click", () => {
-        if (selectedAwardsWeek > SCOREBOARD_MIN_WEEK) loadWeeklyAwards(selectedAwardsWeek - 1);
-    });
-    document.getElementById("awards-next-week")?.addEventListener("click", () => {
-        if (selectedAwardsWeek < latestCompletedAwardsWeek) loadWeeklyAwards(selectedAwardsWeek + 1);
-    });
-}
-
-async function calculateWeeklyAwards(matchupsRaw, users, rosters, stats, league) {
-    const userLookup = Object.fromEntries(users.map(user => [user.user_id, user.display_name || "Unknown"]));
-    const rosterNames = Object.fromEntries(rosters.map(roster => [roster.roster_id, (userLookup[roster.owner_id] || `Team ${roster.roster_id}`).replace("@", "").trim()]));
-    const entries = matchupsRaw.map(matchup => ({
-        raw: matchup,
-        rosterId: matchup.roster_id,
-        matchupId: matchup.matchup_id,
-        name: rosterNames[matchup.roster_id] || `Team ${matchup.roster_id}`,
-        points: Number(matchup.points) || 0,
-        projection: extractSleeperProjection(matchup)
-    }));
-
-    const sortedScores = [...entries].sort((a, b) => b.points - a.points);
-    const fallback = sortedScores[0] || { name:"Unavailable", points:0 };
-    const managerOfWeek = sortedScores[0] || fallback;
-    const firstLoser = sortedScores[1] || fallback;
-    const secondLoser = sortedScores[2] || fallback;
-
-    const grouped = {};
-    entries.forEach(entry => {
-        if (entry.matchupId == null) return;
-        (grouped[entry.matchupId] ||= []).push(entry);
-    });
-
-    const winners = Object.values(grouped)
-        .filter(pair => pair.length >= 2)
-        .map(pair => [...pair].sort((a, b) => b.points - a.points)[0])
-        .sort((a, b) => a.points - b.points);
-    const luckiestWin = winners[0] || fallback;
-    luckiestWin.note = "Lowest score among winning teams";
-
-    const historicalAverageFor = name => {
-        const translated = nameTranslator[name] || name;
-        const rows = stats.filter(row => String(row.Manager || "").trim().toLowerCase() === translated.toLowerCase());
-        const values = rows.map(row => Number(row.AvgPts)).filter(Number.isFinite);
-        return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
-    };
-
-    const overachieverCandidates = entries.map(entry => {
-        const baseline = entry.projection ?? historicalAverageFor(entry.name);
-        return { ...entry, baseline, over: baseline == null ? null : entry.points - baseline };
-    }).filter(entry => entry.over != null).sort((a, b) => b.over - a.over);
-    const over = overachieverCandidates[0];
-    const overachiever = over ? {
-        main: `@${over.name} • Projected ${over.baseline.toFixed(1)} • Scored ${over.points.toFixed(1)}`,
-        sub: `${over.over >= 0 ? "+" : ""}${over.over.toFixed(1)} points above projection`
-    } : { main:"Projection data unavailable", sub:"This award will populate when projection or historical-average data is available." };
-
-    const sharpshooter = await calculateSharpshooter(entries, league);
-    const rivalryWinner = calculateRivalryWinner(entries, grouped, stats);
-
-    return { managerOfWeek, firstLoser, secondLoser, luckiestWin, overachiever, sharpshooter, rivalryWinner };
-}
-
-/* =========================================================
-   RIVALRY OF THE WEEK SELECTION
-
-   The Rivalry of the Week is now determined by the CLOSEST
-   CURRENT-WEEK MATCHUP based on the live Sleeper scores.
-
-   1. Smallest current point differential wins.
-   2. If tied, highest combined current score wins.
-   3. If still tied, smallest average-score gap wins.
-   4. If still tied, matchup ID breaks the tie.
-
-   H2H is NO LONGER used to decide which matchup is the rivalry.
-   H2H from the Google Sheet is still displayed on the card
-   when available.
-   ========================================================= */
-function selectDesignatedRivalry(candidates) {
-    const eligible = (candidates || [])
-        .filter(matchup => matchup && Number.isFinite(Number(matchup.pointsA)) && Number.isFinite(Number(matchup.pointsB)))
-        .sort((a, b) => {
-            const pointDifferentialA = Math.abs(Number(a.pointsA) - Number(a.pointsB));
-            const pointDifferentialB = Math.abs(Number(b.pointsA) - Number(b.pointsB));
-
-            const combinedPointsA = Number(a.pointsA) + Number(a.pointsB);
-            const combinedPointsB = Number(b.pointsA) + Number(b.pointsB);
-
-            return pointDifferentialA - pointDifferentialB ||
-                combinedPointsB - combinedPointsA ||
-                Number(a.averageGap ?? Math.abs(Number(a.avgA || 0) - Number(a.avgB || 0))) -
-                Number(b.averageGap ?? Math.abs(Number(b.avgA || 0) - Number(b.avgB || 0))) ||
-                String(a.matchId).localeCompare(String(b.matchId));
-        });
-
-    return eligible[0] || null;
-}
-
-function calculateRivalryWinner(entries, grouped, stats) {
-    const candidates = [];
-
-    const historicalAverageFor = name => {
-        const translated = nameTranslator[name] || name;
-        const rows = stats.filter(row =>
-            String(row.Manager || "").trim().toLowerCase() === translated.trim().toLowerCase()
-        );
-        const values = rows
-            .map(row => Number(row.AvgPts))
-            .filter(Number.isFinite);
-        return values.length
-            ? values.reduce((sum, value) => sum + value, 0) / values.length
-            : 0;
-    };
-
-    Object.values(grouped).forEach(pair => {
-        if (pair.length < 2) return;
-
-        const [a, b] = pair;
-        const rowA = findBulletinStat(stats, a.name, b.name);
-        const rowB = findBulletinStat(stats, b.name, a.name);
-        const record = rowA?.H2H_Record || rowB?.H2H_Record;
-        const parsed = parseBulletinH2H(record);
-
-        const avgA = Number(rowA?.AvgPts);
-        const avgB = Number(rowB?.AvgPts);
-        const safeAvgA = Number.isFinite(avgA) ? avgA : historicalAverageFor(a.name);
-        const safeAvgB = Number.isFinite(avgB) ? avgB : historicalAverageFor(b.name);
-
-        candidates.push({
-            matchId: a.matchupId,
-            nameA: a.name,
-            nameB: b.name,
-            pointsA: a.points,
-            pointsB: b.points,
-            rivalryPointDifferential: Math.abs(Number(a.points) - Number(b.points)),
-            avgA: safeAvgA,
-            avgB: safeAvgB,
-            rivalryH2H: parsed,
-            rivalryCloseness: Math.abs(parsed.wins - parsed.losses),
-            combinedAverage: safeAvgA + safeAvgB,
-            a,
-            b
-        });
-    });
-
-    const rivalry = selectDesignatedRivalry(candidates);
-
-    if (!rivalry) {
-        return {
-            main: "No designated rivalry was found",
-            sub: ""
-        };
     }
 
-    if (rivalry.pointsA === rivalry.pointsB) {
-        return {
-            main: `@${rivalry.nameA} tied @${rivalry.nameB}`,
-            sub: `${rivalry.pointsA.toFixed(1)}–${rivalry.pointsB.toFixed(1)}`
-        };
-    }
 
-    const winner = rivalry.pointsA > rivalry.pointsB
-        ? rivalry.nameA
-        : rivalry.nameB;
-    const loser = rivalry.pointsA > rivalry.pointsB
-        ? rivalry.nameB
-        : rivalry.nameA;
-    const winnerPoints = Math.max(rivalry.pointsA, rivalry.pointsB);
-    const loserPoints = Math.min(rivalry.pointsA, rivalry.pointsB);
+    /* =========================================================
+       RIVALRY OF THE WEEK SELECTION
 
-    return {
-        main: `@${winner} defeated @${loser}`,
-        sub: `${winnerPoints.toFixed(1)}–${loserPoints.toFixed(1)}`
-    };
-}
+       🚨 THIS IS THE IMPORTANT CHANGE 🚨
 
-async function calculateSharpshooter(entries, league) {
-    try {
-        const players = await getSleeperPlayers();
-        const lineupSlots = (league?.roster_positions || []).filter(slot => !["BN", "IR", "TAXI"].includes(slot));
-        if (!lineupSlots.length) throw new Error("No lineup slots available");
+       Rivalry of the Week is determined by the
+       CLOSEST CURRENT-WEEK MATCHUP.
 
-        const candidates = entries.map(entry => {
-            const pointsMap = entry.raw.players_points || {};
-            const actual = entry.points;
-            const playerPool = Object.keys(pointsMap).map(playerId => ({
-                id: playerId,
-                points: Number(pointsMap[playerId]) || 0,
-                position: players[playerId]?.position || ""
-            }));
-            const optimal = calculateOptimalLineupPoints(playerPool, lineupSlots);
-            return { ...entry, left: Math.max(0, optimal - actual) };
-        }).sort((a, b) => a.left - b.left || b.points - a.points);
+       It does NOT matter how many times the teams
+       have played before.
 
-        const best = candidates[0];
-        if (!best) throw new Error("No lineup data");
-        return { main:`@${best.name} left only ${best.left.toFixed(1)} pts on the bench.`, sub:"Best lineup efficiency of the week" };
-    } catch (error) {
-        console.warn("Sharpshooter calculation unavailable:", error);
-        return { main:"Lineup efficiency data unavailable", sub:"This will populate when Sleeper posts complete player scoring data." };
-    }
-}
+       It does NOT matter who has the better H2H record.
 
-function calculateOptimalLineupPoints(players, slots) {
-    const eligible = slots.map(slot => players
-        .filter(player => isEligibleForSlot(player.position, slot))
-        .sort((a, b) => b.points - a.points)
-        .slice(0, 12));
-    let best = 0;
+       It does NOT matter who has the largest career
+       point differential.
 
-    function search(slotIndex, used, total) {
-        if (slotIndex >= slots.length) {
-            best = Math.max(best, total);
-            return;
-        }
-        const options = eligible[slotIndex];
-        search(slotIndex + 1, used, total);
-        for (const player of options) {
-            if (used.has(player.id)) continue;
-            used.add(player.id);
-            search(slotIndex + 1, used, total + player.points);
-            used.delete(player.id);
-        }
-    }
-    search(0, new Set(), 0);
-    return best;
-}
+       The current Sleeper score determines the rivalry.
 
-function isEligibleForSlot(position, slot) {
-    const maps = {
-        QB:["QB"], RB:["RB"], WR:["WR"], TE:["TE"], K:["K"], DEF:["DEF"], DL:["DL"], LB:["LB"], DB:["DB"],
-        FLEX:["RB","WR","TE"], WRT:["RB","WR","TE"], REC_FLEX:["WR","TE"], WRRB_FLEX:["WR","RB"],
-        SUPER_FLEX:["QB","RB","WR","TE"], IDP_FLEX:["DL","LB","DB"]
-    };
-    return (maps[slot] || [slot]).includes(position);
-}
+       Priority:
 
-async function getSleeperPlayers() {
-    if (cachedPlayersById) return cachedPlayersById;
-    cachedPlayersById = await fetchJson("https://api.sleeper.app/v1/players/nfl");
-    return cachedPlayersById;
-}
+       1. Smallest current point differential
+       2. Highest combined current score
+       3. Smallest historical average-score gap
+       4. Matchup ID as final deterministic tiebreaker
 
-async function getLeagueSettings() {
-    if (cachedLeagueSettings) return cachedLeagueSettings;
-    cachedLeagueSettings = await fetchJson(`https://api.sleeper.app/v1/league/${leagueId}`);
-    return cachedLeagueSettings;
-}
+       ========================================================= */
 
-function analyzeBulletinMatchups(matchupsRaw, users, rosters, stats) {
-    const userLookup = Object.fromEntries(users.map(user => [user.user_id, user.display_name || "Unknown"]));
-    const nameMap = Object.fromEntries(rosters.map(roster => [roster.roster_id, userLookup[roster.owner_id] || "Unknown"]));
-    const groups = {};
-    matchupsRaw.forEach(matchup => {
-        if (matchup.matchup_id == null) return;
-        (groups[matchup.matchup_id] ||= []).push(matchup);
-    });
-
-    return Object.entries(groups).filter(([, pair]) => pair.length >= 2).map(([matchId, pair]) => {
-        const nameA = (nameMap[pair[0].roster_id] || `Team ${pair[0].roster_id}`).replace("@", "").trim();
-        const nameB = (nameMap[pair[1].roster_id] || `Team ${pair[1].roster_id}`).replace("@", "").trim();
-        const statA = findBulletinStat(stats, nameA, nameB);
-        const statB = findBulletinStat(stats, nameB, nameA);
-        const avgA = Number(statA?.AvgPts) || 0;
-        const avgB = Number(statB?.AvgPts) || 0;
-        const pointsA = Number(pair[0].points) || 0;
-        const pointsB = Number(pair[1].points) || 0;
-        return {
-            matchId, nameA, nameB, pointsA, pointsB, avgA, avgB,
-            statisticalFavorite: avgA === avgB ? null : (avgA > avgB ? nameA : nameB),
-            liveLeader: pointsA === pointsB ? null : (pointsA > pointsB ? nameA : nameB),
-            gamesStarted: pointsA !== 0 || pointsB !== 0
-        };
-    });
-}
-
-function findBulletinStat(stats, managerName, opponentName) {
-    const translatedManager = nameTranslator[managerName] || managerName;
-    return stats.find(row =>
-        String(row.Manager || "").trim().toLowerCase() === translatedManager.trim().toLowerCase() &&
-        String(row.Opponent || "").trim().toLowerCase() === `@${opponentName}`.toLowerCase()
-    );
-}
-
-function parseBulletinH2H(record) {
-    const parts = String(record || "0-0").replace(/[–—−]/g, "-").split("-").map(value => Number.parseInt(value, 10) || 0);
-    const wins = parts[0] || 0;
-    const losses = parts[1] || 0;
-    const ties = parts[2] || 0;
-    return { wins, losses, ties, total:wins + losses + ties };
-}
-
-async function fetchJson(url) {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`${url} returned ${response.status}`);
-    return response.json();
-}
-
-function fetchCsvRows(url) {
-    return new Promise((resolve, reject) => {
-        Papa.parse(url, {
-            download:true,
-            header:true,
-            skipEmptyLines:true,
-            complete:results => resolve(results.data || []),
-            error:reject
-        });
-    });
-}
-
-
-/* =========================================================
-   END-OF-SEASON CHAMPIONSHIP + AWARDS
-   ========================================================= */
-
-function getCurrentSeasonYear(league = {}) {
-    return String(league?.season || new Date().getFullYear());
-}
-
-function getManagerDisplayName(user) {
-    return String(user?.display_name || user?.metadata?.team_name || "Unknown")
-        .replace("@", "").trim();
-}
-
-function getFriendlyManagerName(user) {
-    const rawName = getManagerDisplayName(user);
-    return String(nameTranslator[rawName] || rawName).replace("@", "").trim();
-}
-
-function getFriendlyManagerNameFromMap(name) {
-    const rawName = String(name || "").replace("@", "").trim();
-    return String(nameTranslator[rawName] || rawName).replace("@", "").trim();
-}
-
-function getTeamDisplayName(user) {
-    return String(user?.metadata?.team_name || user?.display_name || "Unnamed Team")
-        .replace("@", "").trim();
-}
-
-async function getRawSleeperWeek() {
-    try {
-        const state = await fetchJson("https://api.sleeper.app/v1/state/nfl");
-        return Number(state?.week ?? state?.display_week ?? state?.leg ?? 1) || 1;
-    } catch (error) {
-        console.warn("Unable to determine raw Sleeper week:", error);
-        return 1;
-    }
-}
-
-async function hasFantasySeasonEnded() {
-    return (await getRawSleeperWeek()) > FANTASY_SEASON_FINAL_WEEK;
-}
-
-function renderChampionCard(champion, season) {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return;
-
-    const safeName = escapeBulletinHtml(champion?.name || "Champion");
-    const safeTeam = escapeBulletinHtml(champion?.teamName || "");
-
-    container.innerHTML = `
-        <section class="tcwr-champion-card">
-            <div class="tcwr-champion-header">TCWR DY-NASTY</div>
-            <div class="tcwr-champion-content">
-                <img
-                    class="tcwr-champion-trophy"
-                    src="trophy3.jpeg"
-                    alt="TCWR Dy-NASTY Championship Trophy"
-                    onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
-                >
-                <div class="tcwr-champion-trophy-fallback" style="display:none;">🏆</div>
-                <div class="tcwr-champion-congrats">CONGRATULATIONS</div>
-                <div class="tcwr-champion-name">${safeName}</div>
-                ${safeTeam ? `<div class="tcwr-champion-team">${safeTeam}</div>` : ""}
-                <div class="tcwr-champion-label">${escapeBulletinHtml(season)} LEAGUE CHAMPION</div>
-            </div>
-        </section>
-    `;
-}
-
-function renderYearEndAwards(awards, season) {
-    const target = document.getElementById("automated-bulletin-content");
-    if (!target) return;
-
-    const row = (className, title, winner, detail) => `
-        <article class="tcwr-year-end-award ${className}">
-            <p class="tcwr-year-end-award-title">${title}</p>
-            <div class="tcwr-year-end-award-winner">${winner}</div>
-            <div class="tcwr-year-end-award-detail">${detail}</div>
-        </article>
-    `;
-
-    target.className = "";
-    target.innerHTML = `
-        <section class="tcwr-year-end-card">
-            <div class="tcwr-year-end-header">🏆 TCWR DY-NASTY AWARDS</div>
-            <div class="tcwr-year-end-subheader">
-                ${escapeBulletinHtml(season)} SEASON
-            </div>
-            ${row("manager","👑 Manager of the Year",awards.managerOfYear.winner,awards.managerOfYear.detail)}
-            ${row("improved","📈 Most Improved Manager",awards.mostImproved.winner,awards.mostImproved.detail)}
-            ${row("game","🔥 Game of the Year",awards.gameOfYear.winner,awards.gameOfYear.detail)}
-            ${row("player","🏅 Player of the Year",awards.playerOfYear.winner,awards.playerOfYear.detail)}
-        </section>
-    `;
-}
-
-function extractWeightedRankingScore(row) {
-    const keys = ["Weighted Score","WeightedScore","Weighted","Ranking Score","RankingScore","Score","score"];
-    for (const key of keys) {
-        const raw = String(row?.[key] ?? "").replace(/[^0-9.+-]/g, "");
-        const value = Number.parseFloat(raw);
-        if (Number.isFinite(value)) return value;
-    }
-    return null;
-}
-
-function normalizeRankingRows(rows) {
-    return (rows || []).map(row => ({
-        manager: String(row?.Manager ?? row?.manager ?? row?.Name ?? row?.name ?? row?.Team ?? row?.team ?? "").trim(),
-        score: extractWeightedRankingScore(row)
-    })).filter(row => row.manager && Number.isFinite(row.score));
-}
-
-function findRankingRow(rows, managerName) {
-    const targets = [
-        String(managerName || "").trim().toLowerCase(),
-        String(nameTranslator[managerName] || managerName).trim().toLowerCase()
-    ];
-    return rows.find(row => targets.includes(row.manager.toLowerCase()));
-}
-
-async function calculateMostImprovedManager(users, currentRankingRows) {
-    if (!PREVIOUS_RANKINGS_CSV_URL) {
-        return {
-            winner: "Previous ranking data unavailable",
-            detail: "Add the prior season's weighted-score CSV URL to PREVIOUS_RANKINGS_CSV_URL."
-        };
-    }
-
-    try {
-        const previousRows = normalizeRankingRows(await fetchCsvRows(PREVIOUS_RANKINGS_CSV_URL));
-        const currentRows = normalizeRankingRows(currentRankingRows);
-
-        const candidates = users.map(user => {
-            const manager = getFriendlyManagerName(user);
-            const current = findRankingRow(currentRows, manager);
-            const previous = findRankingRow(previousRows, manager);
-            if (!current || !previous) return null;
-
-            return {
-                manager,
-                previous: previous.score,
-                current: current.score,
-                improvement: current.score - previous.score
-            };
-        }).filter(Boolean);
-
-        candidates.sort((a,b) => b.improvement - a.improvement || b.current - a.current);
-        const best = candidates[0];
-
-        return best ? {
-            winner: best.manager,
-            detail: `${best.previous.toFixed(2)} → ${best.current.toFixed(2)} (${best.improvement >= 0 ? "+" : ""}${best.improvement.toFixed(2)})`
-        } : {
-            winner: "Ranking comparison unavailable",
-            detail: "Matching manager scores were not found in both seasons."
-        };
-    } catch (error) {
-        console.warn("Most Improved Manager calculation failed:", error);
-        return {
-            winner: "Ranking comparison unavailable",
-            detail: "The previous-season ranking source could not be loaded."
-        };
-    }
-}
-
-function calculateManagerOfYearFromMatchups(weeklyMatchups, rosterToUser) {
-    const wins = {};
-    const points = {};
-
-    weeklyMatchups.forEach(matchups => {
-        if (!matchupWeekHasScoring(matchups)) return;
-
-        const entries = matchups.map(matchup => ({
-            name: rosterToUser[matchup.roster_id] || `Team ${matchup.roster_id}`,
-            points: Number(matchup.points) || 0
-        })).sort((a,b) => b.points - a.points);
-
-        const winner = entries[0];
-        if (!winner) return;
-
-        wins[winner.name] = (wins[winner.name] || 0) + 1;
-        points[winner.name] = (points[winner.name] || 0) + winner.points;
-    });
-
-    const best = Object.keys(wins).map(name => ({
-        name, wins:wins[name], points:points[name] || 0
-    })).sort((a,b) => b.wins - a.wins || b.points - a.points)[0];
-
-    return best ? {
-        winner: best.name,
-        detail: `${best.wins} Manager of the Week award${best.wins === 1 ? "" : "s"}`
-    } : {
-        winner:"Unavailable",
-        detail:"No completed weekly scoring data is available."
-    };
-}
-
-function calculateGameOfYearFromMatchups(weeklyMatchups, rosterToUser) {
-    const games = [];
-
-    weeklyMatchups.forEach((matchups, weekIndex) => {
-        const groups = {};
-        matchups.forEach(matchup => {
-            if (matchup.matchup_id == null) return;
-            (groups[matchup.matchup_id] ||= []).push(matchup);
-        });
-
-        Object.values(groups).forEach(pair => {
-            if (pair.length < 2) return;
-            const a = pair[0], b = pair[1];
-            const pointsA = Number(a.points) || 0;
-            const pointsB = Number(b.points) || 0;
-            if (pointsA === 0 && pointsB === 0) return;
-
-            games.push({
-                week:weekIndex + 1,
-                nameA:getFriendlyManagerNameFromMap(rosterToUser[a.roster_id] || `Team ${a.roster_id}`),
-                nameB:getFriendlyManagerNameFromMap(rosterToUser[b.roster_id] || `Team ${b.roster_id}`),
-                pointsA, pointsB,
-                margin:Math.abs(pointsA - pointsB),
-                total:pointsA + pointsB
-            });
-        });
-    });
-
-    const best = games.sort((a,b) => a.margin - b.margin || b.total - a.total)[0];
-
-    return best ? {
-        winner:`Week ${best.week}: @${best.nameA} vs. @${best.nameB}`,
-        detail:`${best.pointsA.toFixed(1)}–${best.pointsB.toFixed(1)} • ${best.margin.toFixed(2)}-point margin`
-    } : {
-        winner:"Unavailable",
-        detail:"No completed matchup scoring is available."
-    };
-}
-
-function calculatePlayerOfYearFromMatchups(weeklyMatchups, rosterToUser, players) {
-    const totals = {};
-
-    weeklyMatchups.forEach(matchups => {
-        matchups.forEach(matchup => {
-            Object.entries(matchup?.players_points || {}).forEach(([playerId,value]) => {
-                const points = Number(value) || 0;
-                if (!totals[playerId]) totals[playerId] = {points:0, rosterId:matchup.roster_id};
-                totals[playerId].points += points;
-                totals[playerId].rosterId = matchup.roster_id;
-            });
-        });
-    });
-
-    const best = Object.entries(totals).map(([playerId,data]) => {
-        const player = players?.[playerId] || {};
-        return {
-            name:player.full_name || [player.first_name,player.last_name].filter(Boolean).join(" ") || playerId,
-            points:data.points,
-            manager:getFriendlyManagerNameFromMap(rosterToUser[data.rosterId] || `Team ${data.rosterId}`)
-        };
-    }).filter(player => player.points > 0).sort((a,b) => b.points - a.points)[0];
-
-    return best ? {
-        winner:best.name,
-        detail:`${best.points.toFixed(1)} fantasy points • Owned by @${best.manager}`
-    } : {
-        winner:"Unavailable",
-        detail:"No player scoring data is available yet."
-    };
-}
-
-async function calculateEndOfSeasonAwards() {
-    if (endOfSeasonAwardsCache) return endOfSeasonAwardsCache;
-
-    const [league,users,rosters] = await Promise.all([
-        getLeagueSettings(),
-        fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/users`),
-        fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
-    ]);
-
-    const weeklyMatchups = await Promise.all(
-        Array.from({length:FANTASY_SEASON_FINAL_WEEK},(_,index) => index + 1)
-            .map(week => fetchJson(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`))
-    );
-
-    const rawUserLookup = Object.fromEntries(users.map(user => [user.user_id,user]));
-    const rosterToUser = Object.fromEntries(rosters.map(roster => [
-        roster.roster_id,
-        rawUserLookup[roster.owner_id]
-            ? getFriendlyManagerName(rawUserLookup[roster.owner_id])
-            : `Team ${roster.roster_id}`
-    ]));
-
-    const rankingRows = await fetchCsvRows(csvUrl);
-    const players = await getSleeperPlayers();
-
-    const managerOfYear = calculateManagerOfYearFromMatchups(weeklyMatchups,rosterToUser);
-    const gameOfYear = calculateGameOfYearFromMatchups(weeklyMatchups,rosterToUser);
-    const playerOfYear = calculatePlayerOfYearFromMatchups(weeklyMatchups,rosterToUser,players);
-    const mostImproved = await calculateMostImprovedManager(users,rankingRows);
-
-    const winnerRosterId =
-        league?.metadata?.latest_league_winner_roster_id ??
-        league?.settings?.latest_league_winner_roster_id;
-
-    let winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerRosterId));
-
-    if (!winnerRoster) {
-        winnerRoster = [...rosters]
-            .filter(roster => Number.isFinite(Number(roster?.settings?.rank)))
-            .sort((a,b) => Number(a.settings.rank) - Number(b.settings.rank))[0];
-    }
-
-    if (!winnerRoster) {
-        const finalWeek = weeklyMatchups[FANTASY_SEASON_FINAL_WEEK - 1] || [];
-        const winnerEntry = [...finalWeek]
-            .sort((a,b) => (Number(b.points)||0) - (Number(a.points)||0))[0];
-        winnerRoster = rosters.find(roster => String(roster.roster_id) === String(winnerEntry?.roster_id));
-    }
-
-    const winnerUser = users.find(user => user.user_id === winnerRoster?.owner_id);
-    const champion = {
-        name:getFriendlyManagerName(winnerUser),
-        teamName:getTeamDisplayName(winnerUser)
-    };
-
-    const result = {
-        season:getCurrentSeasonYear(league),
-        champion,
-        managerOfYear,
-        mostImproved,
-        gameOfYear,
-        playerOfYear
-    };
-
-    endOfSeasonAwardsCache = result;
-    return result;
-}
-
-function setCenterColumnTitle(title) {
-    const titleElement = document.querySelector(".center-column .column-title");
-    if (titleElement) titleElement.textContent = title;
-}
-
-function getPacificDateParts(date = new Date()) {
-    const formatter = new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/Los_Angeles",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-    });
-
-    const parts = Object.fromEntries(
-        formatter.formatToParts(date).map(part => [part.type, part.value])
-    );
-
-    return {
-        year: Number(parts.year),
-        month: Number(parts.month),
-        day: Number(parts.day)
-    };
-}
-
-function isPacificDateOnOrAfter(date, month, day) {
-    const parts = getPacificDateParts(date);
-    return parts.month > month || (parts.month === month && parts.day >= day);
-}
-
-function isPacificDateBefore(date, month, day) {
-    const parts = getPacificDateParts(date);
-    return parts.month < month || (parts.month === month && parts.day < day);
-}
-
-function renderChampionRecapComingSoon() {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return;
-
-    stopKickoffCountdown();
-    clearScoreboardRefreshTimer();
-    setCenterColumnTitle("Champion Recap");
-
-    const seasonYear = getPacificDateParts().year;
-
-    container.innerHTML = `
-        <section class="tcwr-recap-coming-card">
-            <div class="tcwr-recap-coming-kicker">🏆 TCWR DY-NASTY</div>
-            <h2 class="tcwr-recap-coming-title">Champion Recap</h2>
-            <div class="tcwr-recap-coming-date">Check Back December 28</div>
-            <p class="tcwr-recap-coming-copy">
-                The ${seasonYear} fantasy season is complete. The Champion Recap will take over the screen on December 28.
-            </p>
-        </section>
-    `;
-}
-
-function renderChampionRecapTv() {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return;
-
-    stopKickoffCountdown();
-    clearScoreboardRefreshTimer();
-    setCenterColumnTitle("Champion Recap");
-
-    const playlistEmbedUrl =
-        `https://www.youtube.com/embed?listType=playlist` +
-        `&list=${encodeURIComponent(CHAMPION_RECAP_PLAYLIST_ID)}` +
-        `&autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1`;
-
-    container.innerHTML = `
-        <section class="tcwr-recap-tv-shell" aria-label="TCWR Champion Recap">
-            <img
-                class="tcwr-recap-tv-image"
-                src="retrotv.jpeg?v=1"
-                alt="Retro television frame for the TCWR Champion Recap"
-            >
-            <div class="tcwr-recap-tv-screen">
-                <iframe
-                    src="${playlistEmbedUrl}"
-                    title="TCWR Champion Recap"
-                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                    allowfullscreen
-                    referrerpolicy="strict-origin-when-cross-origin"
-                ></iframe>
-            </div>
-            <a
-                class="tcwr-recap-tv-fallback-link"
-                href="${CHAMPION_RECAP_PLAYLIST_URL}"
-                target="_blank"
-                rel="noopener noreferrer"
-            >Open playlist on YouTube</a>
-        </section>
-    `;
-}
-
-function getNextNflSeasonStartDate() {
-    const now = new Date();
-    const pacific = getPacificDateParts(now);
-    const targetYear =
-        pacific.month < NFL_SEASON_START_MONTH ||
-        (pacific.month === NFL_SEASON_START_MONTH && pacific.day < NFL_SEASON_START_DAY)
-            ? pacific.year
-            : pacific.year + 1;
-
-    return getAnnualNflSeasonStartDate(targetYear);
-}
-
-function createOffseasonCountdown() {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return null;
-
-    stopKickoffCountdown();
-    clearScoreboardRefreshTimer();
-    setCenterColumnTitle("Countdown to Football");
-    container.innerHTML = "";
-
-    const targetDate = getNextNflSeasonStartDate();
-    const targetYear = targetDate.getFullYear();
-
-    const countdownCard = document.createElement("section");
-    countdownCard.id = "nfl-kickoff-countdown";
-    countdownCard.className = "tcwr-offseason-card";
-
-    countdownCard.innerHTML = `
-        <div class="tcwr-offseason-kicker">🏈 TCWR DY-NASTY</div>
-        <h2 class="tcwr-offseason-title">Countdown to Football</h2>
-        <div class="tcwr-offseason-target">September 3, ${targetYear}</div>
-
-        <div id="kickoff-countdown-grid" class="tcwr-offseason-grid">
-            ${createCountdownUnit("days", "Days")}
-            ${createCountdownUnit("hours", "Hours")}
-            ${createCountdownUnit("minutes", "Minutes")}
-            ${createCountdownUnit("seconds", "Seconds")}
-        </div>
-
-        <p class="tcwr-offseason-note">
-            Until the next football season
-        </p>
-    `;
-
-    container.appendChild(countdownCard);
-    return countdownCard;
-}
-
-function createCountdownUnit(id, label) {
-    return `
-        <div class="tcwr-offseason-unit">
-            <div id="kickoff-${id}" class="tcwr-offseason-number">00</div>
-            <div class="tcwr-offseason-label">${label}</div>
-        </div>
-    `;
-}
-
-function updateKickoffCountdown() {
-    const target = getNextNflSeasonStartDate();
-    const remaining = target.getTime() - Date.now();
-
-    if (remaining <= 0) {
-        stopKickoffCountdown();
-        showScoreboardAfterKickoff();
-        return;
-    }
-
-    const days = Math.floor(remaining / 86400000);
-    const hours = Math.floor((remaining % 86400000) / 3600000);
-    const minutes = Math.floor((remaining % 3600000) / 60000);
-    const seconds = Math.floor((remaining % 60000) / 1000);
-
-    setCountdownValue("days", days);
-    setCountdownValue("hours", hours);
-    setCountdownValue("minutes", minutes);
-    setCountdownValue("seconds", seconds);
-}
-
-function setCountdownValue(id, value) {
-    const element = document.getElementById(`kickoff-${id}`);
-    if (element) {
-        element.textContent = String(value).padStart(2, "0");
-    }
-}
-
-function stopKickoffCountdown() {
-    if (nflKickoffCountdownTimer) {
-        clearInterval(nflKickoffCountdownTimer);
-        nflKickoffCountdownTimer = null;
-    }
-}
-
-async function showScoreboardAfterKickoff() {
-    const container = document.getElementById("scoreboard-container");
-    if (container) container.innerHTML = "";
-
-    setCenterColumnTitle("Weekly Scoreboard & Predictions");
-
-    selectedScoreboardWeek = SCOREBOARD_TEST_MODE
-        ? SCOREBOARD_TEST_WEEK
-        : await getSleeperCurrentWeek();
-
-    await fetchScoreboard(selectedScoreboardWeek);
-    startScoreboardRefreshTimer();
-}
-
-async function getSeasonalCenterMode() {
-    const now = new Date();
-    const pacific = getPacificDateParts(now);
-
-    /* December 28 always begins the Champion Recap TV. */
-    if (
-        pacific.month > CHAMPION_RECAP_LIVE_MONTH ||
-        (pacific.month === CHAMPION_RECAP_LIVE_MONTH && pacific.day >= CHAMPION_RECAP_LIVE_DAY) ||
-        pacific.month === 1 ||
-        pacific.month === 2
+    function selectDesignatedRivalry(
+        candidates
     ) {
-        /* January and February are part of the Champion Recap window. */
-        if (pacific.month === 12 && pacific.day < CHAMPION_RECAP_LIVE_DAY) {
-            // December 1–27: fall through to the post-Week-14 check below.
-        } else if (pacific.month === 3 && pacific.day >= OFFSEASON_COUNTDOWN_DAY) {
-            return "offseason-countdown";
-        } else {
-            return "champion-recap";
-        }
-    }
 
-    /* March 12 through September 2 is the annual offseason countdown. */
-    if (
-        (pacific.month > OFFSEASON_COUNTDOWN_MONTH && pacific.month < NFL_SEASON_START_MONTH) ||
-        (pacific.month === OFFSEASON_COUNTDOWN_MONTH && pacific.day >= OFFSEASON_COUNTDOWN_DAY) ||
-        (pacific.month === NFL_SEASON_START_MONTH && pacific.day < NFL_SEASON_START_DAY)
-    ) {
-        return "offseason-countdown";
-    }
+        const eligible =
+            (candidates || [])
+                .filter(
+                    matchup =>
+                        matchup &&
+                        Number.isFinite(
+                            Number(
+                                matchup.pointsA
+                            )
+                        ) &&
+                        Number.isFinite(
+                            Number(
+                                matchup.pointsB
+                            )
+                        )
+                )
+                .sort(
+                    (a, b) => {
 
-    /* December 15-ish onward, once Sleeper has moved past fantasy Week 14,
-       shows the post-season waiting screen until December 28. */
-    if (await hasFantasySeasonEnded()) {
-        return "champion-coming-soon";
-    }
+                        const pointDifferentialA =
+                            Math.abs(
+                                Number(
+                                    a.pointsA
+                                ) -
+                                Number(
+                                    a.pointsB
+                                )
+                            );
 
-    return "scoreboard";
-}
-
-async function renderSeasonalCenterScreen() {
-    const mode = await getSeasonalCenterMode();
-
-    if (mode === "champion-coming-soon") {
-        renderChampionRecapComingSoon();
-        return;
-    }
-
-    if (mode === "champion-recap") {
-        renderChampionRecapTv();
-        return;
-    }
-
-    if (mode === "offseason-countdown") {
-        createOffseasonCountdown();
-        updateKickoffCountdown();
-        nflKickoffCountdownTimer = setInterval(updateKickoffCountdown, 1000);
-        return;
-    }
-
-    await showScoreboardAfterKickoff();
-}
-
-async function renderEndOfSeasonState() {
-    try {
-        const awards = await calculateEndOfSeasonAwards();
-
-        /* The right column keeps the year-end awards throughout the
-           Champion Recap and offseason portions of the calendar. */
-        renderYearEndAwards({
-            managerOfYear:awards.managerOfYear,
-            mostImproved:awards.mostImproved,
-            gameOfYear:awards.gameOfYear,
-            playerOfYear:awards.playerOfYear
-        },awards.season);
-    } catch (error) {
-        console.error("End-of-season awards error:",error);
-
-        const center = document.getElementById("scoreboard-container");
-        if (center) center.innerHTML = `<div style="padding:35px 20px;text-align:center;color:#f87171;">Unable to load end-of-season championship data.</div>`;
-
-        const right = document.getElementById("automated-bulletin-content");
-        if (right) right.innerHTML = `<div class="tcwr-empty">Unable to calculate year-end awards.</div>`;
-    }
-}
-
-/* =========================================================
-   SEASONAL CENTER-SCREEN INITIALIZATION
-   ========================================================= */
-
-async function initializeCountdownOrScoreboard() {
-    const mode = await getSeasonalCenterMode();
-
-    if (mode === "champion-coming-soon") {
-        renderChampionRecapComingSoon();
-        return;
-    }
-
-    if (mode === "champion-recap") {
-        renderChampionRecapTv();
-        return;
-    }
-
-    if (mode === "offseason-countdown") {
-        createOffseasonCountdown();
-        updateKickoffCountdown();
-        nflKickoffCountdownTimer = setInterval(updateKickoffCountdown, 1000);
-        return;
-    }
-
-    await showScoreboardAfterKickoff();
-}
-
-/* === REMOVE OLD PUSH-NOTIFICATION SERVICE WORKERS ===
-   Push notifications have been removed. This unregisters an old service
-   worker left behind by the previous notification experiment. */
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-        try {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(registrations.map(registration => registration.unregister()));
-            if (registrations.length > 0) {
-                console.log('Old TCWR service worker removed.');
-            }
-        } catch (error) {
-            console.warn('Unable to remove old service worker:', error);
-        }
-    });
-}
-
-/* === INITIALIZE SEASONAL CENTER SCREEN === */
-initializeCountdownOrScoreboard();
-    
-/* === 9. INITIALIZE PAGE === */
-initializeLeagueBulletin();
-fetchStandings();
+                        const pointDifferentialB =
+                            Math.abs(
+                                Number(
+                                    b.pointsA
+                                ) -
+                                Number(
+                                    b.pointsB
+                                )
+                            );
 
 
-// =====================================================
-// LEAGUE CHAT BUTTON
-// =====================================================
+                        const combinedPointsA =
+                            Number(
+                                a.pointsA
+                            ) +
+                            Number(
+                                a.pointsB
+                            );
 
-window.openLeagueChat = function () {
-    const isMobile =
-        /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent
+                        const combinedPointsB =
+                            Number(
+                                b.pointsA
+                            ) +
+                            Number(
+                                b.pointsB
+                            );
+
+
+                        const averageGapA =
+                            Number(
+                                a.averageGap ??
+                                Math.abs(
+                                    Number(
+                                        a.avgA || 0
+                                    ) -
+                                    Number(
+                                        a.avgB || 0
+                                    )
+                                )
+                            );
+
+
+                        const averageGapB =
+                            Number(
+                                b.averageGap ??
+                                Math.abs(
+                                    Number(
+                                        b.avgA || 0
+                                    ) -
+                                    Number(
+                                        b.avgB || 0
+                                    )
+                                )
+                            );
+
+
+                        return (
+                            pointDifferentialA -
+                            pointDifferentialB
+                        ) ||
+
+                        (
+                            combinedPointsB -
+                            combinedPointsA
+                        ) ||
+
+                        (
+                            averageGapA -
+                            averageGapB
+                        ) ||
+
+                        String(
+                            a.matchId
+                        ).localeCompare(
+                            String(
+                                b.matchId
+                            )
+                        );
+
+                    }
+                );
+
+
+        return (
+            eligible[0] ||
+            null
         );
 
-    if (isMobile) {
-        // Opens the Messenger app (if installed)
-        window.location.href = "fb-messenger://";
-    } else {
-        // Opens Messenger in the browser
-        window.open(
-            "https://www.messenger.com/",
-            "_blank",
-            "noopener,noreferrer"
-        );
     }
-};
-</script>
 
-</body>
-</html>
+
+    /* =========================================================
+       END PART 1
+       ========================================================= */

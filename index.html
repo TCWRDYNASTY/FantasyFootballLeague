@@ -976,7 +976,7 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
 
 <body class="body">
 
-<button class="menu-toggle" id="mobileMenuBtn">☰ League Menu</button><div class="sidebar-overlay" id="sidebarOverlay"></div><div class="sidebar-left" id="sidebarLeft"><nav class="sidebar-nav"><a href="legends.html">Hall of Champions</a><a href="https://tcwrdynasty.github.io/members/">League Members</a><a href="Records.html">Manager Rankings</a><a href="rookiedraftcountdown.html">Draft Lottery</a><a href="Bylaws.html">Constitution</a><a href="media.html">Podcast</a><a href="contactcommish.html?v=5">Contact Commish</a><a href="https://sleeper.com/leagues/1180908151502815232/matchup">Sleeper</a></nav></div>
+<button class="menu-toggle" id="mobileMenuBtn">☰ League Menu</button><div class="sidebar-overlay" id="sidebarOverlay"></div><div class="sidebar-left" id="sidebarLeft"><nav class="sidebar-nav"><a href="legends.html">Hall of Champions</a><a href="https://tcwrdynasty.github.io/members/">League Members</a><a href="Records.html">Manager Rankings</a><a href="rookiedraftcountdown.html">Draft Lottery</a><a href="Bylaws.html">Constitution</a><a href="media.html">Podcast</a><a href="contactcommish.html?v=5">Contact Commish</a><a id="sleeperLeagueLink" href="https://sleeper.com/leagues/1328431789223477248/matchup">Sleeper</a></nav></div>
 
 <div class="header">
     <div class="logo-container">
@@ -1140,7 +1140,12 @@ sidebarLinks.forEach(link => {
     });
 });
 
-    /* === 3. TRANSLATORS === */
+    /* =========================================================
+       🚨🚨🚨 END-OF-SEASON UPDATE — MANAGER NAMES 🚨🚨🚨
+       If managers change next season, update this translator.
+       Keep the Sleeper username on the LEFT and the display name
+       used by the Google Sheet on the RIGHT.
+       ========================================================= */
     const nameTranslator = {
         "mgreg00x": "Matt",
         "SanDiegoSuperBurgers": "Sylvester", 
@@ -1161,10 +1166,35 @@ sidebarLinks.forEach(link => {
 
   /* === 4. FIREBASE CONFIG & DATA SETUP === */
 
+    /* =========================================================
+       🚨🚨🚨 END-OF-SEASON UPDATE — NEW SLEEPER LEAGUE 🚨🚨🚨
+       NEXT YEAR: Replace ONLY the value below with the new
+       Sleeper LEAGUE ID.
+
+       This is the league ID used for the live matchup,
+       standings, rosters, scores, projections, etc.
+       ========================================================= */
 const leagueId = "1328431789223477248";
 
+    // Keep the sidebar Sleeper link synchronized with the leagueId above.
+    const sleeperLeagueLink = document.getElementById("sleeperLeagueLink");
+    if (sleeperLeagueLink) {
+        sleeperLeagueLink.href = `https://sleeper.com/leagues/${leagueId}/matchup`;
+    }
+
+    /* =========================================================
+       🚨🚨🚨 END-OF-SEASON UPDATE — GOOGLE SHEET 🚨🚨🚨
+       NEXT YEAR: Replace the URL below with the NEW published
+       Google Sheet CSV URL containing the new season's manager
+       statistics / H2H data.
+
+       Google Sheet columns currently used include:
+       Manager | Opponent | AvgPts | H2H_Record | Pt_Diff
+       ========================================================= */
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLKoIdLrNxggJ07f5qSOf28mAQcu7tAIl9N5mhEr-mvepioIkO6wISuKMWMH7L161n-yLLjSOg7IUb/pub?output=csv";
 
+    /* Keep Firebase settings unchanged unless you intentionally
+       create a new Firebase project for the new league year. */
 const firebaseConfig = {
     apiKey: "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
     authDomain: "tcwr-dynasty.firebaseapp.com",
@@ -2517,6 +2547,7 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
             liveLeader, gamesStarted, predictionDisagreement, confidence,
             averageAdvantage, favoriteH2H, h2hData, pointDifferential,
             statA, statB, rivalryRecordOwner, rivalryRecord, rivalryH2H,
+            rivalryPointDifferential: Math.abs(pointsA - pointsB),
             rivalryCloseness: Math.abs(rivalryH2H.wins - rivalryH2H.losses),
             averageGap: Math.abs(avgA - avgB),
             combinedAverage: avgA + avgB
@@ -2692,6 +2723,8 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
 
     /*
      * Use the same deterministic rivalry selector as Weekly Awards.
+     * Rivalry is based on the closest current-week Sleeper score,
+     * while H2H is displayed as historical context when available.
      * This guarantees that the scoreboard's "Rivalry of the Week" and
      * the bulletin's "Rivalry Winner" always refer to the same matchup.
      */
@@ -3781,18 +3814,37 @@ async function calculateWeeklyAwards(matchupsRaw, users, rosters, stats, league)
     return { managerOfWeek, firstLoser, secondLoser, luckiestWin, overachiever, sharpshooter, rivalryWinner };
 }
 
+/* =========================================================
+   RIVALRY OF THE WEEK SELECTION
+
+   The Rivalry of the Week is now determined by the CLOSEST
+   CURRENT-WEEK MATCHUP based on the live Sleeper scores.
+
+   1. Smallest current point differential wins.
+   2. If tied, highest combined current score wins.
+   3. If still tied, smallest average-score gap wins.
+   4. If still tied, matchup ID breaks the tie.
+
+   H2H is NO LONGER used to decide which matchup is the rivalry.
+   H2H from the Google Sheet is still displayed on the card
+   when available.
+   ========================================================= */
 function selectDesignatedRivalry(candidates) {
     const eligible = (candidates || [])
-        .filter(matchup => {
-            const h2h = matchup?.rivalryH2H;
-            return h2h && Number(h2h.total) > 0;
-        })
-        .sort((a, b) =>
-            Number(b.rivalryH2H.total) - Number(a.rivalryH2H.total) ||
-            Number(a.rivalryCloseness) - Number(b.rivalryCloseness) ||
-            Number(b.combinedAverage) - Number(a.combinedAverage) ||
-            String(a.matchId).localeCompare(String(b.matchId))
-        );
+        .filter(matchup => matchup && Number.isFinite(Number(matchup.pointsA)) && Number.isFinite(Number(matchup.pointsB)))
+        .sort((a, b) => {
+            const pointDifferentialA = Math.abs(Number(a.pointsA) - Number(a.pointsB));
+            const pointDifferentialB = Math.abs(Number(b.pointsA) - Number(b.pointsB));
+
+            const combinedPointsA = Number(a.pointsA) + Number(a.pointsB);
+            const combinedPointsB = Number(b.pointsA) + Number(b.pointsB);
+
+            return pointDifferentialA - pointDifferentialB ||
+                combinedPointsB - combinedPointsA ||
+                Number(a.averageGap ?? Math.abs(Number(a.avgA || 0) - Number(a.avgB || 0))) -
+                Number(b.averageGap ?? Math.abs(Number(b.avgA || 0) - Number(b.avgB || 0))) ||
+                String(a.matchId).localeCompare(String(b.matchId));
+        });
 
     return eligible[0] || null;
 }
@@ -3822,8 +3874,6 @@ function calculateRivalryWinner(entries, grouped, stats) {
         const record = rowA?.H2H_Record || rowB?.H2H_Record;
         const parsed = parseBulletinH2H(record);
 
-        if (parsed.total <= 0) return;
-
         const avgA = Number(rowA?.AvgPts);
         const avgB = Number(rowB?.AvgPts);
         const safeAvgA = Number.isFinite(avgA) ? avgA : historicalAverageFor(a.name);
@@ -3835,6 +3885,7 @@ function calculateRivalryWinner(entries, grouped, stats) {
             nameB: b.name,
             pointsA: a.points,
             pointsB: b.points,
+            rivalryPointDifferential: Math.abs(Number(a.points) - Number(b.points)),
             avgA: safeAvgA,
             avgB: safeAvgB,
             rivalryH2H: parsed,

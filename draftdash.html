@@ -13,20 +13,15 @@
   box-sizing:border-box;
 }
 
-html,
 body{
   margin:0;
-  min-height:100%;
-}
-
-body{
   background:#071522;
   color:#fff;
   font-family:Montserrat,Arial,sans-serif;
 }
 
 .wrap{
-  max-width:1500px;
+  max-width:1400px;
   margin:auto;
   padding:24px;
 }
@@ -54,11 +49,6 @@ button{
   cursor:pointer;
 }
 
-button:disabled{
-  opacity:.6;
-  cursor:wait;
-}
-
 
 /* =========================================================
    PANELS
@@ -74,48 +64,119 @@ button:disabled{
 
 
 /* =========================================================
-   STATUS
+   TEAM EDITOR
    ========================================================= */
 
-.status{
-  text-align:center;
-  min-height:24px;
-  font-weight:800;
-  color:#d8b45a;
-  margin:8px 0 14px;
+.teams{
+  width:100%;
+  overflow-x:auto;
 }
 
-
-/* =========================================================
-   RACE LAYOUT
-   ========================================================= */
-
-.race-layout{
+.team-editor-header,
+.team-edit{
   display:grid;
-  grid-template-columns:minmax(0,1fr) 340px;
-  gap:18px;
-  align-items:start;
+  grid-template-columns:minmax(180px,1fr) 120px minmax(240px,1fr);
+  gap:12px;
+  align-items:center;
 }
 
-.race-main{
-  min-width:0;
-}
-
-.results{
-  min-width:0;
-}
-
-.results .panel{
-  position:sticky;
-  top:18px;
-  margin-bottom:0;
-}
-
-.results h2{
-  margin:0 0 12px;
-  font:900 30px/1 "Barlow Condensed",sans-serif;
-  letter-spacing:1px;
+.team-editor-header{
+  padding:11px 12px;
+  background:#102838;
+  color:#d8b45a;
+  border:1px solid #294354;
+  border-bottom:0;
+  border-radius:10px 10px 0 0;
+  font:800 13px/1 "Montserrat",sans-serif;
+  letter-spacing:.7px;
   text-transform:uppercase;
+}
+
+.team-edit{
+  padding:10px 12px;
+  background:#081722;
+  border-left:1px solid #294354;
+  border-right:1px solid #294354;
+  border-top:1px solid #294354;
+}
+
+.team-edit:last-child{
+  border-bottom:1px solid #294354;
+  border-radius:0 0 10px 10px;
+}
+
+.team-edit input,
+.team-edit select{
+  width:100%;
+  min-height:40px;
+  padding:9px 10px;
+  border-radius:6px;
+  border:1px solid #405765;
+  background:#071522;
+  color:#fff;
+  font-family:Montserrat,Arial,sans-serif;
+  font-size:14px;
+}
+
+.team-edit input:focus,
+.team-edit select:focus{
+  outline:2px solid rgba(216,180,90,.45);
+  border-color:#d8b45a;
+}
+
+.team-image-picker{
+  display:grid;
+  grid-template-columns:56px minmax(150px,1fr);
+  gap:8px;
+  align-items:center;
+}
+
+.team-image-preview{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #d8b45a;
+  background:#071522;
+}
+
+.team-image-preview.placeholder{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-weight:900;
+}
+
+.team-edit input:disabled,
+.team-edit select:disabled{
+  opacity:.72;
+  cursor:not-allowed;
+}
+
+@media(max-width:700px){
+
+  .team-editor-header,
+  .team-edit{
+    grid-template-columns:minmax(130px,1fr) 90px;
+  }
+
+  .team-editor-header > :nth-child(3){
+    grid-column:1/-1;
+  }
+
+  .team-edit > :nth-child(3){
+    grid-column:1/-1;
+  }
+
+  .team-image-picker{
+    grid-template-columns:46px minmax(120px,1fr);
+  }
+
+  .team-image-preview{
+    width:38px;
+    height:38px;
+  }
 }
 
 
@@ -139,6 +200,19 @@ button:disabled{
 
 
 /* =========================================================
+   STATUS
+   ========================================================= */
+
+.status{
+  text-align:center;
+  min-height:24px;
+  font-weight:800;
+  color:#d8b45a;
+  margin:8px;
+}
+
+
+/* =========================================================
    RUNNERS
    ========================================================= */
 
@@ -148,8 +222,6 @@ button:disabled{
   transform:translateY(-50%);
   z-index:10;
   transition:left .15s linear;
-  width:58px;
-  height:58px;
 }
 
 .player-image{
@@ -160,14 +232,60 @@ button:disabled{
   border-radius:50%;
   border:3px solid #d8b45a;
   background:#071522;
-  box-shadow:
-    2px 3px 5px rgba(0,0,0,.55),
-    0 0 12px rgba(255,255,255,.08);
+  box-shadow:2px 3px 5px rgba(0,0,0,.55);
 }
 
 .runner.finished{
   opacity:1 !important;
   visibility:visible !important;
+}
+
+
+/* =========================================================
+   RACE + RESULTS
+   ========================================================= */
+
+.race-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:18px;
+  align-items:start;
+}
+
+.race-main{
+  min-width:0;
+}
+
+.results{
+  min-width:0;
+}
+
+.results .panel{
+  position:sticky;
+  top:18px;
+  margin-bottom:0;
+}
+
+.result-list{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+.result-list li{
+  display:flex;
+  justify-content:space-between;
+  padding:9px 10px;
+  border-bottom:1px solid #294354;
+}
+
+.result-list li:first-child{
+  color:#d8b45a;
+  font-size:1.08em;
+}
+
+.results h2{
+  margin-top:0;
 }
 
 
@@ -230,48 +348,6 @@ button:disabled{
 
 
 /* =========================================================
-   DRAFT ORDER
-   ========================================================= */
-
-.result-list{
-  list-style:none;
-  padding:0;
-  margin:0;
-}
-
-.result-list li{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  padding:11px 10px;
-  border-bottom:1px solid #294354;
-  min-height:43px;
-}
-
-.result-list li:first-child{
-  color:#d8b45a;
-  font-size:1.08em;
-}
-
-.result-list li span:first-child{
-  min-width:0;
-}
-
-.result-list li span:last-child{
-  white-space:nowrap;
-  color:#91a5b0;
-  font-size:11px;
-}
-
-.result-list strong{
-  display:inline-block;
-  width:34px;
-  color:#fff;
-}
-
-
-/* =========================================================
    COMMISSIONER
    ========================================================= */
 
@@ -282,10 +358,11 @@ button:disabled{
 #commissionerArea{
   margin-top:20px;
   margin-bottom:16px;
-  text-align:center;
 }
 
 #commissionerBottomButton{
+  display:block;
+  margin:0 auto;
   background:#d8b45a;
   color:#071522;
 }
@@ -316,13 +393,10 @@ button:disabled{
   min-width:220px;
 }
 
-#commissionerPanel{
-  text-align:left;
-}
-
 #commissionerPanel h3{
   margin:0 0 8px;
   color:#d8b45a;
+  font-size:28px;
 }
 
 .commissioner-actions{
@@ -356,47 +430,6 @@ button:disabled{
 
 
 /* =========================================================
-   TEAM EDITOR
-   ========================================================= */
-
-.team-settings-panel{
-  margin-bottom:16px;
-}
-
-.teams{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.team-edit{
-  display:grid;
-  grid-template-columns:minmax(120px,1fr) 75px minmax(160px,1.4fr);
-  gap:8px;
-  align-items:center;
-}
-
-.team-edit input{
-  width:100%;
-  padding:9px;
-  border-radius:6px;
-  border:1px solid #405765;
-  background:#081722;
-  color:#fff;
-  font-family:Montserrat,Arial,sans-serif;
-}
-
-.team-edit input::placeholder{
-  color:#7e919d;
-}
-
-.team-edit input:disabled{
-  opacity:.72;
-  cursor:not-allowed;
-}
-
-
-/* =========================================================
    PRE-RACE CURTAIN
    ========================================================= */
 
@@ -406,15 +439,10 @@ button:disabled{
   z-index:9999;
   overflow:hidden;
   pointer-events:none;
-
   background:rgba(3,10,17,.82);
-
   backdrop-filter:blur(3px);
   -webkit-backdrop-filter:blur(3px);
-
-  transition:
-    opacity .45s ease,
-    visibility .45s ease;
+  transition:opacity .45s ease,visibility .45s ease;
 }
 
 #raceCurtain.hidden{
@@ -443,8 +471,7 @@ button:disabled{
       #061522 100%
     );
 
-  box-shadow:
-    inset 0 0 80px rgba(0,0,0,.55);
+  box-shadow:inset 0 0 80px rgba(0,0,0,.55);
 
   transition:
     transform 1.05s cubic-bezier(.76,0,.24,1);
@@ -554,39 +581,13 @@ button:disabled{
 }
 
 #raceCurtain.open .race-card{
-  transform:
-    translateY(-20px)
-    scale(.96);
-
+  transform:translateY(-20px) scale(.96);
   opacity:0;
-}
-
-.curtain-badge{
-  position:absolute;
-  top:22px;
-  left:50%;
-
-  transform:translateX(-50%);
-
-  z-index:6;
-
-  color:#9eb0ba;
-
-  font:
-    800 10px/1
-    "Montserrat",sans-serif;
-
-  letter-spacing:2.5px;
-  white-space:nowrap;
 }
 
 .race-eyebrow{
   color:#d8b45a;
-
-  font:
-    800 13px/1
-    "Montserrat",sans-serif;
-
+  font:800 13px/1 "Montserrat",sans-serif;
   letter-spacing:3px;
   margin-bottom:10px;
 }
@@ -596,39 +597,32 @@ button:disabled{
 
   font:
     900 clamp(42px,7vw,76px)/.88
-    "Barlow Condensed",sans-serif;
+    "Barlow Condensed",
+    sans-serif;
 
   letter-spacing:1px;
   text-transform:uppercase;
 }
 
-.race-card .race-tagline{
+.race-tagline{
   margin:12px 0 24px;
 
   color:#d8e3e8;
 
   font:
     800 clamp(15px,2.2vw,21px)/1.1
-    "Montserrat",sans-serif;
+    "Montserrat",
+    sans-serif;
 
   letter-spacing:1px;
 }
 
-
-/* =========================================================
-   MAIN OVERLAY RULE
-   ========================================================= */
-
 .main-rule{
   max-width:560px;
   margin:0 auto 24px;
-
   padding:20px 22px;
 
-  border:
-    1px solid
-    rgba(216,180,90,.58);
-
+  border:1px solid rgba(216,180,90,.58);
   border-radius:14px;
 
   background:
@@ -639,9 +633,7 @@ button:disabled{
     );
 
   box-shadow:
-    0 0 28px
-    rgba(216,180,90,.06)
-    inset;
+    0 0 28px rgba(216,180,90,.06) inset;
 }
 
 .main-rule-title{
@@ -649,7 +641,8 @@ button:disabled{
 
   font:
     900 clamp(24px,4vw,34px)/1
-    "Barlow Condensed",sans-serif;
+    "Barlow Condensed",
+    sans-serif;
 
   letter-spacing:1px;
   text-transform:uppercase;
@@ -657,23 +650,15 @@ button:disabled{
 
 .main-rule-text{
   margin-top:8px;
-
   color:#c4d1d8;
-
   font-size:13px;
   line-height:1.45;
 }
-
-
-/* =========================================================
-   FINISH RULE
-   ========================================================= */
 
 .race-flow{
   display:flex;
   align-items:center;
   justify-content:center;
-  flex-wrap:wrap;
 
   gap:8px;
 
@@ -683,7 +668,8 @@ button:disabled{
 
   font:
     900 15px/1
-    "Barlow Condensed",sans-serif;
+    "Barlow Condensed",
+    sans-serif;
 
   letter-spacing:.8px;
 }
@@ -691,10 +677,7 @@ button:disabled{
 .race-flow .flow-box{
   padding:8px 12px;
 
-  border:
-    1px solid
-    #405765;
-
+  border:1px solid #405765;
   border-radius:8px;
 
   background:#081722;
@@ -707,6 +690,7 @@ button:disabled{
 
 .race-note{
   margin:0 auto 24px;
+
   max-width:620px;
 
   color:#91a5b0;
@@ -719,20 +703,11 @@ button:disabled{
   color:#d8b45a;
 }
 
-
-/* =========================================================
-   OVERLAY START BUTTON
-   ========================================================= */
-
 #startDashBtn{
-  border:
-    1px solid
-    rgba(255,255,255,.25);
-
+  border:1px solid rgba(255,255,255,.25);
   border-radius:10px;
 
   padding:15px 34px;
-
   min-width:220px;
 
   background:
@@ -746,14 +721,14 @@ button:disabled{
 
   font:
     900 22px/1
-    "Barlow Condensed",sans-serif;
+    "Barlow Condensed",
+    sans-serif;
 
   letter-spacing:1.5px;
   text-transform:uppercase;
 
   box-shadow:
-    0 10px 30px
-    rgba(216,180,90,.2);
+    0 10px 30px rgba(216,180,90,.2);
 
   transition:
     transform .18s ease,
@@ -761,13 +736,16 @@ button:disabled{
 }
 
 #startDashBtn:hover{
-  transform:
-    translateY(-2px)
-    scale(1.02);
+  transform:translateY(-2px) scale(1.02);
 
   box-shadow:
-    0 14px 36px
-    rgba(216,180,90,.34);
+    0 14px 36px rgba(216,180,90,.34);
+}
+
+#startDashBtn:disabled{
+  opacity:.6;
+  cursor:wait;
+  transform:none;
 }
 
 
@@ -783,7 +761,6 @@ button:disabled{
   display:flex;
   align-items:center;
   justify-content:center;
-
   flex-direction:column;
 
   opacity:0;
@@ -799,7 +776,8 @@ button:disabled{
 
   font:
     900 15px/1
-    "Montserrat",sans-serif;
+    "Montserrat",
+    sans-serif;
 
   letter-spacing:4px;
   margin-bottom:12px;
@@ -811,7 +789,8 @@ button:disabled{
 
   font:
     900 clamp(120px,25vw,280px)/.78
-    "Barlow Condensed",sans-serif;
+    "Barlow Condensed",
+    sans-serif;
 
   text-shadow:
     0 0 18px rgba(216,180,90,.28),
@@ -820,13 +799,10 @@ button:disabled{
 
 #countdownNumber.pop{
   animation:
-    countPop
-    .72s
-    cubic-bezier(.2,.8,.2,1);
+    countPop .72s cubic-bezier(.2,.8,.2,1);
 }
 
 @keyframes countPop{
-
   0%{
     transform:scale(.55);
     opacity:0;
@@ -841,7 +817,6 @@ button:disabled{
     transform:scale(1);
     opacity:1;
   }
-
 }
 
 #countdownNumber.go{
@@ -849,9 +824,30 @@ button:disabled{
   font-size:clamp(100px,20vw,220px);
 }
 
+.curtain-badge{
+  position:absolute;
+
+  top:22px;
+  left:50%;
+
+  transform:translateX(-50%);
+
+  z-index:6;
+
+  color:#9eb0ba;
+
+  font:
+    800 10px/1
+    "Montserrat",
+    sans-serif;
+
+  letter-spacing:2.5px;
+  white-space:nowrap;
+}
+
 
 /* =========================================================
-   RESPONSIVE
+   MOBILE
    ========================================================= */
 
 @media(max-width:900px){
@@ -864,50 +860,9 @@ button:disabled{
     position:static;
   }
 
-  .teams{
-    grid-template-columns:1fr;
-  }
-
-  .team-edit{
-    grid-template-columns:
-      minmax(110px,1fr)
-      70px
-      minmax(150px,1.5fr);
-  }
-
   .permanent-labels{
     grid-template-columns:repeat(2,1fr);
   }
-
-}
-
-@media(max-width:700px){
-
-  .race-card{
-    padding:25px 18px 22px;
-    border-radius:16px;
-  }
-
-  .race-card h2{
-    font-size:clamp(40px,12vw,62px);
-  }
-
-  .race-flow{
-    font-size:14px;
-  }
-
-  .race-flow .flow-box{
-    padding:7px 9px;
-  }
-
-  .race-card .race-tagline{
-    margin-bottom:16px;
-  }
-
-  .race-note{
-    margin-bottom:18px;
-  }
-
 }
 
 @media(max-width:560px){
@@ -916,22 +871,11 @@ button:disabled{
     padding:12px;
   }
 
-  .team-edit{
-    grid-template-columns:
-      1fr
-      65px;
-  }
-
-  .team-edit input[data-type="image"]{
-    grid-column:1 / -1;
-  }
-
   .field{
     aspect-ratio:2 / 1;
   }
 
-  .player-image,
-  .runner{
+  .player-image{
     width:44px;
     height:44px;
   }
@@ -945,6 +889,27 @@ button:disabled{
     width:100%;
   }
 
+  .race-card{
+    padding:25px 18px 22px;
+    border-radius:16px;
+  }
+
+  .race-card h2{
+    font-size:clamp(40px,12vw,62px);
+  }
+
+  .race-flow{
+    flex-wrap:wrap;
+    font-size:14px;
+  }
+
+  .race-flow .flow-box{
+    padding:7px 9px;
+  }
+
+  .race-note{
+    margin-bottom:18px;
+  }
 }
 
 </style>
@@ -955,7 +920,7 @@ button:disabled{
 
 
 <!-- =======================================================
-     PRE-RACE OVERLAY
+     PRE-RACE DRAFT DASH OVERLAY
      ======================================================= -->
 
 <div id="raceCurtain">
@@ -986,7 +951,6 @@ button:disabled{
           THE ODDS SET THE STARTING LINE.
         </div>
 
-
         <div class="main-rule">
 
           <div class="main-rule-title">
@@ -999,7 +963,6 @@ button:disabled{
           </div>
 
         </div>
-
 
         <div class="race-flow">
 
@@ -1033,18 +996,15 @@ button:disabled{
 
         </div>
 
-
         <p class="race-note">
 
-          The race lasts
-          <strong>90 seconds</strong>.
+          The race lasts <strong>90 seconds</strong>.
 
           The official draft order is locked in before
-          the race begins, so everyone watching sees the
-          <strong>same result</strong>.
+          the race begins, so everyone watching sees
+          the <strong>same result</strong>.
 
         </p>
-
 
         <button
           id="startDashBtn"
@@ -1075,6 +1035,7 @@ button:disabled{
 </div>
 
 
+
 <div class="wrap">
 
 
@@ -1087,7 +1048,10 @@ button:disabled{
 </div>
 
 
-<div id="status" class="status">
+<div
+  id="status"
+  class="status"
+>
   Ready at the starting line.
 </div>
 
@@ -1107,7 +1071,8 @@ button:disabled{
   ></div>
 
   <div class="lock-note">
-    Team settings are available while Commissioner tools are unlocked.
+    Team settings are available while Commissioner tools
+    are unlocked.
   </div>
 
 </div>
@@ -1120,10 +1085,6 @@ button:disabled{
 <div class="race-layout">
 
 
-  <!-- =====================================================
-       LEFT: FIELD
-       ===================================================== -->
-
   <div class="race-main">
 
     <div
@@ -1132,10 +1093,6 @@ button:disabled{
     ></div>
 
 
-    <!-- ================================================
-         PERMANENT TEAM KEY
-         ================================================ -->
-
     <div
       class="permanent-labels"
       id="permanentLabels"
@@ -1143,10 +1100,6 @@ button:disabled{
 
   </div>
 
-
-  <!-- =====================================================
-       RIGHT: DRAFT ORDER
-       ===================================================== -->
 
   <div class="results">
 
@@ -1165,12 +1118,11 @@ button:disabled{
 
   </div>
 
-
 </div>
 
 
 <!-- =======================================================
-     COMMISSIONER — BOTTOM OF PAGE
+     COMMISSIONER
      ======================================================= -->
 
 <div id="commissionerArea">
@@ -1223,9 +1175,14 @@ button:disabled{
     </h3>
 
     <div class="lock-note">
-      Edit team names, weighted odds, and permanent image URLs.
+
+      Edit team names, weighted odds, and assign
+      the permanent team images.
+
       Changes are saved to Supabase.
+
     </div>
+
 
     <div class="commissioner-actions">
 
@@ -1264,7 +1221,7 @@ button:disabled{
 
 
 /* =========================================================
-   TCWR 100-YARD DRAFT DASH
+   SUPABASE
    ========================================================= */
 
 import {
@@ -1274,30 +1231,16 @@ from
 'https://esm.sh/@supabase/supabase-js@2';
 
 
-/* =========================================================
-   COMMISSIONER
-   ========================================================= */
-
 const COMMISSIONER_PASSWORD =
   'Asher';
 
-
-/* =========================================================
-   SUPABASE
-   ========================================================= */
 
 const SUPABASE_URL =
   'https://jheqfwykhvyngfqawknr.supabase.co';
 
 
-/*
-   This is the legacy anon key from the working version.
-
-   It is a browser/public key, NOT a service_role key.
-*/
-
 const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZXFmd3lraHZ5bmdmcWF3a25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFub24iLCJpYXQiOjE3NDQ5NDE3MjEsImV4cCI6MjA2MDUxNzcyMX0.LLWSmRdZW_5XD2Z8NqGB5BTP3hAtk63pOnZiSckf7BM';
 
 
 const SUPABASE_TABLE_NAME =
@@ -1325,56 +1268,56 @@ const defaultTeams = [
     id:1,
     name:"Matt",
     weight:18,
-    image:""
+    image:"image1.jpeg"
   },
 
   {
     id:2,
     name:"Steven",
     weight:15,
-    image:""
+    image:"image2.jpeg"
   },
 
   {
     id:3,
     name:"Jess",
     weight:13,
-    image:""
+    image:"image3.jpeg"
   },
 
   {
     id:4,
     name:"Kevin",
     weight:11,
-    image:""
+    image:"image4.jpeg"
   },
 
   {
     id:5,
     name:"Sarah",
     weight:10,
-    image:""
+    image:"image5.jpeg"
   },
 
   {
     id:6,
     name:"Mike",
     weight:9,
-    image:""
+    image:"image6.jpeg"
   },
 
   {
     id:7,
     name:"Chris",
     weight:8,
-    image:""
+    image:"image7.jpeg"
   },
 
   {
     id:8,
     name:"Amanda",
     weight:7,
-    image:""
+    image:"image8.jpeg"
   }
 
 ];
@@ -1382,26 +1325,20 @@ const defaultTeams = [
 
 let teams =
   defaultTeams.map(
-    team => ({
-      ...team
-    })
+    t => ({...t})
   );
 
 
 let runners = [];
 
-
 let raceRunning =
   false;
-
 
 let raf =
   0;
 
-
 let commissionerUnlocked =
   false;
-
 
 let savedDraftOrder =
   [];
@@ -1416,84 +1353,70 @@ const inputs =
     "teamInputs"
   );
 
-
 const field =
   document.getElementById(
     "field"
   );
-
 
 const status =
   document.getElementById(
     "status"
   );
 
-
 const draftOrderList =
   document.getElementById(
     "draftOrder"
   );
-
 
 const permanentLabels =
   document.getElementById(
     "permanentLabels"
   );
 
-
 const teamSettingsPanel =
   document.getElementById(
     "teamSettingsPanel"
   );
-
 
 const commissionerBottomButton =
   document.getElementById(
     "commissionerBottomButton"
   );
 
-
 const commissionerLoginBox =
   document.getElementById(
     "commissionerLoginBox"
   );
-
 
 const commissionerPanel =
   document.getElementById(
     "commissionerPanel"
   );
 
-
 const commissionerPassword =
   document.getElementById(
     "commissionerPassword"
   );
-
 
 const unlockCommissionerBtn =
   document.getElementById(
     "unlockCommissionerBtn"
   );
 
-
 const cancelCommissionerBtn =
   document.getElementById(
     "cancelCommissionerBtn"
   );
-
 
 const lockCommissionerBtn =
   document.getElementById(
     "lockCommissionerBtn"
   );
 
-
 const saveConfigBtn =
   document.getElementById(
     "saveConfigBtn"
   );
-
 
 const resetDraftBtn =
   document.getElementById(
@@ -1540,10 +1463,8 @@ function escapeHTML(value){
 function showStatus(message){
 
   if(status){
-
     status.textContent =
       message;
-
   }
 
 }
@@ -1569,6 +1490,39 @@ function renderInputs(){
     "";
 
 
+  /*
+     Three-column Commissioner table.
+  */
+
+  const header =
+    document.createElement(
+      "div"
+    );
+
+  header.className =
+    "team-editor-header";
+
+  header.innerHTML = `
+
+    <div>
+      Team Name
+    </div>
+
+    <div>
+      Weight (%)
+    </div>
+
+    <div>
+      Image
+    </div>
+
+  `;
+
+  inputs.appendChild(
+    header
+  );
+
+
   teams.forEach(
     team => {
 
@@ -1577,39 +1531,288 @@ function renderInputs(){
           "div"
         );
 
-
       box.className =
         "team-edit";
 
 
-      box.innerHTML = `
+      /* TEAM NAME */
 
-        <input
-          data-id="${escapeHTML(team.id)}"
-          data-type="name"
-          value="${escapeHTML(team.name)}"
-          placeholder="Team name"
-          ${commissionerUnlocked ? "" : "disabled"}
-        >
+      const nameInput =
+        document.createElement(
+          "input"
+        );
 
-        <input
-          data-id="${escapeHTML(team.id)}"
-          data-type="weight"
-          type="number"
-          min="1"
-          value="${team.weight}"
-          ${commissionerUnlocked ? "" : "disabled"}
-        >
+      nameInput.dataset.id =
+        String(team.id);
 
-        <input
-          data-id="${escapeHTML(team.id)}"
-          data-type="image"
-          value="${escapeHTML(team.image || "")}"
-          placeholder="Permanent image URL"
-          ${commissionerUnlocked ? "" : "disabled"}
-        >
+      nameInput.dataset.type =
+        "name";
 
-      `;
+      nameInput.value =
+        team.name || "";
+
+      nameInput.placeholder =
+        "Team name";
+
+      nameInput.disabled =
+        !commissionerUnlocked;
+
+
+      /* WEIGHT */
+
+      const weightInput =
+        document.createElement(
+          "input"
+        );
+
+      weightInput.dataset.id =
+        String(team.id);
+
+      weightInput.dataset.type =
+        "weight";
+
+      weightInput.type =
+        "number";
+
+      weightInput.min =
+        "1";
+
+      weightInput.step =
+        "1";
+
+      weightInput.value =
+        Number(team.weight) || 1;
+
+      weightInput.disabled =
+        !commissionerUnlocked;
+
+
+      /* IMAGE */
+
+      const imagePicker =
+        document.createElement(
+          "div"
+        );
+
+      imagePicker.className =
+        "team-image-picker";
+
+
+      const preview =
+        document.createElement(
+          "img"
+        );
+
+      preview.className =
+        "team-image-preview";
+
+      preview.alt =
+        `${team.name} image`;
+
+      preview.src =
+        team.image ||
+        `image${team.id}.jpeg`;
+
+
+      const placeholder =
+        document.createElement(
+          "div"
+        );
+
+      placeholder.className =
+        "team-image-preview placeholder";
+
+      placeholder.textContent =
+        (team.name || "?")
+          .charAt(0)
+          .toUpperCase();
+
+      placeholder.style.display =
+        "none";
+
+
+      preview.onerror =
+        () => {
+
+          preview.style.display =
+            "none";
+
+          placeholder.style.display =
+            "flex";
+
+        };
+
+
+      const select =
+        document.createElement(
+          "select"
+        );
+
+      select.dataset.id =
+        String(team.id);
+
+      select.dataset.type =
+        "image";
+
+      select.disabled =
+        !commissionerUnlocked;
+
+
+      /*
+         Eight fixed image choices.
+      */
+
+      for(
+        let i = 1;
+        i <= 8;
+        i++
+      ){
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+        const filename =
+          `image${i}.jpeg`;
+
+        option.value =
+          filename;
+
+        option.textContent =
+          `Image ${i} (${filename})`;
+
+        if(
+          (
+            team.image ||
+            `image${team.id}.jpeg`
+          ) ===
+          filename
+        ){
+
+          option.selected =
+            true;
+
+        }
+
+        select.appendChild(
+          option
+        );
+
+      }
+
+
+      /*
+         Do not allow the same image
+         to be assigned to two teams.
+      */
+
+      select.addEventListener(
+        "change",
+        () => {
+
+          if(!commissionerUnlocked)
+            return;
+
+
+          const currentTeam =
+            teams.find(
+              t =>
+                String(t.id) ===
+                String(select.dataset.id)
+            );
+
+
+          if(!currentTeam)
+            return;
+
+
+          const oldImage =
+            currentTeam.image;
+
+
+          const newImage =
+            select.value;
+
+
+          const alreadyUsed =
+            teams.find(
+              t =>
+                String(t.id) !==
+                String(currentTeam.id) &&
+
+                String(t.image || "") ===
+                String(newImage)
+            );
+
+
+          if(alreadyUsed){
+
+            const oldOption =
+              Array.from(
+                select.options
+              ).find(
+                o =>
+                  o.value ===
+                  oldImage
+              );
+
+            if(oldOption)
+              oldOption.selected =
+                true;
+
+
+            showStatus(
+              `${newImage} is already assigned to ${alreadyUsed.name}.`
+            );
+
+            return;
+
+          }
+
+
+          currentTeam.image =
+            newImage;
+
+
+          preview.src =
+            newImage;
+
+          preview.style.display =
+            "block";
+
+          placeholder.style.display =
+            "none";
+
+
+          renderPermanentLabels();
+
+          refreshRunnerImages();
+
+        }
+      );
+
+
+      imagePicker.appendChild(
+        preview
+      );
+
+      imagePicker.appendChild(
+        select
+      );
+
+
+      box.appendChild(
+        nameInput
+      );
+
+      box.appendChild(
+        weightInput
+      );
+
+      box.appendChild(
+        imagePicker
+      );
 
 
       inputs.appendChild(
@@ -1622,62 +1825,46 @@ function renderInputs(){
 }
 
 
-inputs.addEventListener(
-  "input",
-  event => {
+/* =========================================================
+   TEAM EDITOR INPUTS
+   ========================================================= */
 
-    if(!commissionerUnlocked)
-      return;
+function updateTeamFromEditor(e){
 
-
-    const id =
-      String(
-        event.target.dataset.id
-      );
+  if(!commissionerUnlocked)
+    return;
 
 
-    const team =
-      teams.find(
-        t =>
-          String(t.id) === id
-      );
+  const target =
+    e.target;
 
 
-    if(!team)
-      return;
+  const id =
+    String(
+      target.dataset.id || ""
+    );
 
 
-    const type =
-      event.target.dataset.type;
+  const type =
+    target.dataset.type || "";
 
 
-    if(type === "name"){
-
-      team.name =
-        event.target.value;
-
-    }
-
-
-    if(type === "weight"){
-
-      team.weight =
-        Math.max(
-          1,
-          Number(
-            event.target.value
-          ) || 1
-        );
-
-    }
+  const team =
+    teams.find(
+      t =>
+        String(t.id) ===
+        id
+    );
 
 
-    if(type === "image"){
+  if(!team)
+    return;
 
-      team.image =
-        event.target.value.trim();
 
-    }
+  if(type === "name"){
+
+    team.name =
+      target.value;
 
 
     renderPermanentLabels();
@@ -1685,6 +1872,29 @@ inputs.addEventListener(
     refreshRunnerImages();
 
   }
+
+
+  if(type === "weight"){
+
+    team.weight =
+      Math.max(
+        1,
+        Number(
+          target.value
+        ) || 1
+      );
+
+
+    renderPermanentLabels();
+
+  }
+
+}
+
+
+inputs.addEventListener(
+  "input",
+  updateTeamFromEditor
 );
 
 
@@ -1693,10 +1903,6 @@ inputs.addEventListener(
    ========================================================= */
 
 function renderPermanentLabels(){
-
-  if(!permanentLabels)
-    return;
-
 
   permanentLabels.innerHTML =
     "";
@@ -1710,12 +1916,12 @@ function renderPermanentLabels(){
           "div"
         );
 
-
       box.className =
         "permanent-team";
 
 
-      let imageHTML;
+      let imageHTML =
+        "";
 
 
       if(team.image){
@@ -1725,7 +1931,6 @@ function renderPermanentLabels(){
           <img
             src="${escapeHTML(team.image)}"
             alt="${escapeHTML(team.name)}"
-
             onerror="
               this.style.display='none';
               this.nextElementSibling.style.display='flex';
@@ -1834,11 +2039,12 @@ function refreshRunnerImages(){
 
       if(
         image &&
-        image.tagName === "IMG"
+        image.tagName ===
+        "IMG"
       ){
 
         image.src =
-          team.image || "";
+          team.image;
 
         image.alt =
           team.name;
@@ -1859,7 +2065,7 @@ function weightedPick(pool){
 
   if(
     !Array.isArray(pool) ||
-    pool.length === 0
+    !pool.length
   ){
 
     return null;
@@ -1903,11 +2109,8 @@ function weightedPick(pool){
       Number(team.weight);
 
 
-    if(random <= 0){
-
+    if(random <= 0)
       return team;
-
-    }
 
   }
 
@@ -1920,7 +2123,7 @@ function weightedPick(pool){
 
 
 /* =========================================================
-   NORMAL WEIGHTED DRAFT
+   CREATE NORMAL WEIGHTED DRAFT
    ========================================================= */
 
 function createDraftOrder(){
@@ -1933,20 +2136,22 @@ function createDraftOrder(){
     );
 
 
-  const order = [];
+  const order =
+    [];
 
 
   /*
-     PICK #1:
-     weighted draw from all 8 teams.
+     Pick #1:
+     weighted draw from all teams.
 
-     PICK #2:
-     weighted draw from the remaining 7.
+     Remove winner.
 
-     Continue through PICK #7.
+     Pick #2:
+     weighted draw from remaining teams.
 
-     PICK #8:
-     final remaining team by elimination.
+     Continue through Pick #7.
+
+     Last remaining team = Pick #8.
   */
 
   for(
@@ -2010,7 +2215,7 @@ function createDraftOrder(){
 
 
 /* =========================================================
-   SUPABASE — LOAD TEAM CONFIGURATION
+   SUPABASE — LOAD TEAM CONFIG
    ========================================================= */
 
 async function loadTeamsFromSupabase(){
@@ -2037,16 +2242,12 @@ async function loadTeamsFromSupabase(){
       error
     );
 
-
     showStatus(
       "Using local teams — Supabase could not be loaded."
     );
 
-
     return defaultTeams.map(
-      team => ({
-        ...team
-      })
+      t => ({...t})
     );
 
   }
@@ -2058,9 +2259,7 @@ async function loadTeamsFromSupabase(){
   ){
 
     return defaultTeams.map(
-      team => ({
-        ...team
-      })
+      t => ({...t})
     );
 
   }
@@ -2077,14 +2276,18 @@ async function loadTeamsFromSupabase(){
             {};
 
 
+          const rowId =
+            String(row.id);
+
+
           return {
 
             id:
-              String(row.id),
+              rowId,
 
             name:
               d.name ||
-              `Team ${row.id}`,
+              `Team ${rowId}`,
 
             weight:
               Number(d.weight) ||
@@ -2092,11 +2295,7 @@ async function loadTeamsFromSupabase(){
 
             image:
               d.image ||
-              "",
-
-            originalWeightDisplay:
-              d.originalWeightDisplay ||
-              `${Number(d.weight) || 1}%`
+              `image${rowId}.jpeg`
 
           };
 
@@ -2118,16 +2317,14 @@ async function loadTeamsFromSupabase(){
   return loaded.length
     ? loaded
     : defaultTeams.map(
-        team => ({
-          ...team
-        })
+        t => ({...t})
       );
 
 }
 
 
 /* =========================================================
-   SUPABASE — SAVE TEAM CONFIGURATION
+   SUPABASE — SAVE TEAM CONFIG
    ========================================================= */
 
 async function saveTeamsToSupabase(){
@@ -2148,10 +2345,8 @@ async function saveTeamsToSupabase(){
             Number(team.weight),
 
           image:
-            team.image || "",
-
-          originalWeightDisplay:
-            `${team.weight}%`
+            team.image ||
+            `image${team.id}.jpeg`
 
         }
 
@@ -2179,15 +2374,13 @@ async function saveTeamsToSupabase(){
   if(error){
 
     console.error(
-      "Supabase save error:",
+      "Supabase configuration save error:",
       error
     );
-
 
     showStatus(
       "Error saving configuration to Supabase."
     );
-
 
     return false;
 
@@ -2200,7 +2393,7 @@ async function saveTeamsToSupabase(){
 
 
 /* =========================================================
-   SUPABASE — SAVE OFFICIAL DRAFT
+   SUPABASE — SAVE DRAFT ORDER
    ========================================================= */
 
 async function saveDraftOrderToSupabase(
@@ -2258,7 +2451,6 @@ async function saveDraftOrderToSupabase(
       error
     );
 
-
     return false;
 
   }
@@ -2270,7 +2462,7 @@ async function saveDraftOrderToSupabase(
 
 
 /* =========================================================
-   SUPABASE — LOAD OFFICIAL DRAFT
+   SUPABASE — LOAD SAVED DRAFT
    ========================================================= */
 
 async function loadDraftOrderFromSupabase(){
@@ -2296,7 +2488,6 @@ async function loadDraftOrderFromSupabase(){
       "Supabase order load error:",
       error
     );
-
 
     return [];
 
@@ -2355,10 +2546,19 @@ async function loadDraftOrderFromSupabase(){
                     "Unknown",
 
                   weight:
-                    0,
+                    Number(
+                      String(
+                        d.originalWeightDisplay ||
+                        "0"
+                      ).replace(
+                        "%",
+                        ""
+                      )
+                    ) || 0,
 
                   image:
-                    ""
+                    d.image ||
+                    `image${d.memberId}.jpeg`
 
                 }
 
@@ -2368,10 +2568,8 @@ async function loadDraftOrderFromSupabase(){
     )
 
     .filter(
-      item =>
-        Number.isFinite(
-          item.pick
-        )
+      x =>
+        x.pick
     )
 
     .sort(
@@ -2414,11 +2612,9 @@ async function clearDraftOrderFromSupabase(){
       error
     );
 
-
     showStatus(
       "Error resetting saved draft."
     );
-
 
     return false;
 
@@ -2446,7 +2642,6 @@ function openCommissioner(){
       "hidden"
     );
 
-
   commissionerPassword.focus();
 
 }
@@ -2460,7 +2655,6 @@ function closeCommissioner(){
       "hidden"
     );
 
-
   commissionerPassword.value =
     "";
 
@@ -2472,19 +2666,15 @@ function lockCommissioner(){
   commissionerUnlocked =
     false;
 
-
   commissionerPanel
     .classList
     .add(
       "hidden"
     );
 
-
   closeCommissioner();
 
-
   renderInputs();
-
 
   showStatus(
     "Commissioner tools locked."
@@ -2503,7 +2693,6 @@ function unlockCommissioner(){
     showStatus(
       "Incorrect commissioner password."
     );
-
 
     commissionerPassword.select();
 
@@ -2558,16 +2747,59 @@ async function saveConfiguration(){
     teams.every(
       team =>
         team.name.trim() &&
-        Number(team.weight) > 0
+        Number(team.weight) > 0 &&
+        /^image[1-8]\.jpeg$/i.test(
+          team.image || ""
+        )
     );
 
 
   if(!valid){
 
     showStatus(
-      "Every team needs a name and positive odds."
+      "Every team needs a name, positive odds, and Image 1–8."
     );
 
+    return;
+
+  }
+
+
+  const imageCounts = {};
+
+
+  teams.forEach(
+    team => {
+
+      const key =
+        String(
+          team.image
+        ).toLowerCase();
+
+      imageCounts[key] =
+        (
+          imageCounts[key] ||
+          0
+        ) + 1;
+
+    }
+  );
+
+
+  const duplicateImage =
+    Object.keys(
+      imageCounts
+    ).find(
+      key =>
+        imageCounts[key] > 1
+    );
+
+
+  if(duplicateImage){
+
+    showStatus(
+      `${duplicateImage} is assigned more than once.`
+    );
 
     return;
 
@@ -2584,8 +2816,8 @@ async function saveConfiguration(){
       "Configuration saved to Supabase."
     );
 
-
     renderInputs();
+
     renderPermanentLabels();
 
   }
@@ -2612,17 +2844,17 @@ function addRunner(
     "runner";
 
 
-  const laneStep =
-    teams.length > 1
-      ? 76 / (teams.length - 1)
-      : 0;
-
-
   el.style.top =
     (
       12 +
       index *
-      laneStep
+      (
+        76 /
+        Math.max(
+          1,
+          teams.length - 1
+        )
+      )
     ) +
     "%";
 
@@ -2631,7 +2863,8 @@ function addRunner(
     "8%";
 
 
-  let imageHTML;
+  let imageHTML =
+    "";
 
 
   if(team.image){
@@ -2642,7 +2875,6 @@ function addRunner(
         class="player-image"
         src="${escapeHTML(team.image)}"
         alt="${escapeHTML(team.name)}"
-
         onerror="
           this.style.display='none';
           this.nextElementSibling.style.display='flex';
@@ -2696,16 +2928,8 @@ function addRunner(
   }
 
 
-  /*
-     The field intentionally has NO
-     name/odds labels.
-
-     Those stay in the permanent key.
-  */
-
-  el.innerHTML = `
-    ${imageHTML}
-  `;
+  el.innerHTML =
+    imageHTML;
 
 
   field.appendChild(
@@ -2719,7 +2943,7 @@ function addRunner(
 
 
 /* =========================================================
-   RESET VISUALS ONLY
+   RESET VISUALS
    ========================================================= */
 
 function resetVisuals(){
@@ -2742,8 +2966,8 @@ function resetVisuals(){
       ".runner"
     )
     .forEach(
-      element =>
-        element.remove()
+      el =>
+        el.remove()
     );
 
 
@@ -2759,11 +2983,12 @@ function resetVisuals(){
 
 
 /* =========================================================
-   DISPLAY RESULTS
+   RENDER RESULTS
    ========================================================= */
 
 function renderResults(
-  order
+  order,
+  sortByPick = true
 ){
 
   draftOrderList.innerHTML =
@@ -2771,11 +2996,15 @@ function renderResults(
 
 
   const items =
-    [...order].sort(
-      (a,b) =>
-        a.pick -
-        b.pick
-    );
+    sortByPick
+
+      ? [...order].sort(
+          (a,b) =>
+            a.pick -
+            b.pick
+        )
+
+      : [...order];
 
 
   items.forEach(
@@ -2801,8 +3030,11 @@ function renderResults(
 
         </span>
 
+
         <span>
+
           ${item.team.weight}% odds
+
         </span>
 
       `;
@@ -2847,7 +3079,9 @@ function revealDraftResult(
     </span>
 
     <span>
+
       ${item.team.weight}% odds
+
     </span>
 
   `;
@@ -2874,16 +3108,13 @@ async function start(){
 
 
   /*
-     IMPORTANT:
+     First check Supabase.
 
-     Always check Supabase immediately before
-     generating a new order.
+     If an official draft already exists,
+     use that exact result.
 
-     This prevents two browsers from creating
-     different random results.
-
-     If an official order already exists,
-     everybody uses that exact order.
+     This prevents different viewers from
+     generating different draft orders.
   */
 
   showStatus(
@@ -2919,9 +3150,8 @@ async function start(){
 
 
   /*
-     No complete saved draft exists.
-
-     Generate the official weighted order.
+     If there is no saved order,
+     create the official weighted lottery.
   */
 
   if(
@@ -2948,7 +3178,6 @@ async function start(){
         "Could not create a complete draft order."
       );
 
-
       return false;
 
     }
@@ -2965,7 +3194,6 @@ async function start(){
       showStatus(
         "Draft generated, but Supabase could not save it."
       );
-
 
       return false;
 
@@ -3013,9 +3241,9 @@ async function start(){
   );
 
 
-  /* =======================================================
-     CREATE RUNNERS
-     ======================================================= */
+  /*
+     Create the eight runners.
+  */
 
   runners =
     teams.map(
@@ -3047,26 +3275,23 @@ async function start(){
     );
 
 
-  /* =======================================================
-     90-SECOND RACE
-     =======================================================
+  /*
+     90-second race.
 
-     Pick #1 = 76 seconds
-     Pick #2 = 78 seconds
-     Pick #3 = 80 seconds
-     Pick #4 = 82 seconds
-     Pick #5 = 84 seconds
-     Pick #6 = 86 seconds
-     Pick #7 = 88 seconds
-     Pick #8 = 90 seconds
+     Pick #1 = 76 sec
+     Pick #2 = 78 sec
+     Pick #3 = 80 sec
+     Pick #4 = 82 sec
+     Pick #5 = 84 sec
+     Pick #6 = 86 sec
+     Pick #7 = 88 sec
+     Pick #8 = 90 sec
 
-     The separation is intentionally small
-     so the race stays tight.
-     ======================================================= */
+     Small gaps keep the race tight.
+  */
 
   const baseFinish =
     76000;
-
 
   const finishGap =
     2000;
@@ -3080,8 +3305,8 @@ async function start(){
 
       const runner =
         runners.find(
-          candidate =>
-            String(candidate.team.id) ===
+          r =>
+            String(r.team.id) ===
             String(item.team.id)
         );
 
@@ -3118,10 +3343,6 @@ async function start(){
     ) *
     finishGap;
 
-
-  /* =======================================================
-     REVEAL FINISHER
-     ======================================================= */
 
   function revealRunner(
     runner
@@ -3163,10 +3384,6 @@ async function start(){
   }
 
 
-  /* =======================================================
-     ANIMATION
-     ======================================================= */
-
   function frame(
     now
   ){
@@ -3199,13 +3416,9 @@ async function start(){
           );
 
 
-        /*
-           88% shared movement
-           12% individual movement.
+        const sharedProgress =
+          overallProgress;
 
-           This keeps the runners
-           physically close together.
-        */
 
         const progress =
           Math.min(
@@ -3213,54 +3426,42 @@ async function start(){
             1,
 
             (
-              overallProgress *
-              0.88
-            )
-
-            +
+              sharedProgress *
+              .88
+            ) +
 
             (
               individualProgress *
-              0.12
+              .12
             )
 
           );
 
 
-        /*
-           Small deterministic surges/fades.
-
-           No random movement here, so everyone
-           watching the same official draft sees
-           the same race.
-        */
-
         const phase =
           runner.rank *
-          0.72;
+          .72;
 
 
         const surge =
           Math.sin(
             progress *
             Math.PI *
-            5
-            +
+            5 +
             phase
           ) *
-          0.010;
+          .010;
 
 
         const fade =
           Math.sin(
             progress *
             Math.PI *
-            2.2
-            +
+            2.2 +
             phase *
             1.7
           ) *
-          0.006;
+          .006;
 
 
         const startPosition =
@@ -3272,8 +3473,7 @@ async function start(){
 
 
         const basePosition =
-          startPosition
-          +
+          startPosition +
           progress *
           (
             finishPosition -
@@ -3290,13 +3490,11 @@ async function start(){
 
               startPosition,
 
-              basePosition
-              +
+              basePosition +
               (
                 surge +
                 fade
-              )
-              *
+              ) *
               100
 
             )
@@ -3336,7 +3534,8 @@ async function start(){
 
 
       renderResults(
-        savedDraftOrder
+        savedDraftOrder,
+        true
       );
 
 
@@ -3432,7 +3631,8 @@ function showSavedDraft(){
 
 
   renderResults(
-    savedDraftOrder
+    savedDraftOrder,
+    true
   );
 
 
@@ -3458,20 +3658,10 @@ async function initialize(){
     await loadTeamsFromSupabase();
 
 
-  /*
-     Commissioner starts locked.
-  */
-
   renderInputs();
 
   renderPermanentLabels();
 
-
-  /*
-     Load official saved draft.
-
-     If one exists, everyone sees it.
-  */
 
   savedDraftOrder =
     await loadDraftOrderFromSupabase();
@@ -3505,12 +3695,10 @@ const raceCurtain =
     "raceCurtain"
   );
 
-
 const startDashBtn =
   document.getElementById(
     "startDashBtn"
   );
-
 
 const countdownNumber =
   document.getElementById(
@@ -3518,24 +3706,18 @@ const countdownNumber =
   );
 
 
-function wait(
-  milliseconds
-){
+function wait(ms){
 
   return new Promise(
     resolve =>
       setTimeout(
         resolve,
-        milliseconds
+        ms
       )
   );
 
 }
 
-
-/* =========================================================
-   COUNTDOWN
-   ========================================================= */
 
 async function runCountdown(){
 
@@ -3559,13 +3741,12 @@ async function runCountdown(){
   );
 
 
-  const sequence =
-    [
-      "3",
-      "2",
-      "1",
-      "GO!"
-    ];
+  const sequence = [
+    "3",
+    "2",
+    "1",
+    "GO!"
+  ];
 
 
   for(
@@ -3582,9 +3763,7 @@ async function runCountdown(){
     );
 
 
-    void
-      countdownNumber
-        .offsetWidth;
+    void countdownNumber.offsetWidth;
 
 
     countdownNumber.classList.add(
@@ -3616,10 +3795,6 @@ async function runCountdown(){
 }
 
 
-/* =========================================================
-   START FROM OVERLAY
-   ========================================================= */
-
 async function startDashFromOverlay(){
 
   if(
@@ -3639,11 +3814,6 @@ async function startDashFromOverlay(){
 
   await runCountdown();
 
-
-  /*
-     Open the curtain while the official
-     draft order is being prepared.
-  */
 
   raceCurtain.classList.add(
     "open"
@@ -3688,110 +3858,102 @@ async function startDashFromOverlay(){
 
 
 /* =========================================================
-   COMMISSIONER BUTTON
+   COMMISSIONER BUTTONS
    ========================================================= */
 
-commissionerBottomButton
-  .addEventListener(
-    "click",
-    openCommissioner
-  );
+startDashBtn.addEventListener(
+  "click",
+  startDashFromOverlay
+);
 
 
-unlockCommissionerBtn
-  .addEventListener(
-    "click",
-    unlockCommissioner
-  );
+commissionerBottomButton.addEventListener(
+  "click",
+  openCommissioner
+);
 
 
-commissionerPassword
-  .addEventListener(
-    "keydown",
-    event => {
+unlockCommissionerBtn.addEventListener(
+  "click",
+  unlockCommissioner
+);
 
-      if(
-        event.key ===
-        "Enter"
-      ){
 
-        unlockCommissioner();
+commissionerPassword.addEventListener(
+  "keydown",
+  e => {
 
-      }
+    if(
+      e.key ===
+      "Enter"
+    ){
+
+      unlockCommissioner();
 
     }
-  );
+
+  }
+);
 
 
-cancelCommissionerBtn
-  .addEventListener(
-    "click",
-    closeCommissioner
-  );
+cancelCommissionerBtn.addEventListener(
+  "click",
+  closeCommissioner
+);
 
 
-lockCommissionerBtn
-  .addEventListener(
-    "click",
-    lockCommissioner
-  );
+lockCommissionerBtn.addEventListener(
+  "click",
+  lockCommissioner
+);
 
 
-saveConfigBtn
-  .addEventListener(
-    "click",
-    saveConfiguration
-  );
+saveConfigBtn.addEventListener(
+  "click",
+  saveConfiguration
+);
 
 
 /* =========================================================
    RESET SAVED DRAFT
    ========================================================= */
 
-resetDraftBtn
-  .addEventListener(
-    "click",
-    async () => {
+resetDraftBtn.addEventListener(
+  "click",
+  async () => {
 
-      const confirmed =
-        window.confirm(
-          "Reset the saved draft order in Supabase?"
-        );
-
-
-      if(!confirmed)
-        return;
+    const confirmed =
+      window.confirm(
+        "Reset the saved draft order in Supabase?"
+      );
 
 
-      const success =
-        await clearDraftOrderFromSupabase();
+    if(!confirmed)
+      return;
 
 
-      if(success){
+    const success =
+      await clearDraftOrderFromSupabase();
 
-        resetVisuals();
+
+    if(success){
+
+      resetVisuals();
 
 
-        showStatus(
-          "Saved draft cleared. Ready for a new weighted draw."
-        );
-
-      }
+      showStatus(
+        "Saved draft cleared. Ready for a new weighted draw."
+      );
 
     }
-  );
+
+  }
+);
 
 
 /* =========================================================
    START APPLICATION
    ========================================================= */
-
-startDashBtn
-  .addEventListener(
-    "click",
-    startDashFromOverlay
-  );
-
 
 initialize();
 

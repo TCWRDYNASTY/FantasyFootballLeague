@@ -3005,7 +3005,7 @@ if (rivalry) {
 
     container.appendChild(rivalryCard);
 }
-
+}
 /* =========================================================
    AUTOMATED SIDE BULLETIN
 
@@ -4697,9 +4697,6 @@ async function initializeCountdownOrScoreboard() {
     await showScoreboardAfterKickoff();
 }
 
-/* === REMOVE OLD PUSH-NOTIFICATION SERVICE WORKERS ===
-   Push notifications have been removed. This unregisters an old service
-   worker left behind by the previous notification experiment. */
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
@@ -4714,10 +4711,8 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-/* === INITIALIZE SEASONAL CENTER SCREEN === */
 initializeCountdownOrScoreboard();
-    
-/* === 9. INITIALIZE PAGE === */
+
 initializeLeagueBulletin();
 fetchStandings();
 

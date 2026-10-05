@@ -2503,6 +2503,11 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         const rivalryRecordOwner = statA ? nameA : (statB ? nameB : nameA);
         const rivalryRecord = statA?.H2H_Record || statB?.H2H_Record || "0-0";
         const rivalryH2H = parseH2H(rivalryRecord);
+        const rivalryPointDifferential = Number.isFinite(Number(statA?.Pt_Diff))
+    ? Number(statA.Pt_Diff)
+    : Number.isFinite(Number(statB?.Pt_Diff))
+        ? -Number(statB.Pt_Diff)
+        : null;
 
         const pointDifferential = safeNumber(favoriteStat?.Pt_Diff);
         const averageScore = Math.min(averageAdvantage, 20) * 1.2;
@@ -2518,6 +2523,7 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
             averageAdvantage, favoriteH2H, h2hData, pointDifferential,
             statA, statB, rivalryRecordOwner, rivalryRecord, rivalryH2H,
             rivalryCloseness: Math.abs(rivalryH2H.wins - rivalryH2H.losses),
+            rivalryPointDifferential,
             averageGap: Math.abs(avgA - avgB),
             combinedAverage: avgA + avgB
         });
@@ -2732,11 +2738,17 @@ if (rivalry) {
         ? null
         : (rivalryPointsA > rivalryPointsB ? rivalryNameA : rivalryNameB);
 
-    const pointDifferential = Math.abs(rivalryPointsA - rivalryPointsB);
+   const historicalDifferential = Number(rivalry.rivalryPointDifferential) || 0;
 
-    const differentialText = isTie
-        ? "TIED — 0.0 POINT DIFFERENTIAL"
-        : `@${winnerName} +${pointDifferential.toFixed(1)} POINT DIFFERENTIAL`;
+const differentialWinner = historicalDifferential > 0
+    ? rivalryNameA
+    : historicalDifferential < 0
+        ? rivalryNameB
+        : null;
+
+const differentialText = historicalDifferential === 0
+    ? "TIED — 0.0 POINT DIFFERENTIAL"
+    : `@${differentialWinner} +${Math.abs(historicalDifferential).toFixed(1)} POINT DIFFERENTIAL`;
 
     if (!document.getElementById("tcwr-rivalry-card-styles")) {
         const rivalryStyles = document.createElement("style");
@@ -3820,12 +3832,16 @@ function selectDesignatedRivalry(candidates) {
     const eligible = (candidates || [])
         .filter(matchup => {
             const h2h = matchup?.rivalryH2H;
-            return h2h && Number(h2h.total) > 0;
+            return (
+                h2h &&
+                Number(h2h.total) > 0 &&
+                Number.isFinite(Number(matchup.rivalryPointDifferential))
+            );
         })
         .sort((a, b) =>
+            Math.abs(Number(a.rivalryPointDifferential)) -
+            Math.abs(Number(b.rivalryPointDifferential)) ||
             Number(b.rivalryH2H.total) - Number(a.rivalryH2H.total) ||
-            Number(a.rivalryCloseness) - Number(b.rivalryCloseness) ||
-            Number(b.combinedAverage) - Number(a.combinedAverage) ||
             String(a.matchId).localeCompare(String(b.matchId))
         );
 

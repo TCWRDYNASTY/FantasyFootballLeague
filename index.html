@@ -7,13 +7,10 @@
     <meta name="theme-color" content="#061426" />
     <title>TCWR FANTASY FOOTBALL DY-NASTY</title>
 
-<!-- App Icons with Cache-Busting Strings -->
 <link rel="icon" type="image/png" sizes="192x192" href="tcwr-icon-192.png?v=1" />
 <link rel="icon" type="image/png" sizes="512x512" href="tcwr-icon-512.png?v=1" />
 <link rel="apple-touch-icon" sizes="192x192" href="tcwr-icon-192.png?v=1" />
 <link rel="apple-touch-icon" sizes="512x512" href="tcwr-icon-512.png?v=1" />
-
-<!-- PWA Manifest Connection -->
 <link rel="manifest" href="manifest.json" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -969,8 +966,6 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
         .tcwr-offseason-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
 </style>
-
-
 
 </head>
 
@@ -2689,176 +2684,174 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
 
     container.appendChild(card);
 
-    /*
-     * OTHER LEAGUE MATCHUPS
-     *
-     * Show every weekly matchup except the featured Matchup of the Week.
-     * The rows intentionally stay compact, like an Excel-style grid.
-     */
-    const otherMatchups = analyzedMatchups
-        .filter(matchup => String(matchup.matchId) !== String(matchId))
-        .sort((a, b) => String(a.matchId).localeCompare(String(b.matchId), undefined, { numeric:true }));
+   /* * OTHER LEAGUE MATCHUPS  */
+const otherMatchups = analyzedMatchups
+    .filter(matchup => String(matchup.matchId) !== String(matchId))
+    .sort((a, b) => String(a.matchId).localeCompare(String(b.matchId), undefined, { numeric:true }));
 
-    if (otherMatchups.length > 0) {
-        if (!document.getElementById("tcwr-other-matchups-styles")) {
-            const otherMatchupStyles = document.createElement("style");
-            otherMatchupStyles.id = "tcwr-other-matchups-styles";
-            otherMatchupStyles.textContent = `
+if (otherMatchups.length > 0) {
+    if (!document.getElementById("tcwr-other-matchups-styles")) {
+        const otherMatchupStyles = document.createElement("style");
+        otherMatchupStyles.id = "tcwr-other-matchups-styles";
+        otherMatchupStyles.textContent = `
+            .tcwr-other-matchups-card {
+                width:100%;
+                box-sizing:border-box;
+                margin:-2px 0 15px;
+                padding:12px 16px 10px;
+                color:white;
+                background:linear-gradient(145deg, rgba(30,41,59,.98), rgba(15,23,42,.98));
+                border:1px solid rgba(148,163,184,.22);
+                border-left:4px solid #f59e0b;
+                border-radius:10px;
+                box-shadow:0 8px 20px rgba(0,0,0,.25);
+            }
+
+            .tcwr-other-matchups-title {
+                margin:0 0 7px;
+                color:#facc15;
+                font-size:.7rem;
+                font-weight:900;
+                letter-spacing:.9px;
+                text-transform:uppercase;
+                text-align:center;
+            }
+
+            .tcwr-other-matchups-grid {
+                width:100%;
+                border:1px solid rgba(148,163,184,.16);
+                border-radius:7px;
+                overflow:hidden;
+            }
+
+            .tcwr-other-matchup-row {
+                display:grid;
+                grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr) minmax(125px,.8fr);
+                align-items:center;
+                min-height:31px;
+                border-bottom:1px solid rgba(148,163,184,.12);
+            }
+
+            .tcwr-other-matchup-row:last-child {
+                border-bottom:0;
+            }
+
+            .tcwr-other-matchup-cell {
+                min-width:0;
+                padding:6px 8px;
+                color:#e2e8f0;
+                font-size:.69rem;
+                font-weight:800;
+                line-height:1.1;
+                overflow-wrap:anywhere;
+            }
+
+            .tcwr-other-matchup-team-a {
+                text-align:right;
+            }
+
+            .tcwr-other-matchup-vs {
+                color:#64748b;
+                text-align:center;
+                font-size:.62rem;
+                font-weight:900;
+                text-transform:uppercase;
+            }
+
+            .tcwr-other-matchup-team-b {
+                text-align:left;
+            }
+
+            .tcwr-other-matchup-differential {
+                border-left:1px solid rgba(148,163,184,.12);
+                color:#facc15;
+                text-align:right;
+                font-variant-numeric:tabular-nums;
+                white-space:normal;
+                line-height:1.1;
+            }
+
+            .tcwr-other-matchup-differential.tied {
+                color:#94a3b8;
+            }
+
+            @media (max-width:650px) {
                 .tcwr-other-matchups-card {
-                    width:100%;
-                    box-sizing:border-box;
-                    margin:-2px 0 15px;
-                    padding:12px 16px 10px;
-                    color:white;
-                    background:linear-gradient(145deg, rgba(30,41,59,.98), rgba(15,23,42,.98));
-                    border:1px solid rgba(148,163,184,.22);
-                    border-left:4px solid #f59e0b;
-                    border-radius:10px;
-                    box-shadow:0 8px 20px rgba(0,0,0,.25);
-                }
-
-                .tcwr-other-matchups-title {
-                    margin:0 0 7px;
-                    color:#facc15;
-                    font-size:.7rem;
-                    font-weight:900;
-                    letter-spacing:.9px;
-                    text-transform:uppercase;
-                    text-align:center;
-                }
-
-                .tcwr-other-matchups-grid {
-                    width:100%;
-                    border:1px solid rgba(148,163,184,.16);
-                    border-radius:7px;
-                    overflow:hidden;
+                    padding:10px 10px 8px;
                 }
 
                 .tcwr-other-matchup-row {
-                    display:grid;
-                    grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr) minmax(125px,.8fr);
-                    align-items:center;
-                    min-height:31px;
-                    border-bottom:1px solid rgba(148,163,184,.12);
-                }
-
-                .tcwr-other-matchup-row:last-child {
-                    border-bottom:0;
+                    grid-template-columns:minmax(0,1fr) 25px minmax(0,1fr) minmax(95px,.8fr);
                 }
 
                 .tcwr-other-matchup-cell {
-                    min-width:0;
-                    padding:6px 8px;
-                    color:#e2e8f0;
-                    font-size:.69rem;
-                    font-weight:800;
-                    line-height:1.1;
-                    overflow-wrap:anywhere;
-                }
-
-                .tcwr-other-matchup-team-a {
-                    text-align:right;
-                }
-
-                .tcwr-other-matchup-vs {
-                    color:#64748b;
-                    text-align:center;
-                    font-size:.62rem;
-                    font-weight:900;
-                    text-transform:uppercase;
-                }
-
-                .tcwr-other-matchup-team-b {
-                    text-align:left;
+                    padding:5px 5px;
+                    font-size:.63rem;
                 }
 
                 .tcwr-other-matchup-differential {
-                    border-left:1px solid rgba(148,163,184,.12);
-                    color:#facc15;
-                    text-align:right;
-                    font-variant-numeric:tabular-nums;
-                    white-space:nowrap;
-                }
-
-                .tcwr-other-matchup-differential.tied {
-                    color:#94a3b8;
-                }
-
-                @media (max-width:650px) {
-                    .tcwr-other-matchups-card {
-                        padding:10px 10px 8px;
-                    }
-
-                    .tcwr-other-matchup-row {
-                        grid-template-columns:minmax(0,1fr) 25px minmax(0,1fr) minmax(95px,.8fr);
-                    }
-
-                    .tcwr-other-matchup-cell {
-                        padding:5px 5px;
-                        font-size:.63rem;
-                    }
-
-                    .tcwr-other-matchup-differential {
-                        font-size:.61rem;
-                    }
-                }
-            `;
-            document.head.appendChild(otherMatchupStyles);
-        }
-
-        const otherMatchupsCard = document.createElement("div");
-        otherMatchupsCard.className = "bulletin-item tcwr-other-matchups-card";
-
-        const matchupRows = otherMatchups.map(matchup => {
-            const differential = Number(matchup.careerPointDifferential);
-
-            let differentialText = "—";
-            let differentialClass = "tcwr-other-matchup-differential";
-
-            if (Number.isFinite(differential)) {
-                if (differential > 0) {
-                    differentialText = `+${differential.toFixed(1)} @${matchup.nameA}`;
-                } else if (differential < 0) {
-                    differentialText = `+${Math.abs(differential).toFixed(1)} @${matchup.nameB}`;
-                } else {
-                    differentialText = "0.0 TIED";
-                    differentialClass += " tied";
+                    font-size:.61rem;
                 }
             }
+        `;
+        document.head.appendChild(otherMatchupStyles);
+    }
 
-            return `
-                <div class="tcwr-other-matchup-row">
-                    <div class="tcwr-other-matchup-cell tcwr-other-matchup-team-a">@${matchup.nameA}</div>
-                    <div class="tcwr-other-matchup-cell tcwr-other-matchup-vs">vs.</div>
-                    <div class="tcwr-other-matchup-cell tcwr-other-matchup-team-b">@${matchup.nameB}</div>
-                    <div class="tcwr-other-matchup-cell ${differentialClass}">${differentialText}</div>
-                </div>
-            `;
-        }).join("");
+    const otherMatchupsCard = document.createElement("div");
+    otherMatchupsCard.className = "bulletin-item tcwr-other-matchups-card";
 
-        otherMatchupsCard.innerHTML = `
-            <div class="tcwr-other-matchups-title">Other League Matchups</div>
-            <div class="tcwr-other-matchups-grid">
-                ${matchupRows}
+    const matchupRows = otherMatchups.map(matchup => {
+        const differential = Number(matchup.careerPointDifferential);
+
+        let differentialText = "—";
+        let differentialClass = "tcwr-other-matchup-differential";
+
+        if (Number.isFinite(differential)) {
+            if (differential > 0) {
+                differentialText = `
+                    <div style="font-weight:900;">
+                        +${differential.toFixed(1)}
+                    </div>
+                    <div style="font-size:.62rem; font-weight:800;">
+                        @${matchup.nameA}
+                    </div>
+                `;
+            } else if (differential < 0) {
+                differentialText = `
+                    <div style="font-weight:900;">
+                        +${Math.abs(differential).toFixed(1)}
+                    </div>
+                    <div style="font-size:.62rem; font-weight:800;">
+                        @${matchup.nameB}
+                    </div>
+                `;
+            } else {
+                differentialText = "0.0 TIED";
+                differentialClass += " tied";
+            }
+        }
+
+        return `
+            <div class="tcwr-other-matchup-row">
+                <div class="tcwr-other-matchup-cell tcwr-other-matchup-team-a">@${matchup.nameA}</div>
+                <div class="tcwr-other-matchup-cell tcwr-other-matchup-vs">vs.</div>
+                <div class="tcwr-other-matchup-cell tcwr-other-matchup-team-b">@${matchup.nameB}</div>
+                <div class="tcwr-other-matchup-cell ${differentialClass}">${differentialText}</div>
             </div>
         `;
+    }).join("");
 
-        container.appendChild(otherMatchupsCard);
-    }
+    otherMatchupsCard.innerHTML = `
+        <div class="tcwr-other-matchups-title">Other League Matchups</div>
+        <div class="tcwr-other-matchups-grid">
+            ${matchupRows}
+        </div>
+    `;
+
+    container.appendChild(otherMatchupsCard);
 }
 /* =========================================================
    AUTOMATED SIDE BULLETIN
-
-   PACIFIC TIME SCHEDULE:
-
-   Thursday 5:00 PM - Tuesday 12:00 AM:
-   Live blowout watch.
-
-   Tuesday 12:00 AM - Thursday 5:00 PM:
-   Awards from the latest completed week.
-
-   Before the season:
-   Displays a preseason waiting message.
    ========================================================= */
 
 const BULLETIN_LIVE_START_HOUR_PT = 17; // Thursday 5:00 PM Pacific

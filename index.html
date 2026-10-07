@@ -2850,6 +2850,7 @@ if (otherMatchups.length > 0) {
 
     container.appendChild(otherMatchupsCard);
 }
+}   
 /* =========================================================
    AUTOMATED SIDE BULLETIN
    ========================================================= */
@@ -3780,8 +3781,7 @@ function fetchCsvRows(url) {
         });
     });
 }
-
-
+    
 /* =========================================================
    END-OF-SEASON CHAMPIONSHIP + AWARDS
    ========================================================= */
@@ -4464,10 +4464,8 @@ window.openLeagueChat = function () {
         );
 
     if (isMobile) {
-        // Opens the Messenger app (if installed)
         window.location.href = "fb-messenger://";
     } else {
-        // Opens Messenger in the browser
         window.open(
             "https://www.messenger.com/",
             "_blank",
@@ -4476,6 +4474,5 @@ window.openLeagueChat = function () {
     }
 };
 </script>
-
 </body>
 </html>

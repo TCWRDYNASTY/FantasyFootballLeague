@@ -2634,9 +2634,6 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
 
         <div style="display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:12px; margin-bottom:20px;">
             <div style="text-align:center; min-width:0;">
-                <div style="width:54px; height:54px; margin:0 auto 8px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#334155; border:2px solid ${statisticalFavorite === nameA ? borderColor : '#475569'}; font-size:1rem; font-weight:800;">
-                    ${getInitials(nameA)}
-                </div>
                 <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameA ? '#facc15' : 'white'}; overflow-wrap:anywhere;">@${nameA}</div>
                 <div style="margin-top:4px; color:#94a3b8; font-size:.7rem;">Historical Avg ${avgA.toFixed(1)}</div>
                 ${(gamesStarted || isPastWeek) ? `<div style="margin-top:7px; color:white; font-size:1.15rem; font-weight:900;">${pointsA.toFixed(1)}</div>` : ''}
@@ -2644,10 +2641,7 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
 
             <div style="color:#64748b; font-size:.8rem; font-weight:900;">VS</div>
 
-            <div style="text-align:center; min-width:0;">
-                <div style="width:54px; height:54px; margin:0 auto 8px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#334155; border:2px solid ${statisticalFavorite === nameB ? borderColor : '#475569'}; font-size:1rem; font-weight:800;">
-                    ${getInitials(nameB)}
-                </div>
+     <div style="text-align:center; min-width:0;">
                 <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameB ? '#facc15' : 'white'}; overflow-wrap:anywhere;">@${nameB}</div>
                 <div style="margin-top:4px; color:#94a3b8; font-size:.7rem;">Historical Avg ${avgB.toFixed(1)}</div>
                 ${(gamesStarted || isPastWeek) ? `<div style="margin-top:7px; color:white; font-size:1.15rem; font-weight:900;">${pointsB.toFixed(1)}</div>` : ''}

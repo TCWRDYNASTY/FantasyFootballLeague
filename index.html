@@ -1032,7 +1032,7 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
     </div>
 
     <div class="center-column">
-        <div class="column-title">Weekly Scoreboard & Predictions</div>
+        <div class="column-title">Weekly Matchups</div>
         <div class="column-container" id="scoreboard-container">
             <p style="text-align:center; color:#94a3b8; padding:20px;">Calculating predictions...</p>
         </div>
@@ -2670,7 +2670,6 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         <div class="tcwr-scoreboard-explanation" style="padding:14px; background:rgba(15,23,42,.65); border-radius:10px; border:1px solid rgba(148,163,184,.15);">
             <p style="margin:0 0 10px; color:white; font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.8px;">${explanationTitle}</p>
             <div style="display:flex; flex-direction:column; gap:8px; color:#cbd5e1; font-size:.78rem;">
-                <div>📈 Average scoring advantage: <strong style="color:white;">+${averageAdvantage.toFixed(1)} PPG</strong></div>
                 <div>🤝 Head-to-head: <strong style="color:white;">${favoriteH2H}</strong> ${h2hData.total > 0 ? `(${Math.round(h2hData.winPercentage * 100)}% win rate)` : '(No recorded history)'}</div>
                 <div>💥 Career point differential: <strong style="color:white;">${formatSignedNumber(pointDifferential)}</strong></div>
             </div>

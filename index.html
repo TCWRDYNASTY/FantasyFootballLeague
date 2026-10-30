@@ -2537,13 +2537,6 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
 
     /*
      * FEATURED MATCHUP SELECTION
-     *
-     * This must NOT use localStorage. localStorage is different on every
-     * device/browser and was the reason desktop and phone could show
-     * different Matchup of the Week cards.
-     *
-     * The ranking below is deterministic, so identical league data produces
-     * the same featured matchup on desktop, phone, tablet, etc.
      */
     let featuredMatchup;
     let cardType;
@@ -2634,7 +2627,7 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
 
         <div style="display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:12px; margin-bottom:20px;">
             <div style="text-align:center; min-width:0;">
-                <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameA ? '#facc15' : 'white'}; overflow-wrap:anywhere;">@${nameA}</div>
+                <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameA ? '#facc15' : 'white'}; overflow-wrap:anywhere; word-break:normal; line-height:1.2;">@${nameA}</div>
                 <div style="margin-top:4px; color:#94a3b8; font-size:.7rem;">Historical Avg ${avgA.toFixed(1)}</div>
                 ${(gamesStarted || isPastWeek) ? `<div style="margin-top:7px; color:white; font-size:1.15rem; font-weight:900;">${pointsA.toFixed(1)}</div>` : ''}
             </div>
@@ -2642,7 +2635,7 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
             <div style="color:#64748b; font-size:.8rem; font-weight:900;">VS</div>
 
      <div style="text-align:center; min-width:0;">
-                <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameB ? '#facc15' : 'white'}; overflow-wrap:anywhere;">@${nameB}</div>
+                <div style="font-size:.9rem; font-weight:800; color:${statisticalFavorite === nameB ? '#facc15' : 'white'}; overflow-wrap:anywhere; word-break:normal; line-height:1.2;">@${nameB}</div>
                 <div style="margin-top:4px; color:#94a3b8; font-size:.7rem;">Historical Avg ${avgB.toFixed(1)}</div>
                 ${(gamesStarted || isPastWeek) ? `<div style="margin-top:7px; color:white; font-size:1.15rem; font-weight:900;">${pointsB.toFixed(1)}</div>` : ''}
             </div>
@@ -4442,20 +4435,6 @@ async function initializeCountdownOrScoreboard() {
     }
 
     await showScoreboardAfterKickoff();
-}
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-        try {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(registrations.map(registration => registration.unregister()));
-            if (registrations.length > 0) {
-                console.log('Old TCWR service worker removed.');
-            }
-        } catch (error) {
-            console.warn('Unable to remove old service worker:', error);
-        }
-    });
 }
 
 initializeCountdownOrScoreboard();

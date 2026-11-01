@@ -2704,7 +2704,7 @@ function renderMatchupCards(matchups, nameMap, stats, week, nflState = {}) {
         <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:18px;">
             <div style="min-width:0; padding:11px; background:rgba(250,204,21,.08); border:1px solid rgba(250,204,21,.2); border-radius:8px;">
                 <div style="color:#94a3b8; font-size:.65rem; text-transform:uppercase; letter-spacing:.8px;">Statistical Favorite</div>
-                <div style="margin-top:4px; color:#facc15; font-size:.82rem; font-weight:800; overflow-wrap:anywhere;">${statisticalText}</div>
+                <div style="margin-top:4px; color:#facc15; font-size:clamp(.62rem, 2.8vw, .82rem); font-weight:800; white-space:nowrap;">${statisticalText}</div>
             </div>
 
             <div style="min-width:0; padding:11px; background:rgba(56,189,248,.08); border:1px solid rgba(56,189,248,.2); border-radius:8px;">

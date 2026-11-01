@@ -16,7 +16,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;600;700;900&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-
 <style>
 :root {
   --navy-950:#020914;
@@ -550,7 +549,6 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
 
 .hidden{display:none!important}
 
-/* Restyle JS-injected bulletin panels without changing their generated markup */
 .tcwr-news-panel{
   overflow:hidden!important;
   border:1px solid rgba(142,205,255,.16)!important;
@@ -642,11 +640,6 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
 }
     /* =========================================================
        END-OF-SEASON CHAMPION / AWARDS
-       ========================================================= */
-
-    /* =========================================================
-       MOBILE SCOREBOARD POLISH
-       Desktop is intentionally unchanged.
        ========================================================= */
     @media (max-width:650px) {
         #scoreboard-container {
@@ -832,15 +825,6 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
         line-height:1.6;
         letter-spacing:.03em;
     }
-    .tcwr-recap-tv-shell{
-        position:relative;
-        width:100%;
-        aspect-ratio:3 / 2;
-        overflow:hidden;
-        border-radius:18px;
-        background:#000;
-        box-shadow:0 20px 48px rgba(0,0,0,.48);
-    }
     .tcwr-recap-tv-image{
         position:absolute;
         inset:0;
@@ -958,9 +942,119 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
         letter-spacing:.04em;
         text-transform:uppercase;
     }
+
+    /* =========================================================
+   CHAMPIONSHIP PLAQUE
+========================================================= */
+
+.tcwr-championship-plaque {
+    width: 100%;
+    min-height: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    background:
+        radial-gradient(ellipse at center, rgba(212, 175, 55, 0.18), transparent 65%),
+        linear-gradient(145deg, #101827, #070b13);
+    border: 2px solid #b8943f;
+    border-radius: 12px;
+    box-shadow:
+        0 0 25px rgba(212, 175, 55, 0.18),
+        inset 0 0 25px rgba(212, 175, 55, 0.08);
+    text-align: center;
+    color: #f8fafc;
+}
+
+.tcwr-championship-content {
+    width: 100%;
+    max-width: 500px;
+}
+
+.tcwr-championship-stadium {
+    color: #d4af37;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 5px;
+    margin-bottom: 18px;
+}
+
+.tcwr-championship-trophy {
+    font-size: 58px;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.45));
+}
+
+.tcwr-championship-kicker {
+    color: #d4af37;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.tcwr-championship-title {
+    color: #f8fafc;
+    font-size: clamp(34px, 5vw, 52px);
+    font-weight: 900;
+    line-height: 1.05;
+    text-transform: uppercase;
+    margin: 12px 0 20px;
+    text-shadow: 0 3px 15px rgba(0, 0, 0, 0.6);
+}
+
+.tcwr-championship-divider {
+    width: 65%;
+    height: 2px;
+    margin: 0 auto 22px;
+    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+}
+
+.tcwr-championship-name {
+    color: #facc15;
+    font-size: clamp(25px, 4vw, 38px);
+    font-weight: 900;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    margin-bottom: 8px;
+}
+
+.tcwr-championship-team {
+    color: #e2e8f0;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+.tcwr-championship-season {
+    color: #d4af37;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+    .tcwr-championship-plaque {
+        min-height: 400px;
+        padding: 24px 14px;
+    }
+
+    .tcwr-championship-trophy {
+        font-size: 48px;
+    }
+
+    .tcwr-championship-stadium {
+        letter-spacing: 3px;
+    }
+}
+    
     @media(max-width:650px){
         .tcwr-recap-coming-card,.tcwr-offseason-card{min-height:420px;padding:32px 16px}
-        .tcwr-recap-tv-shell{border-radius:14px}
+ 
+        
     }
     @media(max-width:540px){
         .tcwr-offseason-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -2086,28 +2180,13 @@ const SCOREBOARD_REFRESH_MS = 60 * 1000;
 const FANTASY_SEASON_FINAL_WEEK = 14;
 
 /* === TCWR SEASONAL CENTER-SCREEN CONFIG === */
-const CHAMPION_RECAP_PLAYLIST_ID = "PLZEKYTPqxrBo";
-const CHAMPION_RECAP_PLAYLIST_URL =
-    `https://www.youtube.com/playlist?list=${CHAMPION_RECAP_PLAYLIST_ID}`;
-
-/* These dates are intentionally recurring every year.
-   - Champion Recap Coming Soon begins when Sleeper reports Week 14 is over.
-   - Champion Recap TV begins December 28.
-   - Offseason countdown begins March 12.
-   - The countdown reaches zero September 3, when the normal scoreboard returns. */
 const CHAMPION_RECAP_LIVE_MONTH = 12;
 const CHAMPION_RECAP_LIVE_DAY = 28;
 const OFFSEASON_COUNTDOWN_MONTH = 3;
 const OFFSEASON_COUNTDOWN_DAY = 12;
 const NFL_SEASON_START_MONTH = 9;
 const NFL_SEASON_START_DAY = 3;
-
-/* Optional previous-season Manager Rankings CSV.
-   Used only for Most Improved Manager. */
-const PREVIOUS_RANKINGS_CSV_URL = "";
-
 let endOfSeasonAwardsCache = null;
-
 let selectedScoreboardWeek = SCOREBOARD_TEST_WEEK;
 let latestVisibleScoreboardWeek = SCOREBOARD_TEST_MODE
     ? SCOREBOARD_TEST_WEEK
@@ -3809,32 +3888,6 @@ async function hasFantasySeasonEnded() {
     return (await getRawSleeperWeek()) > FANTASY_SEASON_FINAL_WEEK;
 }
 
-function renderChampionCard(champion, season) {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return;
-
-    const safeName = escapeBulletinHtml(champion?.name || "Champion");
-    const safeTeam = escapeBulletinHtml(champion?.teamName || "");
-
-    container.innerHTML = `
-        <section class="tcwr-champion-card">
-            <div class="tcwr-champion-header">TCWR DY-NASTY</div>
-            <div class="tcwr-champion-content">
-                <img
-                    class="tcwr-champion-trophy"
-                    src="trophy3.jpeg"
-                    alt="TCWR Dy-NASTY Championship Trophy"
-                    onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
-                >
-                <div class="tcwr-champion-trophy-fallback" style="display:none;">🏆</div>
-                <div class="tcwr-champion-congrats">CONGRATULATIONS</div>
-                <div class="tcwr-champion-name">${safeName}</div>
-                ${safeTeam ? `<div class="tcwr-champion-team">${safeTeam}</div>` : ""}
-                <div class="tcwr-champion-label">${escapeBulletinHtml(season)} LEAGUE CHAMPION</div>
-            </div>
-        </section>
-    `;
-}
 
 function renderYearEndAwards(awards, season) {
     const target = document.getElementById("automated-bulletin-content");
@@ -3856,7 +3909,6 @@ function renderYearEndAwards(awards, season) {
                 ${escapeBulletinHtml(season)} SEASON
             </div>
             ${row("manager","👑 Manager of the Year",awards.managerOfYear.winner,awards.managerOfYear.detail)}
-            ${row("improved","📈 Most Improved Manager",awards.mostImproved.winner,awards.mostImproved.detail)}
             ${row("game","🔥 Game of the Year",awards.gameOfYear.winner,awards.gameOfYear.detail)}
             ${row("player","🏅 Player of the Year",awards.playerOfYear.winner,awards.playerOfYear.detail)}
         </section>
@@ -3886,51 +3938,6 @@ function findRankingRow(rows, managerName) {
         String(nameTranslator[managerName] || managerName).trim().toLowerCase()
     ];
     return rows.find(row => targets.includes(row.manager.toLowerCase()));
-}
-
-async function calculateMostImprovedManager(users, currentRankingRows) {
-    if (!PREVIOUS_RANKINGS_CSV_URL) {
-        return {
-            winner: "Previous ranking data unavailable",
-            detail: "Add the prior season's weighted-score CSV URL to PREVIOUS_RANKINGS_CSV_URL."
-        };
-    }
-
-    try {
-        const previousRows = normalizeRankingRows(await fetchCsvRows(PREVIOUS_RANKINGS_CSV_URL));
-        const currentRows = normalizeRankingRows(currentRankingRows);
-
-        const candidates = users.map(user => {
-            const manager = getFriendlyManagerName(user);
-            const current = findRankingRow(currentRows, manager);
-            const previous = findRankingRow(previousRows, manager);
-            if (!current || !previous) return null;
-
-            return {
-                manager,
-                previous: previous.score,
-                current: current.score,
-                improvement: current.score - previous.score
-            };
-        }).filter(Boolean);
-
-        candidates.sort((a,b) => b.improvement - a.improvement || b.current - a.current);
-        const best = candidates[0];
-
-        return best ? {
-            winner: best.manager,
-            detail: `${best.previous.toFixed(2)} → ${best.current.toFixed(2)} (${best.improvement >= 0 ? "+" : ""}${best.improvement.toFixed(2)})`
-        } : {
-            winner: "Ranking comparison unavailable",
-            detail: "Matching manager scores were not found in both seasons."
-        };
-    } catch (error) {
-        console.warn("Most Improved Manager calculation failed:", error);
-        return {
-            winner: "Ranking comparison unavailable",
-            detail: "The previous-season ranking source could not be loaded."
-        };
-    }
 }
 
 function calculateManagerOfYearFromMatchups(weeklyMatchups, rosterToUser) {
@@ -4058,14 +4065,10 @@ async function calculateEndOfSeasonAwards() {
             : `Team ${roster.roster_id}`
     ]));
 
-    const rankingRows = await fetchCsvRows(csvUrl);
     const players = await getSleeperPlayers();
-
     const managerOfYear = calculateManagerOfYearFromMatchups(weeklyMatchups,rosterToUser);
     const gameOfYear = calculateGameOfYearFromMatchups(weeklyMatchups,rosterToUser);
     const playerOfYear = calculatePlayerOfYearFromMatchups(weeklyMatchups,rosterToUser,players);
-    const mostImproved = await calculateMostImprovedManager(users,rankingRows);
-
     const winnerRosterId =
         league?.metadata?.latest_league_winner_roster_id ??
         league?.settings?.latest_league_winner_roster_id;
@@ -4095,7 +4098,6 @@ async function calculateEndOfSeasonAwards() {
         season:getCurrentSeasonYear(league),
         champion,
         managerOfYear,
-        mostImproved,
         gameOfYear,
         playerOfYear
     };
@@ -4138,67 +4140,45 @@ function isPacificDateBefore(date, month, day) {
     return parts.month < month || (parts.month === month && parts.day < day);
 }
 
-function renderChampionRecapComingSoon() {
+async function renderChampionRecapComingSoon() {
     const container = document.getElementById("scoreboard-container");
     if (!container) return;
 
     stopKickoffCountdown();
     clearScoreboardRefreshTimer();
-    setCenterColumnTitle("Champion Recap");
+    setCenterColumnTitle("League Champion");
 
-    const seasonYear = getPacificDateParts().year;
+    try {
+        const awards = await calculateEndOfSeasonAwards();
+        const champion = awards.champion;
 
-    container.innerHTML = `
-        <section class="tcwr-recap-coming-card">
-            <div class="tcwr-recap-coming-kicker">🏆 TCWR DY-NASTY</div>
-            <h2 class="tcwr-recap-coming-title">Champion Recap</h2>
-            <div class="tcwr-recap-coming-date">Check Back December 28</div>
-            <p class="tcwr-recap-coming-copy">
-                The ${seasonYear} fantasy season is complete. The Champion Recap will take over the screen on December 28.
-            </p>
-        </section>
-    `;
-}
+        const safeName = escapeBulletinHtml(champion?.name || "League Champion");
+        const safeTeam = escapeBulletinHtml(champion?.teamName || "");
+        const safeSeason = escapeBulletinHtml(String(awards.season || ""));
 
-function renderChampionRecapTv() {
-    const container = document.getElementById("scoreboard-container");
-    if (!container) return;
-
-    stopKickoffCountdown();
-    clearScoreboardRefreshTimer();
-    setCenterColumnTitle("Champion Recap");
-
-    const playlistEmbedUrl =
-        `https://www.youtube.com/embed?listType=playlist` +
-        `&list=${encodeURIComponent(CHAMPION_RECAP_PLAYLIST_ID)}` +
-        `&autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1`;
-
-    container.innerHTML = `
-        <section class="tcwr-recap-tv-shell" aria-label="TCWR Champion Recap">
-            <img
-                class="tcwr-recap-tv-image"
-                src="retrotv.jpeg?v=1"
-                alt="Retro television frame for the TCWR Champion Recap"
-            >
-            <div class="tcwr-recap-tv-screen">
-                <iframe
-                    src="${playlistEmbedUrl}"
-                    title="TCWR Champion Recap"
-                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                    allowfullscreen
-                    referrerpolicy="strict-origin-when-cross-origin"
-                ></iframe>
+        container.innerHTML = `
+            <section class="tcwr-championship-plaque" aria-label="TCWR League Champion">
+                <div class="tcwr-championship-content">
+                    <div class="tcwr-championship-stadium">TCWR DY-NASTY</div>
+                    <div class="tcwr-championship-trophy">🏆</div>
+                    <div class="tcwr-championship-kicker">Congratulations</div>
+                    <h2 class="tcwr-championship-title">League<br>Champion</h2>
+                    <div class="tcwr-championship-divider"></div>
+                    <div class="tcwr-championship-name">${safeName}</div>
+                    ${safeTeam ? `<div class="tcwr-championship-team">${safeTeam}</div>` : ""}
+                    <div class="tcwr-championship-season">${safeSeason} Season</div>
+                </div>
+            </section>
+        `;
+    } catch (error) {
+        console.error("Championship plaque error:", error);
+        container.innerHTML = `
+            <div style="padding:35px 20px;text-align:center;color:#f87171;">
+                Unable to load championship information.
             </div>
-            <a
-                class="tcwr-recap-tv-fallback-link"
-                href="${CHAMPION_RECAP_PLAYLIST_URL}"
-                target="_blank"
-                rel="noopener noreferrer"
-            >Open playlist on YouTube</a>
-        </section>
-    `;
+        `;
+    }
 }
-
 function getNextNflSeasonStartDate() {
     const now = new Date();
     const pacific = getPacificDateParts(now);
@@ -4348,13 +4328,8 @@ async function getSeasonalCenterMode() {
 async function renderSeasonalCenterScreen() {
     const mode = await getSeasonalCenterMode();
 
-    if (mode === "champion-coming-soon") {
-        renderChampionRecapComingSoon();
-        return;
-    }
-
-    if (mode === "champion-recap") {
-        renderChampionRecapTv();
+    if (mode === "champion-coming-soon" || mode === "champion-recap") {
+        await renderChampionRecapComingSoon();
         return;
     }
 
@@ -4371,12 +4346,8 @@ async function renderSeasonalCenterScreen() {
 async function renderEndOfSeasonState() {
     try {
         const awards = await calculateEndOfSeasonAwards();
-
-        /* The right column keeps the year-end awards throughout the
-           Champion Recap and offseason portions of the calendar. */
         renderYearEndAwards({
             managerOfYear:awards.managerOfYear,
-            mostImproved:awards.mostImproved,
             gameOfYear:awards.gameOfYear,
             playerOfYear:awards.playerOfYear
         },awards.season);
@@ -4394,17 +4365,11 @@ async function renderEndOfSeasonState() {
 /* =========================================================
    SEASONAL CENTER-SCREEN INITIALIZATION
    ========================================================= */
-
 async function initializeCountdownOrScoreboard() {
     const mode = await getSeasonalCenterMode();
 
-    if (mode === "champion-coming-soon") {
-        renderChampionRecapComingSoon();
-        return;
-    }
-
-    if (mode === "champion-recap") {
-        renderChampionRecapTv();
+    if (mode === "champion-coming-soon" || mode === "champion-recap") {
+        await renderChampionRecapComingSoon();
         return;
     }
 
@@ -4417,13 +4382,6 @@ async function initializeCountdownOrScoreboard() {
 
     await showScoreboardAfterKickoff();
 }
-
-initializeCountdownOrScoreboard();
-
-initializeLeagueBulletin();
-fetchStandings();
-
-
 // =====================================================
 // LEAGUE CHAT BUTTON
 // =====================================================

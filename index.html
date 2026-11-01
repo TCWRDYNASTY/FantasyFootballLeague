@@ -971,7 +971,16 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
 
 <body class="body">
 
-<button class="menu-toggle" id="mobileMenuBtn">☰ League Menu</button><div class="sidebar-overlay" id="sidebarOverlay"></div><div class="sidebar-left" id="sidebarLeft"><nav class="sidebar-nav"><a href="legends.html">Hall of Champions</a><a href="Records.html">Manager Rankings</a><a href="rookiedraftcountdown.html">Draft Lottery</a><a href="Bylaws.html">Constitution</a><a href="media.html">Podcast</a><a href="contactcommish.html?v=5">Contact Commish</a><a href="https://sleeper.com/leagues/1180908151502815232/matchup">Sleeper</a></nav></div>
+<button class="menu-toggle" id="mobileMenuBtn">☰ League Menu</button><div class="sidebar-overlay" id="sidebarOverlay"></div><div class="sidebar-left" id="sidebarLeft"><nav class="sidebar-nav">
+    <a href="legends.html">Hall of Champions</a>
+    <a href="Records.html">Manager Rankings</a>
+    <a href="rookiedraftcountdown.html">Draft Lottery</a>
+    <a href="Bylaws.html">Constitution</a>
+<a href="contactcommish.html?v=5">Contact Commish</a>
+<a href="#" onclick="openLeagueChat(); return false;">League Chat</a>
+<a href="https://sleeper.com/leagues/1180908151502815232/matchup">Sleeper</a>
+</nav>
+</div>
 
 <div class="header">
     <div class="logo-container">
@@ -1046,30 +1055,6 @@ tr.playoff-divider td{border-bottom:3px solid var(--red-500)}
                 <p style="text-align:center; color:#94a3b8; padding:20px; font-size:0.8rem;">
                     Fetching latest league news...
                 </p>
-            </div>
-
-            <!-- League Chat -->
-            <div style="text-align: center; margin: 1.5rem 0;">
-                <p style="color: #94a3b8; font-size: 0.8rem;">
-                    Want to talk trash?
-                </p>
-
-                <button
-                    type="button"
-                    onclick="openLeagueChat()"
-                    style="
-                        display: inline-block;
-                        background: #0084ff;
-                        color: white;
-                        padding: 8px 16px;
-                        border: none;
-                        border-radius: 20px;
-                        font-weight: bold;
-                        font-size: 0.8rem;
-                        cursor: pointer;
-                    ">
-                    Open League Chat
-                </button>
             </div>
 
         </div>

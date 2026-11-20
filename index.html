@@ -1682,11 +1682,63 @@ function ensureLeagueBulletinShell() {
 
             </section>
 
+            <section id="tcwr-podcast-panel" class="tcwr-news-panel">
+                <div class="tcwr-podcast-heading">TCWR PODCAST</div>
+                <div class="tcwr-podcast-player-wrap">
+                    <div id="tcwr-redcircle-player" class="redcirclePlayer-01c97459-9ca2-4d22-a6da-784ab17e32c3"></div>
+                </div>
+                <div class="tcwr-podcast-powered">Powered by <a href="https://redcircle.com?utm_source=rc_embedded_player&amp;utm_medium=web&amp;utm_campaign=embedded_v1" target="_blank" rel="noopener noreferrer">RedCircle</a></div>
+            </section>
+
         `;
+        initializeTcwrRedCirclePlayer();
     }
 
     return display;
 }
+
+
+/* === REDCIRCLE PODCAST PLAYER === */
+
+function initializeTcwrRedCirclePlayer() {
+    if (document.getElementById("tcwr-redcircle-embed-script")) return;
+
+    const player = document.getElementById("tcwr-redcircle-player");
+    if (!player) return;
+
+    const style = document.createElement("style");
+    style.id = "tcwr-redcircle-player-styles";
+    style.textContent = `
+        .tcwr-podcast-heading {
+            padding:12px 16px;
+            color:#facc15;
+            text-align:center;
+            font-size:.78rem;
+            font-weight:900;
+            letter-spacing:1px;
+            border-bottom:1px solid rgba(148,163,184,.16);
+        }
+        .tcwr-podcast-player-wrap { padding:12px 14px 4px; background:rgba(2,9,20,.18); }
+        #tcwr-redcircle-player { width:100%; min-height:150px; }
+        #tcwr-redcircle-player iframe { width:100%; max-width:100%; border:0; }
+        .tcwr-podcast-powered { padding:0 14px 11px; color:#94a3b8; font-size:.62rem; text-align:right; }
+        .tcwr-podcast-powered a { color:#cbd5e1; text-decoration:none; }
+        .tcwr-podcast-powered a:hover { color:#facc15; }
+    `;
+    if (!document.getElementById("tcwr-redcircle-player-styles")) document.head.appendChild(style);
+
+    const script = document.createElement("script");
+    script.id = "tcwr-redcircle-embed-script";
+    script.async = true;
+    script.defer = true;
+    script.src = "https://api.podcache.net/embedded-player/sh/3dc083a9-aedf-42d1-afc1-766b6fdb76cc/ep/01c97459-9ca2-4d22-a6da-784ab17e32c3";
+    script.onload = function () {
+        if (typeof window.redcircleIframe === "function") window.redcircleIframe();
+    };
+    document.body.appendChild(script);
+}
+
+window.redcircleIframe = window.redcircleIframe || function () {};
 
 
 /* === COMMISSIONER LOGIN / POSTING === */
@@ -2749,7 +2801,7 @@ if (otherMatchups.length > 0) {
 
             .tcwr-other-matchup-row {
                 display:grid;
-                grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 65px;
+                grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 54px 58px;
                 align-items:center;
                 border-bottom:1px solid rgba(148,163,184,.12);
             }
@@ -2808,13 +2860,39 @@ if (otherMatchups.length > 0) {
                 text-align:center;
             }
 
+            .tcwr-other-matchup-h2h {
+                min-width:0;
+                padding:8px 3px;
+                color:#e2e8f0;
+                font-size:.66rem;
+                font-weight:900;
+                text-align:center;
+                white-space:nowrap;
+                font-variant-numeric:tabular-nums;
+            }
+
+            .tcwr-other-matchup-h2h.unavailable { color:#64748b; }
+
+            .tcwr-other-matchups-labels {
+                display:grid;
+                grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 54px 58px;
+                padding:5px 0;
+                color:#94a3b8;
+                background:rgba(2,9,20,.35);
+                font-size:.52rem;
+                font-weight:900;
+                letter-spacing:.04em;
+                text-align:center;
+                text-transform:uppercase;
+            }
+
             @media (max-width:650px) {
                 .tcwr-other-matchups-card {
                     padding:10px 6px 8px;
                 }
 
                 .tcwr-other-matchup-row {
-                    grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr) 48px;
+                    grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr) 42px 45px;
                 }
 
                 .tcwr-other-matchup-cell {
@@ -2830,6 +2908,16 @@ if (otherMatchups.length > 0) {
                     padding:7px 2px;
                     font-size:.59rem;
                 }
+
+                .tcwr-other-matchup-h2h {
+                    padding:7px 1px;
+                    font-size:.55rem;
+                }
+
+                .tcwr-other-matchups-labels {
+                    grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr) 42px 45px;
+                    font-size:.45rem;
+                }
             }
         `;
         document.head.appendChild(otherMatchupStyles);
@@ -2840,6 +2928,23 @@ if (otherMatchups.length > 0) {
 
     const matchupRows = otherMatchups.map(matchup => {
         const differential = Number(matchup.careerPointDifferential);
+
+        // H2H_Record comes from the same spreadsheet stats rows used by Matchup of the Week.
+        // statA is already the record from team A's perspective; if only statB exists, reverse it.
+        const recordA = String(matchup.statA?.H2H_Record || "").trim();
+        const recordB = String(matchup.statB?.H2H_Record || "").trim();
+        const parseRecord = value => {
+            const parts = value.replace(/[–—−]/g, "-").split("-").map(v => Number.parseInt(v.trim(), 10));
+            if (parts.length < 2 || !Number.isFinite(parts[0]) || !Number.isFinite(parts[1])) return null;
+            return `${parts[0]}-${parts[1]}${Number.isFinite(parts[2]) && parts[2] > 0 ? `-${parts[2]}` : ""}`;
+        };
+        const reverseRecord = value => {
+            const parts = value.replace(/[–—−]/g, "-").split("-").map(v => Number.parseInt(v.trim(), 10));
+            if (parts.length < 2 || !Number.isFinite(parts[0]) || !Number.isFinite(parts[1])) return null;
+            return `${parts[1]}-${parts[0]}${Number.isFinite(parts[2]) && parts[2] > 0 ? `-${parts[2]}` : ""}`;
+        };
+        const h2hText = recordA ? (parseRecord(recordA) || "—") : (recordB ? (reverseRecord(recordB) || "—") : "—");
+        const h2hClass = h2hText === "—" ? "tcwr-other-matchup-h2h unavailable" : "tcwr-other-matchup-h2h";
 
         let differentialText = "—";
         let differentialClass = "tcwr-other-matchup-differential";
@@ -2875,6 +2980,8 @@ if (otherMatchups.length > 0) {
 
                 <div class="tcwr-other-matchup-cell tcwr-other-matchup-team-b${favoredB ? " favored" : ""}">@${matchup.nameB}</div>
 
+                <div class="${h2hClass}" title="All-time head-to-head record from @${matchup.nameA}'s perspective">${h2hText}</div>
+
                 <div class="${differentialClass}">${differentialText}</div>
             </div>
         `;
@@ -2883,6 +2990,7 @@ if (otherMatchups.length > 0) {
     otherMatchupsCard.innerHTML = `
         <div class="tcwr-other-matchups-title">Other League Matchups</div>
         <div class="tcwr-other-matchups-grid">
+            <div class="tcwr-other-matchups-labels"><span>Team A</span><span></span><span>Team B</span><span>H2H</span><span>Pt Diff</span></div>
             ${matchupRows}
         </div>
     `;

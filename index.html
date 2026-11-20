@@ -1683,62 +1683,184 @@ function ensureLeagueBulletinShell() {
             </section>
 
             <section id="tcwr-podcast-panel" class="tcwr-news-panel">
-                <div class="tcwr-podcast-heading">TCWR PODCAST</div>
-                <div class="tcwr-podcast-player-wrap">
-                    <div id="tcwr-redcircle-player" class="redcirclePlayer-01c97459-9ca2-4d22-a6da-784ab17e32c3"></div>
+                <div class="tcwr-podcast-heading">
+                    <span>TCWR PODCAST</span>
+                    <span class="tcwr-podcast-kicker">LEAGUE TALK · TRADES · WEEKLY RECAPS</span>
                 </div>
-                <div class="tcwr-podcast-powered">Powered by <a href="https://redcircle.com?utm_source=rc_embedded_player&amp;utm_medium=web&amp;utm_campaign=embedded_v1" target="_blank" rel="noopener noreferrer">RedCircle</a></div>
+                <div class="tcwr-podcast-player-wrap">
+                    <div id="tcwr-podcast-current" class="tcwr-podcast-current">
+                        <div class="tcwr-podcast-art">TCWR</div>
+                        <div class="tcwr-podcast-track">
+                            <div class="tcwr-podcast-now">NOW PLAYING</div>
+                            <div id="tcwr-podcast-episode-title" class="tcwr-podcast-episode-title">Loading episodes...</div>
+                            <div id="tcwr-podcast-episode-date" class="tcwr-podcast-episode-date"></div>
+                        </div>
+                    </div>
+                    <audio id="tcwr-podcast-audio" class="tcwr-podcast-audio" controls preload="none"></audio>
+                    <div class="tcwr-podcast-library-heading">
+                        <span>EPISODE LIBRARY</span>
+                        <span id="tcwr-podcast-count" class="tcwr-podcast-count"></span>
+                    </div>
+                    <div id="tcwr-podcast-episode-list" class="tcwr-podcast-episode-list">
+                        <div class="tcwr-podcast-loading">Loading the TCWR episode library...</div>
+                    </div>
+                    <div id="tcwr-podcast-status" class="tcwr-podcast-status" aria-live="polite"></div>
+                </div>
             </section>
 
         `;
-        initializeTcwrRedCirclePlayer();
+        initializeTcwrPodcastLibrary();
     }
 
     return display;
 }
 
 
-/* === REDCIRCLE PODCAST PLAYER === */
+/* === TCWR PODCAST LIBRARY (PUBLIC REDCIRCLE RSS FEED) === */
 
-function initializeTcwrRedCirclePlayer() {
-    if (document.getElementById("tcwr-redcircle-embed-script")) return;
+async function initializeTcwrPodcastLibrary() {
+    const panel = document.getElementById("tcwr-podcast-panel");
+    if (!panel || panel.dataset.initialized === "true") return;
+    panel.dataset.initialized = "true";
 
-    const player = document.getElementById("tcwr-redcircle-player");
-    if (!player) return;
+    const feedUrl = "https://feeds.redcircle.com/3dc083a9-aedf-42d1-afc1-766b6fdb76cc";
+    const list = document.getElementById("tcwr-podcast-episode-list");
+    const audio = document.getElementById("tcwr-podcast-audio");
+    const title = document.getElementById("tcwr-podcast-episode-title");
+    const date = document.getElementById("tcwr-podcast-episode-date");
+    const count = document.getElementById("tcwr-podcast-count");
+    const status = document.getElementById("tcwr-podcast-status");
 
     const style = document.createElement("style");
-    style.id = "tcwr-redcircle-player-styles";
+    style.id = "tcwr-podcast-library-styles";
     style.textContent = `
-        .tcwr-podcast-heading {
-            padding:12px 16px;
-            color:#facc15;
-            text-align:center;
-            font-size:.78rem;
-            font-weight:900;
-            letter-spacing:1px;
-            border-bottom:1px solid rgba(148,163,184,.16);
-        }
-        .tcwr-podcast-player-wrap { padding:12px 14px 4px; background:rgba(2,9,20,.18); }
-        #tcwr-redcircle-player { width:100%; min-height:150px; }
-        #tcwr-redcircle-player iframe { width:100%; max-width:100%; border:0; }
-        .tcwr-podcast-powered { padding:0 14px 11px; color:#94a3b8; font-size:.62rem; text-align:right; }
-        .tcwr-podcast-powered a { color:#cbd5e1; text-decoration:none; }
-        .tcwr-podcast-powered a:hover { color:#facc15; }
+        .tcwr-podcast-heading { display:flex; flex-direction:column; align-items:center; gap:4px; padding:13px 16px 11px; color:#facc15; text-align:center; font-size:.8rem; font-weight:900; letter-spacing:1.2px; border-bottom:1px solid rgba(148,163,184,.16); }
+        .tcwr-podcast-kicker { color:#94a3b8; font-size:.56rem; font-weight:700; letter-spacing:1px; }
+        .tcwr-podcast-player-wrap { padding:14px; background:linear-gradient(145deg,rgba(2,9,20,.34),rgba(15,23,42,.2)); }
+        .tcwr-podcast-current { display:flex; align-items:center; gap:12px; min-width:0; margin-bottom:12px; }
+        .tcwr-podcast-art { display:flex; flex:0 0 58px; width:58px; height:58px; align-items:center; justify-content:center; border:1px solid rgba(250,204,21,.45); border-radius:9px; background:linear-gradient(145deg,#263449,#080f1d); color:#facc15; font-size:.78rem; font-weight:1000; letter-spacing:-.5px; box-shadow:0 5px 14px rgba(0,0,0,.25); }
+        .tcwr-podcast-track { min-width:0; flex:1; }
+        .tcwr-podcast-now { margin-bottom:4px; color:#facc15; font-size:.55rem; font-weight:900; letter-spacing:1px; }
+        .tcwr-podcast-episode-title { overflow:hidden; color:#f8fafc; font-size:.83rem; font-weight:800; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+        .tcwr-podcast-episode-date { margin-top:4px; color:#94a3b8; font-size:.63rem; }
+        .tcwr-podcast-audio { display:block; width:100%; height:38px; margin:7px 0 15px; }
+        .tcwr-podcast-library-heading { display:flex; align-items:center; justify-content:space-between; padding:10px 1px 7px; border-top:1px solid rgba(148,163,184,.16); color:#cbd5e1; font-size:.62rem; font-weight:900; letter-spacing:1px; }
+        .tcwr-podcast-count { color:#94a3b8; font-size:.58rem; font-weight:700; letter-spacing:0; }
+        .tcwr-podcast-episode-list { display:flex; flex-direction:column; gap:5px; max-height:250px; overflow-y:auto; padding:2px 3px 2px 0; scrollbar-width:thin; scrollbar-color:#475569 transparent; }
+        .tcwr-podcast-episode { display:flex; align-items:center; gap:9px; width:100%; padding:9px 10px; border:1px solid rgba(148,163,184,.12); border-radius:7px; background:rgba(15,23,42,.48); color:#e2e8f0; text-align:left; cursor:pointer; transition:background .15s,border-color .15s; }
+        .tcwr-podcast-episode:hover { border-color:rgba(250,204,21,.45); background:rgba(30,41,59,.85); }
+        .tcwr-podcast-episode.active { border-color:rgba(250,204,21,.65); background:rgba(250,204,21,.09); }
+        .tcwr-podcast-episode-play { flex:0 0 22px; color:#facc15; font-size:.85rem; text-align:center; }
+        .tcwr-podcast-episode-info { min-width:0; flex:1; }
+        .tcwr-podcast-episode-name { overflow:hidden; color:#f1f5f9; font-size:.68rem; font-weight:750; line-height:1.3; text-overflow:ellipsis; white-space:nowrap; }
+        .tcwr-podcast-episode-meta { margin-top:3px; color:#94a3b8; font-size:.57rem; }
+        .tcwr-podcast-loading,.tcwr-podcast-status { padding:9px 2px; color:#94a3b8; font-size:.63rem; }
+        .tcwr-podcast-status { min-height:12px; padding-bottom:0; }
+        @media(max-width:430px) { .tcwr-podcast-player-wrap { padding:11px; } .tcwr-podcast-episode-list { max-height:220px; } }
     `;
-    if (!document.getElementById("tcwr-redcircle-player-styles")) document.head.appendChild(style);
+    if (!document.getElementById(style.id)) document.head.appendChild(style);
 
-    const script = document.createElement("script");
-    script.id = "tcwr-redcircle-embed-script";
-    script.async = true;
-    script.defer = true;
-    script.src = "https://api.podcache.net/embedded-player/sh/3dc083a9-aedf-42d1-afc1-766b6fdb76cc/ep/01c97459-9ca2-4d22-a6da-784ab17e32c3";
-    script.onload = function () {
-        if (typeof window.redcircleIframe === "function") window.redcircleIframe();
-    };
-    document.body.appendChild(script);
+    function cleanText(value) {
+        const doc = new DOMParser().parseFromString(String(value || ""), "text/html");
+        return (doc.body.textContent || "").replace(/\s+/g, " ").trim();
+    }
+
+    function formatDate(value) {
+        if (!value) return "";
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? "" : parsed.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+    }
+
+    function parseXmlFeed(xmlText) {
+        const xml = new DOMParser().parseFromString(xmlText, "text/xml");
+        if (xml.querySelector("parsererror")) throw new Error("The podcast feed could not be read.");
+        return Array.from(xml.querySelectorAll("item")).map(item => {
+            const enclosure = item.querySelector("enclosure");
+            const media = item.getElementsByTagName("media:content")[0];
+            const audioUrl = enclosure?.getAttribute("url") || media?.getAttribute("url") || "";
+            return {
+                title: cleanText(item.querySelector("title")?.textContent || "Untitled episode"),
+                date: item.querySelector("pubDate")?.textContent || "",
+                audio: audioUrl,
+                description: cleanText(item.querySelector("description")?.textContent || "")
+            };
+        }).filter(ep => ep.audio);
+    }
+
+    async function loadFeed() {
+        // Try the RedCircle RSS feed directly first. If the browser blocks cross-origin
+        // access, use the public RSS-to-JSON endpoint as a read-only feed bridge.
+        try {
+            const response = await fetch(feedUrl, { cache:"no-store" });
+            if (!response.ok) throw new Error("RSS feed request failed.");
+            const episodes = parseXmlFeed(await response.text());
+            if (episodes.length) return episodes;
+            throw new Error("No playable episodes were found in the RSS feed.");
+        } catch (directError) {
+            const bridgeUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feedUrl);
+            const response = await fetch(bridgeUrl, { cache:"no-store" });
+            if (!response.ok) throw new Error("Could not retrieve the podcast episode list.");
+            const data = await response.json();
+            if (data.status !== "ok" || !Array.isArray(data.items)) throw new Error("The podcast feed is temporarily unavailable.");
+            return data.items.map(item => ({
+                title: cleanText(item.title || "Untitled episode"),
+                date: item.pubDate || "",
+                audio: item.enclosure?.link || item.enclosure?.url || item.link || "",
+                description: cleanText(item.description || item.content || "")
+            })).filter(ep => ep.audio);
+        }
+    }
+
+    let episodes = [];
+    let selectedIndex = -1;
+
+    function selectEpisode(index, autoplay) {
+        const episode = episodes[index];
+        if (!episode) return;
+        selectedIndex = index;
+        title.textContent = episode.title;
+        date.textContent = formatDate(episode.date);
+        audio.src = episode.audio;
+        audio.load();
+        if (autoplay) {
+            const playPromise = audio.play();
+            if (playPromise && typeof playPromise.catch === "function") {
+                playPromise.catch(() => { status.textContent = "Press play to start this episode."; });
+            }
+        }
+        list.querySelectorAll(".tcwr-podcast-episode").forEach((button, buttonIndex) => {
+            button.classList.toggle("active", buttonIndex === index);
+            button.setAttribute("aria-current", buttonIndex === index ? "true" : "false");
+            const icon = button.querySelector(".tcwr-podcast-episode-play");
+            if (icon) icon.textContent = buttonIndex === index ? "▶" : "▸";
+        });
+        status.textContent = episode.description ? episode.description.slice(0, 180) + (episode.description.length > 180 ? "…" : "") : "";
+    }
+
+    try {
+        episodes = await loadFeed();
+        if (!episodes.length) throw new Error("No published episodes were found.");
+        count.textContent = episodes.length + (episodes.length === 1 ? " EPISODE" : " EPISODES");
+        list.innerHTML = "";
+        episodes.forEach((episode, index) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "tcwr-podcast-episode";
+            button.innerHTML = '<span class="tcwr-podcast-episode-play">▸</span><span class="tcwr-podcast-episode-info"><span class="tcwr-podcast-episode-name"></span><span class="tcwr-podcast-episode-meta"></span></span>';
+            button.querySelector(".tcwr-podcast-episode-name").textContent = episode.title;
+            button.querySelector(".tcwr-podcast-episode-meta").textContent = formatDate(episode.date);
+            button.addEventListener("click", () => selectEpisode(index, true));
+            list.appendChild(button);
+        });
+        selectEpisode(0, false);
+        status.textContent = "Select an episode to listen.";
+    } catch (error) {
+        console.error("TCWR podcast feed error:", error);
+        list.innerHTML = '<div class="tcwr-podcast-loading">The episode library could not load right now. Please refresh the page and try again.</div>';
+        title.textContent = "Podcast temporarily unavailable";
+        status.textContent = "";
+    }
 }
-
-window.redcircleIframe = window.redcircleIframe || function () {};
 
 
 /* === COMMISSIONER LOGIN / POSTING === */

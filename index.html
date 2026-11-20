@@ -1682,32 +1682,8 @@ function ensureLeagueBulletinShell() {
 
             </section>
 
-
-            <section id="commissioner-bulletin-panel" class="tcwr-news-panel">
-
-                <div class="tcwr-news-header">
-                    <button
-                        type="button"
-                        id="commissioner-login-trigger"
-                        class="tcwr-commissioner-title-button"
-                        title="Commissioner login"
-                    >
-                        📣 COMMISSIONER PANEL
-                    </button>
-                </div>
-
-                <div id="commissioner-admin-container"></div>
-
-                <div id="commissioner-bulletin-content" class="tcwr-empty">
-                    Loading commissioner posts...
-                </div>
-
-            </section>
-
         `;
     }
-
-    initializeCommissionerLogin();
 
     return display;
 }
@@ -3325,7 +3301,6 @@ function renderLiveLeagueWatch(
 
 async function initializeLeagueBulletin() {
     ensureLeagueBulletinShell();
-    loadBulletin();
 
     if (await hasFantasySeasonEnded()) {
         await renderEndOfSeasonState();

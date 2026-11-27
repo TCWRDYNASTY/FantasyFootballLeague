@@ -1,0 +1,13 @@
+{
+  "name": "tcwr-tanking-meter-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Scheduled Sleeper league snapshot collector for the TCWR Tanking Meter",
+  "scripts": {
+    "collect": "node collect-sleeper.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  }
+}

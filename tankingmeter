@@ -1,0 +1,571 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TCWR Dynasty | Tanking Meter</title>
+
+<style>
+:root {
+    --bg:#07111f;
+    --panel:#101e30;
+    --line:rgba(148,163,184,.18);
+    --muted:#94a3b8;
+    --text:#f8fafc;
+    --gold:#facc15;
+    --green:#22c55e;
+    --yellow:#eab308;
+    --orange:#f97316;
+    --red:#ef4444;
+}
+
+* { box-sizing:border-box; }
+
+body {
+    margin:0;
+    background:radial-gradient(ellipse at top,#172a42 0,#07111f 52%);
+    color:var(--text);
+    font-family:Arial,Helvetica,sans-serif;
+    min-height:100vh;
+}
+
+.wrap {
+    max-width:1180px;
+    margin:auto;
+    padding:28px 20px 60px;
+}
+
+.topline {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    color:var(--muted);
+    font-size:.72rem;
+    font-weight:800;
+    letter-spacing:1.3px;
+    text-transform:uppercase;
+}
+
+.brand { color:var(--gold); }
+
+.demo {
+    border:1px solid rgba(250,204,21,.35);
+    color:var(--gold);
+    border-radius:99px;
+    padding:7px 11px;
+    font-size:.65rem;
+}
+
+h1 {
+    font-size:clamp(2rem,5vw,3.2rem);
+    letter-spacing:-1.6px;
+    margin:22px 0 8px;
+}
+
+.sub {
+    color:var(--muted);
+    line-height:1.55;
+    max-width:760px;
+    margin:0;
+}
+
+.hero {
+    margin-top:25px;
+    padding:22px;
+    border:1px solid var(--line);
+    border-radius:17px;
+    background:linear-gradient(135deg,rgba(30,48,70,.96),rgba(12,24,40,.96));
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:20px;
+    align-items:center;
+}
+
+.hero h2 {
+    font-size:1rem;
+    color:var(--gold);
+    letter-spacing:1px;
+    margin:0 0 9px;
+}
+
+.hero p {
+    margin:0;
+    color:#cbd5e1;
+    line-height:1.5;
+    font-size:.88rem;
+}
+
+.hero-score {
+    text-align:center;
+    border-left:1px solid var(--line);
+    padding:8px 12px;
+}
+
+.hero-score strong {
+    display:block;
+    font-size:2.2rem;
+}
+
+.hero-score span {
+    color:var(--muted);
+    font-size:.7rem;
+    letter-spacing:1px;
+}
+
+.section-head {
+    display:flex;
+    justify-content:space-between;
+    align-items:end;
+    gap:10px;
+    margin:30px 0 13px;
+}
+
+.section-head h2 {
+    margin:0;
+    font-size:1.05rem;
+}
+
+.section-head span {
+    color:var(--muted);
+    font-size:.72rem;
+}
+
+.criteria {
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+}
+
+.criterion {
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:13px;
+    padding:15px;
+    min-height:118px;
+}
+
+.criterion b {
+    display:block;
+    font-size:.78rem;
+    line-height:1.35;
+    margin:9px 0 5px;
+}
+
+.criterion small {
+    color:var(--muted);
+    font-size:.68rem;
+    line-height:1.4;
+}
+
+.num {
+    color:var(--gold);
+    font-size:.65rem;
+    font-weight:900;
+    letter-spacing:1px;
+}
+
+.table-wrap {
+    overflow-x:auto;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:rgba(16,30,48,.88);
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+    min-width:660px;
+}
+
+th {
+    text-align:left;
+    color:var(--muted);
+    font-size:.65rem;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    padding:13px 15px;
+    background:rgba(2,9,20,.32);
+}
+
+td {
+    padding:13px 15px;
+    border-top:1px solid var(--line);
+    font-size:.82rem;
+}
+
+tr:hover td {
+    background:rgba(148,163,184,.035);
+}
+
+.rank {
+    color:var(--muted);
+    width:45px;
+}
+
+.team { font-weight:800; }
+
+.score {
+    font-weight:900;
+    font-variant-numeric:tabular-nums;
+}
+
+.status {
+    font-size:.65rem;
+    font-weight:900;
+    letter-spacing:.5px;
+    padding:5px 8px;
+    border-radius:99px;
+    display:inline-block;
+}
+
+.normal {
+    color:#86efac;
+    background:rgba(34,197,94,.12);
+}
+
+.monitor {
+    color:#fde047;
+    background:rgba(234,179,8,.12);
+}
+
+.elevated {
+    color:#fdba74;
+    background:rgba(249,115,22,.13);
+}
+
+.review {
+    color:#fca5a5;
+    background:rgba(239,68,68,.13);
+}
+
+.bar {
+    height:6px;
+    background:#26364a;
+    border-radius:99px;
+    overflow:hidden;
+    min-width:100px;
+}
+
+.fill {
+    height:100%;
+    border-radius:99px;
+}
+
+.legend {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:13px;
+}
+
+.legend span {
+    font-size:.67rem;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.dot {
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    display:inline-block;
+}
+
+.lower {
+    display:grid;
+    grid-template-columns:1.15fr .85fr;
+    gap:14px;
+    margin-top:18px;
+}
+
+.panel {
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px;
+}
+
+.panel h3 {
+    font-size:.85rem;
+    margin:0 0 13px;
+}
+
+.alert {
+    padding:12px;
+    border-radius:9px;
+    background:rgba(148,163,184,.06);
+    border:1px solid var(--line);
+    margin-top:9px;
+}
+
+.alert strong { font-size:.76rem; }
+
+.alert p {
+    font-size:.7rem;
+    color:var(--muted);
+    line-height:1.45;
+    margin:5px 0 0;
+}
+
+.empty {
+    font-size:.76rem;
+    color:var(--muted);
+    line-height:1.5;
+}
+
+.note {
+    margin-top:22px;
+    padding:13px 15px;
+    border-left:3px solid var(--gold);
+    background:rgba(250,204,21,.055);
+    color:#cbd5e1;
+    font-size:.72rem;
+    line-height:1.5;
+}
+
+footer {
+    text-align:center;
+    color:#64748b;
+    font-size:.65rem;
+    margin-top:30px;
+}
+
+@media(max-width:760px) {
+    .hero { grid-template-columns:1fr; }
+    .hero-score {
+        border-left:0;
+        border-top:1px solid var(--line);
+        padding-top:16px;
+    }
+    .criteria { grid-template-columns:repeat(2,1fr); }
+    .lower { grid-template-columns:1fr; }
+}
+
+@media(max-width:420px) {
+    .wrap { padding:20px 13px 40px; }
+    .criteria { grid-template-columns:1fr 1fr; }
+    .criterion {
+        padding:12px;
+        min-height:125px;
+    }
+    .section-head {
+        align-items:start;
+        flex-direction:column;
+    }
+}
+</style>
+</head>
+
+<body>
+<main class="wrap">
+
+    <div class="topline">
+        <span class="brand">TCWR DYNASTY LEAGUE</span>
+        <span class="demo">MOCKUP • SAMPLE DATA ONLY</span>
+    </div>
+
+    <h1>Tanking Meter</h1>
+
+    <p class="sub">
+        A season-long, evidence-based look at lineup decisions across all
+        14 teams. Every team is evaluated independently. A low score is
+        normal; a high score signals that the commissioner may want to
+        review the evidence.
+    </p>
+
+    <section class="hero">
+        <div>
+            <h2>HOW THE INDEX WORKS</h2>
+            <p>
+                Each team begins at 0.0. The index increases only when an
+                automated check identifies a qualifying lineup decision.
+                Scores accumulate during the season and are capped at 10.0.
+                No team is penalized simply for having a poor record or a
+                weak roster.
+            </p>
+        </div>
+
+        <div class="hero-score">
+            <strong>0.0–10.0</strong>
+            <span>CUMULATIVE SEASON SCORE</span>
+        </div>
+    </section>
+
+    <div class="section-head">
+        <h2>What the system measures</h2>
+        <span>Four automated criteria</span>
+    </div>
+
+    <section class="criteria">
+        <article class="criterion">
+            <span class="num">01 / BENCH POINTS</span>
+            <b>Points Left on Bench</b>
+            <small>
+                Compares actual bench production with the points scored
+                by the starting lineup.
+            </small>
+        </article>
+
+        <article class="criterion">
+            <span class="num">02 / LINEUP CHOICES</span>
+            <b>Better Players Benched</b>
+            <small>
+                Looks for eligible, available alternatives that were
+                clearly stronger when lineups were set.
+            </small>
+        </article>
+
+        <article class="criterion">
+            <span class="num">03 / AVAILABILITY</span>
+            <b>Inactive Players Started</b>
+            <small>
+                Checks for starters who were officially unavailable
+                before their lineup decision became locked.
+            </small>
+        </article>
+
+        <article class="criterion">
+            <span class="num">04 / EFFICIENCY</span>
+            <b>Lineup Efficiency</b>
+            <small>
+                Measures how effectively a manager used the players
+                available on their roster.
+            </small>
+        </article>
+    </section>
+
+    <div class="section-head">
+        <h2>League Tanking Index</h2>
+        <span>All 14 teams • Sample scores for layout preview</span>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Manager</th>
+                    <th>Tank Index</th>
+                    <th>Level</th>
+                    <th>Score meter</th>
+                </tr>
+            </thead>
+            <tbody id="teamRows"></tbody>
+        </table>
+    </div>
+
+    <div class="legend">
+        <span><i class="dot" style="background:var(--green)"></i>0.0–2.9 Normal</span>
+        <span><i class="dot" style="background:var(--yellow)"></i>3.0–4.9 Monitor</span>
+        <span><i class="dot" style="background:var(--orange)"></i>5.0–6.9 Elevated concern</span>
+        <span><i class="dot" style="background:var(--red)"></i>7.0–10.0 Commissioner review</span>
+    </div>
+
+    <section class="lower">
+        <article class="panel">
+            <h3>Weekly Tank Watch</h3>
+            <div class="alert">
+                <strong>No new qualifying alerts</strong>
+                <p>
+                    When the automated weekly analysis detects a new
+                    qualifying event, it will appear here with the team,
+                    week, player decision, and reason for the flag.
+                </p>
+            </div>
+        </article>
+
+        <article class="panel">
+            <h3>Evidence & scoring history</h3>
+            <p class="empty">
+                Select a team in the live version to review its weekly
+                evidence, category totals, score changes, and the Sleeper
+                data used in each calculation.
+            </p>
+        </article>
+    </section>
+
+    <div class="note">
+        <strong>Important:</strong> A Tanking Index is an automated
+        screening tool, not a finding of intent or an automatic penalty.
+        The system must retain the evidence behind every point and avoid
+        double-counting the same lineup event.
+    </div>
+
+    <footer>
+        TCWR DYNASTY • TANKING METER • MOCKUP
+    </footer>
+
+</main>
+
+<script>
+const teams = [
+    ["Matt",0.0],
+    ["Sylvester",0.0],
+    ["Evelyn",0.0],
+    ["Bonnie",0.0],
+    ["Trevor",0.0],
+    ["Brittany",0.0],
+    ["Dianne",0.0],
+    ["Brad",0.0],
+    ["Emily",0.0],
+    ["Brian",0.0],
+    ["An",0.0],
+    ["Jess",0.0],
+    ["Nate",0.0],
+    ["Steven",0.0]
+];
+
+function level(score) {
+    if(score>=7)
+        return ["Commissioner review","review","#ef4444"];
+
+    if(score>=5)
+        return ["Elevated concern","elevated","#f97316"];
+
+    if(score>=3)
+        return ["Monitor","monitor","#eab308"];
+
+    return ["Normal","normal","#22c55e"];
+}
+
+document.getElementById("teamRows").innerHTML =
+    teams.map((team,i) => {
+        const [label,cls,color] = level(team[1]);
+
+        return `
+            <tr>
+                <td class="rank">
+                    ${String(i+1).padStart(2,"0")}
+                </td>
+
+                <td class="team">${team[0]}</td>
+
+                <td class="score">
+                    ${team[1].toFixed(1)} / 10
+                </td>
+
+                <td>
+                    <span class="status ${cls}">
+                        ${label}
+                    </span>
+                </td>
+
+                <td>
+                    <div class="bar">
+                        <div class="fill"
+                            style="width:${team[1]*10}%;background:${color}">
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
+</script>
+
+</body>
+</html>

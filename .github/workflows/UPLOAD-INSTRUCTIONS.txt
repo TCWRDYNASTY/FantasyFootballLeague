@@ -1,0 +1,18 @@
+STEP 4 WORKFLOW FILE
+
+Upload this file to the repository at:
+.github/workflows/tanking-meter-collector.yml
+
+Do not replace or edit:
+.github/workflows/send-commissioner-notification.yml
+
+The workflow expects this GitHub Actions secret:
+FIREBASE_SERVICE_ACCOUNT_JSON
+
+It also sets these non-secret values:
+FIREBASE_PROJECT_ID=tcwr-dynasty
+SLEEPER_LEAGUE_ID=1328431789223477248
+
+The workflow can be started manually from the GitHub Actions tab after
+the secret has been configured. It is also scheduled every 15 minutes.
+Scheduled GitHub Actions runs are best-effort and may be delayed.

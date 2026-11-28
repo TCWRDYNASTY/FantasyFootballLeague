@@ -1,571 +1,244 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TCWR Dynasty | Tanking Meter</title>
-
 <style>
-:root {
-    --bg:#07111f;
-    --panel:#101e30;
-    --line:rgba(148,163,184,.18);
-    --muted:#94a3b8;
-    --text:#f8fafc;
-    --gold:#facc15;
-    --green:#22c55e;
-    --yellow:#eab308;
-    --orange:#f97316;
-    --red:#ef4444;
-}
-
-* { box-sizing:border-box; }
-
-body {
-    margin:0;
-    background:radial-gradient(ellipse at top,#172a42 0,#07111f 52%);
-    color:var(--text);
-    font-family:Arial,Helvetica,sans-serif;
-    min-height:100vh;
-}
-
-.wrap {
-    max-width:1180px;
-    margin:auto;
-    padding:28px 20px 60px;
-}
-
-.topline {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:12px;
-    flex-wrap:wrap;
-    color:var(--muted);
-    font-size:.72rem;
-    font-weight:800;
-    letter-spacing:1.3px;
-    text-transform:uppercase;
-}
-
-.brand { color:var(--gold); }
-
-.demo {
-    border:1px solid rgba(250,204,21,.35);
-    color:var(--gold);
-    border-radius:99px;
-    padding:7px 11px;
-    font-size:.65rem;
-}
-
-h1 {
-    font-size:clamp(2rem,5vw,3.2rem);
-    letter-spacing:-1.6px;
-    margin:22px 0 8px;
-}
-
-.sub {
-    color:var(--muted);
-    line-height:1.55;
-    max-width:760px;
-    margin:0;
-}
-
-.hero {
-    margin-top:25px;
-    padding:22px;
-    border:1px solid var(--line);
-    border-radius:17px;
-    background:linear-gradient(135deg,rgba(30,48,70,.96),rgba(12,24,40,.96));
-    display:grid;
-    grid-template-columns:1.5fr 1fr;
-    gap:20px;
-    align-items:center;
-}
-
-.hero h2 {
-    font-size:1rem;
-    color:var(--gold);
-    letter-spacing:1px;
-    margin:0 0 9px;
-}
-
-.hero p {
-    margin:0;
-    color:#cbd5e1;
-    line-height:1.5;
-    font-size:.88rem;
-}
-
-.hero-score {
-    text-align:center;
-    border-left:1px solid var(--line);
-    padding:8px 12px;
-}
-
-.hero-score strong {
-    display:block;
-    font-size:2.2rem;
-}
-
-.hero-score span {
-    color:var(--muted);
-    font-size:.7rem;
-    letter-spacing:1px;
-}
-
-.section-head {
-    display:flex;
-    justify-content:space-between;
-    align-items:end;
-    gap:10px;
-    margin:30px 0 13px;
-}
-
-.section-head h2 {
-    margin:0;
-    font-size:1.05rem;
-}
-
-.section-head span {
-    color:var(--muted);
-    font-size:.72rem;
-}
-
-.criteria {
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:12px;
-}
-
-.criterion {
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:13px;
-    padding:15px;
-    min-height:118px;
-}
-
-.criterion b {
-    display:block;
-    font-size:.78rem;
-    line-height:1.35;
-    margin:9px 0 5px;
-}
-
-.criterion small {
-    color:var(--muted);
-    font-size:.68rem;
-    line-height:1.4;
-}
-
-.num {
-    color:var(--gold);
-    font-size:.65rem;
-    font-weight:900;
-    letter-spacing:1px;
-}
-
-.table-wrap {
-    overflow-x:auto;
-    border:1px solid var(--line);
-    border-radius:14px;
-    background:rgba(16,30,48,.88);
-}
-
-table {
-    width:100%;
-    border-collapse:collapse;
-    min-width:660px;
-}
-
-th {
-    text-align:left;
-    color:var(--muted);
-    font-size:.65rem;
-    letter-spacing:1px;
-    text-transform:uppercase;
-    padding:13px 15px;
-    background:rgba(2,9,20,.32);
-}
-
-td {
-    padding:13px 15px;
-    border-top:1px solid var(--line);
-    font-size:.82rem;
-}
-
-tr:hover td {
-    background:rgba(148,163,184,.035);
-}
-
-.rank {
-    color:var(--muted);
-    width:45px;
-}
-
-.team { font-weight:800; }
-
-.score {
-    font-weight:900;
-    font-variant-numeric:tabular-nums;
-}
-
-.status {
-    font-size:.65rem;
-    font-weight:900;
-    letter-spacing:.5px;
-    padding:5px 8px;
-    border-radius:99px;
-    display:inline-block;
-}
-
-.normal {
-    color:#86efac;
-    background:rgba(34,197,94,.12);
-}
-
-.monitor {
-    color:#fde047;
-    background:rgba(234,179,8,.12);
-}
-
-.elevated {
-    color:#fdba74;
-    background:rgba(249,115,22,.13);
-}
-
-.review {
-    color:#fca5a5;
-    background:rgba(239,68,68,.13);
-}
-
-.bar {
-    height:6px;
-    background:#26364a;
-    border-radius:99px;
-    overflow:hidden;
-    min-width:100px;
-}
-
-.fill {
-    height:100%;
-    border-radius:99px;
-}
-
-.legend {
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:13px;
-}
-
-.legend span {
-    font-size:.67rem;
-    color:var(--muted);
-    display:flex;
-    align-items:center;
-    gap:6px;
-}
-
-.dot {
-    width:7px;
-    height:7px;
-    border-radius:50%;
-    display:inline-block;
-}
-
-.lower {
-    display:grid;
-    grid-template-columns:1.15fr .85fr;
-    gap:14px;
-    margin-top:18px;
-}
-
-.panel {
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:18px;
-}
-
-.panel h3 {
-    font-size:.85rem;
-    margin:0 0 13px;
-}
-
-.alert {
-    padding:12px;
-    border-radius:9px;
-    background:rgba(148,163,184,.06);
-    border:1px solid var(--line);
-    margin-top:9px;
-}
-
-.alert strong { font-size:.76rem; }
-
-.alert p {
-    font-size:.7rem;
-    color:var(--muted);
-    line-height:1.45;
-    margin:5px 0 0;
-}
-
-.empty {
-    font-size:.76rem;
-    color:var(--muted);
-    line-height:1.5;
-}
-
-.note {
-    margin-top:22px;
-    padding:13px 15px;
-    border-left:3px solid var(--gold);
-    background:rgba(250,204,21,.055);
-    color:#cbd5e1;
-    font-size:.72rem;
-    line-height:1.5;
-}
-
-footer {
-    text-align:center;
-    color:#64748b;
-    font-size:.65rem;
-    margin-top:30px;
-}
-
-@media(max-width:760px) {
-    .hero { grid-template-columns:1fr; }
-    .hero-score {
-        border-left:0;
-        border-top:1px solid var(--line);
-        padding-top:16px;
-    }
-    .criteria { grid-template-columns:repeat(2,1fr); }
-    .lower { grid-template-columns:1fr; }
-}
-
-@media(max-width:420px) {
-    .wrap { padding:20px 13px 40px; }
-    .criteria { grid-template-columns:1fr 1fr; }
-    .criterion {
-        padding:12px;
-        min-height:125px;
-    }
-    .section-head {
-        align-items:start;
-        flex-direction:column;
-    }
-}
+:root{--bg:#07111f;--panel:#101e30;--line:rgba(148,163,184,.18);--muted:#94a3b8;--text:#f8fafc;--gold:#facc15;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#172a42 0,#07111f 52%);color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+.wrap{max-width:1180px;margin:auto;padding:28px 20px 60px}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:1.3px;text-transform:uppercase}
+.brand{color:var(--gold)}
+.connection{border:1px solid var(--line);border-radius:99px;padding:7px 11px;font-size:.65rem;letter-spacing:.4px;text-transform:none}
+.connection.loading{color:var(--yellow)}.connection.live{color:#86efac;border-color:rgba(34,197,94,.35)}.connection.error{color:#fca5a5;border-color:rgba(239,68,68,.35)}
+h1{font-size:clamp(2rem,5vw,3.2rem);letter-spacing:-1.6px;margin:22px 0 8px}
+.sub{color:var(--muted);line-height:1.55;max-width:760px;margin:0}
+.hero{margin-top:25px;padding:22px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(135deg,rgba(30,48,70,.96),rgba(12,24,40,.96));display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:center}
+.hero h2{font-size:1rem;color:var(--gold);letter-spacing:1px;margin:0 0 9px}.hero p{margin:0;color:#cbd5e1;line-height:1.5;font-size:.88rem}
+.hero-score{text-align:center;border-left:1px solid var(--line);padding:8px 12px}.hero-score strong{display:block;font-size:2.2rem}.hero-score span{color:var(--muted);font-size:.7rem;letter-spacing:1px}
+.section-head{display:flex;justify-content:space-between;align-items:end;gap:10px;margin:30px 0 13px}.section-head h2{margin:0;font-size:1.05rem}.section-head span{color:var(--muted);font-size:.72rem}
+.criteria{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.criterion{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px;min-height:118px}.criterion b{display:block;font-size:.78rem;line-height:1.35;margin:9px 0 5px}.criterion small{color:var(--muted);font-size:.68rem;line-height:1.4}.num{color:var(--gold);font-size:.65rem;font-weight:900;letter-spacing:1px}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:rgba(16,30,48,.88)}
+table{width:100%;border-collapse:collapse;min-width:690px}th{text-align:left;color:var(--muted);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;padding:13px 15px;background:rgba(2,9,20,.32)}
+td{padding:13px 15px;border-top:1px solid var(--line);font-size:.82rem}tr:hover td{background:rgba(148,163,184,.035)}
+.rank{color:var(--muted);width:45px}.team{font-weight:800}.score{font-weight:900;font-variant-numeric:tabular-nums}
+.status{font-size:.65rem;font-weight:900;letter-spacing:.5px;padding:5px 8px;border-radius:99px;display:inline-block}
+.normal{color:#86efac;background:rgba(34,197,94,.12)}.monitor{color:#fde047;background:rgba(234,179,8,.12)}.elevated{color:#fdba74;background:rgba(249,115,22,.13)}.review{color:#fca5a5;background:rgba(239,68,68,.13)}
+.bar{height:6px;background:#26364a;border-radius:99px;overflow:hidden;min-width:100px}.fill{height:100%;border-radius:99px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.legend span{font-size:.67rem;color:var(--muted);display:flex;align-items:center;gap:6px}.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.lower{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-top:18px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}.panel h3{font-size:.85rem;margin:0 0 13px}
+.alert{padding:12px;border-radius:9px;background:rgba(148,163,184,.06);border:1px solid var(--line);margin-top:9px}.alert strong{font-size:.76rem}.alert p{font-size:.7rem;color:var(--muted);line-height:1.45;margin:5px 0 0}
+.empty{font-size:.76rem;color:var(--muted);line-height:1.5}
+.select{width:100%;margin:0 0 12px;padding:10px 11px;border-radius:8px;border:1px solid var(--line);background:#0b1727;color:var(--text);font-size:.78rem}
+.evidence-item{padding:11px 0;border-top:1px solid var(--line)}.evidence-item:first-child{border-top:0}.evidence-title{font-size:.75rem;font-weight:800}.evidence-detail{font-size:.69rem;color:var(--muted);line-height:1.5;margin-top:4px}
+.note{margin-top:22px;padding:13px 15px;border-left:3px solid var(--gold);background:rgba(250,204,21,.055);color:#cbd5e1;font-size:.72rem;line-height:1.5}
+footer{text-align:center;color:#64748b;font-size:.65rem;margin-top:30px}
+@media(max-width:760px){.hero{grid-template-columns:1fr}.hero-score{border-left:0;border-top:1px solid var(--line);padding-top:16px}.criteria{grid-template-columns:repeat(2,1fr)}.lower{grid-template-columns:1fr}}
+@media(max-width:420px){.wrap{padding:20px 13px 40px}.criteria{grid-template-columns:1fr 1fr}.criterion{padding:12px;min-height:125px}.section-head{align-items:start;flex-direction:column}}
 </style>
 </head>
-
 <body>
 <main class="wrap">
+  <div class="topline">
+    <span class="brand">TCWR DYNASTY LEAGUE</span>
+    <span id="connectionStatus" class="connection loading">Connecting to live scoreboard…</span>
+  </div>
+  <h1>Tanking Meter</h1>
+  <p class="sub">A season-long, evidence-based look at lineup decisions across all 14 teams. Every team is evaluated independently. A low score is normal; a high score signals that the commissioner may want to review the evidence.</p>
 
-    <div class="topline">
-        <span class="brand">TCWR DYNASTY LEAGUE</span>
-        <span class="demo">MOCKUP • SAMPLE DATA ONLY</span>
-    </div>
+  <section class="hero">
+    <div><h2>HOW THE INDEX WORKS</h2><p>Each team begins at 0.0. The index increases only when an automated check identifies a qualifying lineup decision. Scores accumulate during the season and are capped at 10.0. No team is penalized simply for having a poor record or a weak roster.</p></div>
+    <div class="hero-score"><strong>0.0–10.0</strong><span>CUMULATIVE SEASON SCORE</span></div>
+  </section>
 
-    <h1>Tanking Meter</h1>
+  <div class="section-head"><h2>What the system measures</h2><span>Four automated criteria</span></div>
+  <section class="criteria">
+    <article class="criterion"><span class="num">01 / BENCH POINTS</span><b>Points Left on Bench</b><small>Compares actual bench production with the points scored by the starting lineup.</small></article>
+    <article class="criterion"><span class="num">02 / LINEUP CHOICES</span><b>Better Players Benched</b><small>Looks for same-position alternatives projected to be stronger before the game.</small></article>
+    <article class="criterion"><span class="num">03 / AVAILABILITY</span><b>Inactive Players Started</b><small>Checks scheduled Sleeper status snapshots for starters marked unavailable.</small></article>
+    <article class="criterion"><span class="num">04 / EFFICIENCY</span><b>Lineup Efficiency</b><small>Measures the gap between the submitted lineup and an estimated optimal legal lineup.</small></article>
+  </section>
 
-    <p class="sub">
-        A season-long, evidence-based look at lineup decisions across all
-        14 teams. Every team is evaluated independently. A low score is
-        normal; a high score signals that the commissioner may want to
-        review the evidence.
-    </p>
+  <div class="section-head"><h2>League Tanking Index</h2><span id="seasonMeta">Loading season data…</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Manager</th><th>Tank Index</th><th>Level</th><th>Score meter</th></tr></thead>
+      <tbody id="teamRows"><tr><td colspan="5" class="empty">Connecting to Firebase…</td></tr></tbody>
+    </table>
+  </div>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--green)"></i>0.0–2.9 Normal</span>
+    <span><i class="dot" style="background:var(--yellow)"></i>3.0–4.9 Monitor</span>
+    <span><i class="dot" style="background:var(--orange)"></i>5.0–6.9 Elevated concern</span>
+    <span><i class="dot" style="background:var(--red)"></i>7.0–10.0 Commissioner review</span>
+  </div>
 
-    <section class="hero">
-        <div>
-            <h2>HOW THE INDEX WORKS</h2>
-            <p>
-                Each team begins at 0.0. The index increases only when an
-                automated check identifies a qualifying lineup decision.
-                Scores accumulate during the season and are capped at 10.0.
-                No team is penalized simply for having a poor record or a
-                weak roster.
-            </p>
-        </div>
+  <section class="lower">
+    <article class="panel"><h3>Weekly Tank Watch</h3><div id="weeklyWatch"><p class="empty">Waiting for scoreboard data.</p></div></article>
+    <article class="panel"><h3>Evidence & scoring history</h3><select id="teamSelect" class="select" aria-label="Select a team" disabled><option>Select a team</option></select><div id="evidenceHistory"><p class="empty">Select a team to review its weekly evidence and category totals.</p></div></article>
+  </section>
 
-        <div class="hero-score">
-            <strong>0.0–10.0</strong>
-            <span>CUMULATIVE SEASON SCORE</span>
-        </div>
-    </section>
-
-    <div class="section-head">
-        <h2>What the system measures</h2>
-        <span>Four automated criteria</span>
-    </div>
-
-    <section class="criteria">
-        <article class="criterion">
-            <span class="num">01 / BENCH POINTS</span>
-            <b>Points Left on Bench</b>
-            <small>
-                Compares actual bench production with the points scored
-                by the starting lineup.
-            </small>
-        </article>
-
-        <article class="criterion">
-            <span class="num">02 / LINEUP CHOICES</span>
-            <b>Better Players Benched</b>
-            <small>
-                Looks for eligible, available alternatives that were
-                clearly stronger when lineups were set.
-            </small>
-        </article>
-
-        <article class="criterion">
-            <span class="num">03 / AVAILABILITY</span>
-            <b>Inactive Players Started</b>
-            <small>
-                Checks for starters who were officially unavailable
-                before their lineup decision became locked.
-            </small>
-        </article>
-
-        <article class="criterion">
-            <span class="num">04 / EFFICIENCY</span>
-            <b>Lineup Efficiency</b>
-            <small>
-                Measures how effectively a manager used the players
-                available on their roster.
-            </small>
-        </article>
-    </section>
-
-    <div class="section-head">
-        <h2>League Tanking Index</h2>
-        <span>All 14 teams • Sample scores for layout preview</span>
-    </div>
-
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Manager</th>
-                    <th>Tank Index</th>
-                    <th>Level</th>
-                    <th>Score meter</th>
-                </tr>
-            </thead>
-            <tbody id="teamRows"></tbody>
-        </table>
-    </div>
-
-    <div class="legend">
-        <span><i class="dot" style="background:var(--green)"></i>0.0–2.9 Normal</span>
-        <span><i class="dot" style="background:var(--yellow)"></i>3.0–4.9 Monitor</span>
-        <span><i class="dot" style="background:var(--orange)"></i>5.0–6.9 Elevated concern</span>
-        <span><i class="dot" style="background:var(--red)"></i>7.0–10.0 Commissioner review</span>
-    </div>
-
-    <section class="lower">
-        <article class="panel">
-            <h3>Weekly Tank Watch</h3>
-            <div class="alert">
-                <strong>No new qualifying alerts</strong>
-                <p>
-                    When the automated weekly analysis detects a new
-                    qualifying event, it will appear here with the team,
-                    week, player decision, and reason for the flag.
-                </p>
-            </div>
-        </article>
-
-        <article class="panel">
-            <h3>Evidence & scoring history</h3>
-            <p class="empty">
-                Select a team in the live version to review its weekly
-                evidence, category totals, score changes, and the Sleeper
-                data used in each calculation.
-            </p>
-        </article>
-    </section>
-
-    <div class="note">
-        <strong>Important:</strong> A Tanking Index is an automated
-        screening tool, not a finding of intent or an automatic penalty.
-        The system must retain the evidence behind every point and avoid
-        double-counting the same lineup event.
-    </div>
-
-    <footer>
-        TCWR DYNASTY • TANKING METER • MOCKUP
-    </footer>
-
+  <div class="note"><strong>Important:</strong> A Tanking Index is an automated screening tool, not a finding of intent or an automatic penalty. Scores retain their supporting evidence. Some evidence is retrospective and requires commissioner review.</div>
+  <footer>TCWR DYNASTY • TANKING METER • LIVE FIRESTORE DATA</footer>
 </main>
 
-<script>
-const teams = [
-    ["Matt",0.0],
-    ["Sylvester",0.0],
-    ["Evelyn",0.0],
-    ["Bonnie",0.0],
-    ["Trevor",0.0],
-    ["Brittany",0.0],
-    ["Dianne",0.0],
-    ["Brad",0.0],
-    ["Emily",0.0],
-    ["Brian",0.0],
-    ["An",0.0],
-    ["Jess",0.0],
-    ["Nate",0.0],
-    ["Steven",0.0]
-];
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-function level(score) {
-    if(score>=7)
-        return ["Commissioner review","review","#ef4444"];
+const firebaseConfig = {
+  apiKey: "AIzaSyCZYJeAJjeiaUoV2s1NBjGXVYOJtixh-qk",
+  authDomain: "tcwr-dynasty.firebaseapp.com",
+  projectId: "tcwr-dynasty",
+  storageBucket: "tcwr-dynasty.firebasestorage.app",
+  messagingSenderId: "544187199777",
+  appId: "1:544187199777:web:05753208f1daee32558e60"
+};
 
-    if(score>=5)
-        return ["Elevated concern","elevated","#f97316"];
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const scoreboardRef = doc(db, "tankingMeter", "scoreboard");
 
-    if(score>=3)
-        return ["Monitor","monitor","#eab308"];
+const statusEl = document.getElementById("connectionStatus");
+const rowsEl = document.getElementById("teamRows");
+const metaEl = document.getElementById("seasonMeta");
+const watchEl = document.getElementById("weeklyWatch");
+const selectEl = document.getElementById("teamSelect");
+const evidenceEl = document.getElementById("evidenceHistory");
 
-    return ["Normal","normal","#22c55e"];
+let latestTeams = [];
+
+function safeText(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  })[ch]);
 }
+function numeric(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+function getLevel(score) {
+  if (score >= 7) return ["Commissioner review","review","#ef4444"];
+  if (score >= 5) return ["Elevated concern","elevated","#f97316"];
+  if (score >= 3) return ["Monitor","monitor","#eab308"];
+  return ["Normal","normal","#22c55e"];
+}
+function formatCategory(key) {
+  return ({
+    pointsLeftOnBench:"Points Left on Bench",
+    betterPlayersBenched:"Better Players Benched",
+    inactivePlayersStarted:"Inactive Players Started",
+    lineupEfficiency:"Lineup Efficiency"
+  })[key] || key;
+}
+function teamScore(team) {
+  return numeric(team.total ?? team.score ?? team.tankIndex);
+}
+function renderTeams(teams) {
+  const sorted = [...teams].sort((a,b) => teamScore(b)-teamScore(a) ||
+    String(a.managerName || a.teamName || "").localeCompare(String(b.managerName || b.teamName || "")));
+  if (!sorted.length) {
+    rowsEl.innerHTML = '<tr><td colspan="5" class="empty">The scoreboard document exists, but it contains no team records.</td></tr>';
+    return;
+  }
+  rowsEl.innerHTML = sorted.map((team,index) => {
+    const score = Math.max(0,Math.min(10,teamScore(team)));
+    const [label,cls,color] = getLevel(score);
+    const name = team.managerName || team.teamName || team.username || `Team ${team.rosterId ?? index+1}`;
+    return `<tr>
+      <td class="rank">${String(index+1).padStart(2,"0")}</td>
+      <td class="team">${safeText(name)}</td>
+      <td class="score">${score.toFixed(1)} / 10</td>
+      <td><span class="status ${cls}">${label}</span></td>
+      <td><div class="bar"><div class="fill" style="width:${score*10}%;background:${color}"></div></div></td>
+    </tr>`;
+  }).join("");
+}
+function getEvidence(team) {
+  return Array.isArray(team.evidence) ? team.evidence : [];
+}
+function renderWatch(teams, completedWeek) {
+  const alerts = [];
+  for (const team of teams) {
+    const name = team.managerName || team.teamName || team.username || `Team ${team.rosterId}`;
+    for (const item of getEvidence(team)) {
+      if (numeric(item.week) === numeric(completedWeek)) alerts.push({name,item});
+    }
+  }
+  if (!alerts.length) {
+    watchEl.innerHTML = `<div class="alert"><strong>No new qualifying alerts in Week ${safeText(completedWeek || "—")}</strong><p>When a qualifying event is recorded for the latest completed week, its team and evidence will appear here.</p></div>`;
+    return;
+  }
+  watchEl.innerHTML = alerts.map(({name,item}) => `<div class="alert">
+    <strong>${safeText(name)} · Week ${safeText(item.week)} · ${safeText(formatCategory(item.category || "Evidence"))}</strong>
+    <p>${safeText(item.reason || "A qualifying event was recorded.")} (+${numeric(item.pointsAwarded).toFixed(2)})</p>
+  </div>`).join("");
+}
+function renderEvidence(team) {
+  if (!team) {
+    evidenceEl.innerHTML = '<p class="empty">Select a team to review its weekly evidence and category totals.</p>';
+    return;
+  }
+  const categories = team.categories || {};
+  const categoryRows = Object.entries(categories).map(([key,value]) =>
+    `<div class="evidence-item"><div class="evidence-title">${safeText(formatCategory(key))}: ${numeric(value).toFixed(1)}</div></div>`
+  ).join("");
+  const evidence = getEvidence(team).slice().sort((a,b)=>numeric(b.week)-numeric(a.week));
+  const evidenceRows = evidence.length ? evidence.map(item => `
+    <div class="evidence-item">
+      <div class="evidence-title">Week ${safeText(item.week)} · ${safeText(formatCategory(item.category || "Evidence"))} · +${numeric(item.pointsAwarded).toFixed(2)}</div>
+      <div class="evidence-detail">${safeText(item.reason || "No description provided.")}</div>
+      ${item.caveat ? `<div class="evidence-detail"><strong>Review note:</strong> ${safeText(item.caveat)}</div>` : ""}
+    </div>`).join("") : '<p class="empty">No qualifying evidence recorded for this team.</p>';
+  evidenceEl.innerHTML = `<div class="evidence-item"><div class="evidence-title">Category totals</div>${categoryRows || '<p class="empty">No category totals available.</p>'}</div>${evidenceRows}`;
+}
+function updateTeamSelect(teams) {
+  const previous = selectEl.value;
+  selectEl.innerHTML = '<option value="">Select a team</option>' + teams.map((team,index) => {
+    const id = String(team.rosterId ?? team.username ?? index);
+    const name = team.managerName || team.teamName || team.username || `Team ${id}`;
+    return `<option value="${safeText(id)}">${safeText(name)}</option>`;
+  }).join("");
+  selectEl.disabled = teams.length === 0;
+  if (teams.some((team,index)=>String(team.rosterId ?? team.username ?? index)===previous)) {
+    selectEl.value = previous;
+  } else if (teams.length) {
+    selectEl.value = String(teams[0].rosterId ?? teams[0].username ?? 0);
+  }
+  const selected = teams.find((team,index)=>String(team.rosterId ?? team.username ?? index)===selectEl.value);
+  renderEvidence(selected);
+}
+selectEl.addEventListener("change", () => {
+  const selected = latestTeams.find((team,index)=>String(team.rosterId ?? team.username ?? index)===selectEl.value);
+  renderEvidence(selected);
+});
 
-document.getElementById("teamRows").innerHTML =
-    teams.map((team,i) => {
-        const [label,cls,color] = level(team[1]);
-
-        return `
-            <tr>
-                <td class="rank">
-                    ${String(i+1).padStart(2,"0")}
-                </td>
-
-                <td class="team">${team[0]}</td>
-
-                <td class="score">
-                    ${team[1].toFixed(1)} / 10
-                </td>
-
-                <td>
-                    <span class="status ${cls}">
-                        ${label}
-                    </span>
-                </td>
-
-                <td>
-                    <div class="bar">
-                        <div class="fill"
-                            style="width:${team[1]*10}%;background:${color}">
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join("");
+onSnapshot(scoreboardRef, snapshot => {
+  if (!snapshot.exists()) {
+    statusEl.textContent = "Scoreboard document not found";
+    statusEl.className = "connection error";
+    rowsEl.innerHTML = '<tr><td colspan="5" class="empty">Firebase is connected, but tankingMeter/scoreboard does not exist.</td></tr>';
+    return;
+  }
+  const data = snapshot.data();
+  latestTeams = Array.isArray(data.teams) ? data.teams : [];
+  const season = data.season ?? "—";
+  const week = data.completedThroughWeek ?? "—";
+  metaEl.textContent = `Season ${season} · Through Week ${week} · ${data.teamCount ?? latestTeams.length} teams`;
+  statusEl.textContent = "LIVE · FIRESTORE CONNECTED";
+  statusEl.className = "connection live";
+  renderTeams(latestTeams);
+  renderWatch(latestTeams, data.completedThroughWeek);
+  updateTeamSelect(latestTeams);
+}, error => {
+  console.error("Tanking Meter Firestore read failed:", error);
+  statusEl.textContent = "Unable to read live scoreboard";
+  statusEl.className = "connection error";
+  rowsEl.innerHTML = `<tr><td colspan="5" class="empty">Unable to load the scoreboard. Check the browser console and Firestore read permissions. (${safeText(error.code || error.message)})</td></tr>`;
+  metaEl.textContent = "Scoreboard unavailable";
+});
 </script>
-
 </body>
 </html>
